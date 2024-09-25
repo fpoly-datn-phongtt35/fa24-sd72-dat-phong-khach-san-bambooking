@@ -5,6 +5,7 @@ import TableDichVu from './components/tableDichVu';
 import TableNhanVien from './components/tableNhanVien';
 import TienNghi from './components/TienNghi';
 import FormSearch from './components/Home';
+import Upload from './components/DemoCloudinary';
 import HotelBooking from './components/BookingView';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 function App() {
@@ -21,7 +22,8 @@ function App() {
               <Header />
             </div>
             <div className="content">
-              <HotelBooking />
+              {/* <HotelBooking /> */}
+              <Upload />
             </div>
             <Routes>
               <Route path="/DichVu" element={<TableDichVu />} />
