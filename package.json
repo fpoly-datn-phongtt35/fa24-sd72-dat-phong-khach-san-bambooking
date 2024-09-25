@@ -1,11 +1,25 @@
 {
-  "dependencies": {
-    "bootstrap": "^5.3.3",
-    "date-fns": "^4.1.0",
-    "react-bootstrap": "^2.10.4",
-    "react-datepicker": "^7.4.0"
+  "name": "datn",
+  "version": "1.0.0",
+  "description": "Dự án chủ đề đặt phòng khách sạn",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "devDependencies": {
-    "sass-embedded": "^1.79.3"
-  }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ISunDevIl/DuAnTotNghiep.git"
+  },
+  "keywords": [
+    "sample",
+    "project",
+    "hotel",
+    "booking"
+  ],
+  "author": "Lương Tuấn Đạt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ISunDevIl/DuAnTotNghiep/issues"
+  },
+  "homepage": "https://github.com/ISunDevIl/DuAnTotNghiep#readme"
 }
