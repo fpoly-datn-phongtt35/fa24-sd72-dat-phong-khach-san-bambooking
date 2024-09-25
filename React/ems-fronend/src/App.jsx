@@ -5,31 +5,32 @@ import TableDichVu from './components/tableDichVu';
 import TableNhanVien from './components/tableNhanVien';
 import TienNghi from './components/TienNghi';
 import FormSearch from './components/Home';
+import HotelBooking from './components/BookingView';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 function App() {
   return (
-    <BrowserRouter>
-      <div className="app-container">
+      <BrowserRouter>
+        <div className="app-container">
 
-        <div className="slidebar">
-          <SlideBar />
-        </div>
+          <div className="slidebar">
+            <SlideBar />
+          </div>
 
-        <div className="main-content">
-          <div className="header">
-            <Header />
+          <div className="main-content">
+            <div className="header">
+              <Header />
+            </div>
+            <div className="content">
+              <HotelBooking />
+            </div>
+            <Routes>
+              <Route path="/DichVu" element={<TableDichVu />} />
+              <Route path="/NhanVien" element={<TableNhanVien />} />
+              <Route path="/TienNghi" element={<TienNghi />} />
+            </Routes>
           </div>
-          <div className="content">
-            <FormSearch />
-          </div>
-          <Routes>
-            <Route path="/DichVu" element={<TableDichVu />} />
-            <Route path="/NhanVien" element={<TableNhanVien />} />
-            <Route path="/TienNghi" element={<TienNghi />} />
-          </Routes>
         </div>
-      </div>
-    </BrowserRouter>
+      </BrowserRouter>
   );
 }
 
