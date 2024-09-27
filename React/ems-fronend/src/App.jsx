@@ -2,11 +2,9 @@ import './App.css';
 import Header from './components/Header';
 import SlideBar from './components/Slidebar';
 import TableDichVu from './components/tableDichVu';
-import TableNhanVien from './components/tableNhanVien';
+import TableNhanVien from './components/TableNhanVien';
 import TienNghi from './components/TienNghi';
-import FormSearch from './components/Home';
 import Upload from './components/DemoCloudinary';
-import HotelBooking from './components/BookingView';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 function App() {
   return (

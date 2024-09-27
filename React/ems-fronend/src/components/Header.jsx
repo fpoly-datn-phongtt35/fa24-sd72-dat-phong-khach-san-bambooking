@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import '../assets/Header.css';
 const HeaderComponents = () => {
     return (
-        <header className="navbar">
+        <header className="navbar text-bg-info">
             <button className="navbar-item">Button</button>
                 <ul className="navbar-navbar">
                     <li className="navbar-item">
