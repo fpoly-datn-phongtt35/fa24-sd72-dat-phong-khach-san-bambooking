@@ -83,10 +83,10 @@ public class PhieuDatPhongController {
         return "redirect:/phieu-dat-phong";
     }
 
-    @GetMapping("/phieu_dat_phong/search")
-    public String search(@RequestParam("maDatPhong") String ma, Model model){
-        List<DatPhong> listNew = datPhongRepository.getPhieuDatPhongByMaDatPhong(ma);
-        model.addAttribute("list", listNew);
-        return "phieu_dat_phong/index";
-    }
+//    @GetMapping("/phieu_dat_phong/search")
+//    public String search(@RequestParam("maDatPhong") String ma, Model model){
+//        List<DatPhong> listNew = datPhongRepository.f(ma);
+//        model.addAttribute("list", listNew);
+//        return "phieu_dat_phong/index";
+//    }
 }

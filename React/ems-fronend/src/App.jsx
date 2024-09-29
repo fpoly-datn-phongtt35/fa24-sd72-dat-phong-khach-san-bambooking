@@ -2,8 +2,9 @@ import './App.css';
 import Header from './components/Header';
 import SlideBar from './components/Slidebar';
 import TableDichVu from './components/tableDichVu';
-import TableNhanVien from './components/tableNhanVien';
+import DanhSach from './components/DatPhong/DanhSach';
 import TienNghi from './components/TienNghi';
+import TableNhanVien from './components/TableNhanVien';
 import FormSearch from './components/Home';
 import Upload from './components/DemoCloudinary';
 import HotelBooking from './components/BookingView';
@@ -23,12 +24,13 @@ function App() {
             </div>
             <div className="content">
               {/* <HotelBooking /> */}
-              <Upload />
+              {/* <Upload /> */}
             </div>
             <Routes>
               <Route path="/DichVu" element={<TableDichVu />} />
               <Route path="/NhanVien" element={<TableNhanVien />} />
               <Route path="/TienNghi" element={<TienNghi />} />
+              <Route path="/DatPhong" element={<DanhSach />} />
             </Routes>
           </div>
         </div>
