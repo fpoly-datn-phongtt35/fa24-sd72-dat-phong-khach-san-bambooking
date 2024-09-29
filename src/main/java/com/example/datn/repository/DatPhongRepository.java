@@ -12,10 +12,12 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
-    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.hoaDon.id, " +
-            "CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), dp.maDatPhong, dp.soLuongPhong, " +
-            "dp.thoiGianVaoDuKien, dp.thoiGianRaDuKien, dp.thoiGianDat, dp.ghiChu, dp.trangThai) " +
-            "FROM DatPhong dp WHERE dp.trangThai = :trangThai")
+    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id," +
+            " CONCAT(dp.nhanVien.ho, ' ', dp.nhanVien.ten), " +
+            "CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), dp.maDatPhong," +
+            "dp.ngayDat, dp.ghiChu, dp.trangThai) " +
+            "FROM DatPhong dp " +
+            "WHERE (:trangThai IS NULL OR :trangThai = '' OR dp.trangThai = :trangThai)")
     Page<DatPhongResponse> DatPhongTheoTrangThai(@Param("trangThai") String trangThai, Pageable pageable);
 }
 

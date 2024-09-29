@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DanhSachDatPhong } from '../../services/DatPhong';
-import './DatPhongCSS.css'
+import { Link } from 'react-router-dom';
+import './DanhSachCSS.css'
 const DanhSach = () => {
     const [data, setData] = useState([]); // Dữ liệu
     const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
@@ -25,7 +26,7 @@ const DanhSach = () => {
     // };
 
     const getAllSanPham = () => {
-        DanhSachDatPhong({ page: currentPage, size: itemsPerPage }, "Hoạt động")
+        DanhSachDatPhong({ page: currentPage, size: itemsPerPage }, "")
             .then((response) => {
                 setData(response.data.content);
                 setTotalPages(response.data.totalPages);
@@ -62,16 +63,19 @@ const DanhSach = () => {
                         <div key={dp.id} className="booking-card">
                             <div className="booking-header">
                                 <h3>Mã đặt phòng: {dp.maDatPhong}</h3>
-                                <span className={`status ${dp.trangThai === "Hoạt động" ? "active" : "inactive"}`}>
-                                    {dp.trangThai}
-                                </span>
+
+                                <div>
+                                    <span className={`status ${dp.trangThai === "confirmed" ? "confirmed" : dp.trangThai === "unconfirmed" ? "unconfirmed" : dp.trangThai === "processing" ? "processing" : "canceled"}`}>
+                                        {dp.trangThai}
+                                    </span>
+                                </div>
+
+
                             </div>
                             <div className="booking-body">
+                                <p><strong>Nhân viên:</strong> {dp.tenNhanVien}</p>
                                 <p><strong>Khách hàng:</strong> {dp.tenKhachHang}</p>
-                                <p><strong>Số lượng phòng:</strong> {dp.soLuongPhong}</p>
-                                <p><strong>Thời gian vào dự kiến:</strong> {dp.thoiGianVaoDuKien}</p>
-                                <p><strong>Thời gian ra dự kiến:</strong> {dp.thoiGianRaDuKien}</p>
-                                <p><strong>Thời gian đặt:</strong> {dp.thoiGianDat}</p>
+                                <p><strong>Thời gian đặt:</strong> {dp.ngayDat}</p>
                                 <p><strong>Ghi chú:</strong> {dp.ghiChu}</p>
                             </div>
                         </div>
@@ -87,7 +91,7 @@ const DanhSach = () => {
                 <button className="btn btn-success" onClick={handlePreviousPage} disabled={currentPage === 0}>
                     Trang trước
                 </button>
-                
+
                 <span>Trang hiện tại: {currentPage + 1} / {totalPages}</span>
                 <button className="btn btn-success" onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>
                     Trang sau

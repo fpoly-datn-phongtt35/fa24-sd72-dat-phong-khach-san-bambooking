@@ -21,7 +21,7 @@ public class DatPhongController {
 
     @GetMapping("hien-thi")
     public ResponseEntity<?> getAllSanPham(
-            @RequestParam(defaultValue = "Hoạt động") String trangThai,
+            @RequestParam() String trangThai,
             Pageable pageable
     ) {
         Page<DatPhongResponse> dp = phongServiceIMPL.getByTrangThai(trangThai, pageable);

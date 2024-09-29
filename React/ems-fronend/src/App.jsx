@@ -2,7 +2,7 @@ import './App.css';
 import Header from './components/Header';
 import SlideBar from './components/Slidebar';
 import TableDichVu from './components/tableDichVu';
-import DanhSach from './components/DatPhong/DanhSach';
+import DatPhong from './components/DatPhong/DatPhong';
 import TienNghi from './components/TienNghi';
 import TableNhanVien from './components/TableNhanVien';
 import FormSearch from './components/Home';
@@ -30,7 +30,7 @@ function App() {
               <Route path="/DichVu" element={<TableDichVu />} />
               <Route path="/NhanVien" element={<TableNhanVien />} />
               <Route path="/TienNghi" element={<TienNghi />} />
-              <Route path="/DatPhong" element={<DanhSach />} />
+              <Route path="/DatPhong" element={<DatPhong />} />
             </Routes>
           </div>
         </div>

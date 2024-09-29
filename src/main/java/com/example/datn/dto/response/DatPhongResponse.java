@@ -17,33 +17,24 @@ import java.time.format.DateTimeFormatter;
 
 public class DatPhongResponse {
     private Integer id;
-    private Integer idHoaDon;
+    private String tenNhanVien;
     private String tenKhachHang;
     private String maDatPhong;
-    private Integer soLuongPhong;
-    private String thoiGianVaoDuKien;
-    private String thoiGianRaDuKien;
-    private String thoiGianDat;
+    private String ngayDat;
     private String ghiChu;
     private String trangThai;
 
-    public DatPhongResponse(Integer id, Integer idHoaDon, String tenKhachHang, String maDatPhong,
-                            Integer soLuongPhong, LocalDateTime thoiGianVaoDuKien,
-                            LocalDateTime thoiGianRaDuKien, LocalDateTime thoiGianDat,
-                            String ghiChu, String trangThai) {
+    public DatPhongResponse(Integer id, String tenNhanVien, String tenKhachHang, String maDatPhong,
+                            LocalDateTime ngayDat, String ghiChu, String trangThai) {
         this.id = id;
-        this.idHoaDon = idHoaDon;
+        this.tenNhanVien = tenNhanVien;
         this.tenKhachHang = tenKhachHang;
         this.maDatPhong = maDatPhong;
-        this.soLuongPhong = soLuongPhong;
-        this.thoiGianVaoDuKien = formatDateTime(thoiGianVaoDuKien);
-        this.thoiGianRaDuKien = formatDateTime(thoiGianRaDuKien);
-        this.thoiGianDat = formatDateTime(thoiGianDat);
+        this.ngayDat = formatDateTime(ngayDat);
         this.ghiChu = ghiChu;
         this.trangThai = trangThai;
     }
 
-    // Hàm để định dạng LocalDateTime thành chuỗi theo định dạng "hh:mm a dd-M-yyyy"
     private String formatDateTime(LocalDateTime dateTime) {
         if (dateTime == null) {
             return null;

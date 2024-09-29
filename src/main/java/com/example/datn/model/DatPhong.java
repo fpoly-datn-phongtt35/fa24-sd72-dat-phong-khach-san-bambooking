@@ -19,9 +19,9 @@ public class DatPhong {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @JoinColumn(name = "id_hoa_don")
+    @JoinColumn(name = "id_nhan_vien")
     @ManyToOne
-    private HoaDon hoaDon;
+    private NhanVien nhanVien;
 
     @ManyToOne
     @JoinColumn(name = "id_khach_hang")
@@ -29,17 +29,9 @@ public class DatPhong {
 
     @Column(name = "ma_dat_phong")
     private String maDatPhong;
-    @Column(name = "so_luong_phong")
-    private Integer soLuongPhong;
 
-
-    @Column(name = "thoi_gian_vao_du_kien")
-    private LocalDateTime thoiGianVaoDuKien;
-    @Column(name = "thoi_gian_ra_du_kien")
-    private LocalDateTime thoiGianRaDuKien;
-
-    @Column(name = "thoi_gian_dat")
-    private LocalDateTime thoiGianDat;
+    @Column(name = "ngay_dat")
+    private LocalDateTime ngayDat;
 
     @Column(name = "ghi_chu")
     private String ghiChu;
