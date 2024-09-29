@@ -29,6 +29,11 @@ public class PhongController {
         return ResponseEntity.status(HttpStatus.CREATED).body(phongService.createPhong(request));
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<?> getOneRoom(@PathVariable("id") Integer id){
+        return ResponseEntity.ok(phongService.getOnePhong(id));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePhong(@PathVariable("id") Integer id, @RequestBody @Valid PhongRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(phongService.updatePhong(id, request));
@@ -37,5 +42,10 @@ public class PhongController {
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateStatusRoom(@PathVariable("id") Integer id) {
         return ResponseEntity.status(HttpStatus.OK).body(phongService.updateStatus(id));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchPhong(@RequestParam("keyword") String keyword, Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(phongService.searchPhong(keyword, pageable));
     }
 }

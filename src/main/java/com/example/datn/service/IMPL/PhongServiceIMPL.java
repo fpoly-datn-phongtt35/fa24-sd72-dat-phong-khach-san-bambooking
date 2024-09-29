@@ -79,6 +79,6 @@ public class PhongServiceIMPL implements PhongService {
 
     @Override
     public Page<Phong> searchPhong(String keyword, Pageable pageable) {
-        return null;
+        return phongRepository.search(keyword, pageable);
     }
 }
