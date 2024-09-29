@@ -1,23 +1,18 @@
 package com.example.datn.service;
 
+import com.example.datn.dto.request.PhongRequest;
+import com.example.datn.dto.response.PhongResponse;
 import com.example.datn.model.Phong;
-
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PhongService {
-
-    List<Phong> getAll();
-
-    public void add(Phong phong);
-
-    public Phong detailPhong(Integer id);
-
-    public void updateStatusPhong(Integer id);
-
-    public void update(Phong phong);
-
-    public List<Phong> findByLoaiPhong(Integer id);
+    Page<Phong> getAllPhong(Pageable pageable);
+    Phong createPhong(PhongRequest request);
+    PhongResponse getOnePhong(Integer id);
+    PhongResponse updatePhong(Integer id, PhongRequest request);
+    Boolean updateStatus(Integer id);
+    Page<Phong> searchPhong(String keyword, Pageable pageable);
 
 
 }

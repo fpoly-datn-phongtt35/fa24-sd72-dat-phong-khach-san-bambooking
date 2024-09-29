@@ -1,48 +1,41 @@
 package com.example.datn.controller;
 
-import com.example.datn.model.Phong;
-import com.example.datn.service.IMPL.PhongServiceIMPL;
+import com.example.datn.dto.request.PhongRequest;
 import com.example.datn.service.PhongService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Arrays;
-import java.util.List;
 
-@CrossOrigin
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/phong")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PhongController {
-    @Autowired
-    PhongServiceIMPL phongServiceIMPL;
+    PhongService phongService;
 
-    @GetMapping("/home")
-    public List<Phong> home(){
-        return phongServiceIMPL.getAll();
+    @GetMapping("")
+    public ResponseEntity<?> getAllPhong(Pageable pageable) {
+        return ResponseEntity.ok(phongService.getAllPhong(pageable).getContent());
     }
 
-    @PostMapping("/add")
-    public String add(Phong phong){
-        phongServiceIMPL.add(phong);
-        return "redirect:/phong/home";
+    @PostMapping("")
+    public ResponseEntity<?> createPhong(@RequestBody @Valid PhongRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(phongService.createPhong(request));
     }
 
-    @PostMapping("/update")
-    public String update(Phong phong){
-        phongServiceIMPL.update(phong);
-        return "redirect:/phong/home";
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePhong(@PathVariable("id") Integer id, @RequestBody @Valid PhongRequest request) {
+        return ResponseEntity.status(HttpStatus.OK).body(phongService.updatePhong(id, request));
     }
 
-    @GetMapping("/update-status")
-    public String updateStatus(@RequestParam("id") int id){
-        phongServiceIMPL.updateStatusPhong(id);
-        return "redirect:/phong/home";
-    }
-
-    @ModelAttribute("listTinhTrang")
-    public List<String> tinhTrang(Model model){
-        List<String> list = Arrays.asList("Trống", "Đã đặt phòng", "Có khách");
-        return list;
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> updateStatusRoom(@PathVariable("id") Integer id) {
+        return ResponseEntity.status(HttpStatus.OK).body(phongService.updateStatus(id));
     }
 }

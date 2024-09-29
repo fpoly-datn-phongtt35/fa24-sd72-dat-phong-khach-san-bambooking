@@ -1,75 +1,84 @@
 package com.example.datn.service.IMPL;
 
+import com.example.datn.dto.request.PhongRequest;
+import com.example.datn.dto.response.PhongResponse;
+import com.example.datn.mapper.PhongMapper;
+import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.Phong;
+import com.example.datn.repository.LoaiPhongRepository;
 import com.example.datn.repository.PhongRepository;
 import com.example.datn.service.PhongService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class PhongServiceIMPL implements PhongService {
-    @Autowired
     PhongRepository phongRepository;
+    LoaiPhongRepository loaiPhongRepository;
+    PhongMapper phongMapper;
 
 
     @Override
-    public List<Phong> getAll() {
-
-        return phongRepository.findAll();
+    public Page<Phong> getAllPhong(Pageable pageable) {
+        return phongRepository.findAll(pageable);
     }
 
     @Override
-
-    public void add(Phong phong) {
-
-        phongRepository.save(phong);
+    public Phong createPhong(PhongRequest request) {
+        LoaiPhong loaiPhong = loaiPhongRepository.findById(request.getIdLoaiPhong())
+                .orElseThrow(() -> new RuntimeException("ID type room not found: " + request.getIdLoaiPhong()));
+        Phong phong = phongMapper.toPhong(request);
+        phong.setLoaiPhong(loaiPhong);
+        return phongRepository.save(phong);
     }
 
     @Override
-    public Phong detailPhong(Integer id) {
-
-        return phongRepository.findById(id).get();
+    public PhongResponse getOnePhong(Integer id) {
+        Phong phong = phongRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ID not found: " + id));
+        return phongMapper.toPhongResponse(phong);
     }
 
     @Override
-    public void update(Phong phong) {
-        phongRepository.save(phong);
+    public PhongResponse updatePhong(Integer id, PhongRequest request) {
+        Phong phong = phongRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ID not found: " + id));
 
-    }
-
-
-
-    //
-//    @Override
-//    public void updateStatusPhong(Integer id) {
-//        Phong phong = phongRepo.findById(id).orElse(null);
-//        if (phong != null) {
-//            if (phong.getTrangThai().equals("Không trống")){
-//                phong.setTrangThai("Trống");
-//            }else {
-//                phong.setTrangThai("Không trống");
-//            }
-//            phongRepo.save(phong);
-//        }
-//
-//    }
-    @Override
-    public void updateStatusPhong(Integer id) {
-        Phong phong = phongRepository.findById(id).orElse(null);
-        if (phong != null) {
-            if (phong.getTrangThai().equals("Hoạt động")){
-                phong.setTrangThai("Không hoạt động");
-            }else {
-                phong.setTrangThai("Hoạt động");
-            }
-            phongRepository.save(phong);
+        if (request.getIdLoaiPhong() != null) {
+            LoaiPhong loaiPhong = loaiPhongRepository.findById(request.getIdLoaiPhong())
+                    .orElseThrow(() -> new RuntimeException("ID type room not found: " + id));
+            phong.setLoaiPhong(loaiPhong);
         }
 
+        phong.setMaPhong(request.getMaPhong());
+        phong.setTenPhong(request.getTenPhong());
+        phong.setTinhTrang(request.getTinhTrang());
+        phong.setTrangThai(request.getTrangThai());
+        phong = phongRepository.save(phong);
+        return phongMapper.toPhongResponse(phong);
     }
+
     @Override
-    public List<Phong> findByLoaiPhong(Integer id) {
-        return phongRepository.findPhongsByLoaiPhong_Id(id);
+    public Boolean updateStatus(Integer id) {
+        Phong phong = phongRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ID room not found: " + id));
+        if (phong.getTrangThai().equals("Hoạt động")){
+            phong.setTrangThai("Ngừng hoạt động");
+        }else {
+            phong.setTrangThai("Hoạt động");
+        }
+        phongRepository.save(phong);
+        return true;
+    }
+
+    @Override
+    public Page<Phong> searchPhong(String keyword, Pageable pageable) {
+        return null;
     }
 }

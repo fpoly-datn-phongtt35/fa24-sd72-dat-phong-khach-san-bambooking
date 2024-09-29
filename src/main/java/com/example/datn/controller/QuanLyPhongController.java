@@ -18,34 +18,7 @@ import java.util.List;
 public class QuanLyPhongController {
 
 
-    @Autowired
-    PhongServiceIMPL phongServiceIMPL;
 
-
-    @Autowired
-    LoaiPhongRepository loaiPhongRepository;
-
-    @GetMapping("/Phong")
-    public String home(Model model) {
-        List<Phong> listPhong = new ArrayList<>();
-        List<Phong> listPhong1 = new ArrayList<>();
-        model.addAttribute("listLoaiPhong",loaiPhongRepository.findAll());
-        for(LoaiPhong loaiPhong:loaiPhongRepository.findAll()){
-
-            model.addAttribute("listPhong"+loaiPhong.getId(),phongServiceIMPL.findByLoaiPhong(loaiPhong.getId()));
-            System.out.println("listPhong"+loaiPhong.getId());
-            if(loaiPhong.getId()==1){
-                listPhong1 = phongServiceIMPL.findByLoaiPhong(loaiPhong.getId());
-            }
-        }
-
-        for(Phong p:listPhong1){
-            System.out.println(p.getId());
-            System.out.println(p.getMaPhong());
-            System.out.println(p.getTenPhong());
-        }
-        return "/GiaoDienTaiQuay/QuanLyPhong";
-    }
 
 
 }
