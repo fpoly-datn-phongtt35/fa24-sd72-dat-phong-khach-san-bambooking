@@ -13,6 +13,7 @@ public class PhongMapper {
         Phong phong = new Phong();
         phong.setMaPhong(request.getMaPhong());
         phong.setTenPhong(request.getTenPhong());
+        phong.setGiaPhong(request.getGiaPhong());
         phong.setTinhTrang(request.getTinhTrang());
         phong.setTrangThai(request.getTrangThai());
 
@@ -29,6 +30,7 @@ public class PhongMapper {
         response.setLoaiPhong(phong.getLoaiPhong());
         response.setMaPhong(phong.getMaPhong());
         response.setTenPhong(phong.getTenPhong());
+        response.setGiaPhong(phong.getGiaPhong());
         response.setTinhTrang(phong.getTinhTrang());
         response.setTrangThai(phong.getTrangThai());
         return response;

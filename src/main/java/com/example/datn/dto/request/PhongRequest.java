@@ -19,6 +19,8 @@ public class PhongRequest {
     String maPhong;
     @NotBlank(message = "Tên phòng không được để trống!")
     String tenPhong;
+    @NotNull(message = "Giá phòng không được để trống!")
+    Double giaPhong;
     @NotBlank(message = "Tình trạng không được để trống!")
     String tinhTrang;
     @NotBlank(message = "Trạng thái không được để trống!")
