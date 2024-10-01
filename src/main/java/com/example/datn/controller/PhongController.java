@@ -21,7 +21,7 @@ public class PhongController {
 
     @GetMapping("")
     public ResponseEntity<?> getAllPhong(Pageable pageable) {
-        return ResponseEntity.ok(phongService.getAllPhong(pageable).getContent());
+        return ResponseEntity.ok(phongService.getAllPhong(pageable));
     }
 
     @PostMapping("")
@@ -39,13 +39,13 @@ public class PhongController {
         return ResponseEntity.status(HttpStatus.OK).body(phongService.updatePhong(id, request));
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/status/{id}")
     public ResponseEntity<?> updateStatusRoom(@PathVariable("id") Integer id) {
         return ResponseEntity.status(HttpStatus.OK).body(phongService.updateStatus(id));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchPhong(@RequestParam("keyword") String keyword, Pageable pageable){
+    public ResponseEntity<?> searchPhong(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(phongService.searchPhong(keyword, pageable));
     }
 }

@@ -58,6 +58,7 @@ public class PhongServiceIMPL implements PhongService {
 
         phong.setMaPhong(request.getMaPhong());
         phong.setTenPhong(request.getTenPhong());
+        phong.setGiaPhong(request.getGiaPhong());
         phong.setTinhTrang(request.getTinhTrang());
         phong.setTrangThai(request.getTrangThai());
         phong = phongRepository.save(phong);

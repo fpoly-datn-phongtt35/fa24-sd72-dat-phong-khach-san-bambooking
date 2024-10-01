@@ -13,7 +13,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PhongRequest {
-    @NotNull(message = "ID loại phòng không được để trống!")
+    @NotNull(message = "Vui lòng chọn loại phòng!")
     Integer idLoaiPhong;
     @NotBlank(message = "Mã phòng không được để trống!")
     String maPhong;
@@ -23,6 +23,6 @@ public class PhongRequest {
     Double giaPhong;
     @NotBlank(message = "Tình trạng không được để trống!")
     String tinhTrang;
-    @NotBlank(message = "Trạng thái không được để trống!")
+    @NotBlank(message = "Vui lòng chọn trạng thái!")
     String trangThai;
 }

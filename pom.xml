@@ -74,6 +74,13 @@
             <version>1.38.0</version>
         </dependency>
 
+        <!--Spring HATEOAS giúp tạo ra JSON có phân trang một cách chuẩn-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-hateoas</artifactId>
+        </dependency>
+
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>

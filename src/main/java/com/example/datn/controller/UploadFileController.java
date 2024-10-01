@@ -25,10 +25,7 @@ public class UploadFileController {
     UploadImageFileService uploadImageFile;
 
     @GetMapping("/list")
-    public ResponseEntity<Page<HinhAnhResponse>> getImages(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public ResponseEntity<Page<HinhAnhResponse>> getImages(Pageable pageable) {
         Page<HinhAnh> imagesPage = uploadImageFile.getAllImages(pageable);
 
         Page<HinhAnhResponse> responsePage = imagesPage.map(image -> {
@@ -46,7 +43,7 @@ public class UploadFileController {
         return ResponseEntity.ok(responsePage);
     }
 
-    @PostMapping("/url")
+    @PostMapping("/upload")
     public ResponseEntity<?> uploadImage(
             @RequestParam("file") MultipartFile file,
             @RequestParam("idPhong") Integer idPhong,
