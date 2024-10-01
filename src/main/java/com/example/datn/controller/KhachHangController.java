@@ -1,29 +1,30 @@
 package com.example.datn.controller;
 
+import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.model.KhachHang;
 import com.example.datn.service.IMPL.KhachHangServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Controller
+@CrossOrigin
+@RestController
+@RequestMapping("/khach-hang")
 public class KhachHangController {
     @Autowired
     KhachHangServiceIMPL khachHangServiceIMPL;
 
-    @GetMapping("/khach-hang")
-    public String khachHangHom(Model model) {
-        List<KhachHang> list = khachHangServiceIMPL.getAll();
-        model.addAttribute("list", list);
-        return "/KhachHang/index";
+    @GetMapping("hien-thi")
+    public ResponseEntity<?> HienThiKhachHang() {
+        List<KhachHang> kh = khachHangServiceIMPL.getAll();
+        return ResponseEntity.ok(kh);
     }
     @GetMapping("/khach-hang/view-add")
     public String view_add(Model model) {

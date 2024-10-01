@@ -1,5 +1,6 @@
 package com.example.datn.service;
 
+import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.model.DatPhong;
 import org.springframework.data.domain.Page;
@@ -11,7 +12,10 @@ public interface DatPhongService {
 
     Page<DatPhongResponse> getByTrangThai(String tt, Pageable pageable);
     List<DatPhong> getAll();
-    Boolean add(DatPhong datPhong);
+    DatPhong addDatPhong(DatPhongRequest datPhongRequest);
+
+    DatPhongResponse detailDatPhong(Integer id);
+    DatPhongResponse updateDatPhong(Integer id,DatPhongRequest datPhongRequest);
     Boolean update(DatPhong datPhong);
     Boolean delete(Integer id);
 }
