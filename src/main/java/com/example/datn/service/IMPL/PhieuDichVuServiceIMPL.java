@@ -36,4 +36,17 @@ public class PhieuDichVuServiceIMPL implements PhieuDichVuService {
     public void deletePhieuDichVu(Integer id) {
         phieuDichVuRepo.deleteById(id);
     }
+
+    @Override
+    public void updateStatus(Integer id) {
+        PhieuDichVu phieuDichVu = phieuDichVuRepo.findById(id).orElse(null);
+        if (phieuDichVu != null) {
+            if (phieuDichVu.getTrangThai().equals("Hoạt động")) {
+                phieuDichVu.setTrangThai("Ngừng hoạt động");
+            } else {
+                phieuDichVu.setTrangThai("Hoạt động");
+            }
+            phieuDichVuRepo.save(phieuDichVu);
+        }
+    }
 }

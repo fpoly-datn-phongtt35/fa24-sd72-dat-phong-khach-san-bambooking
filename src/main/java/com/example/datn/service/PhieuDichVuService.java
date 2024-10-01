@@ -11,4 +11,5 @@ public interface PhieuDichVuService {
     PhieuDichVu detailPhieuDichVu(Integer id);
     void updatePhieuDichVu(PhieuDichVu phieuDichVu);
     void deletePhieuDichVu(Integer id);
+    void updateStatus(Integer id);
 }

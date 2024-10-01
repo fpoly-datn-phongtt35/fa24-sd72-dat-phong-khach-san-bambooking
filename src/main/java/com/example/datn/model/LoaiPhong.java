@@ -31,8 +31,6 @@ public class LoaiPhong {
 
     @Column(name = "suc_chua_nho")
     private Integer sucChuaNho;
-    @Column(name = "gia_phong")
-    private Double giaPhong;
 
     @Column(name = "mo_ta")
     private String moTa;
