@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
 import ListImage from './components/HinhAnh/ListImage';
+import HinhAnh from './components/HinhAnh/HinhAnh';
 function App() {
   return (
     <BrowserRouter>
@@ -38,6 +39,7 @@ function App() {
 
             {/*Image */}
             <Route path='/hinh-anh' element={<ListImage />}></Route>
+            <Route path='/add-hinh-anh' element={<HinhAnh />}></Route>
           </Routes>
 
 

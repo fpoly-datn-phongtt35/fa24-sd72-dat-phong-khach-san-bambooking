@@ -117,6 +117,11 @@ public class UploadImageFileServiceImpl implements UploadImageFileService {
         return true;
     }
 
+    @Override
+    public Page<HinhAnh> searchHinhAnh(String keyword, Pageable pageable) {
+        return hinhAnhRepository.search(keyword, pageable);
+    }
+
 
     private File convert(MultipartFile file) throws IOException {
         assert file.getOriginalFilename() != null;

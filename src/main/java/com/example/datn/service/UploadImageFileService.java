@@ -14,4 +14,5 @@ public interface UploadImageFileService {
     HinhAnhResponse uploadImage(HinhAnhRequest request, MultipartFile file) throws IOException;
     String getImageUrl(Integer id);
     boolean deleteImage(Integer id);
+    Page<HinhAnh> searchHinhAnh(String keyword, Pageable pageable);
 }

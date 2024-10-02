@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
+@CrossOrigin("*")
 @RequestMapping("/image")
 @RestController
 @RequiredArgsConstructor
@@ -24,8 +25,8 @@ import java.io.IOException;
 public class UploadFileController {
     UploadImageFileService uploadImageFile;
 
-    @GetMapping("/list")
-    public ResponseEntity<Page<HinhAnhResponse>> getImages(Pageable pageable) {
+    @GetMapping("")
+    public ResponseEntity<?> getImages(Pageable pageable) {
         Page<HinhAnh> imagesPage = uploadImageFile.getAllImages(pageable);
 
         Page<HinhAnhResponse> responsePage = imagesPage.map(image -> {
@@ -36,6 +37,7 @@ public class UploadFileController {
             response.setTrangThai(image.getTrangThai());
             if (image.getPhong() != null) {
                 response.setIdPhong(image.getPhong().getId());
+                response.setTenPhong(image.getPhong().getTenPhong());
             }
             return response;
         });
@@ -76,6 +78,11 @@ public class UploadFileController {
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Hình ảnh không tồn tại.");
         }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> search(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(uploadImageFile.searchHinhAnh(keyword, pageable));
     }
     
 }
