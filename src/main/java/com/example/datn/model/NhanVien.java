@@ -40,10 +40,10 @@ public class NhanVien {
     private String email;
 
     @Column(name = "ngay_tao")
-    private LocalDateTime ngayTao;
+    private String ngayTao;
 
     @Column(name = "ngay_sua")
-    private LocalDateTime ngaySua;
+    private String ngaySua;
 
     @Column(name = "trang_thai")
     private String trangThai;

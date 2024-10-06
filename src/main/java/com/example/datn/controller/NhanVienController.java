@@ -1,69 +1,55 @@
 package com.example.datn.controller;
 
 import com.example.datn.model.NhanVien;
-import com.example.datn.service.IMPL.NhanVienServiceIMPL;
+import com.example.datn.service.NhanVienService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
-@CrossOrigin("*")
+//@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*")
+
 @RestController
 public class NhanVienController {
     @Autowired
-    NhanVienServiceIMPL nhanVienServiceIMPL;
+    NhanVienService nhanVienService;
 
     @GetMapping("/nhan-vien")
-    public List<NhanVien> nhanVienHome() {
-        return nhanVienServiceIMPL.getAll();
+    public Page<NhanVien> getAll(Pageable pageable){
+        return nhanVienService.getAll(pageable);
     }
 
-    @GetMapping("/nhan-vien/view-add")
-    public String view_add(Model model) {
-        model.addAttribute("nhanVien", new NhanVien());
-        return "/nhanVien/add";
-    }
-
-    @PostMapping("/nhan-vien/add")
-    public String add(@ModelAttribute("nhanVien") NhanVien nhanVien) {
-        LocalDateTime now = LocalDateTime.now();
-        nhanVien.setNgayTao(now);
-        nhanVien.setNgaySua(now);
-        nhanVienServiceIMPL.addNhanVien(nhanVien);
-        return "redirect:/nhan-vien";
-    }
-
-    @GetMapping("/nhan-vien/detail/{id}")
-    public String detail(@PathVariable("id") Integer id, Model model) {
-        NhanVien nhanVienDetail = nhanVienServiceIMPL.findById(id);
-        model.addAttribute("nvdetail", nhanVienDetail);
-        return "/nhanVien/update";
-    }
-    @PostMapping("/nhan-vien/update")
-    public String update(@ModelAttribute("nhanVien") NhanVien nhanVien) {
-        nhanVienServiceIMPL.updateNhanVien(nhanVien);
-        return "redirect:/nhan-vien";
-    }
-
-    @GetMapping("/nhan-vien/status/{id}")
-    public String status(@PathVariable("id") Integer id) {
-        nhanVienServiceIMPL.updateTrangThaiNhanVien(id);
-        return "redirect:/nhan-vien";
-    }
-
-    @GetMapping("/nhan-vien/search")
-    public String search(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
-        List<NhanVien> list;
-
-        if (keyword != null && !keyword.isEmpty()) {
-            list = nhanVienServiceIMPL.search(keyword);
-        } else {
-            list = nhanVienServiceIMPL.getAll();
+    @PostMapping("/add/nhan-vien")
+    public ResponseEntity<String> add(@RequestBody NhanVien nhanVien) {
+        try {
+            nhanVienService.create(nhanVien);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Nhân viên đã được thêm thành công");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi thêm nhân viên: " + e.getMessage());
         }
-        model.addAttribute("list", list);
-        return "nhanVien/index";
+    }
+
+    @PutMapping("/update/nhan-vien/{id}")
+    public ResponseEntity<String> update(@PathVariable Integer id, @RequestBody NhanVien nhanVien) {
+        try {
+            // Gọi hàm trong service để cập nhật nhân viên, có thể cần kiểm tra ID
+            nhanVien.setId(id); // Đảm bảo rằng đối tượng nhanVien có ID chính xác
+            nhanVienService.update(nhanVien);
+            return ResponseEntity.status(HttpStatus.OK).body("Nhân viên đã được cập nhật thành công");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi cập nhật nhân viên: " + e.getMessage());
+        }
+    }
+
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteNhanVien(@PathVariable Integer id) {
+        // Logic xóa nhân viên
+        nhanVienService.deleteNhanVien(id);
+        return ResponseEntity.ok("Nhân viên đã được xóa thành công!");
     }
 
 

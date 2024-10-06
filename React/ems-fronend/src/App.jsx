@@ -2,10 +2,13 @@ import './App.css';
 import Header from './components/Header';
 import SlideBar from './components/Slidebar';
 import TableDichVu from './components/tableDichVu';
-import TableNhanVien from './components/TableNhanVien';
+import ListNhanVien from './components/nhanvien/ListNhanVien';
 import TienNghi from './components/TienNghi';
 import Upload from './components/DemoCloudinary';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import NhanVienComponent from './components/nhanvien/NhanVienComponent';
+import ListTaiKhoan from './components/taikhoan/ListTaiKhoan';
+import ListVaiTro from './components/vaitro/ListVaiTro';
 function App() {
   return (
       <BrowserRouter>
@@ -24,9 +27,12 @@ function App() {
               <Upload />
             </div>
             <Routes>
-              <Route path="/DichVu" element={<TableDichVu />} />
-              <Route path="/NhanVien" element={<TableNhanVien />} />
-              <Route path="/TienNghi" element={<TienNghi />} />
+              <Route path="/DichVu" element = {<TableDichVu />} />
+              <Route path="/NhanVien" element = {<ListNhanVien />} />
+              <Route path="/TaiKhoan" element = {<ListTaiKhoan />} />
+              <Route path="/VaiTro" element = {<ListVaiTro />} />
+              <Route path='/add-nhanvien' element = {<NhanVienComponent />} />
+              <Route path="/TienNghi" element = {<TienNghi />} />
             </Routes>
           </div>
         </div>
