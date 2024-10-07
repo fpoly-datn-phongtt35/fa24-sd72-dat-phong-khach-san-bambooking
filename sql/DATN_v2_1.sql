@@ -35,8 +35,8 @@ CREATE TABLE nhan_vien (
 
 CREATE TABLE khach_hang (
   id INT IDENTITY(1,1) PRIMARY KEY,
-  id_tai_khoan INT,
-  ho NVARCHAR(255),
+  id_tai_khoan INT NULL,
+  ho NVARCHAR(255), 
   ten NVARCHAR(255),
   gioi_tinh NVARCHAR(255),
   quoc_gia NVARCHAR(255),

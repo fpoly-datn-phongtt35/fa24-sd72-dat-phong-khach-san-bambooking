@@ -81,9 +81,6 @@ const ListPhong = () => {
                         </div>
                     </div>
 
-
-
-
                     <table className='table table-hover'>
                         <thead>
                             <tr>
