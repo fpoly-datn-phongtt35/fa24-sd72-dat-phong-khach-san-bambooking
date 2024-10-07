@@ -51,6 +51,10 @@ public class NhanVienServiceIMPL implements NhanVienService{
         }
     }
 
+    @Override
+    public List<NhanVien> searchNhanVien(String keyword) {
+        return nhanVienRepository.searchByName(keyword);
+    }
 
 
 }

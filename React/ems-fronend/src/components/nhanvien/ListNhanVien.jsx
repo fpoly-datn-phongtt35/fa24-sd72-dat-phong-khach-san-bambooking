@@ -110,6 +110,17 @@ const ListNhanVien = () => {
                 <button className='btn btn-outline-success btn-lg fs-6' onClick={addNewNhanVien}>
                     <i className='bi bi-plus-circle'></i> Thêm
                 </button>
+
+                <div className="input-group ms-2 w-25">
+                            <input
+                                type="text"
+                                className='form-control form-control-lg fs-6'
+                                placeholder='Tìm kiếm phòng...'
+                                value={searchQuery}
+                                onChange={handleSearchInput}
+                            />
+                </div>
+                
             </div>
             <div className='card'>
                 <div className='card-body'>

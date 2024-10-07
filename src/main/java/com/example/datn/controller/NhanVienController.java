@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 //@CrossOrigin(origins = "*")
 @CrossOrigin(origins = "*")
 
@@ -52,5 +54,8 @@ public class NhanVienController {
         return ResponseEntity.ok("Nhân viên đã được xóa thành công!");
     }
 
-
+    @GetMapping("/search")
+    public List<NhanVien> searchNhanVien(@RequestParam("keyword") String keyword) {
+        return nhanVienService.searchNhanVien(keyword);
+    }
 }
