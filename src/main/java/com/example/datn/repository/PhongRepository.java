@@ -1,3 +1,4 @@
+
     package com.example.datn.repository;
 
     import com.example.datn.model.Phong;
@@ -22,3 +23,4 @@
                 """)
         Page<Phong> search(@Param("keyword") String keyword, Pageable pageable);
     }
+

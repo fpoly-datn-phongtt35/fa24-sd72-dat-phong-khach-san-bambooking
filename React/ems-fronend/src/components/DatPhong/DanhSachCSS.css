@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .main-container {
     display: flex;
     align-items: flex-start;
@@ -19,6 +20,13 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr); /* 3 cột */
     gap: 20px;
+=======
+.booking-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 10px;
+>>>>>>> long
 }
 
 .booking-card {
@@ -38,7 +46,14 @@
 }
 
 .booking-header {
+<<<<<<< HEAD
     margin-bottom: 10px; /* Khoảng cách dưới tiêu đề */
+=======
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+>>>>>>> long
 }
 
 .booking-header h3 {
@@ -47,15 +62,19 @@
     color: #333;
 }
 
+<<<<<<< HEAD
 .status-container {
     margin-bottom: 15px; /* Khoảng cách dưới status */
 }
 
+=======
+>>>>>>> long
 .status {
     padding: 5px 10px;
     border-radius: 4px;
     font-weight: bold;
     color: white;
+<<<<<<< HEAD
     display: inline-block; /* Hiển thị inline để căn chỉnh bên dưới mã đặt phòng */
 }
 
@@ -73,6 +92,22 @@
 
 .status.processing {
     background-color: #2e47ed; /* Màu xanh lam cho trạng thái đang xử lý */
+=======
+}
+
+.status.confirmed {
+    background-color: #28a745; /* Màu xanh cho trạng thái hoạt động */
+}
+
+.status.canceled {
+    background-color: #dc3545; /* Màu đỏ cho trạng thái không hoạt động */
+}
+.status.unconfirmed {
+    background-color: #deeb2b; /* Màu đỏ cho trạng thái không hoạt động */
+}
+.status.processing {
+    background-color: #2e47ed; /* Màu đỏ cho trạng thái không hoạt động */
+>>>>>>> long
 }
 
 .booking-body p {

@@ -35,13 +35,13 @@ const NavDatPhong = ({ onFilterChange }) => {
 
     return (
         <div className="vertical-bar">
+
             <button onClick={handleOpenForm}>
                 Tạo đặt phòng
             </button>
 
             {/* Hiển thị FormAdd khi show là true */}
             {show && <FormAdd show={show} handleClose={handleCloseForm} />}
-
             <div>
                 <h5>Trạng thái</h5>
                 <label>

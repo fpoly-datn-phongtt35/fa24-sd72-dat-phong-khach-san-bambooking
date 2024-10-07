@@ -10,6 +10,10 @@ import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
 import ListImage from './components/HinhAnh/ListImage';
 import HinhAnh from './components/HinhAnh/HinhAnh';
+import TableNhanVien from './components/TableNhanVien';
+import TienIch from './components/TienIch/TienIch';
+import FormSearch from './components/Home';
+import HotelBooking from './components/BookingView';
 function App() {
   return (
     <BrowserRouter>
@@ -18,7 +22,6 @@ function App() {
         <div className="slidebar">
           <SlideBar />
         </div>
-
           <div className="main-content">
             <div className="header">
               <Header />
@@ -28,7 +31,7 @@ function App() {
               <Route path="/NhanVien" element={<TableNhanVien />} />
               <Route path="/TienNghi" element={<TienNghi />} />
               <Route path="/DatPhong" element={<DatPhong />} />
-
+              <Route path="/TienIch" element={<TienIch />} />
             {/*Phòng */}
             <Route path='/phong' element={<ListPhong />}></Route>
             <Route path='/add-phong' element={<Phong />}></Route>
@@ -42,7 +45,8 @@ function App() {
 
         </div>
       </div>
-    </BrowserRouter>
+
+      </BrowserRouter>
   );
 }
 

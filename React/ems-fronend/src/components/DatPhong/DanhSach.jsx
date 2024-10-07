@@ -19,8 +19,10 @@ const DanhSach = () => {
             .then((response) => {
                 setData(response.data.content);
                 setTotalPages(response.data.totalPages);
+
             })
             .catch((error) => {
+
                 console.log(error);
             });
     };

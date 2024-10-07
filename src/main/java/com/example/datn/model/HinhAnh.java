@@ -19,6 +19,7 @@ public class HinhAnh {
     @JoinColumn(name = "id_phong")
     @ManyToOne
     private Phong phong;
+
     @Column(name = "ten")
     private String tenAnh;
     @Column(name = "duong_dan")

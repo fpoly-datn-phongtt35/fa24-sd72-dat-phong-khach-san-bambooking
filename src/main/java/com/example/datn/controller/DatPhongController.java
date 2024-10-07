@@ -11,10 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/dat-phong")
@@ -43,6 +41,7 @@ public class DatPhongController {
         return ResponseEntity.status(HttpStatus.CREATED).body(datPhongServiceIMPL.addDatPhong(datPhongRequest));
     }
 
+
     @GetMapping("/detail/{id}")
     public ResponseEntity<?> detailDatPhong(@PathVariable Integer id) {
         System.out.println(id);
@@ -69,5 +68,4 @@ public class DatPhongController {
         Page<DatPhongResponse> dp = datPhongServiceIMPL.searchDatPhong(keyword,start,end,pageable);
         return ResponseEntity.ok(dp);
     }
-
 }

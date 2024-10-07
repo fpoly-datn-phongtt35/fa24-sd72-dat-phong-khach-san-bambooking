@@ -1,5 +1,7 @@
 package com.example.datn.controller;
 
+import com.example.datn.dto.request.TienIchPhongRequest;
+import com.example.datn.dto.request.TienIchRequest;
 import com.example.datn.model.TienIch;
 import com.example.datn.service.IMPL.TienIchServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +23,7 @@ public class TienNghiController {
     }
 
     @PostMapping("/add")
-    public String add(TienIch tienIch){
+    public String add(TienIchRequest tienIch){
         tienNghiServiceIMPL.add(tienIch);
         return "redirect:/tien-nghi/home";
     }
@@ -39,7 +41,7 @@ public class TienNghiController {
     }
 
     @PostMapping("/update")
-    public String update(TienIch tienIch){
+    public String update(TienIchRequest tienIch){
         tienNghiServiceIMPL.update(tienIch);
         return "redirect:/tien-nghi/home";
     }
