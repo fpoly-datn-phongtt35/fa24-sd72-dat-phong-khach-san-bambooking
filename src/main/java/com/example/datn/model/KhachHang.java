@@ -24,7 +24,6 @@ public class KhachHang {
     private String ho;
     @Column(name = "ten")
     private String ten;
-
     @Column(name = "gioi_tinh")
     private String gioiTinh;
     @Column(name = "quoc_gia")
