@@ -1,5 +1,6 @@
 package com.example.datn.service;
 
+import com.example.datn.model.NhanVien;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.repository.TaiKhoanRepository;
@@ -12,4 +13,5 @@ public interface TaiKhoanService {
     public TaiKhoan create(TaiKhoan taiKhoan);
     public TaiKhoan update(TaiKhoan taiKhoan);
     public void deleteTaiKhoan(Integer id);
+    Page<TaiKhoan> searchTaiKhoan(String keyword, Pageable pageable);
 }

@@ -1,5 +1,6 @@
 package com.example.datn.service.IMPL;
 
+import com.example.datn.model.NhanVien;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.service.TaiKhoanService;
@@ -42,6 +43,11 @@ public class TaiKhoanServiceIMPL implements TaiKhoanService {
         }else {
             System.out.println("Tài khoản không tồn tại với ID: " + id);
         }
+    }
+
+    @Override
+    public Page<TaiKhoan> searchTaiKhoan(String keyword, Pageable pageable) {
+        return taiKhoanRepository.searchByName(keyword, pageable);
     }
 
 

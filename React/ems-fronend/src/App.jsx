@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import NhanVienComponent from './components/nhanvien/NhanVienComponent';
 import ListTaiKhoan from './components/taikhoan/ListTaiKhoan';
 import ListVaiTro from './components/vaitro/ListVaiTro';
+import TaiKhoanComponent from './components/taikhoan/TaiKhoanComponent';
 function App() {
   return (
       <BrowserRouter>
@@ -32,6 +33,7 @@ function App() {
               <Route path="/TaiKhoan" element = {<ListTaiKhoan />} />
               <Route path="/VaiTro" element = {<ListVaiTro />} />
               <Route path='/add-nhanvien' element = {<NhanVienComponent />} />
+              <Route path='/add-taikhoan' element = {<TaiKhoanComponent />} />
               <Route path="/TienNghi" element = {<TienNghi />} />
             </Routes>
           </div>
