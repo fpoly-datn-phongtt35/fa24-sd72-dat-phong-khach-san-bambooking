@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -51,12 +52,35 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
     @Override
     public DatPhongResponse detailDatPhong(Integer id) {
-        return null;
+        return datPhongRepository.findByIdDatPhong(id);
     }
 
     @Override
-    public DatPhongResponse updateDatPhong(Integer id, DatPhongRequest datPhongRequest) {
-        return null;
+    public Page<DatPhongResponse> LocTheoTrangThai(List<String> trangThai, Pageable pageable) {
+        if (trangThai == null || trangThai.isEmpty()) {
+            return datPhongRepository.findAllDP(pageable);
+        } else {
+            return datPhongRepository.DatPhongTheoTrangThai(trangThai, pageable);
+        }
+    }
+
+    @Override
+    public Page<DatPhongResponse> searchDatPhong(String keyword, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+        return datPhongRepository.searchDatPhong(keyword, startDate,endDate,pageable);
+    }
+
+
+    @Override
+    public DatPhong updateDatPhong(Integer id, DatPhongRequest datPhongRequest) {
+        DatPhong datPhong = new DatPhong();
+        datPhong.setId(datPhongRequest.getId());
+        datPhong.setMaDatPhong(datPhongRequest.getMaDatPhong());
+        datPhong.setNgayDat(datPhongRequest.getNgayDat());
+        datPhong.setGhiChu(datPhongRequest.getGhiChu());
+        datPhong.setNhanVien(datPhongRequest.getNhanVien());
+        datPhong.setKhachHang(datPhongRequest.getKhachHang());
+        datPhong.setTrangThai(datPhongRequest.getTrangThai());
+        return datPhongRepository.save(datPhong);
     }
 
     @Override

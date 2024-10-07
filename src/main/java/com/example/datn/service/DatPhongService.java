@@ -5,7 +5,9 @@ import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.model.DatPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface DatPhongService {
@@ -15,7 +17,11 @@ public interface DatPhongService {
     DatPhong addDatPhong(DatPhongRequest datPhongRequest);
 
     DatPhongResponse detailDatPhong(Integer id);
-    DatPhongResponse updateDatPhong(Integer id,DatPhongRequest datPhongRequest);
+
+    Page<DatPhongResponse> LocTheoTrangThai(List<String> trangThai,Pageable pageable);
+    Page<DatPhongResponse> searchDatPhong(@Param("keyword") String keyword,@Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate,Pageable pageable);
+    DatPhong updateDatPhong(Integer id,DatPhongRequest datPhongRequest);
     Boolean update(DatPhong datPhong);
     Boolean delete(Integer id);
 }
