@@ -41,7 +41,7 @@ public class TaiKhoanController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/delete/tai-khoan/{id}")
     public ResponseEntity<?> deleteTaiKhoan(@PathVariable Integer id) {
         taiKhoanService.deleteTaiKhoan(id);
         return ResponseEntity.ok("Tài khoản đã được xóa thành công!");

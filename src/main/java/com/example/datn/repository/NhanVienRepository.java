@@ -12,8 +12,16 @@ import java.util.List;
 
 @Repository
 public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
+    @Query("""
+                select nv
+                from NhanVien nv
+                where nv.ho like %:keyword%
+                or nv.ten like %:keyword%
+                or nv.gioiTinh like %:keyword%
+                or nv.quocGia like %:keyword%
+                or nv.sdt like %:keyword%
+                """)
 
-    @Query("SELECT n FROM NhanVien n WHERE n.ten LIKE %:keyword%")
-    List<NhanVien> searchByName(@Param("keyword") String keyword);
+    Page<NhanVien> searchByName(@Param("keyword") String keyword, Pageable pageable);
 }
 

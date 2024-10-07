@@ -52,9 +52,11 @@ public class NhanVienServiceIMPL implements NhanVienService{
     }
 
     @Override
-    public List<NhanVien> searchNhanVien(String keyword) {
-        return nhanVienRepository.searchByName(keyword);
+    public Page<NhanVien> searchNhanVien(String keyword, Pageable pageable) {
+        return nhanVienRepository.searchByName(keyword,pageable);
     }
+
+
 
 
 }

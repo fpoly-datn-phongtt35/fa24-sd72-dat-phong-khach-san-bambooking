@@ -12,5 +12,5 @@ public interface NhanVienService {
     public NhanVien update(NhanVien nhanVien);
     public void deleteNhanVien(Integer id);
 
-    List<NhanVien> searchNhanVien(String keyword);
+    Page<NhanVien> searchNhanVien(String keyword, Pageable pageable);
 }

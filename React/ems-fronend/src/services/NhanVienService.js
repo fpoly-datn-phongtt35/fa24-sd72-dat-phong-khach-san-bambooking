@@ -1,29 +1,74 @@
+// import axios from "axios";
+// const api = "http://localhost:8080/nhan-vien"
+
+// export const searchNhanVien = ({ keyword = '', page = 0, size = 5 }) => 
+//     axios.get(`${api}/search`, {
+//         params: {
+//             keyword: keyword,  // Từ khóa tìm kiếm
+//             page: page,        // Số trang hiện tại
+//             size: size         // Kích thước trang
+//         }
+//     });
+// // export const listNhanVien = ({ page, size }) => 
+// //     axios.get(`${api}?page=${page}&size=${size}`);
+
+
+
+
+// export const createNhanVien = async (nhanVien) => {
+//     return await axios.post('http://localhost:8080/add/nhan-vien', nhanVien);
+// };
+
+
+// export const updateNhanVien = (nhanVien) => {
+//     return axios.put(`http://localhost:8080/update/nhan-vien/${nhanVien.id}`, nhanVien, {
+//         headers: {
+//             'Content-Type': 'application/json',
+//         },
+//     });
+// };
+
+
+// export const getNhanVienById = (id) => {
+//     return axios.get(`${api}/${id}`); // Gọi API để lấy thông tin nhân viên theo ID
+// };
+
+
+// export const deleteNhanVien = (id) => {
+//     return axios.delete(`http://localhost:8080/delete/${id}`);
+// };
+
+
+
+
 import axios from "axios";
-const api = "http://localhost:8080/nhan-vien"
+const api = "http://localhost:8080/nhan-vien";
 
-export const listNhanVien = ({ page, size }) => 
-    axios.get(`${api}?page=${page}&size=${size}`);
-
+export const searchNhanVien = ({ keyword = '', page = 0, size = 5 }) => 
+    axios.get(`${api}/search`, {
+        params: {
+            keyword: keyword,  // Từ khóa tìm kiếm
+            page: page,        // Số trang hiện tại
+            size: size         // Kích thước trang
+        }
+    });
 
 export const createNhanVien = async (nhanVien) => {
-    return await axios.post('http://localhost:8080/add/nhan-vien', nhanVien);
+    return await axios.post(`${api}`, nhanVien); // Thêm nhân viên mới
 };
 
-
 export const updateNhanVien = (nhanVien) => {
-    return axios.put(`http://localhost:8080/update/nhan-vien/${nhanVien.id}`, nhanVien, {
+    return axios.put(`${api}/${nhanVien.id}`, nhanVien, {
         headers: {
             'Content-Type': 'application/json',
         },
     });
 };
 
-
 export const getNhanVienById = (id) => {
-    return axios.get(`${api}/${id}`); // Gọi API để lấy thông tin nhân viên theo ID
+    return axios.get(`${api}/${id}`); // Lấy thông tin nhân viên theo ID
 };
 
-
 export const deleteNhanVien = (id) => {
-    return axios.delete(`http://localhost:8080/delete/${id}`);
+    return axios.delete(`${api}/${id}`); // Xóa nhân viên theo ID
 };

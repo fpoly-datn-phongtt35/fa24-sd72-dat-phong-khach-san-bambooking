@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listNhanVien, updateNhanVien, deleteNhanVien } from '../../services/NhanVienService';
+import { searchNhanVien, updateNhanVien, deleteNhanVien} from '../../services/NhanVienService';
 
 const ListNhanVien = () => {
     const [nhanVien, setNhanVien] = useState([]);
@@ -16,12 +16,14 @@ const ListNhanVien = () => {
     const [ngayTao, setNgayTao] = useState('');
     const [ngaySua, setNgaySua] = useState('');
     const [trangThai, setTrangThai] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const pageSize = 5;
     const navigate = useNavigate();
 
+
     const fetchNhanVien = () => {
-        listNhanVien({ page: currentPage, size: pageSize })
+        searchNhanVien({ keyword: searchQuery, page: currentPage, size: pageSize })
             .then((response) => {
                 setNhanVien(response.data.content);
                 setTotalPages(response.data.totalPages);
@@ -33,7 +35,9 @@ const ListNhanVien = () => {
 
     useEffect(() => {
         fetchNhanVien();
-    }, [currentPage]);
+    }, [currentPage, searchQuery]);
+
+
 
     const handlePreviousPage = () => {
         if (currentPage > 0) {
@@ -101,6 +105,13 @@ const ListNhanVien = () => {
     };
     
 
+    const handleSearchInput = (e) => {
+        setSearchQuery(e.target.value);
+        setCurrentPage(0); // reset lại trang khi tìm kiếm
+    }
+
+
+
 
 
     return (
@@ -119,9 +130,10 @@ const ListNhanVien = () => {
                                 value={searchQuery}
                                 onChange={handleSearchInput}
                             />
-                </div>
-                
+                        </div>
+
             </div>
+
             <div className='card'>
                 <div className='card-body'>
                     <table className='table table-striped table-bordered'>
