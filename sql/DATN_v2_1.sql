@@ -31,12 +31,21 @@ CREATE TABLE nhan_vien (
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_vai_tro) REFERENCES vai_tro(id),
   FOREIGN KEY (id_tai_khoan) REFERENCES tai_khoan(id)
+<<<<<<< HEAD
 );
 
 CREATE TABLE khach_hang (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_tai_khoan INT NULL,
   ho NVARCHAR(255), 
+=======
+
+);
+CREATE TABLE khach_hang (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  id_tai_khoan INT,
+  ho NVARCHAR(255),
+>>>>>>> long
   ten NVARCHAR(255),
   gioi_tinh NVARCHAR(255),
   quoc_gia NVARCHAR(255),
@@ -48,12 +57,26 @@ CREATE TABLE khach_hang (
   FOREIGN KEY (id_tai_khoan) REFERENCES tai_khoan(id)
 );
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+
+>>>>>>> long
 CREATE TABLE tien_ich (
   id INT IDENTITY(1,1) PRIMARY KEY,
   ten_tien_ich NVARCHAR(255),
   hinh_anh VARCHAR(255)
 );
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> long
 CREATE TABLE loai_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   ten_loai_phong NVARCHAR(255),
@@ -81,7 +104,10 @@ CREATE TABLE dich_vu (
   hinh_anh VARCHAR(255),
   trang_thai NVARCHAR(255)
 );
+<<<<<<< HEAD
 
+=======
+>>>>>>> long
 CREATE TABLE phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_loai_phong INT,
@@ -92,7 +118,10 @@ CREATE TABLE phong (
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id)
 );
+<<<<<<< HEAD
 
+=======
+>>>>>>> long
 CREATE TABLE hinh_anh (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_phong INT,
@@ -102,6 +131,15 @@ CREATE TABLE hinh_anh (
   FOREIGN KEY (id_phong) REFERENCES phong(id)
 );
 
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+>>>>>>> long
 CREATE TABLE dat_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_nhan_vien INT,
@@ -114,6 +152,11 @@ CREATE TABLE dat_phong (
   FOREIGN KEY (id_khach_hang) REFERENCES khach_hang(id)
 );
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> long
 CREATE TABLE thong_tin_dat_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_dat_phong INT,
@@ -126,7 +169,10 @@ CREATE TABLE thong_tin_dat_phong (
   FOREIGN KEY (id_dat_phong) REFERENCES dat_phong(id),
   FOREIGN KEY (id_phong) REFERENCES phong(id)
 );
+<<<<<<< HEAD
 
+=======
+>>>>>>> long
 CREATE TABLE hoa_don (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_nhan_vien INT ,
@@ -140,6 +186,10 @@ CREATE TABLE hoa_don (
   FOREIGN KEY (id_thong_tin_dat_phong) REFERENCES thong_tin_dat_phong(id)
 );
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> long
 CREATE TABLE phieu_dich_vu (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_dich_vu INT,
@@ -153,6 +203,13 @@ CREATE TABLE phieu_dich_vu (
   FOREIGN KEY (id_thong_tin_dat_phong) REFERENCES thong_tin_dat_phong(id)
 );
 
+<<<<<<< HEAD
+=======
+
+
+
+
+>>>>>>> long
 CREATE TABLE dich_vu_di_kem (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_dich_vu INT,

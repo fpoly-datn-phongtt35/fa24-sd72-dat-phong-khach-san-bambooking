@@ -13,6 +13,4 @@ public interface PhongService {
     PhongResponse updatePhong(Integer id, PhongRequest request);
     Boolean updateStatus(Integer id);
     Page<Phong> searchPhong(String keyword, Pageable pageable);
-
-
 }

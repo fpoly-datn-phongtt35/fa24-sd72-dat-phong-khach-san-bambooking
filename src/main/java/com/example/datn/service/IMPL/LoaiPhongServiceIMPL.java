@@ -1,5 +1,4 @@
 package com.example.datn.service.IMPL;
-
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.repository.LoaiPhongRepository;
 import com.example.datn.service.LoaiPhongService;
@@ -17,4 +16,12 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     public List<LoaiPhong> getAllLoaiPhong() {
         return loaiPhongRepository.findAll();
     }
+
+    public List<LoaiPhong> getAll() {
+        return loaiPhongRepository.findAll();
+    }
+
+
+
+
 }

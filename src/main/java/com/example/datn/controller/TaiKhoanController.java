@@ -24,5 +24,4 @@ public class TaiKhoanController {
         return ResponseEntity.ok(taiKhoanService.findAll(pageable));
     }
 
-
 }
