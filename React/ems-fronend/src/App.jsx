@@ -28,7 +28,7 @@ function App() {
               <Route path="/NhanVien" element={<TableNhanVien />} />
               <Route path="/TienNghi" element={<TienNghi />} />
               <Route path="/DatPhong" element={<DatPhong />} />
-          </div>
+
             {/*Phòng */}
             <Route path='/phong' element={<ListPhong />}></Route>
             <Route path='/add-phong' element={<Phong />}></Route>
