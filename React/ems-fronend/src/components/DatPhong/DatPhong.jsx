@@ -5,7 +5,7 @@ import './DatPhongCSS.css'
 const DatPhong = () => {
     return (
         <div className="dat-phong-container">
-            <NavDatPhong />
+            {/* <NavDatPhong /> */}
             <DanhSach />
         </div>
     )
