@@ -1,0 +1,282 @@
+.app-container {
+    .header-container {
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+        z-index: 20;
+
+        button.btn-call {
+            border-radius: 40px;
+            padding: 0 70px;
+            border: 1px;
+            background-color: rgb(104, 204, 199);
+            font-weight: 300;
+            font-family: Archivo, sans-serif;
+
+            &:hover {
+                background: #0aebdccf;
+            }
+        }
+
+        .container {
+            img {
+                width: 150px;
+            }
+
+            .navbar-nav {
+                color: #04fffb;
+                margin-left: 40px;
+                gap: 12px;
+
+                .nav-link {
+                    font-weight: 750;
+
+                    &.active {
+                        color: rgb(21, 239, 236);
+                    }
+                }
+            }
+        }
+    }
+}
+
+.homepage-container {
+    position: relative;
+    height: 55vw;
+
+    video {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        height: 100%;
+        border-radius: 47px;
+    }
+
+    .homepage-content {
+        position: absolute;
+        bottom: -126px;
+        transform: translateX(-50%);
+        left: 50%;
+        background: white;
+        border-radius: 25px;
+        box-shadow: 1px 0px 7px 2px;
+    }
+
+    .homepage-content {
+        position: absolute;
+        bottom: -126px;
+        transform: translateX(-50%);
+        left: 50%;
+        background: white;
+        border-radius: 25px;
+        box-shadow: 1px 0px 7px 2px;
+
+        .serach-yacht {
+            .form-search {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding-bottom: 50px;
+                padding-top: 50px;
+
+                input {
+                    border-radius: 35px;
+                    padding: 10px;
+                }
+
+                select {
+                    border-radius: 35px;
+                }
+
+                button {
+                    border-radius: 20px;
+                    border: none;
+                    background-color: rgb(104, 204, 199);
+                    padding: 10px;
+                    width: 150px;
+                    height: 50px;
+
+                    &:hover {
+                        background: #0aebdccf;
+                    }
+                }
+
+                .select {
+                    width: 200px;
+                    height: 50px;
+                }
+            }
+
+            input {
+                border-radius: 35px;
+                padding: 10px;
+            }
+
+            select {
+                border-radius: 35px;
+            }   
+
+            button {
+                border-radius: 20px;
+                border: none;
+                background-color: rgb(104, 204, 199);
+                padding: 10px;
+
+                &:hover {
+                    background: #0aebdccf;
+                }
+            }
+        }
+    }
+}
+
+.app-yacht {
+    padding-top: 190px;
+
+    .yacht-content {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 54px;
+        border-radius: 10px;
+        justify-content: center;
+
+        img {
+            padding: 10px;
+            border-radius: 30px;
+        }
+    }
+
+    .yacht-header {
+        display: flex;
+
+        .yacht-title {
+            width: 625px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+    }
+
+    .view-all-yacht {
+        display: flex;
+        justify-content: center;
+        margin-top: 50px;
+
+        button {
+            border: 1px solid rgb(232, 228, 228);
+            padding: 15px 35px;
+            border-radius: 25px;
+            background: white;
+
+            &:hover {
+                background: rgb(213, 212, 212);
+            }
+
+            .icon-next {
+                height: 20px;
+                width: 25px;
+            }
+        }
+    }
+}
+
+.feedback-content {
+    margin-top: 100px;
+    background-color: #d1fffd;
+
+    .feedback-header {
+        margin-right: 0;
+    }
+
+    .feedback-body {
+        padding: 100px;
+
+        .carousel-caption {
+            position: unset;
+            color: black;
+        }
+    }
+}
+
+.app-show-island {
+    .island-body {
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        gap: 140px;
+        flex-wrap: wrap;
+
+        img {
+            padding: 20px;
+            border-radius: 40px;
+        }
+
+        .card {
+            border-radius: 25px;
+        }
+    }
+}
+
+.app-enterprice {
+    margin-top: 100px;
+    background-color: #f2f4f7;
+
+    .enterprice-header {
+        margin-right: 0;
+    }
+
+    .img-enterprice {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        padding: 50px 0 60px 0;
+    }
+}
+
+.app-footer {
+    background-color: gray;
+
+    .footer-content {
+        padding: 40px;
+        display: flex;
+        gap: 50px;
+        color: rgb(208, 198, 198);
+        margin: 0;
+
+        .content-1 {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+
+            img {
+                width: 200px;
+            }
+        }
+
+        .content-2 {
+            display: flex;
+            gap: 90px;
+
+            .body {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+
+                span {
+                    color: #69e5e7;
+                    font-size: 20px;
+                }
+
+                .nav-link {
+                    font-weight: 500;
+
+                    &:hover {
+                        color: white;
+                    }
+                }
+            }
+        }
+    }
+}

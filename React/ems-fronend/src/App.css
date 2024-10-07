@@ -1,0 +1,38 @@
+*{
+  font-family: Archivo, sans-serif;
+  color: #101828;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.slidebar {
+  width: 180px;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  padding: 0; /* Loại bỏ padding để header sát trên */
+}
+
+.header {
+  background-color: #ffffff;
+  height: 60px;
+  
+ 
+  display: flex;
+  align-items: center; /* Căn giữa nội dung theo chiều dọc */
+
+}
+
+

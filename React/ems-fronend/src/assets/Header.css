@@ -1,0 +1,53 @@
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    height: 100%;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Thêm hiệu ứng đổ bóng nếu muốn */
+    
+}
+
+.navbar-menu {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.navbar-navbar {
+    list-style: none;
+    display: flex;
+}
+
+.navbar-item {
+    margin-left: 20px;
+    display: inline-block;
+    padding: 0 20px; /* Thêm padding ngang nếu cần */
+}
+
+.navbar-link {
+    text-decoration: none;
+    font-size: 20px;
+    color: black;
+}
+
+.navbar-link:hover {
+    text-decoration: underline;
+}
+
+
+.navbar-menu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+
