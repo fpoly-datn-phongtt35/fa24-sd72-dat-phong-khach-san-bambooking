@@ -38,6 +38,8 @@ public class PhieuDichVu {
     private LocalDateTime ngayKetThuc;
 
     @Column(name = "thanh_tien")
+    private Double giaSuDung;
+    @Column(name = "thanh_tien")
     private Double thanhTien;
     @Column(name = "trang_thai")
     private String trangThai;

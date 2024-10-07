@@ -1,9 +1,4 @@
 import axios from "axios";
-<<<<<<< HEAD
-const api = "http://localhost:8080/tien-nghi/home"
-
-export const listTienNghi = () => axios.get(api)
-=======
 const api = "http://localhost:8080/tien-nghi/home";
 const apiadd = "http://localhost:8080/tien-nghi/add";
 const apiTI = "http://localhost:8080/tien-ich/home";
@@ -43,4 +38,3 @@ export const updateTienNghiPhong = (tienNghiPhongRequest) => {
 export const deleteTienNghiPhong = (id) => {
     return axios.delete(`${apiDE}/${id}`);
 };
->>>>>>> long
