@@ -4,9 +4,9 @@ import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.service.TaiKhoanService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class TaiKhoanServiceIMPL implements TaiKhoanService {
@@ -14,8 +14,8 @@ public class TaiKhoanServiceIMPL implements TaiKhoanService {
     TaiKhoanRepository taiKhoanRepository;
 
     @Override
-    public List<TaiKhoan> findAll() {
-        return taiKhoanRepository.findAll();
+    public Page<TaiKhoan> findAll(Pageable pageable) {
+        return taiKhoanRepository.findAll(pageable);
     }
 
     @Override

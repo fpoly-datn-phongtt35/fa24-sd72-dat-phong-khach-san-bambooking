@@ -14,7 +14,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     LoaiPhongRepository loaiPhongRepository;
 
     @Override
-    public List<LoaiPhong> getAll() {
+    public List<LoaiPhong> getAllLoaiPhong() {
         return loaiPhongRepository.findAll();
     }
 }

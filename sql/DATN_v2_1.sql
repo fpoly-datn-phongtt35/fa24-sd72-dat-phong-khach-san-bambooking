@@ -31,12 +31,12 @@ CREATE TABLE nhan_vien (
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_vai_tro) REFERENCES vai_tro(id),
   FOREIGN KEY (id_tai_khoan) REFERENCES tai_khoan(id)
-
 );
+
 CREATE TABLE khach_hang (
   id INT IDENTITY(1,1) PRIMARY KEY,
-  id_tai_khoan INT,
-  ho NVARCHAR(255),
+  id_tai_khoan INT NULL,
+  ho NVARCHAR(255), 
   ten NVARCHAR(255),
   gioi_tinh NVARCHAR(255),
   quoc_gia NVARCHAR(255),
@@ -48,19 +48,11 @@ CREATE TABLE khach_hang (
   FOREIGN KEY (id_tai_khoan) REFERENCES tai_khoan(id)
 );
 
-
-
-
-
-
-
-
 CREATE TABLE tien_ich (
   id INT IDENTITY(1,1) PRIMARY KEY,
   ten_tien_ich NVARCHAR(255),
   hinh_anh VARCHAR(255)
 );
-
 
 CREATE TABLE loai_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
@@ -89,6 +81,7 @@ CREATE TABLE dich_vu (
   hinh_anh VARCHAR(255),
   trang_thai NVARCHAR(255)
 );
+
 CREATE TABLE phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_loai_phong INT,
@@ -99,6 +92,7 @@ CREATE TABLE phong (
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id)
 );
+
 CREATE TABLE hinh_anh (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_phong INT,
@@ -107,12 +101,6 @@ CREATE TABLE hinh_anh (
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_phong) REFERENCES phong(id)
 );
-
-
-
-
-
-
 
 CREATE TABLE dat_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
@@ -126,8 +114,6 @@ CREATE TABLE dat_phong (
   FOREIGN KEY (id_khach_hang) REFERENCES khach_hang(id)
 );
 
-
-
 CREATE TABLE thong_tin_dat_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_dat_phong INT,
@@ -140,6 +126,7 @@ CREATE TABLE thong_tin_dat_phong (
   FOREIGN KEY (id_dat_phong) REFERENCES dat_phong(id),
   FOREIGN KEY (id_phong) REFERENCES phong(id)
 );
+
 CREATE TABLE hoa_don (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_nhan_vien INT ,
@@ -153,7 +140,6 @@ CREATE TABLE hoa_don (
   FOREIGN KEY (id_thong_tin_dat_phong) REFERENCES thong_tin_dat_phong(id)
 );
 
-
 CREATE TABLE phieu_dich_vu (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_dich_vu INT,
@@ -166,10 +152,6 @@ CREATE TABLE phieu_dich_vu (
   FOREIGN KEY (id_dich_vu) REFERENCES dich_vu(id),
   FOREIGN KEY (id_thong_tin_dat_phong) REFERENCES thong_tin_dat_phong(id)
 );
-
-
-
-
 
 CREATE TABLE dich_vu_di_kem (
   id INT IDENTITY(1,1) PRIMARY KEY,

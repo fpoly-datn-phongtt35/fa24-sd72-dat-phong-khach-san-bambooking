@@ -1,11 +1,11 @@
 package com.example.datn.service;
 
 import com.example.datn.model.TaiKhoan;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface TaiKhoanService {
-    List<TaiKhoan> findAll();
+    Page<TaiKhoan> findAll(Pageable pageable);
     void addTaiKhoan(TaiKhoan taiKhoan);
     TaiKhoan detailTaiKhoan(Integer id);
     void updateTaiKhoan(TaiKhoan taiKhoan);
