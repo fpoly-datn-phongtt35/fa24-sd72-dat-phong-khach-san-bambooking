@@ -126,7 +126,7 @@ const ListNhanVien = () => {
                             <input
                                 type="text"
                                 className='form-control form-control-lg fs-6'
-                                placeholder='Tìm kiếm phòng...'
+                                placeholder='Tìm kiếm nhân viên...'
                                 value={searchQuery}
                                 onChange={handleSearchInput}
                             />
