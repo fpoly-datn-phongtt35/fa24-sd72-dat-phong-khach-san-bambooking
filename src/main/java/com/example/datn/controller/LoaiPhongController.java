@@ -11,14 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/loai-phong")
+@RequestMapping("/loai_phong")
 public class LoaiPhongController {
     @Autowired
     LoaiPhongServiceIMPL phongServiceIMPL;
-    @GetMapping("/home")
-    public List<LoaiPhong> home(){
+
+    @GetMapping("")
+    public List<LoaiPhong> loaiPhongHome() {
         return phongServiceIMPL.getAll();
     }
 

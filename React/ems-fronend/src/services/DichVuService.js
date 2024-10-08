@@ -1,4 +1,3 @@
-// DichVuService.js
 import axios from "axios";
 
 const api = "http://localhost:8080/dich_vu";

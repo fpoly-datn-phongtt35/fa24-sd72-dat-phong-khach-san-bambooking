@@ -10,11 +10,24 @@ const DanhSach = () => {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [currentDichVu, setCurrentDichVu] = useState(null); 
     const [showDetail, setShowDetail] = useState(false);
+    const [searchKeyword, setSearchKeyword] = useState(''); // Tìm kiếm
+    const [filterStatus, setFilterStatus] = useState(''); // Lọc trạng thái
 
     const loadDichVu = () => {
         DuLieu()
             .then(response => {
-                setDichVuList(response.data);
+                const filteredData = response.data.filter(dv => {
+                    const matchesStatus = filterStatus 
+                        ? dv.trangThai.trim().toLowerCase() === filterStatus.trim().toLowerCase() 
+                        : true;
+                    const matchesKeyword = searchKeyword
+                        ? dv.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) || 
+                          dv.moTa.toLowerCase().includes(searchKeyword.toLowerCase())
+                        : true;
+    
+                    return matchesStatus && matchesKeyword;
+                });
+                setDichVuList(filteredData);
             })
             .catch(error => {
                 console.error("Lỗi khi tải danh sách dịch vụ:", error);
@@ -23,7 +36,7 @@ const DanhSach = () => {
 
     useEffect(() => {
         loadDichVu();
-    }, []);
+    }, [searchKeyword, filterStatus]); // Tự động tải lại khi từ khóa hoặc trạng thái thay đổi
 
     const openForm = () => setShowForm(true);
     const closeForm = () => setShowForm(false);
@@ -63,6 +76,21 @@ const DanhSach = () => {
     return (
         <div>
             <h1>Danh Sách Dịch Vụ</h1>
+            <div>
+                <input
+                    type="text"
+                    placeholder="Tìm kiếm theo tên hoặc mô tả"
+                    value={searchKeyword}
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                />
+                <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Hoạt động">Hoạt động</option>
+                    <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+                </select>
+                <button onClick={loadDichVu}>Lọc</button>
+            </div> <br />
+
             <button onClick={openForm}>Thêm Dịch Vụ</button>
             <table className='table'>
                 <thead>

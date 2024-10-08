@@ -1,14 +1,18 @@
 package com.example.datn.service;
 
+import com.example.datn.dto.request.DichVuDikemRequest;
+import com.example.datn.model.DichVu;
 import com.example.datn.model.DichVuDiKem;
 
 import java.util.List;
 
 public interface DichVuDiKemService {
     List<DichVuDiKem> getAll();
-    void addDichVuDiKem(DichVuDiKem dvdk);
+    DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest);
     DichVuDiKem detailDichVuDiKem(Integer id);
     void updateStatus(Integer id);
-    void updateDichVuDiKem(DichVuDiKem dvdk);
+    DichVuDiKem updateDichVuDiKem(DichVuDikemRequest dichVuDikemRequest);
+    void deleteDichVuDiKem(Integer id);
+    DichVuDiKem findById(Integer id);
     List<DichVuDiKem> findByAll(String key);
 }

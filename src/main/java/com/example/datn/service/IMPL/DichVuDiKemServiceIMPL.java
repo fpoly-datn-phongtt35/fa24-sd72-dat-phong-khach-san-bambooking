@@ -1,5 +1,6 @@
 package com.example.datn.service.IMPL;
 
+import com.example.datn.dto.request.DichVuDikemRequest;
 import com.example.datn.model.DichVuDiKem;
 import com.example.datn.repository.DichVuDiKemRepository;
 import com.example.datn.service.DichVuDiKemService;
@@ -19,8 +20,12 @@ public class DichVuDiKemServiceIMPL implements DichVuDiKemService {
     }
 
     @Override
-    public void addDichVuDiKem(DichVuDiKem dvdk) {
-        dichVuDiKemRepository.save(dvdk);
+    public DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest) {
+        DichVuDiKem dichVuDiKem = new DichVuDiKem();
+        dichVuDiKem.setDichVu(dichVuDikemRequest.getDichVu());
+        dichVuDiKem.setLoaiPhong(dichVuDikemRequest.getLoaiPhong());
+        dichVuDiKem.setTrangThai(dichVuDikemRequest.getTrangThai());
+        return dichVuDiKemRepository.save(dichVuDiKem);
     }
 
     @Override
@@ -42,8 +47,29 @@ public class DichVuDiKemServiceIMPL implements DichVuDiKemService {
     }
 
     @Override
-    public void updateDichVuDiKem(DichVuDiKem dvdk) {
-        dichVuDiKemRepository.save(dvdk);
+    public DichVuDiKem updateDichVuDiKem(DichVuDikemRequest  dichVuDikemRequest) {
+        // Tìm dịch vụ đi kèm bằng ID
+        DichVuDiKem dichVuDiKem = dichVuDiKemRepository.findById(dichVuDikemRequest.getId()).orElse(null);
+
+        if (dichVuDiKem != null) {
+            dichVuDiKem.setDichVu(dichVuDikemRequest.getDichVu());
+            dichVuDiKem.setLoaiPhong(dichVuDikemRequest.getLoaiPhong());
+            dichVuDiKem.setTrangThai(dichVuDikemRequest.getTrangThai());
+
+            return dichVuDiKemRepository.save(dichVuDiKem);
+        }
+
+        return null;
+    }
+
+    @Override
+    public void deleteDichVuDiKem(Integer id) {
+        dichVuDiKemRepository.deleteById(id);
+    }
+
+    @Override
+    public DichVuDiKem findById(Integer id) {
+        return dichVuDiKemRepository.findById(id).get();
     }
 
     @Override

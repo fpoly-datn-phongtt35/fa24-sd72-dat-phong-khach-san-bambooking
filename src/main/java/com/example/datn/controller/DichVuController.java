@@ -41,7 +41,7 @@ public class DichVuController {
 
 
     @PostMapping("add")
-    public ResponseEntity<?> createDatPhong(@RequestBody DichVu dichVu) {
+    public ResponseEntity<?> createDichVu(@RequestBody DichVu dichVu) {
         return ResponseEntity.status(HttpStatus.CREATED).body(dichVuServiceIMPL.addDichVu(dichVu));
     }
 

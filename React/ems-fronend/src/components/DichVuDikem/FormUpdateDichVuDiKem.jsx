@@ -1,36 +1,70 @@
 import React, { useState, useEffect } from 'react';
-import { CapNhatDichVuDiKem } from '../../services/DichVuDiKemService';
+import { CapNhatDichVuDiKem, DanhSachDichVu, DanhSachLoaiPhong } from '../../services/DichVuDiKemService';
 
 const FormUpdateDichVuDiKem = ({ show, handleClose, refreshData, dichVuDiKem }) => {
-    const [formData, setFormData] = useState({
-        id_dich_vu: '',
-        id_loai_phong: '',
-        trang_thai: ''
-    });
+    const [dichVu, setDichVu] = useState('');
+    const [loaiPhong, setLoaiPhong] = useState('');
+    const [trangThai, setTrangThai] = useState('');
+
+    const [dichVuList, setDichVuList] = useState([]);
+    const [loaiPhongList, setLoaiPhongList] = useState([]);
 
     useEffect(() => {
+        // Lấy danh sách dịch vụ
+        DanhSachDichVu()
+            .then(response => {
+                setDichVuList(response.data);
+            })
+            .catch(error => {
+                console.error("Lỗi khi lấy danh sách dịch vụ:", error);
+            });
+
+        // Lấy danh sách loại phòng
+        DanhSachLoaiPhong()
+            .then(response => {
+                setLoaiPhongList(response.data);
+            })
+            .catch(error => {
+                console.error("Lỗi khi lấy danh sách loại phòng:", error);
+            });
+
+        // Cập nhật giá trị hiện tại từ dịch vụ đi kèm được truyền vào
         if (dichVuDiKem) {
-            setFormData(dichVuDiKem);
+            setDichVu(dichVuDiKem.dichVu?.id || '');
+            setLoaiPhong(dichVuDiKem.loaiPhong?.id || '');
+            setTrangThai(dichVuDiKem.trangThai || '');
         }
     }, [dichVuDiKem]);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
-
-    const handleSubmit = (e) => {
+    const handleUpdate = (e) => {
         e.preventDefault();
-        CapNhatDichVuDiKem(formData)
-            .then(response => {
+    
+        // Tạo đối tượng cập nhật theo định dạng yêu cầu
+        const updatedDichVuDiKem = {
+            id: dichVuDiKem.id,
+            dichVu: {
+                id: dichVu // Lấy id dịch vụ từ state
+            },
+            loaiPhong: {
+                id: loaiPhong // Lấy id loại phòng từ state
+            },
+            trangThai: trangThai, // Trạng thái từ state
+        };
+    
+        console.log('Dữ liệu gửi đi:', updatedDichVuDiKem);
+    
+        // Gọi service cập nhật
+        CapNhatDichVuDiKem(updatedDichVuDiKem)
+            .then((response) => {
                 console.log("Cập nhật thành công:", response.data);
-                refreshData();
-                handleClose();
+                refreshData();  // Làm mới dữ liệu sau khi cập nhật
+                handleClose();  // Đóng form
             })
             .catch(error => {
                 console.error("Lỗi khi cập nhật dịch vụ đi kèm:", error);
             });
     };
+    
 
     if (!show) return null;
 
@@ -38,42 +72,51 @@ const FormUpdateDichVuDiKem = ({ show, handleClose, refreshData, dichVuDiKem }) 
         <div className="modal-overlay">
             <div className="modal-container">
                 <h2>Cập Nhật Dịch Vụ Đi Kèm</h2>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>ID Dịch Vụ:</label>
-                        <input
-                            type="number"
-                            name="id_dich_vu"
-                            value={formData.id_dich_vu}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>ID Loại Phòng:</label>
-                        <input
-                            type="number"
-                            name="id_loai_phong"
-                            value={formData.id_loai_phong}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>Trạng Thái:</label>
+                <form onSubmit={handleUpdate}>
+                    <div>
+                        <label>Dịch Vụ:</label>
                         <select
-                            name="trang_thai"
-                            value={formData.trang_thai}
-                            onChange={handleInputChange}
+                            value={dichVu}
+                            onChange={(e) => setDichVu(e.target.value)}
+                            required
                         >
-                            <option value="active">Kích Hoạt</option>
-                            <option value="inactive">Không Kích Hoạt</option>
+                            <option value="">Chọn dịch vụ</option>
+                            {dichVuList.map(dichVu => (
+                                <option key={dichVu.id} value={dichVu.id}>
+                                    {dichVu.tenDichVu}
+                                </option>
+                            ))}
                         </select>
                     </div>
-                    <div className="modal-actions">
-                        <button type="submit">Lưu</button>
-                        <button type="button" onClick={handleClose}>Đóng</button>
+                    <div>
+                        <label>Loại Phòng:</label>
+                        <select
+                            value={loaiPhong}
+                            onChange={(e) => setLoaiPhong(e.target.value)}
+                            required
+                        >
+                            <option value="">Chọn loại phòng</option>
+                            {loaiPhongList.map(loaiPhong => (
+                                <option key={loaiPhong.id} value={loaiPhong.id}>
+                                    {loaiPhong.tenLoaiPhong}
+                                </option>
+                            ))}
+                        </select>
                     </div>
+                    <div>
+                        <label>Trạng Thái:</label>
+                        <select
+                            value={trangThai}
+                            onChange={(e) => setTrangThai(e.target.value)} 
+                            required
+                        >
+                            <option value="">Chọn trạng thái</option>
+                            <option value="Hoạt động">Hoạt động</option>
+                            <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+                        </select>
+                    </div>
+                    <button type="submit">Cập Nhật</button>
+                    <button type="button" onClick={handleClose}>Đóng</button>
                 </form>
             </div>
         </div>
