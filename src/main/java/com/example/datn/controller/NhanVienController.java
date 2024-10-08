@@ -1,22 +1,28 @@
 package com.example.datn.controller;
 
+import com.example.datn.model.KhachHang;
 import com.example.datn.model.NhanVien;
 import com.example.datn.service.IMPL.NhanVienServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 @CrossOrigin
 @RestController
+@RequestMapping("nhan-vien")
 public class NhanVienController {
     @Autowired
     NhanVienServiceIMPL nhanVienServiceIMPL;
 
-    @GetMapping("/nhan-vien")
-    public List<NhanVien> nhanVienHome() {
-        return nhanVienServiceIMPL.getAll();
+    @GetMapping("hien-thi")
+    public ResponseEntity<?> HienThiNhanVien() {
+        List<NhanVien> kh = nhanVienServiceIMPL.getAll();
+        return ResponseEntity.ok(kh);
     }
 
     @GetMapping("/nhan-vien/view-add")

@@ -10,16 +10,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-
 @Entity
 @Table(name = "loai_phong")
 public class LoaiPhong {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-
     @Column(name = "ten_loai_phong")
     private String tenLoaiPhong;
 
