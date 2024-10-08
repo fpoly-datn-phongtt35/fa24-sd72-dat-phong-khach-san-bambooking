@@ -13,11 +13,9 @@ import lombok.Setter;
 @Table(name = "hinh_anh")
 @Entity
 public class HinhAnh {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     @JoinColumn(name = "id_phong")
     @ManyToOne
     private Phong phong;

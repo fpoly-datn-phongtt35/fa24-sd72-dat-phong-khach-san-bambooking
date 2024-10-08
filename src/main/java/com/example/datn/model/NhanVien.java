@@ -27,6 +27,7 @@ public class NhanVien {
 
     @JoinColumn(name = "id_vai_tro")
     @ManyToOne
+
     private VaiTro vaiTro;
 
     @Column(name = "ho")
@@ -37,9 +38,8 @@ public class NhanVien {
     @Column(name = "gioi_tinh")
     private String gioiTinh;
 
-
-    @Column(name = "quoc_gia")
-    private String quocGia;
+    @Column(name = "dia_chi")
+    private String diaChi;
 
     @Column(name = "sdt")
     private String sdt;

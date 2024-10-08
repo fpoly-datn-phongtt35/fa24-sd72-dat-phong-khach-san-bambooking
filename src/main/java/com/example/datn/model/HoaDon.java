@@ -21,9 +21,19 @@ public class HoaDon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+
+
+
     @ManyToOne
-    @JoinColumn(name = "id_tai_khoan")
-    private TaiKhoan taiKhoan;
+    @JoinColumn(name = "id_nhan_vien")
+    private NhanVien nhanVien;
+
+    @ManyToOne
+    @JoinColumn(name = "id_dat_phong")
+    private DatPhong datPhong;
+
+    @Column(name = "ma_hoa_don")
+    private String maHoaDon;
 
     @Column(name = "tong_tien")
     private Double tongTien;
