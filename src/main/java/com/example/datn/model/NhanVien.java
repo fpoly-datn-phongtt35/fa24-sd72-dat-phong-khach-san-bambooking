@@ -21,6 +21,14 @@ public class NhanVien {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @JoinColumn(name = "id_nhan_vien")
+    @ManyToOne
+    private NhanVien nhanVien;
+
+    @JoinColumn(name = "id_vai_tro")
+    @ManyToOne
+    private VaiTro vaiTro;
+
     @Column(name = "ho")
     private String ho;
     @Column(name = "ten")
