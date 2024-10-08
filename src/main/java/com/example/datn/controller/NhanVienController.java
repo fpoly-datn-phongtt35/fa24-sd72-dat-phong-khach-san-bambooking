@@ -2,6 +2,7 @@ package com.example.datn.controller;
 
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.NhanVien;
+import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.service.NhanVienService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,22 +12,43 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "*")
 
 @RestController
-@RequestMapping("nhan-vien")
+
 public class NhanVienController {
     @Autowired
     NhanVienService nhanVienService;
+
+    @Autowired
+    NhanVienRepository nhanVienRepository;
+
+    @GetMapping("/nhan-vien")
+    public List<NhanVien> hienThi(){
+        return nhanVienRepository.findAll();
+    }
+//    @PostMapping("/nhan-vien")
+//    public ResponseEntity<String> add(@RequestBody NhanVien nhanVien) {
+//        try {
+//            nhanVienService.create(nhanVien);
+//            return ResponseEntity.status(HttpStatus.CREATED).body("Nhân viên đã được thêm thành công");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi thêm nhân viên: " + e.getMessage());
+//        }
+//    }
+
     @PostMapping("/nhan-vien")
-    public ResponseEntity<String> add(@RequestBody NhanVien nhanVien) {
-        try {
-            nhanVienService.create(nhanVien);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Nhân viên đã được thêm thành công");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi thêm nhân viên: " + e.getMessage());
+    public ResponseEntity<String> addNhanVien(@RequestBody NhanVien nhanVien) {
+        // Kiểm tra nếu số điện thoại đã tồn tại
+        Optional<NhanVien> existingNhanVien = nhanVienService.findBySdt(nhanVien.getSdt());
+        if (existingNhanVien.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Số điện thoại đã tồn tại.");
         }
+        // Thêm nhân viên mới
+        nhanVienService.create(nhanVien);
+        return ResponseEntity.ok("Thêm nhân viên thành công");
     }
 
     @PutMapping("/nhan-vien/{id}")

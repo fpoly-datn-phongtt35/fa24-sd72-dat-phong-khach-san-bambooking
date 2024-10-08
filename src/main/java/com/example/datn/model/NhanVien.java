@@ -21,13 +21,12 @@ public class NhanVien {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @JoinColumn(name = "id_nhan_vien")
+    @JoinColumn(name = "id_tai_khoan")
     @ManyToOne
-    private NhanVien nhanVien;
+    private TaiKhoan taiKhoan;
 
     @JoinColumn(name = "id_vai_tro")
     @ManyToOne
-
     private VaiTro vaiTro;
 
     @Column(name = "ho")

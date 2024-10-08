@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
@@ -18,10 +19,11 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
                 where nv.ho like %:keyword%
                 or nv.ten like %:keyword%
                 or nv.gioiTinh like %:keyword%
-                or nv.quocGia like %:keyword%
+                or nv.diaChi like %:keyword%
                 or nv.sdt like %:keyword%
                 """)
 
     Page<NhanVien> searchByName(@Param("keyword") String keyword, Pageable pageable);
+    Optional<NhanVien> findBySdt(String sdt);
 }
 

@@ -1,5 +1,6 @@
 package com.example.datn.controller;
 import com.example.datn.model.TaiKhoan;
+import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.service.TaiKhoanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -16,6 +17,13 @@ public class TaiKhoanController {
     @Autowired
     TaiKhoanService taiKhoanService;
 
+    @Autowired
+    TaiKhoanRepository taiKhoanRepository;
+
+    @GetMapping("/tai-khoan")
+    public List<TaiKhoan> getAll(){
+        return taiKhoanRepository.findAll();
+    }
     @PostMapping("/tai-khoan")
     public ResponseEntity<String> add(@RequestBody TaiKhoan taiKhoan) {
         try {

@@ -23,13 +23,9 @@
   },
   "homepage": "https://github.com/ISunDevIl/DuAnTotNghiep#readme",
   "dependencies": {
-<<<<<<< HEAD
     "axios": "^1.7.7",
+    "bootstrap-icons": "^1.11.3",
     "cors": "^2.8.5",
     "react-router-dom": "^6.26.2"
-=======
-    "bootstrap-icons": "^1.11.3",
-    "datn": "file:"
->>>>>>> e1cf60d7331f5fd5c60f75207378ee6e2d2e7220
   }
 }

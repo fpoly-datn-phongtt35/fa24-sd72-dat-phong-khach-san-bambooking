@@ -56,7 +56,10 @@ public class NhanVienServiceIMPL implements NhanVienService{
         return nhanVienRepository.searchByName(keyword,pageable);
     }
 
-
+    @Override
+    public Optional<NhanVien> findBySdt(String sdt) {
+        return nhanVienRepository.findBySdt(sdt);
+    }
 
 
 }
