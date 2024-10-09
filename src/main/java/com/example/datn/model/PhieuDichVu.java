@@ -37,7 +37,7 @@ public class PhieuDichVu {
     @Column(name = "ngay_ket_thuc")
     private LocalDateTime ngayKetThuc;
 
-    @Column(name = "thanh_tien")
+    @Column(name = "gia_su_dung")
     private Double giaSuDung;
     @Column(name = "thanh_tien")
     private Double thanhTien;

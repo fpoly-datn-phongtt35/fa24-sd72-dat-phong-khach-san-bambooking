@@ -1,18 +1,11 @@
-
 .main-container {
     display: flex;
     align-items: flex-start;
 }
 
-.vertical-bar {
-    width: 250px; /* Độ rộng của thanh điều hướng */
-    padding: 20px;
-    background-color: #f8f9fa; /* Màu nền nhạt để phân biệt thanh điều hướng */
-    border-right: 1px solid #ddd;
-}
 
 .content-container {
-    flex: 1; /* Phần nội dung chiếm toàn bộ không gian còn lại */
+    flex: 1;
     padding: 20px;
 }
 
@@ -32,15 +25,12 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    border: 1px solid #ddd; /* Thêm viền */
 }
 
 .booking-card:hover {
-    transform: translateY(-5px);
-}
-
-.booking-header {
-    margin-bottom: 10px; /* Khoảng cách dưới tiêu đề */
-
+    transform: translateY(-5px); /* Hiệu ứng nổi khi hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Tăng đổ bóng khi hover */
 }
 
 .booking-header h3 {
@@ -50,7 +40,7 @@
 }
 
 .status-container {
-    margin-bottom: 15px; /* Khoảng cách dưới status */
+    margin-bottom: 15px;
 }
 
 .status {
@@ -58,23 +48,23 @@
     border-radius: 4px;
     font-weight: bold;
     color: white;
-    display: inline-block; /* Hiển thị inline để căn chỉnh bên dưới mã đặt phòng */
+    display: inline-block;
 }
 
-.status.confirmed {
-    background-color: #28a745; /* Màu xanh cho trạng thái đã xác nhận */
+.status.Confirmed {
+    background-color: #28a745;
 }
 
-.status.canceled {
-    background-color: #dc3545; /* Màu đỏ cho trạng thái đã hủy */
+.status.Canceled {
+    background-color: #dc3545;
 }
 
-.status.unconfirmed {
-    background-color: #deeb2b; /* Màu vàng cho trạng thái chưa xác nhận */
+.status.Unconfirmed {
+    background-color: #ffc107;
 }
 
-.status.processing {
-    background-color: #2e47ed; /* Màu xanh lam cho trạng thái đang xử lý */
+.status.Processing {
+    background-color: #007bff;
 }
 
 .booking-body p {
@@ -85,4 +75,29 @@
 
 .booking-body strong {
     color: #333;
+}
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.pagination button:hover {
+    background-color: #218838;
+}
+
+.pagination span {
+    font-size: 16px;
 }
