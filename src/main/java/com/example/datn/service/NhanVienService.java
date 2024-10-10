@@ -15,4 +15,6 @@ public interface NhanVienService {
 
     Page<NhanVien> searchNhanVien(String keyword, Pageable pageable);
     Optional<NhanVien> findBySdt(String sdt);
+
+    NhanVien getNhanVienById(Integer id);
 }

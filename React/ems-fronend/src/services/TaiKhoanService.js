@@ -14,9 +14,9 @@ export const createTaiKhoan = async (taiKhoan) => {
   return await axios.post(`${api}`, taiKhoan); // Thêm nhân viên mới
 };
 
-export const updateTaiKhoan = (id, taiKhoan) => {
-  return axios.put(`${api}/${id}`, taiKhoan);
-};
+// export const updateTaiKhoan = (id, taiKhoan) => {
+//   return axios.put(`${api}/${id}`, taiKhoan);
+// };
 
 // Hàm xóa tài khoản
 export const deleteTaiKhoan = (id) => {
@@ -32,4 +32,9 @@ export const getTaiKhoanList = async () => {
     console.error("Lỗi khi lấy danh sách tài khoản:", error);
     throw error;
   }
+};
+
+
+export const updateTaiKhoan = (taiKhoan) => {
+  return axios.put(`http://localhost:8080/${taiKhoan.id}`, taiKhoan);
 };

@@ -61,5 +61,10 @@ public class NhanVienServiceIMPL implements NhanVienService{
         return nhanVienRepository.findBySdt(sdt);
     }
 
+    @Override
+    public NhanVien getNhanVienById(Integer id) {
+        return nhanVienRepository.findById(id).orElse(null);
+    }
+
 
 }

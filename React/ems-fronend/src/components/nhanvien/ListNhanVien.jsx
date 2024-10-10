@@ -59,10 +59,11 @@ const ListNhanVien = () => {
     navigate("/add-nhanvien");
   }
 
-  const handleCloseModal = () => {
-    setSelectedEmployee(null);
+  const handleEditClick = (id) => {
+    navigate(`/update-nhan-vien/${id}`);
   };
 
+ 
   const handleUpdateNhanVien = (e) => {
     e.preventDefault(); // Ngăn chặn reload trang
     const nhanVien = {
@@ -86,7 +87,6 @@ const ListNhanVien = () => {
         setNhanVien((prev) =>
           prev.map((emp) => (emp.id === nhanVien.id ? nhanVien : emp))
         );
-        handleCloseModal(); // Đóng modal sau khi cập nhật
       })
       .catch((error) => {
         console.error(
@@ -118,6 +118,8 @@ const ListNhanVien = () => {
     setSearchQuery(e.target.value);
     setCurrentPage(0); // reset lại trang khi tìm kiếm
   };
+
+
 
   return (
     <div className="container">
@@ -172,41 +174,7 @@ const ListNhanVien = () => {
                     <td>{new Date(nv.ngaySua).toLocaleDateString("vi-VN")}</td>
                     <td>{nv.trangThai}</td>
                     <td>
-                      <button
-                        className="btn btn-info"
-                        onClick={() => {
-                          setSelectedEmployee(nv);
-                          setHo(nv.ho);
-                          setTen(nv.ten);
-                          setGioiTinh(nv.gioiTinh);
-                          setDiaChi(nv.diaChi);
-                          setSdt(nv.sdt);
-                          setEmail(nv.email);
-                          setNgayTao(
-                            nv.ngayTao
-                              ? new Date(
-                                  new Date(nv.ngayTao).getTime() +
-                                    7 * 60 * 60 * 1000
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
-                              : ""
-                          );
-                          setNgaySua(
-                            nv.ngaySua
-                              ? new Date(
-                                  new Date(nv.ngaySua).getTime() +
-                                    7 * 60 * 60 * 1000
-                                )
-                                  .toISOString()
-                                  .split("T")[0]
-                              : ""
-                          );
-                          setTrangThai(nv.trangThai);
-                        }}
-                      >
-                        Chi tiết
-                      </button>
+                      <button onClick={() => handleEditClick(nv.id)}>Update</button>
                       <button
                         className="btn btn-danger"
                         onClick={() => handleDeleteNhanVien(nv.id)}
@@ -247,138 +215,6 @@ const ListNhanVien = () => {
           </div>
         </div>
       </div>
-
-      {selectedEmployee && (
-        <div
-          className="modal show"
-          style={{ display: "block" }}
-          onClick={handleCloseModal}
-        >
-          <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Thông tin nhân viên</h5>
-              </div>
-              <div className="modal-body">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleUpdateNhanVien(e);
-                  }}
-                >
-                  <div className="form-group mb-2">
-                    <label className="form-label">Họ</label>
-                    <input
-                      type="text"
-                      value={ho}
-                      className="form-control"
-                      onChange={(e) => setHo(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group mb-2">
-                    <label className="form-label">Tên</label>
-                    <input
-                      type="text"
-                      value={ten}
-                      className="form-control"
-                      onChange={(e) => setTen(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group mb-2">
-                    <label className="form-label">Giới tính</label>
-                    <div>
-                      <label>
-                        <input
-                          type="radio"
-                          value="Nam"
-                          checked={gioiTinh === "Nam"}
-                          onChange={(e) => setGioiTinh(e.target.value)}
-                        />
-                        Nam
-                      </label>
-                      <label className="ms-3">
-                        <input
-                          type="radio"
-                          value="Nữ"
-                          checked={gioiTinh === "Nữ"}
-                          onChange={(e) => setGioiTinh(e.target.value)}
-                        />
-                        Nữ
-                      </label>
-                    </div>
-                  </div>
-                  <div className="form-group mb-2">
-                    <label className="form-label">Quốc gia</label>
-                    <input
-                      type="text"
-                      value={diaChi}
-                      className="form-control"
-                      onChange={(e) => setDiaChi(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group mb-2">
-                    <label className="form-label">Số điện thoại</label>
-                    <input
-                      type="text"
-                      value={sdt}
-                      className="form-control"
-                      onChange={(e) => setSdt(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group mb-2">
-                    <label className="form-label">Email</label>
-                    <input
-                      type="text"
-                      value={email}
-                      className="form-control"
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group mb-2">
-                    <label className="form-label">Ngày tạo</label>
-                    <input
-                      type="date"
-                      value={ngayTao}
-                      className="form-control"
-                      onChange={(e) => setNgayTao(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group mb-2">
-                    <label className="form-label">Ngày sửa</label>
-                    <input
-                      type="date"
-                      value={ngaySua}
-                      className="form-control"
-                      onChange={(e) => setNgaySua(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group mb-2">
-                    <label className="form-label">Trạng thái</label>
-                    <input
-                      type="text"
-                      value={trangThai}
-                      className="form-control"
-                      onChange={(e) => setTrangThai(e.target.value)}
-                    />
-                  </div>
-                  <button type="submit" className="btn btn-warning">
-                    Cập nhật
-                  </button>
-                </form>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handleCloseModal}
-                >
-                  Đóng
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

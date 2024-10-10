@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { createTaiKhoan } from '../../services/TaiKhoanService';
 
 const TaiKhoanComponent = () => {
-    const [nhanVien, setNhanVien] = useState(''); // ID Nhân Viên
-    const [vaiTro, setVaiTro] = useState('');     // ID Vai Trò
     const [tenDangNhap, setTenDangNhap] = useState('');
     const [matKhau, setMatKhau] = useState('');
     const [trangThai, setTrangThai] = useState('');
@@ -16,8 +14,6 @@ const TaiKhoanComponent = () => {
         e.preventDefault();
     
         const taiKhoan = {
-            nhanVien: { id: parseInt(nhanVien) },  // ID Nhân Viên (ở dạng đối tượng)
-            vaiTro: { id: parseInt(vaiTro) },      // ID Vai Trò (ở dạng đối tượng)
             tenDangNhap,
             matKhau,
             trangThai
@@ -40,16 +36,6 @@ const TaiKhoanComponent = () => {
                     <div className='col-md-6 offset-md-3'>
                         <div className='card-body'>
                             <form>
-                                <div className='form-group mb-2'>
-                                    <label className='form-label'>Id Nhân Viên</label>
-                                    <input type="text" value={nhanVien} className='form-control' onChange={(e) => setNhanVien(e.target.value)} />
-                                </div>
-
-                                <div className='form-group mb-2'>
-                                    <label className='form-label'>Id Vai Trò</label>
-                                    <input type="text" value={vaiTro} className='form-control' onChange={(e) => setVaiTro(e.target.value)} />
-                                </div>
-                                
                                 <div className='form-group mb-2'>
                                     <label className='form-label'>Tên Đăng Nhập</label>
                                     <input type="text" value={tenDangNhap} className='form-control' onChange={(e) => setTenDangNhap(e.target.value)} />

@@ -29,15 +29,7 @@ public class NhanVienController {
     public List<NhanVien> hienThi(){
         return nhanVienRepository.findAll();
     }
-//    @PostMapping("/nhan-vien")
-//    public ResponseEntity<String> add(@RequestBody NhanVien nhanVien) {
-//        try {
-//            nhanVienService.create(nhanVien);
-//            return ResponseEntity.status(HttpStatus.CREATED).body("Nhân viên đã được thêm thành công");
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi thêm nhân viên: " + e.getMessage());
-//        }
-//    }
+
 
     @PostMapping("/nhan-vien")
     public ResponseEntity<String> addNhanVien(@RequestBody NhanVien nhanVien) {
@@ -74,5 +66,15 @@ public class NhanVienController {
     @GetMapping("/nhan-vien/search")
     public Page<NhanVien> searchNhanVien(@RequestParam(required = false) String keyword, Pageable pageable) {
         return nhanVienService.searchNhanVien(keyword, pageable);
+    }
+
+    @GetMapping("/nhan-vien/{id}")
+    public ResponseEntity<NhanVien> getNhanVienById(@PathVariable Integer id) {
+        NhanVien nhanVien = nhanVienService.getNhanVienById(id);
+        if (nhanVien != null) {
+            return ResponseEntity.ok(nhanVien);
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về mã 404 nếu không tìm thấy nhân viên
+        }
     }
 }

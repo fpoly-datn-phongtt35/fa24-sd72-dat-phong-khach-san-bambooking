@@ -33,6 +33,7 @@ function App() {
           <Route path="/VaiTro" element = {<ListVaiTro />} />
           <Route path='/add-nhanvien' element = {<NhanVienComponent />} />
           <Route path='/add-taikhoan' element = {<TaiKhoanComponent />} />
+          <Route path="/update-nhan-vien/:id" element={<NhanVienComponent />} />
               <Route path="/DichVu" element={<TableDichVu />} />
               <Route path="/TienNghi" element={<TienNghi />} />
               <Route path="/DatPhong" element={<DatPhong />} />
