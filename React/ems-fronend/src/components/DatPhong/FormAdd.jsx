@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ThemMoiDatPhong, DanhSachKhachHang, DanhSachNhanVien } from '../../services/DatPhong';
-import './FormAddPage.css'; // Import CSS mới
 
 const FormAdd = () => {
     const [formData, setFormData] = useState({
@@ -59,8 +58,8 @@ const FormAdd = () => {
     };
 
     return (
-        <div className="form-add-page">
-            <div className="form-container">
+        <div>
+            <div>
                 <h3>Thêm mới đặt phòng</h3>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
@@ -103,7 +102,6 @@ const FormAdd = () => {
                     </div>
                 </form>
             </div>
-            <div className="empty-space"></div>
         </div>
     );
 };

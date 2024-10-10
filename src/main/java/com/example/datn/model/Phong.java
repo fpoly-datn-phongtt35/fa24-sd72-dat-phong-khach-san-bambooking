@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -31,4 +33,6 @@ public class Phong {
     private String tinhTrang;
     @Column(name = "trang_thai")
     private String trangThai;
+    @OneToMany(mappedBy = "phong")
+    private List<HinhAnh> hinhAnhs;
 }

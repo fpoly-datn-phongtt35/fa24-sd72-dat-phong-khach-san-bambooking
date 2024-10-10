@@ -3,8 +3,11 @@ package com.example.datn.controller;
 
 import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.response.DatPhongResponse;
+import com.example.datn.dto.response.PhongResponse;
+import com.example.datn.dto.response.PhongResponseDat;
 import com.example.datn.model.DatPhong;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
+import com.example.datn.service.IMPL.PhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +22,9 @@ import java.util.List;
 public class DatPhongController {
     @Autowired
     DatPhongServiceIMPL datPhongServiceIMPL;
+
+    @Autowired
+    PhongServiceIMPL phongServiceIMPL;
 
     @GetMapping("hien-thi")
     public ResponseEntity<?> HienThiDatPhong(
@@ -67,5 +73,13 @@ public class DatPhongController {
             Pageable pageable){
         Page<DatPhongResponse> dp = datPhongServiceIMPL.searchDatPhong(keyword,start,end,pageable);
         return ResponseEntity.ok(dp);
+    }
+
+    @GetMapping("phong-kha-dung")
+    public ResponseEntity<?> PhongKhaDung(@RequestParam() LocalDateTime ngayNhanPhong,
+                                          @RequestParam() LocalDateTime ngayTraPhong,
+                                          Pageable pageable){
+        Page<PhongResponseDat> p = phongServiceIMPL.PhongKhaDung(ngayNhanPhong,ngayTraPhong,pageable);
+        return ResponseEntity.ok(p);
     }
 }
