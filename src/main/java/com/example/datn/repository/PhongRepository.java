@@ -30,14 +30,19 @@
         @Query("SELECT new com.example.datn.dto.response.PhongResponseDat(p.id, p.loaiPhong.tenLoaiPhong, p.maPhong, p.tenPhong, p.giaPhong, " +
                 " COALESCE((SELECT a.duongDan FROM HinhAnh a WHERE a.phong.id = p.id AND a.trangThai = 'hoat dong' ORDER BY a.id ASC LIMIT 1), '') " +
                 ") FROM Phong p " +
-                "WHERE p.id NOT IN (" +
-                "    SELECT t.phong.id FROM ThongTinDatPhong t " +
-                "    WHERE (:ngayNhanPhong IS NOT NULL AND :ngayTraPhong IS NOT NULL AND " +
-                "          t.ngayNhanPhong <= :ngayTraPhong AND t.ngayTraPhong >= :ngayNhanPhong) " +
-                ") OR (:ngayNhanPhong IS NULL OR :ngayTraPhong IS NULL)")
+                "LEFT JOIN ThongTinDatPhong t ON p.id = t.phong.id AND (:ngayNhanPhong IS NOT NULL AND :ngayTraPhong IS NOT NULL AND " +
+                "      t.ngayNhanPhong <= :ngayTraPhong AND t.ngayTraPhong >= :ngayNhanPhong) " +
+                "WHERE t.id IS NULL " +  // Chỉ chọn phòng không có trong ThongTinDatPhong
+                "AND (:sucChuaLon IS NULL OR p.loaiPhong.sucChuaLon >= :sucChuaLon) " +  // Điều kiện về sức chứa lớn
+                "AND (:sucChuaNho IS NULL OR p.loaiPhong.sucChuaNho >= :sucChuaNho)")
         Page<PhongResponseDat> PhongKhaDung(@Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
                                             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
+                                            @Param("sucChuaLon") Integer sucChuaLon,
+                                            @Param("sucChuaNho") Integer sucChuaNho,
                                             Pageable pageable);
+
+
+
 
 
 

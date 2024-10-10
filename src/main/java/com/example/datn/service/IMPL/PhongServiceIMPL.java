@@ -9,6 +9,7 @@ import com.example.datn.model.Phong;
 import com.example.datn.repository.LoaiPhongRepository;
 import com.example.datn.repository.PhongRepository;
 import com.example.datn.service.PhongService;
+import com.example.datn.utilities.DateTimeFormat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,7 +26,6 @@ public class PhongServiceIMPL implements PhongService {
     PhongRepository phongRepository;
     LoaiPhongRepository loaiPhongRepository;
     PhongMapper phongMapper;
-
 
     @Override
     public Page<Phong> getAllPhong(Pageable pageable) {
@@ -87,7 +87,8 @@ public class PhongServiceIMPL implements PhongService {
     }
 
     @Override
-    public Page<PhongResponseDat> PhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable) {
-        return phongRepository.PhongKhaDung(ngayNhanPhong,ngayTraPhong,pageable);
+    public Page<PhongResponseDat> PhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
+                                               Integer sucChuaLon,Integer sucChuaNho,Pageable pageable) {
+        return phongRepository.PhongKhaDung(ngayNhanPhong,ngayTraPhong,sucChuaLon,sucChuaNho,pageable);
     }
 }

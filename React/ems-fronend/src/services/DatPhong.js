@@ -19,11 +19,13 @@ export const DanhSachDatPhong = (pageable, trangThai) => {
     });
 };
 
-export const PhongKhaDung = (ngayNhanPhong , ngayTraPhong , pageable) => {
+export const PhongKhaDung = (ngayNhanPhong , ngayTraPhong ,sucChuaLon,sucChuaNho, pageable) => {
     return axios.get(apiPhong, {
         params: {
             ngayNhanPhong: ngayNhanPhong,
             ngayTraPhong: ngayTraPhong,
+            sucChuaLon: sucChuaLon,
+            sucChuaNho: sucChuaNho,
             page: pageable.page, 
             size: pageable.size
         }

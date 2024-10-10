@@ -10,6 +10,7 @@ import com.example.datn.service.IMPL.DatPhongServiceIMPL;
 import com.example.datn.service.IMPL.PhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,10 +77,18 @@ public class DatPhongController {
     }
 
     @GetMapping("phong-kha-dung")
-    public ResponseEntity<?> PhongKhaDung(@RequestParam() LocalDateTime ngayNhanPhong,
-                                          @RequestParam() LocalDateTime ngayTraPhong,
+    public ResponseEntity<?> PhongKhaDung(@RequestParam(required = false) LocalDateTime ngayNhanPhong,
+                                          @RequestParam(required = false) LocalDateTime ngayTraPhong,
+                                          @RequestParam(required = false) Integer sucChuaLon,
+                                          @RequestParam(required = false) Integer sucChuaNho,
                                           Pageable pageable){
-        Page<PhongResponseDat> p = phongServiceIMPL.PhongKhaDung(ngayNhanPhong,ngayTraPhong,pageable);
+        Pageable pa = PageRequest.of(pageable.getPageNumber(),5);
+        System.out.println(ngayNhanPhong);
+        System.out.println(ngayTraPhong);
+        System.out.println(sucChuaLon);
+        System.out.println("Lon nho");
+        System.out.println(sucChuaNho);
+        Page<PhongResponseDat> p = phongServiceIMPL.PhongKhaDung(ngayNhanPhong,ngayTraPhong,sucChuaLon, sucChuaNho,pa);
         return ResponseEntity.ok(p);
     }
 }

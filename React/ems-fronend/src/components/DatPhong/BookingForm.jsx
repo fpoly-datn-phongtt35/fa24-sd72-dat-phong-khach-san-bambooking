@@ -12,13 +12,9 @@ const BookingForm = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
 
-    // Giá trị mặc định cho ngayNhanPhong và ngayTraPhong
-    const defaultNgayNhanPhong = '2024-10-10T14:30:45'; // Hoặc giá trị khác bạn muốn
-    const defaultNgayTraPhong = '2024-10-12T14:30:45'; // Hoặc giá trị khác bạn muốn
-
     // Hàm lấy dữ liệu phòng khả dụng
-    const getPhongKhaDung = (ngayNhanPhong = defaultNgayNhanPhong, ngayTraPhong = defaultNgayTraPhong) => {
-        PhongKhaDung(ngayNhanPhong, ngayTraPhong, { page: currentPage, size: 5 })
+    const getPhongKhaDung = (ngayNhanPhong , ngayTraPhong,adults,children) => {
+        PhongKhaDung(ngayNhanPhong, ngayTraPhong,adults,children, { page: currentPage})
             .then((response) => {
                 console.log(response.data.content);
                 setPhongKhaDung(response.data.content);
@@ -37,7 +33,11 @@ const BookingForm = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         // Gọi API với các giá trị startDate và endDate mà người dùng chọn
-        getPhongKhaDung(startDate, endDate);
+        console.log(startDate);
+        console.log(endDate);
+        console.log(adults);
+        console.log(children);
+        getPhongKhaDung(startDate, endDate,adults,children);
     };
 
     const handleNextPage = () => {
@@ -51,6 +51,12 @@ const BookingForm = () => {
             setCurrentPage((prevPage) => prevPage - 1);
         }
     };
+
+    const formatDateToDisplay = (date) => {
+        if (!date) return '';
+        const [yyyy, mm, dd] = date.split('T')[0].split('-');
+        return `${dd}-${mm}-${yyyy}`;
+    };
     return (
         <div className="booking-form-container">
             <Form onSubmit={handleSearch}>
@@ -59,12 +65,13 @@ const BookingForm = () => {
                         <Form.Group controlId="formStartDate">
                             <Form.Label>Ngày Check-in</Form.Label>
                             <Form.Control
-                                type="date"
+                                type="datetime-local"
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
                                 required
                                 className="form-control"
                             />
+                            <p>Ngày đã chọn: {formatDateToDisplay(startDate)}</p>
                         </Form.Group>
                     </Col>
 
@@ -72,7 +79,7 @@ const BookingForm = () => {
                         <Form.Group controlId="formEndDate">
                             <Form.Label>Ngày Check-out</Form.Label>
                             <Form.Control
-                                type="date"
+                                type="datetime-local"
                                 value={endDate}
                                 onChange={(e) => setEndDate(e.target.value)}
                                 required
@@ -174,6 +181,7 @@ const BookingForm = () => {
                 <button onClick={handlePreviousPage} disabled={currentPage === 0}>
                     Trang trước
                 </button>
+                
                 <span>Trang hiện tại: {currentPage + 1} / {totalPages}</span>
                 <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>
                     Trang sau
