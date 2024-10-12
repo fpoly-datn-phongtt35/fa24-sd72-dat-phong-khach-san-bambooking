@@ -50,5 +50,11 @@ public class TaiKhoanServiceIMPL implements TaiKhoanService {
         return taiKhoanRepository.searchByName(keyword, pageable);
     }
 
+    @Override
+    public Optional<TaiKhoan> findByTenDangNhap(String tenDangNhap) {
+        return taiKhoanRepository.findByTenDangNhap(tenDangNhap);
+    }
+
+
 
 }

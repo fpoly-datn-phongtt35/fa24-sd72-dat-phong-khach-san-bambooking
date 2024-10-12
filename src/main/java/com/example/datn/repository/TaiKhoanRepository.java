@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, Integer> {
     @Query("""
@@ -18,4 +20,5 @@ public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, Integer> {
                 or t.trangThai like %:keyword%
                 """)
     Page<TaiKhoan> searchByName(@Param("keyword") String keyword, Pageable pageable);
+    Optional<TaiKhoan> findByTenDangNhap(String tenDangNhap);
 }
