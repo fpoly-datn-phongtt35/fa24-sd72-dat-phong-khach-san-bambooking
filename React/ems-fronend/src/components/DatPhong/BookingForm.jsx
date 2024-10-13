@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Form, Row, Col, Button, Dropdown, DropdownButton, Card } from 'react-bootstrap';
 import './BookingForm.css'; // Import file CSS
 import { PhongKhaDung } from '../../services/DatPhong';
-
 const BookingForm = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -11,10 +11,11 @@ const BookingForm = () => {
     const [phongKhaDung, setPhongKhaDung] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-
+    // State quản lý form đặt phòng và phòng được chọn
+    const navigate = useNavigate();
     // Hàm lấy dữ liệu phòng khả dụng
-    const getPhongKhaDung = (ngayNhanPhong , ngayTraPhong,adults,children) => {
-        PhongKhaDung(ngayNhanPhong, ngayTraPhong,adults,children, { page: currentPage})
+    const getPhongKhaDung = (ngayNhanPhong, ngayTraPhong, adults, children) => {
+        PhongKhaDung(ngayNhanPhong, ngayTraPhong, adults, children, { page: currentPage })
             .then((response) => {
                 console.log(response.data.content);
                 setPhongKhaDung(response.data.content);
@@ -37,7 +38,7 @@ const BookingForm = () => {
         console.log(endDate);
         console.log(adults);
         console.log(children);
-        getPhongKhaDung(startDate, endDate,adults,children);
+        getPhongKhaDung(startDate, endDate, adults, children);
     };
 
     const handleNextPage = () => {
@@ -52,10 +53,9 @@ const BookingForm = () => {
         }
     };
 
-    const formatDateToDisplay = (date) => {
-        if (!date) return '';
-        const [yyyy, mm, dd] = date.split('T')[0].split('-');
-        return `${dd}-${mm}-${yyyy}`;
+    // Hàm mở form đặt phòng
+    const handleCreateBooking = (room) => {
+        navigate('/form-tao', { state: { room, startDate, endDate } }); // Điều hướng và truyền dữ liệu
     };
     return (
         <div className="booking-form-container">
@@ -71,7 +71,6 @@ const BookingForm = () => {
                                 required
                                 className="form-control"
                             />
-                            <p>Ngày đã chọn: {formatDateToDisplay(startDate)}</p>
                         </Form.Group>
                     </Col>
 
@@ -170,7 +169,7 @@ const BookingForm = () => {
                                 <strong className="room-price">Giá: {p.giaPhong} VND</strong>
                             </Col>
                             <Col md={3} className="text-right">
-                                <Button variant="primary" className="mb-2 action-btn">Đặt Phòng</Button>
+                                <Button variant="primary" className="mb-2 action-btn" onClick={() => handleCreateBooking(p)}>Đặt Phòng</Button>
                                 <Button variant="outline-secondary" className="action-btn">Xem Chi Tiết</Button>
                             </Col>
                         </Row>
@@ -181,7 +180,7 @@ const BookingForm = () => {
                 <button onClick={handlePreviousPage} disabled={currentPage === 0}>
                     Trang trước
                 </button>
-                
+
                 <span>Trang hiện tại: {currentPage + 1} / {totalPages}</span>
                 <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>
                     Trang sau

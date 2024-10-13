@@ -13,6 +13,7 @@ import HinhAnh from './components/HinhAnh/HinhAnh';
 import TableNhanVien from './components/TableNhanVien';
 import TienIch from './components/TienIch/TienIch';
 import FormAddPage from './components/DatPhong/FormAddPage';
+import FormAdd from './components/DatPhong/FormAdd';
 function App() {
   return (
     <BrowserRouter>
@@ -30,6 +31,7 @@ function App() {
             {/* Đặt phòng */}
             <Route path="/DatPhong" element={<DatPhong />} />
             <Route path='/tao-dat-phong' element={<FormAddPage />} />
+            <Route path='/form-tao' element={<FormAdd />} />
             {/* Dịch vụ */}
             <Route path="/DichVu" element={<TableDichVu />} />
             {/* Nhân viên */}

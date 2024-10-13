@@ -8,6 +8,7 @@ import com.example.datn.dto.response.PhongResponseDat;
 import com.example.datn.model.DatPhong;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
 import com.example.datn.service.IMPL.PhongServiceIMPL;
+import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +46,10 @@ public class DatPhongController {
 
     @PostMapping("them-moi")
     public ResponseEntity<?> createDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
+        UniqueDatPhongCode code = new UniqueDatPhongCode();
+        String codeDP = code.generateUniqueCode(datPhongServiceIMPL.getAll());
+        datPhongRequest.setMaDatPhong(codeDP);
+        datPhongRequest.setNgayDat(LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.CREATED).body(datPhongServiceIMPL.addDatPhong(datPhongRequest));
     }
 

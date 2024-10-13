@@ -47,8 +47,8 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
             " CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), dp.maDatPhong," +
             " dp.ngayDat, dp.ghiChu, dp.trangThai) " +
             " FROM DatPhong dp " +
-            " WHERE (:trangThai IS NULL OR :trangThai = '' OR dp.trangThai IN :trangThai)" +
-            " ORDER BY dp.ngayDat DESC")
+            " WHERE dp.trangThai IN :trangThai" +
+                    " ORDER BY dp.ngayDat DESC")
     Page<DatPhongResponse> DatPhongTheoTrangThai(@Param("trangThai") List<String> trangThai, Pageable pageable);
     
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id," +

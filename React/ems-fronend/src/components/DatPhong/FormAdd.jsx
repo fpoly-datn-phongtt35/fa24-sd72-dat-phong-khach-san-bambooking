@@ -1,107 +1,149 @@
-import React, { useState, useEffect } from 'react';
-import { ThemMoiDatPhong, DanhSachKhachHang, DanhSachNhanVien } from '../../services/DatPhong';
+import React, { useState } from 'react';
+import { Card, Form, Row, Col, Button } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
+import './FormAdd.css';
 
 const FormAdd = () => {
+    const location = useLocation();
+    const { room, startDate, endDate } = location.state || {}; // Lấy dữ liệu truyền vào
     const [formData, setFormData] = useState({
-        maDatPhong: '',
-        nhanVien: null,
-        khachHang: null,
-        ngayDat: '',
-        ghiChu: '',
-        trangThai: 'processing' // Giá trị mặc định
+        ten: '',
+        ho: '',
+        email: '',
+        sdt: '',
+        diaChi: '',
+        ghiChu: ''
     });
 
-    const [nhanVienList, setNhanVienList] = useState([]);
-    const [khachHangList, setKhachHangList] = useState([]);
-
-    // Lấy danh sách nhân viên và khách hàng khi component render
-    useEffect(() => {
-        DanhSachNhanVien()
-            .then(response => setNhanVienList(response.data))
-            .catch(error => console.error("Lỗi khi lấy danh sách nhân viên:", error));
-
-        DanhSachKhachHang()
-            .then(response => setKhachHangList(response.data))
-            .catch(error => console.error("Lỗi khi lấy danh sách khách hàng:", error));
-    }, []);
-
-    // Hàm xử lý thay đổi giá trị input
-    const handleInputChange = (e) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+        setFormData({ ...formData, [name]: value });
     };
 
-    // Xử lý thay đổi nhân viên và khách hàng
-    const handleNhanVienChange = (e) => {
-        const selectedNhanVien = nhanVienList.find(nv => nv.id === parseInt(e.target.value));
-        setFormData({ ...formData, nhanVien: selectedNhanVien });
-    };
-
-    const handleKhachHangChange = (e) => {
-        const selectedKhachHang = khachHangList.find(kh => kh.id === parseInt(e.target.value));
-        setFormData({ ...formData, khachHang: selectedKhachHang });
-    };
-
-    // Hàm xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
-        ThemMoiDatPhong(formData)
-            .then(response => {
-                console.log("Thêm mới đặt phòng thành công:", response.data);
-            })
-            .catch(error => {
-                console.error("Lỗi khi thêm mới đặt phòng:", error);
-            });
+        console.log('Booking information:', formData);
     };
-
     return (
-        <div>
-            <div>
-                <h3>Thêm mới đặt phòng</h3>
-                <form onSubmit={handleSubmit}>
-                    <div className="mb-3">
-                        <label htmlFor="maDatPhong" className="form-label">Mã Đặt Phòng</label>
-                        <input type="text" id="maDatPhong" name="maDatPhong" value={formData.maDatPhong} onChange={handleInputChange} required />
-                    </div>
+        <div className="booking-form-container">
+            <Row>
+                {/* Form thông tin khách hàng */}
+                <Col md={8}>
+                    <div className="customer-info-container"> {/* Thêm class để áp dụng padding */}
+                        <h3>Thông tin khách hàng</h3>
+                        <Form onSubmit={handleSubmit}>
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3" controlId="firstName">
+                                        <Form.Label>Tên</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="ten"
+                                            value={formData.ten}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3" controlId="lastName">
+                                        <Form.Label>Họ</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="ho"
+                                            value={formData.ho}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
 
-                    <div className="mb-3">
-                        <label htmlFor="nhanVien" className="form-label">Nhân Viên</label>
-                        <select id="nhanVien" name="nhanVien" value={formData.nhanVien?.id || ''} onChange={handleNhanVienChange} required>
-                            <option value="">Chọn nhân viên</option>
-                            {nhanVienList.map(nv => (
-                                <option key={nv.id} value={nv.id}>{nv.ho + " " + nv.ten}</option>
-                            ))}
-                        </select>
-                    </div>
+                            <Form.Group className="mb-3" controlId="email">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
 
-                    <div className="mb-3">
-                        <label htmlFor="khachHang" className="form-label">Khách Hàng</label>
-                        <select id="khachHang" name="khachHang" value={formData.khachHang?.id || ''} onChange={handleKhachHangChange} required>
-                            <option value="">Chọn khách hàng</option>
-                            {khachHangList.map(kh => (
-                                <option key={kh.id} value={kh.id}>{kh.ho + " " + kh.ten}</option>
-                            ))}
-                        </select>
-                    </div>
+                            <Form.Group className="mb-3" controlId="phoneNumber">
+                                <Form.Label>Số điện thoại</Form.Label>
+                                <Form.Control
+                                    type="tel"
+                                    name="sdt"
+                                    value={formData.sdt}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
 
-                    <div className="mb-3">
-                        <label htmlFor="ngayDat" className="form-label">Ngày Đặt</label>
-                        <input type="datetime-local" id="ngayDat" name="ngayDat" value={formData.ngayDat} onChange={handleInputChange} required />
+                            <Form.Group className="mb-3" controlId="diaChi">
+                                <Form.Label>Địa chỉ</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="diaChi"
+                                    value={formData.diaChi}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                
+                                </Form.Control>
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="ghiChu">
+                                <Form.Label>Ghi chú</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={1} 
+                                    name="ghiChu"
+                                    value={formData.ghiChu}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+                            <Button variant="primary" type="submit">
+                                Lưu
+                            </Button>
+                        </Form>
                     </div>
+                </Col>
 
-                    <div className="mb-3">
-                        <label htmlFor="ghiChu" className="form-label">Ghi Chú</label>
-                        <textarea id="ghiChu" name="ghiChu" rows={3} value={formData.ghiChu} onChange={handleInputChange}></textarea>
-                    </div>
-
-                    <div className="form-footer">
-                        <button type="submit" className="btn btn-primary">Lưu</button>
-                    </div>
-                </form>
-            </div>
+                {/* Thông tin phòng bên phải */}
+                <Col md={4}>
+                    <Card>
+                        <Card.Img
+                            variant="top"
+                            src="https://via.placeholder.com/150" // Link hình ảnh phòng
+                            alt="Phòng"
+                        />
+                        <Card.Body>
+                            <Card.Title>{room.tenPhong}</Card.Title>
+                            <Card.Text>
+                                19 m² | Tối đa: 2 người lớn
+                                <br />
+                                Khách: 2 người lớn
+                                <br />
+                                1 giường đôi lớn và 1 giường sofa
+                            </Card.Text>
+                            <ul>
+                                <li>Khuyến mại chớp nhoáng!</li>
+                                <li>Phòng cuối cùng ở mức giá này!</li>
+                                <li>Bãi đậu xe</li>
+                                <li>Nhận phòng nhanh</li>
+                                <li>Wi-Fi miễn phí</li>
+                                <li>Nước uống</li>
+                                <li>Phòng tập</li>
+                            </ul>
+                            <Button variant="outline-success" className="m-2">
+                                Bãi đỗ xe
+                            </Button>
+                            <Button variant="outline-success">Wi-Fi Miễn Phí</Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
         </div>
     );
 };

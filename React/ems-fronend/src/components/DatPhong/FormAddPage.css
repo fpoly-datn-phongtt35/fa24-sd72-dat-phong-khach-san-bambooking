@@ -5,17 +5,16 @@
 }
 
 .form-container {
-    width: 30%;
-    padding: 20px;
-    background-color: #f7f7f7; /* Màu nền sáng */
+    width: 20%;
+    padding-left: 20px;
+    background-color: #fff; /* Màu nền sáng */
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
     display: flex;
     flex-direction: column;
-    justify-content: center; /* Canh giữa theo trục dọc */
 }
 
 .empty-space {
-    width: 70%; /* Phần còn lại của màn hình */
+    width: 85%; /* Phần còn lại của màn hình */
     background-color: #fff; /* Màu trắng cho sự tương phản */
 }
 

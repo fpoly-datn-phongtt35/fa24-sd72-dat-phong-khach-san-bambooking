@@ -1,5 +1,6 @@
 package com.example.datn.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,5 +35,6 @@ public class Phong {
     @Column(name = "trang_thai")
     private String trangThai;
     @OneToMany(mappedBy = "phong")
+    @JsonManagedReference
     private List<HinhAnh> hinhAnhs;
 }
