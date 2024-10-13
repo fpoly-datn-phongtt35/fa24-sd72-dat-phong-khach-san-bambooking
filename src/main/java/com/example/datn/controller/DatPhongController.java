@@ -3,24 +3,30 @@ package com.example.datn.controller;
 
 import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.response.DatPhongResponse;
+import com.example.datn.dto.response.PhongResponse;
+import com.example.datn.dto.response.PhongResponseDat;
 import com.example.datn.model.DatPhong;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
+import com.example.datn.service.IMPL.PhongServiceIMPL;
+import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
-
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/dat-phong")
 public class DatPhongController {
     @Autowired
     DatPhongServiceIMPL datPhongServiceIMPL;
+
+    @Autowired
+    PhongServiceIMPL phongServiceIMPL;
 
     @GetMapping("hien-thi")
     public ResponseEntity<?> HienThiDatPhong(
@@ -40,8 +46,13 @@ public class DatPhongController {
 
     @PostMapping("them-moi")
     public ResponseEntity<?> createDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
+        UniqueDatPhongCode code = new UniqueDatPhongCode();
+        String codeDP = code.generateUniqueCode(datPhongServiceIMPL.getAll());
+        datPhongRequest.setMaDatPhong(codeDP);
+        datPhongRequest.setNgayDat(LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.CREATED).body(datPhongServiceIMPL.addDatPhong(datPhongRequest));
     }
+
 
     @GetMapping("/detail/{id}")
     public ResponseEntity<?> detailDatPhong(@PathVariable Integer id) {
@@ -70,4 +81,19 @@ public class DatPhongController {
         return ResponseEntity.ok(dp);
     }
 
+    @GetMapping("phong-kha-dung")
+    public ResponseEntity<?> PhongKhaDung(@RequestParam(required = false) LocalDateTime ngayNhanPhong,
+                                          @RequestParam(required = false) LocalDateTime ngayTraPhong,
+                                          @RequestParam(required = false) Integer sucChuaLon,
+                                          @RequestParam(required = false) Integer sucChuaNho,
+                                          Pageable pageable){
+        Pageable pa = PageRequest.of(pageable.getPageNumber(),5);
+        System.out.println(ngayNhanPhong);
+        System.out.println(ngayTraPhong);
+        System.out.println(sucChuaLon);
+        System.out.println("Lon nho");
+        System.out.println(sucChuaNho);
+        Page<PhongResponseDat> p = phongServiceIMPL.PhongKhaDung(ngayNhanPhong,ngayTraPhong,sucChuaLon, sucChuaNho,pa);
+        return ResponseEntity.ok(p);
+    }
 }

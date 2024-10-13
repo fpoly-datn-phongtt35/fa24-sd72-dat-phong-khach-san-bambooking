@@ -220,8 +220,10 @@ VALUES
 
 INSERT INTO phong (id_loai_phong, ma_phong, ten_phong, gia_phong, tinh_trang, trang_thai)
 VALUES 
-(1, 'D001', N'Phòng Deluxe 1', 1000000, 'available', 'available'),
-(2, 'S001', N'Phòng Suite 1', 2000000, 'available', 'available');
+(1, 'P003', N'Phòng đơn', 1000000, 'available', 'available'),
+(1, 'P004', N'Phòng couple', 1000000, 'available', 'available'),
+(2, 'P005', N'Phòng king', 2000000, 'available', 'available'),
+(2, 'P006', N'Phòng zoro', 2000000, 'available', 'available'),
 
 INSERT INTO hinh_anh (id_phong, ten, duong_dan, trang_thai)
 VALUES 

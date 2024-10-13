@@ -47,5 +47,6 @@ public class PhongController {
     @GetMapping("/search")
     public ResponseEntity<?> searchPhong(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(phongService.searchPhong(keyword, pageable));
+
     }
 }
