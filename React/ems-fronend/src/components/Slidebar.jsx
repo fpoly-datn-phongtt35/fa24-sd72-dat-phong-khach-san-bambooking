@@ -14,12 +14,8 @@ function Sidebar() {
     <div className="sidebar">
       <ul>
         <li className="nav-item">
-          <Link className="nav-link" to="/TrangChu">Trang chủ</Link>
-        </li>
-        <li className="nav-item">
           <Link className="nav-link" to="/DatPhong">Đặt phòng</Link>
         </li>
-  
         {/* Quản lý phòng with submenu */}
         <li
           className={`nav-item has-submenu ${activeSubmenu === 1 ? 'active' : ''}`}
@@ -30,7 +26,6 @@ function Sidebar() {
             <li className="nav-item">
               <Link className="nav-link" to="/phong">Phòng</Link>
             </li>
-            
             <li className="nav-item">
               <Link className="nav-link" to="/LoaiPhong">Loại phòng</Link>
             </li>

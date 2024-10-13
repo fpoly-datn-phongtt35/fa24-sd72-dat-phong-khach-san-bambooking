@@ -12,8 +12,8 @@ import ListImage from './components/HinhAnh/ListImage';
 import HinhAnh from './components/HinhAnh/HinhAnh';
 import TableNhanVien from './components/TableNhanVien';
 import TienIch from './components/TienIch/TienIch';
-import FormSearch from './components/Home';
-import HotelBooking from './components/BookingView';
+import FormAddPage from './components/DatPhong/FormAddPage';
+import FormAdd from './components/DatPhong/FormAdd';
 function App() {
   return (
     <BrowserRouter>
@@ -22,21 +22,27 @@ function App() {
         <div className="slidebar">
           <SlideBar />
         </div>
-          <div className="main-content">
-            <div className="header">
-              <Header />
-            </div>
-            <Routes>
-              <Route path="/DichVu" element={<TableDichVu />} />
-              <Route path="/NhanVien" element={<TableNhanVien />} />
-              <Route path="/TienNghi" element={<TienNghi />} />
-              <Route path="/DatPhong" element={<DatPhong />} />
-              <Route path="/TienIch" element={<TienIch />} />
+        <div className="main-content">
+          <div className="header">
+            <Header />
+          </div>
+          <Routes>
+
+            {/* Đặt phòng */}
+            <Route path="/DatPhong" element={<DatPhong />} />
+            <Route path='/tao-dat-phong' element={<FormAddPage />} />
+            <Route path='/form-tao' element={<FormAdd />} />
+            {/* Dịch vụ */}
+            <Route path="/DichVu" element={<TableDichVu />} />
+            {/* Nhân viên */}
+            <Route path="/NhanVien" element={<TableNhanVien />} />
+            {/* Tiện ích */}
+            <Route path="/TienNghi" element={<TienNghi />} />
+            <Route path="/TienIch" element={<TienIch />} />
             {/*Phòng */}
             <Route path='/phong' element={<ListPhong />}></Route>
             <Route path='/add-phong' element={<Phong />}></Route>
             <Route path='/update-phong/:id' element={<Phong />}></Route>
-
             {/*Image */}
             <Route path='/hinh-anh' element={<ListImage />}></Route>
             <Route path='/add-hinh-anh' element={<HinhAnh />}></Route>
@@ -46,7 +52,7 @@ function App() {
         </div>
       </div>
 
-      </BrowserRouter>
+    </BrowserRouter>
   );
 }
 

@@ -1,141 +1,149 @@
-import React, { useState, useEffect } from 'react';
-import { ThemMoiDatPhong, DanhSachKhachHang, DanhSachNhanVien } from '../../services/DatPhong';
+import React, { useState } from 'react';
+import { Card, Form, Row, Col, Button } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
+import './FormAdd.css';
 
-const FormAdd = ({ show, handleClose }) => {
+const FormAdd = () => {
+    const location = useLocation();
+    const { room, startDate, endDate } = location.state || {}; // Lấy dữ liệu truyền vào
     const [formData, setFormData] = useState({
-        maDatPhong: '',
-        nhanVien: null,  // Chứa đối tượng nhân viên thay vì chỉ ID
-        khachHang: null, // Chứa đối tượng khách hàng thay vì chỉ ID
-        ngayDat: '',
-        ghiChu: '',
-        trangThai: 'processing' // Giá trị mặc định là pending
+        ten: '',
+        ho: '',
+        email: '',
+        sdt: '',
+        diaChi: '',
+        ghiChu: ''
     });
 
-    const [nhanVienList, setNhanVienList] = useState([]); // State để lưu danh sách nhân viên
-    const [khachHangList, setKhachHangList] = useState([]); // State để lưu danh sách khách hàng
-
-    // Lấy danh sách nhân viên và khách hàng khi component render
-    useEffect(() => {
-        // Gọi API để lấy danh sách nhân viên
-        DanhSachNhanVien()
-            .then(response => {
-                setNhanVienList(response.data); // Lưu danh sách nhân viên vào state
-            })
-            .catch(error => {
-                console.error("Lỗi khi lấy danh sách nhân viên:", error);
-            });
-
-        // Gọi API để lấy danh sách khách hàng
-        DanhSachKhachHang()
-            .then(response => {
-                setKhachHangList(response.data); // Lưu danh sách khách hàng vào state
-            })
-            .catch(error => {
-                console.error("Lỗi khi lấy danh sách khách hàng:", error);
-            });
-    }, []); // Chỉ chạy một lần khi component render lần đầu
-
-    // Hàm xử lý thay đổi giá trị input
-    const handleInputChange = (e) => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
+        setFormData({ ...formData, [name]: value });
     };
 
-    // Hàm xử lý khi chọn nhân viên
-    const handleNhanVienChange = (e) => {
-        const selectedNhanVien = nhanVienList.find(nv => nv.id === parseInt(e.target.value));
-        setFormData({
-            ...formData,
-            nhanVien: selectedNhanVien // Lưu toàn bộ đối tượng nhân viên
-        });
-    };
-
-    // Hàm xử lý khi chọn khách hàng
-    const handleKhachHangChange = (e) => {
-        const selectedKhachHang = khachHangList.find(kh => kh.id === parseInt(e.target.value));
-        setFormData({
-            ...formData,
-            khachHang: selectedKhachHang // Lưu toàn bộ đối tượng khách hàng
-        });
-    };
-
-    // Hàm xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Gọi API thêm mới đặt phòng với đối tượng khách hàng và nhân viên
-        ThemMoiDatPhong(formData)
-            .then(response => {
-                console.log("Thêm mới đặt phòng thành công:", response.data);
-                handleClose(); // Đóng modal sau khi thêm thành công
-            })
-            .catch(error => {
-                console.error("Lỗi khi thêm mới đặt phòng:", error);
-            });
+        console.log('Booking information:', formData);
     };
-
     return (
-        <div className={`modal fade ${show ? 'show d-block' : ''}`} tabIndex={-1} role="dialog" style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
-            <div className="modal-dialog modal-lg" role="document"> {/* Sử dụng lớp modal-lg để tăng chiều ngang */}
-                <div className="modal-content">
-                    <div className="modal-header">
-                        <h5 className="modal-title">Thêm mới đặt phòng</h5>
-                        <button type="button" className="btn-close" onClick={handleClose}></button>
+        <div className="booking-form-container">
+            <Row>
+                {/* Form thông tin khách hàng */}
+                <Col md={8}>
+                    <div className="customer-info-container"> {/* Thêm class để áp dụng padding */}
+                        <h3>Thông tin khách hàng</h3>
+                        <Form onSubmit={handleSubmit}>
+                            <Row>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3" controlId="firstName">
+                                        <Form.Label>Tên</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="ten"
+                                            value={formData.ten}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col md={6}>
+                                    <Form.Group className="mb-3" controlId="lastName">
+                                        <Form.Label>Họ</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="ho"
+                                            value={formData.ho}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+
+                            <Form.Group className="mb-3" controlId="email">
+                                <Form.Label>Email</Form.Label>
+                                <Form.Control
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="phoneNumber">
+                                <Form.Label>Số điện thoại</Form.Label>
+                                <Form.Control
+                                    type="tel"
+                                    name="sdt"
+                                    value={formData.sdt}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="diaChi">
+                                <Form.Label>Địa chỉ</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    name="diaChi"
+                                    value={formData.diaChi}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                
+                                </Form.Control>
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="ghiChu">
+                                <Form.Label>Ghi chú</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={1} 
+                                    name="ghiChu"
+                                    value={formData.ghiChu}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </Form.Group>
+                            <Button variant="primary" type="submit">
+                                Lưu
+                            </Button>
+                        </Form>
                     </div>
-                    <div className="modal-body">
-                        <form onSubmit={handleSubmit}>
-                            {/* Mã đặt phòng */}
-                            <div className="mb-3">
-                                <label htmlFor="maDatPhong" className="form-label">Mã Đặt Phòng</label>
-                                <input type="text" className="form-control" id="maDatPhong" name="maDatPhong" value={formData.maDatPhong} onChange={handleInputChange} required />
-                            </div>
+                </Col>
 
-                            {/* Nhân viên */}
-                            <div className="mb-3">
-                                <label htmlFor="nhanVien" className="form-label">Nhân Viên</label>
-                                <select className="form-select" id="nhanVien" name="nhanVien" value={formData.nhanVien?.id || ''} onChange={handleNhanVienChange} required>
-                                    <option value="">Chọn nhân viên</option>
-                                    {nhanVienList.map(nv => (
-                                        <option key={nv.id} value={nv.id}>{nv.ho + " " + nv.ten}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Khách hàng */}
-                            <div className="mb-3">
-                                <label htmlFor="khachHang" className="form-label">Khách Hàng</label>
-                                <select className="form-select" id="khachHang" name="khachHang" value={formData.khachHang?.id || ''} onChange={handleKhachHangChange} required>
-                                    <option value="">Chọn khách hàng</option>
-                                    {khachHangList.map(kh => (
-                                        <option key={kh.id} value={kh.id}>{kh.ho + " " + kh.ten}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            {/* Ngày đặt */}
-                            <div className="mb-3">
-                                <label htmlFor="ngayDat" className="form-label">Ngày Đặt</label>
-                                <input type="datetime-local" className="form-control" id="ngayDat" name="ngayDat" value={formData.ngayDat} onChange={handleInputChange} required />
-                            </div>
-
-                            {/* Ghi chú */}
-                            <div className="mb-3">
-                                <label htmlFor="ghiChu" className="form-label">Ghi Chú</label>
-                                <textarea className="form-control" id="ghiChu" name="ghiChu" rows={3} value={formData.ghiChu} onChange={handleInputChange}></textarea>
-                            </div>
-
-                        
-
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={handleClose}>Đóng</button>
-                                <button type="submit" className="btn btn-primary">Lưu</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                {/* Thông tin phòng bên phải */}
+                <Col md={4}>
+                    <Card>
+                        <Card.Img
+                            variant="top"
+                            src="https://via.placeholder.com/150" // Link hình ảnh phòng
+                            alt="Phòng"
+                        />
+                        <Card.Body>
+                            <Card.Title>{room.tenPhong}</Card.Title>
+                            <Card.Text>
+                                19 m² | Tối đa: 2 người lớn
+                                <br />
+                                Khách: 2 người lớn
+                                <br />
+                                1 giường đôi lớn và 1 giường sofa
+                            </Card.Text>
+                            <ul>
+                                <li>Khuyến mại chớp nhoáng!</li>
+                                <li>Phòng cuối cùng ở mức giá này!</li>
+                                <li>Bãi đậu xe</li>
+                                <li>Nhận phòng nhanh</li>
+                                <li>Wi-Fi miễn phí</li>
+                                <li>Nước uống</li>
+                                <li>Phòng tập</li>
+                            </ul>
+                            <Button variant="outline-success" className="m-2">
+                                Bãi đỗ xe
+                            </Button>
+                            <Button variant="outline-success">Wi-Fi Miễn Phí</Button>
+                        </Card.Body>
+                    </Card>
+                </Col>
+            </Row>
         </div>
     );
 };

@@ -2,18 +2,22 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.PhongRequest;
 import com.example.datn.dto.response.PhongResponse;
+import com.example.datn.dto.response.PhongResponseDat;
 import com.example.datn.mapper.PhongMapper;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.Phong;
 import com.example.datn.repository.LoaiPhongRepository;
 import com.example.datn.repository.PhongRepository;
 import com.example.datn.service.PhongService;
+import com.example.datn.utilities.DateTimeFormat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -22,7 +26,6 @@ public class PhongServiceIMPL implements PhongService {
     PhongRepository phongRepository;
     LoaiPhongRepository loaiPhongRepository;
     PhongMapper phongMapper;
-
 
     @Override
     public Page<Phong> getAllPhong(Pageable pageable) {
@@ -81,5 +84,11 @@ public class PhongServiceIMPL implements PhongService {
     @Override
     public Page<Phong> searchPhong(String keyword, Pageable pageable) {
         return phongRepository.search(keyword, pageable);
+    }
+
+    @Override
+    public Page<PhongResponseDat> PhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
+                                               Integer sucChuaLon,Integer sucChuaNho,Pageable pageable) {
+        return phongRepository.PhongKhaDung(ngayNhanPhong,ngayTraPhong,sucChuaLon,sucChuaNho,pageable);
     }
 }

@@ -27,9 +27,9 @@
   
   .submenu {
     display: none; /* Ẩn submenu mặc định */
-    padding-left: 20px;
     position: relative; /* Đảm bảo submenu được hiển thị trong cùng khu vực */
     background-color: #f0f0f0; /* Màu nền cho submenu */
+    bottom: 13px;
   }
   
   .nav-item.has-submenu.active .submenu {
