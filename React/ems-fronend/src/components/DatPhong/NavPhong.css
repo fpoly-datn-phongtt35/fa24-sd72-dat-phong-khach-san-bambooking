@@ -8,23 +8,6 @@
     margin-right: 20px;
 }
 
-.create-booking-btn {
-    width: 100%;
-    padding: 12px 20px;
-    background-color: #28a745;
-    color: white;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    text-align: center;
-}
-
-.create-booking-btn:hover {
-    background-color: #218838;
-}
-
 .filter-section {
     margin-top: 20px;
 }
@@ -62,7 +45,4 @@
     height: 16px; /* Kích thước nhỏ gọn cho checkbox */
 }
 
-.filter-label input[type="checkbox"]:checked {
-    background-color: #28a745;
-    border-color: #28a745;
-}
+

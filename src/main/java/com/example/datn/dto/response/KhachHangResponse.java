@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class KhachHangResponse {
     private Integer id;
-    private Integer idTaiKhoan;
     private String ho;
     private String ten;
     private String gioiTinh;
-    private String quocGia;
+    private String diaChi;
     private String sdt;
     private String email;
     private String ngayTao;

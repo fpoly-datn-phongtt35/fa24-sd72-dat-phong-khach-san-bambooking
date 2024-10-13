@@ -1,5 +1,6 @@
 package com.example.datn.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class HinhAnh {
     private Integer id;
     @JoinColumn(name = "id_phong")
     @ManyToOne
+    @JsonBackReference
     private Phong phong;
 
     @Column(name = "ten")
