@@ -1,11 +1,10 @@
 package com.example.datn.controller;
 
-
-
-import com.example.datn.model.LoaiPhong;
-import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
+import com.example.datn.model.DichVu;
+import com.example.datn.model.ThongTinDatPhong;
+import com.example.datn.service.IMPL.DichVuServiceIMPL;
+import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,15 +14,14 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/loai_phong")
-public class LoaiPhongController {
+@RequestMapping("/thong_tin_dat_phong")
+public class ThongTinDatPhongController {
+
     @Autowired
-    LoaiPhongServiceIMPL phongServiceIMPL;
+    ThongTinDatPhongServiceIMPL thongTinDatPhongServiceIMPL;
 
     @GetMapping("")
-    public ResponseEntity<?> home(){
-        List<LoaiPhong> lp = phongServiceIMPL.getAll();
-        return ResponseEntity.ok(lp);
+    public List<ThongTinDatPhong> ThongTinDatPhongHome() {
+        return thongTinDatPhongServiceIMPL.findAll();
     }
-
 }

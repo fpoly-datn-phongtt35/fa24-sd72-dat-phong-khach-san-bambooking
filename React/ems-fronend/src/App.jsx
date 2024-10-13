@@ -1,9 +1,11 @@
 import './App.css';
 import Header from './components/Header';
 import SlideBar from './components/Slidebar';
-import TableDichVu from './components/tableDichVu';
+import DanhSach from './components/DichVu/DanhSach';
 import DatPhong from './components/DatPhong/DatPhong';
 import TienNghi from './components/TienNghi';
+import DanhSachDichVuDiKem from './components/DichVuDikem/DanhSachDichVuDiKem';
+import TableLoaiPhong from './components/LoaiPhong/TableLoaiPhong';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
@@ -13,6 +15,7 @@ import ListKhachHang from './components/KhachHang/ListKhachHang';
 import KhachHangComponent from './components/KhachHang/KhachHangComponent';
 import TableNhanVien from './components/TableNhanVien';
 import TienIch from './components/TienIch/TienIch';
+import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
 import FormAddPage from './components/DatPhong/FormAddPage';
 import FormAdd from './components/DatPhong/FormAdd';
 function App() {
@@ -23,6 +26,7 @@ function App() {
         <div className="slidebar">
           <SlideBar />
         </div>
+           
         <div className="main-content">
           <div className="header">
             <Header />
@@ -39,6 +43,11 @@ function App() {
             {/* Tiện ích */}
             <Route path="/TienNghi" element={<TienNghi />} />
             <Route path="/TienIch" element={<TienIch />} />
+               {/* Dịch vụ */}
+              <Route path="/DichVu" element={<DanhSach/>} />
+              <Route path="/DichVuDikem" element={<DanhSachDichVuDiKem />} />
+              <Route path="/PhieuDichVu" element={<DanhSachPhieuDichVu />} />
+              <Route path="/LoaiPhong" element={<TableLoaiPhong />} />
             {/*Phòng */}
             <Route path='/phong' element={<ListPhong />}></Route>
             <Route path='/add-phong' element={<Phong />}></Route>
