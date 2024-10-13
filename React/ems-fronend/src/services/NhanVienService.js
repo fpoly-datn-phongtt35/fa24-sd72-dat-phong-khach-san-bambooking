@@ -14,12 +14,9 @@ export const createNhanVien = async (nhanVien) => {
   return await axios.post(`${api}`, nhanVien); // Thêm nhân viên mới
 };
 
-export const updateNhanVien = (nhanVien) => {
-  return axios.put(`${api}/${nhanVien.id}`, nhanVien, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+
+export const updateNhanVien = (id, data) => {
+  return axios.put(`http://localhost:8080/nhan-vien/${id}`, data);
 };
 
 export const getNhanVienById = (id) => {

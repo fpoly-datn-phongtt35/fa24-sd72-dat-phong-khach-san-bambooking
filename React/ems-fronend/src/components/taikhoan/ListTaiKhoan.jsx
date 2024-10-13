@@ -219,8 +219,10 @@ const ListTaiKhoan = () => {
             id: selectedTaiKhoan.id,
             tenDangNhap: selectedTaiKhoan.tenDangNhap,
             matKhau: selectedTaiKhoan.matKhau,
-            trangThai: selectedTaiKhoan.trangThai,
+            trangThai: selectedTaiKhoan.trangThai, // Kiểm tra giá trị có đúng không
         };
+
+        console.log("Payload gửi đi:", updatedTaiKhoan); // Debug payload
 
         updateTaiKhoan(updatedTaiKhoan)
             .then(() => {
@@ -228,9 +230,10 @@ const ListTaiKhoan = () => {
                 getAllTaiKhoan();
             })
             .catch((error) => {
-                console.error('Lỗi khi cập nhật tài khoản: ', error);
+                console.error("Lỗi khi cập nhật tài khoản: ", error);
             });
     };
+
 
     return (
         <div className='container'>
@@ -310,72 +313,99 @@ const ListTaiKhoan = () => {
                 </div>
             </div>
 
-            {/* Modal cho chi tiết tài khoản */}
-            <Modal show={showModal} onHide={() => setShowModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Chi Tiết Tài Khoản</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {selectedTaiKhoan && (
-                        <div>
-                            <div>
-                                <strong>ID:</strong> {selectedTaiKhoan.id}
-                            </div>
-                            <div>
-                                <strong>Tên Đăng Nhập:</strong>
-                                <input
-                                    type="text"
-                                    value={selectedTaiKhoan.tenDangNhap}
-                                    onChange={(e) => setSelectedTaiKhoan({ ...selectedTaiKhoan, tenDangNhap: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <strong>Mật Khẩu:</strong>
-                                <input
-                                    type="text"
-                                    value={selectedTaiKhoan.matKhau}
-                                    onChange={(e) => setSelectedTaiKhoan({ ...selectedTaiKhoan, matKhau: e.target.value })}
-                                />
-                            </div>
-
-                            <div>
-                                <strong>Trạng Thái:</strong>
-                                <div>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            value={true}
-                                            checked={selectedTaiKhoan.trangThai === true}
-                                            onChange={() => setSelectedTaiKhoan({ ...selectedTaiKhoan, trangThai: true })}
-                                        />
-                                        Hoạt động
-                                    </label>
-                                </div>
-                                <div>
-                                    <label>
-                                        <input
-                                            type="radio"
-                                            value={false}
-                                            checked={selectedTaiKhoan.trangThai === false}
-                                            onChange={() => setSelectedTaiKhoan({ ...selectedTaiKhoan, trangThai: false })}
-                                        />
-                                        Không hoạt động
-                                    </label>
-                                </div>
-                            </div>
-
+            <div className="modal" tabIndex="-1" style={{ display: showModal ? 'block' : 'none' }}>
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Chi Tiết Tài Khoản</h5>
+                            <button
+                                type="button"
+                                className="btn-close"
+                                onClick={() => setShowModal(false)}
+                                aria-label="Close"
+                            ></button>
                         </div>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>
-                        Đóng
-                    </Button>
-                    <Button variant="primary" onClick={handleUpdateTaiKhoan}>
-                        Cập Nhật
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+
+                        <div className="modal-body">
+                            {selectedTaiKhoan && (
+                                <>
+                                    <div className="mb-3">
+                                        <label className="form-label"><strong>ID:</strong></label>
+                                        <p>{selectedTaiKhoan.id}</p>
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label"><strong>Tên Đăng Nhập:</strong></label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={selectedTaiKhoan.tenDangNhap || ""}
+                                            onChange={(e) =>
+                                                setSelectedTaiKhoan({ ...selectedTaiKhoan, tenDangNhap: e.target.value })
+                                            }
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label"><strong>Mật Khẩu:</strong></label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            value={selectedTaiKhoan.matKhau || ""}
+                                            onChange={(e) =>
+                                                setSelectedTaiKhoan({ ...selectedTaiKhoan, matKhau: e.target.value })
+                                            }
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="form-label"><strong>Trạng Thái:</strong></label>
+                                        <div>
+                                            <label className="me-3">
+                                                <input
+                                                    type="radio"
+                                                    value="active"
+                                                    checked={selectedTaiKhoan.trangThai === "active"}
+                                                    onChange={() =>
+                                                        setSelectedTaiKhoan({ ...selectedTaiKhoan, trangThai: "active" })
+                                                    }
+                                                />{" "}
+                                                Hoạt động
+                                            </label>
+                                            <label>
+                                                <input
+                                                    type="radio"
+                                                    value="inactive"
+                                                    checked={selectedTaiKhoan.trangThai === "inactive"}
+                                                    onChange={() =>
+                                                        setSelectedTaiKhoan({ ...selectedTaiKhoan, trangThai: "inactive" })
+                                                    }
+                                                />{" "}
+                                                Không hoạt động
+                                            </label>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <div className="modal-footer">
+                            <button
+                                type="button"
+                                className="btn btn-secondary"
+                                onClick={() => setShowModal(false)}
+                            >
+                                Đóng
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                onClick={handleUpdateTaiKhoan}
+                            >
+                                Lưu Thay Đổi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 };

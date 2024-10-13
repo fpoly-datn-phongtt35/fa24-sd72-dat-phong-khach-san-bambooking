@@ -11,6 +11,7 @@ public interface NhanVienService {
     Page<NhanVien> getAll(Pageable pageable);
     public NhanVien create(NhanVien nhanVien);
     public NhanVien update(NhanVien nhanVien);
+
     public void deleteNhanVien(Integer id);
 
     Page<NhanVien> searchNhanVien(String keyword, Pageable pageable);

@@ -15,17 +15,19 @@ public class AuthServiceIMPL implements AuthService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+
     @Override
-    public boolean login(String tenDangNhap, String matKhau) {
+    public TaiKhoan login(String tenDangNhap, String matKhau) {
         Optional<TaiKhoan> taiKhoanOptional = taiKhoanRepository.findByTenDangNhap(tenDangNhap);
         if (taiKhoanOptional.isPresent()) {
             TaiKhoan taiKhoan = taiKhoanOptional.get();
             // So sánh mật khẩu trực tiếp (không mã hóa)
             if (taiKhoan.getMatKhau().equals(matKhau)) {
-                return true;  // Đăng nhập thành công
+                return taiKhoan;  // Đăng nhập thành công, trả về thông tin tài khoản
             }
         }
-        return false;  // Sai tên đăng nhập hoặc mật khẩu
+        return null;
     }
 
     @Override

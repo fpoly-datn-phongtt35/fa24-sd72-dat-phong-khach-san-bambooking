@@ -1,125 +1,56 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  searchNhanVien,
-  updateNhanVien,
-  deleteNhanVien,
-} from "../../services/NhanVienService";
+import { searchNhanVien, deleteNhanVien } from "../../services/NhanVienService";
 
 const ListNhanVien = () => {
   const [nhanVien, setNhanVien] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  // Quản lý nhân viên đã chọn
-  const [taiKhoan, setTaiKhoan] = useState("");
-  const [vaiTro, setVaiTro] = useState("");
-  const [ho, setHo] = useState("");
-  const [ten, setTen] = useState("");
-  const [gioiTinh, setGioiTinh] = useState("");
-  const [diaChi, setDiaChi] = useState("");
-  const [sdt, setSdt] = useState("");
-  const [email, setEmail] = useState("");
-  const [ngayTao, setNgayTao] = useState("");
-  const [ngaySua, setNgaySua] = useState("");
-  const [trangThai, setTrangThai] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
   const pageSize = 5;
   const navigate = useNavigate();
 
-  const fetchNhanVien = () => {
-    searchNhanVien({ keyword: searchQuery, page: currentPage, size: pageSize })
-      .then((response) => {
-        setNhanVien(response.data.content);
-        setTotalPages(response.data.totalPages);
-      })
-      .catch((error) => {
-        console.log("Có lỗi khi lấy danh sách nhân viên: " + error);
+  const fetchNhanVien = async () => {
+    try {
+      const response = await searchNhanVien({
+        keyword: searchQuery,
+        page: currentPage,
+        size: pageSize,
       });
+      setNhanVien(response.data.content);
+      setTotalPages(response.data.totalPages);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách nhân viên: ", error.message);
+    }
   };
 
   useEffect(() => {
     fetchNhanVien();
   }, [currentPage, searchQuery]);
 
-  const handlePreviousPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage((prevPage) => prevPage - 1);
-    }
+  const formatDateString = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return isNaN(date) ? dateString : date.toLocaleDateString("vi-VN");
   };
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage((prevPage) => prevPage + 1);
-    }
-  };
-
-  function addNewNhanVien() {
-    navigate("/add-nhanvien");
-  }
-
-  const handleEditClick = (id) => {
-    navigate(`/update-nhan-vien/${id}`);
-  };
-
- 
-  const handleUpdateNhanVien = (e) => {
-    e.preventDefault(); // Ngăn chặn reload trang
-    const nhanVien = {
-      id: selectedEmployee.id,
-      vaiTro,
-      taiKhoan,
-      ho,
-      ten,
-      gioiTinh,
-      diaChi,
-      sdt,
-      email,
-      ngayTao: new Date(ngayTao).toISOString(),
-      ngaySua: new Date(ngaySua).toISOString(),
-      trangThai,
-    };
-
-    updateNhanVien(nhanVien)
-      .then((response) => {
-        console.log("Cập nhật thành công:", response.data);
-        setNhanVien((prev) =>
-          prev.map((emp) => (emp.id === nhanVien.id ? nhanVien : emp))
-        );
-      })
-      .catch((error) => {
-        console.error(
-          "Lỗi khi cập nhật nhân viên:",
-          error.response?.data || error.message
-        );
-      });
-  };
-
-  const handleDeleteNhanVien = (id) => {
+  const handleDeleteNhanVien = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {
-      deleteNhanVien(id)
-        .then((response) => {
-          console.log("Phản hồi từ server:", response);
-          setNhanVien((prev) => prev.filter((emp) => emp.id !== id));
-          console.log("Xóa nhân viên thành công!");
-        })
-        .catch((error) => {
-          // Kiểm tra xem error.response có tồn tại không
-          const errorMessage = error.response
-            ? error.response.data
-            : error.message;
-          console.error("Lỗi khi xóa nhân viên:", errorMessage);
-        });
+      try {
+        await deleteNhanVien(id);
+        setNhanVien((prev) => prev.filter((emp) => emp.id !== id));
+        console.log("Xóa nhân viên thành công!");
+      } catch (error) {
+        console.error("Lỗi khi xóa nhân viên: ", error.message);
+      }
     }
   };
 
   const handleSearchInput = (e) => {
     setSearchQuery(e.target.value);
-    setCurrentPage(0); // reset lại trang khi tìm kiếm
+    setCurrentPage(0);
   };
-
-
 
   return (
     <div className="container">
@@ -127,7 +58,7 @@ const ListNhanVien = () => {
       <div className="d-flex justify-content-between">
         <button
           className="btn btn-outline-success btn-lg fs-6"
-          onClick={addNewNhanVien}
+          onClick={() => navigate("/add-nhanvien")}
         >
           <i className="bi bi-plus-circle"></i> Thêm
         </button>
@@ -149,7 +80,7 @@ const ListNhanVien = () => {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Họ ten</th>
+                <th>Họ và Tên</th>
                 <th>Giới Tính</th>
                 <th>Địa Chỉ</th>
                 <th>Số Điện Thoại</th>
@@ -165,16 +96,18 @@ const ListNhanVien = () => {
                 nhanVien.map((nv) => (
                   <tr key={nv.id}>
                     <td>{nv.id}</td>
-                    <td>{nv.ho + " " + nv.ten}</td>
+                    <td>{`${nv.ho} ${nv.ten}`}</td>
                     <td>{nv.gioiTinh}</td>
                     <td>{nv.diaChi}</td>
                     <td>{nv.sdt}</td>
                     <td>{nv.email}</td>
-                    <td>{new Date(nv.ngayTao).toLocaleDateString("vi-VN")}</td>
-                    <td>{new Date(nv.ngaySua).toLocaleDateString("vi-VN")}</td>
+                    <td>{formatDateString(nv.ngayTao)}</td>
+                    <td>{formatDateString(nv.ngaySua)}</td>
                     <td>{nv.trangThai}</td>
                     <td>
-                      <button onClick={() => handleEditClick(nv.id)}>Update</button>
+                      <button onClick={() => navigate(`/update-nhan-vien/${nv.id}`)}>
+                        Update
+                      </button>
                       <button
                         className="btn btn-danger"
                         onClick={() => handleDeleteNhanVien(nv.id)}
@@ -186,7 +119,7 @@ const ListNhanVien = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="11" className="text-center">
+                  <td colSpan="10" className="text-center">
                     Không có nhân viên
                   </td>
                 </tr>
@@ -198,7 +131,7 @@ const ListNhanVien = () => {
             <button
               className="btn btn-outline-primary me-2"
               disabled={currentPage === 0}
-              onClick={handlePreviousPage}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
             >
               Previous
             </button>
@@ -208,7 +141,7 @@ const ListNhanVien = () => {
             <button
               className="btn btn-outline-primary ms-2"
               disabled={currentPage + 1 >= totalPages}
-              onClick={handleNextPage}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
             >
               Next
             </button>

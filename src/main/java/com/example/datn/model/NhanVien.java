@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,7 +17,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "nhan_vien")
 public class NhanVien {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -31,6 +31,7 @@ public class NhanVien {
 
     @Column(name = "ho")
     private String ho;
+
     @Column(name = "ten")
     private String ten;
 
@@ -46,14 +47,14 @@ public class NhanVien {
     @Column(name = "email")
     private String email;
 
+    // Thay đổi kiểu dữ liệu từ String sang LocalDate
     @Column(name = "ngay_tao")
-    private String ngayTao;
+    private LocalDate ngayTao;
 
+    // Thay đổi kiểu dữ liệu từ String sang LocalDate
     @Column(name = "ngay_sua")
-    private String ngaySua;
+    private LocalDate ngaySua;
 
     @Column(name = "trang_thai")
     private String trangThai;
-
-
 }
