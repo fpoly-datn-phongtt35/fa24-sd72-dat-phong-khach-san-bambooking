@@ -4,12 +4,13 @@ import SlideBar from './components/Slidebar';
 import TableDichVu from './components/tableDichVu';
 import DatPhong from './components/DatPhong/DatPhong';
 import TienNghi from './components/TienNghi';
-import Upload from './components/DemoCloudinary';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
 import ListImage from './components/HinhAnh/ListImage';
 import HinhAnh from './components/HinhAnh/HinhAnh';
+import ListKhachHang from './components/KhachHang/ListKhachHang';
+import KhachHangComponent from './components/KhachHang/KhachHangComponent';
 import TableNhanVien from './components/TableNhanVien';
 import TienIch from './components/TienIch/TienIch';
 import FormAddPage from './components/DatPhong/FormAddPage';
@@ -27,7 +28,6 @@ function App() {
             <Header />
           </div>
           <Routes>
-
             {/* Đặt phòng */}
             <Route path="/DatPhong" element={<DatPhong />} />
             <Route path='/tao-dat-phong' element={<FormAddPage />} />
@@ -46,9 +46,11 @@ function App() {
             {/*Image */}
             <Route path='/hinh-anh' element={<ListImage />}></Route>
             <Route path='/add-hinh-anh' element={<HinhAnh />}></Route>
+            {/*Khách hàng */}
+            <Route path='/khach-hang' element={<ListKhachHang/>} />
+            <Route path='/add-khach-hang' element={<KhachHangComponent/>} />
+            <Route path='/update-khach-hang/:id' element={<KhachHangComponent/>} />
           </Routes>
-
-
         </div>
       </div>
 
