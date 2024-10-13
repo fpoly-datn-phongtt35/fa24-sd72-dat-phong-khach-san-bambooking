@@ -31,6 +31,7 @@ public class ThongTinDatPhong {
 
     @Column(name = "ma_thong_tin_dat_phong")
     private String maThongTinDatPhong;
+
     @Column(name = "ngay_nhan_phong")
     private LocalDateTime ngayNhanPhong;
 

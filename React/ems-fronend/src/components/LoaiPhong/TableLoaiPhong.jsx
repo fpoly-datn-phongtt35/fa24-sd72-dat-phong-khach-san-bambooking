@@ -36,7 +36,6 @@ const TableLoaiPhong = () => {
                                 <td>{lp.dienTich}</td>
                                 <td>{lp.sucChuaLon}</td>
                                 <td>{lp.sucChuaNho}</td>
-                                <td>{lp.giaPhong}</td>
                                 <td>{lp.moTa}</td>
                                 <td>{lp.trangThai}</td>
                             </tr>

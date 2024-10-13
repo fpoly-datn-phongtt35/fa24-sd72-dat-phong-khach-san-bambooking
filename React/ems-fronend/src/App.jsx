@@ -4,7 +4,6 @@ import SlideBar from './components/Slidebar';
 import DanhSach from './components/DichVu/DanhSach';
 import DatPhong from './components/DatPhong/DatPhong';
 import TienNghi from './components/TienNghi';
-import TableNhanVien from './components/TableNhanVien';
 import DanhSachDichVuDiKem from './components/DichVuDikem/DanhSachDichVuDiKem';
 import TableLoaiPhong from './components/LoaiPhong/TableLoaiPhong';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -14,6 +13,8 @@ import ListImage from './components/HinhAnh/ListImage';
 import HinhAnh from './components/HinhAnh/HinhAnh';
 import TableNhanVien from './components/TableNhanVien';
 import TienIch from './components/TienIch/TienIch';
+import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
+
 function App() {
   return (
     <BrowserRouter>
@@ -27,8 +28,11 @@ function App() {
               <Header />
             </div>
             <Routes>
+            {/* Dịch vụ */}
               <Route path="/DichVu" element={<DanhSach/>} />
               <Route path="/DichVuDikem" element={<DanhSachDichVuDiKem />} />
+              <Route path="/PhieuDichVu" element={<DanhSachPhieuDichVu />} />
+
               <Route path="/NhanVien" element={<TableNhanVien />} />
               <Route path="/LoaiPhong" element={<TableLoaiPhong />} />
               <Route path="/TienNghi" element={<TienNghi />} />
