@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from 'react';
+<<<<<<< HEAD
+
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
 import { DanhSachDatPhong, HienThiTheoLoc } from '../../services/DatPhong'; // Import cả hai hàm
 import ChiTietDatPhong from './DetailDatPhong';
 import NavDatPhong from './NavDatPhong';
@@ -15,16 +19,33 @@ const DanhSach = () => {
 
     // Hàm lấy danh sách đặt phòng không có bộ lọc (Lần đầu load)
     const getAllDatPhong = () => {
+<<<<<<< HEAD
+
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
         DanhSachDatPhong({ page: currentPage, size: itemsPerPage }, "")
             .then((response) => {
                 setData(response.data.content);
                 setTotalPages(response.data.totalPages);
+<<<<<<< HEAD
+
+            })
+            .catch((error) => {
+
+                console.log(error);
+            });
+    };
+
+
+    // Gọi API để lọc danh sách đặt phòng khi có bộ lọc hoặc trang thay đổi
+=======
             })
             .catch((error) => {
                 console.log(error);
             });
     };
     
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
     const getFilteredDatPhong = () => {
         HienThiTheoLoc({ page: currentPage, size: itemsPerPage }, filters)
             .then((response) => {
@@ -69,11 +90,19 @@ const DanhSach = () => {
     const handleNextPage = () => {
         if (currentPage < totalPages - 1) {
             setCurrentPage((prevPage) => prevPage + 1);
+<<<<<<< HEAD
+
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
         }
     };
 
     const handlePreviousPage = () => {
         if (currentPage > 0) {
+<<<<<<< HEAD
+
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
             setCurrentPage((prevPage) => prevPage - 1);
         }
     };
@@ -119,6 +148,10 @@ const DanhSach = () => {
                 </div>
 
                 {showModal && <ChiTietDatPhong bookingId={selectedBookingId} handleClose={handleCloseModal} show={showModal} />}
+<<<<<<< HEAD
+
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
             </div>
         </div>
     );

@@ -55,6 +55,11 @@ public class TienIchPhongServiceIMPL implements TienIchPhongService {
         return tienIchRepository.save(tienIchPhong.get());
     }
 
+    @Override
+    public Page<TienIchPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
+        return tienIchRepository.findByIDLoaiPhong(idLoaiPhong,pageable);
+    }
+
 //    @Override
 //    public List<TienIch> getAll() {
 //        return tienIchRepository.findAll();

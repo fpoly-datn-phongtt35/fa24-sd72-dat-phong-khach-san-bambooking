@@ -1,20 +1,21 @@
 import axios from "axios";
+<<<<<<< HEAD
+
+const api = "http://localhost:8080/tien-ich-phong/index";
+const apiadd = "http://localhost:8080/tien-ich-phong/add";
+=======
 const api = "http://localhost:8080/tien-nghi/home";
 const apiadd = "http://localhost:8080/tien-nghi/add";
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
 const apiTI = "http://localhost:8080/tien-ich/home";
 const apiLP = "http://localhost:8080/loai-phong/home";
 const apiUD = "http://localhost:8080/tien-nghi/update";
-const apiDE = "http://localhost:8080/tien-nghi/delete";
+const apiDE = "http://localhost:8080/tien-ich-phong/delete";
 
 // export const listTienNghi = () => axios.get(api);
 
-export const listTienNghi = (pageable) => {
-    return axios.get(api, {
-        params: { 
-            page: pageable.page, 
-            size: pageable.size
-        }
-    });
+export const listTienNghi = () => {
+    return axios.get(api);
 };
 
 export const addTienNghiPhong = (tienNghiPhongRequest) => {
@@ -38,3 +39,7 @@ export const updateTienNghiPhong = (tienNghiPhongRequest) => {
 export const deleteTienNghiPhong = (id) => {
     return axios.delete(`${apiDE}/${id}`);
 };
+<<<<<<< HEAD
+
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
