@@ -43,7 +43,6 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setMaDatPhong(datPhongRequest.getMaDatPhong());
         datPhong.setNgayDat(datPhongRequest.getNgayDat());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
-        datPhong.setNhanVien(datPhongRequest.getNhanVien());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         return datPhongRepository.save(datPhong);
@@ -76,7 +75,6 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setMaDatPhong(datPhongRequest.getMaDatPhong());
         datPhong.setNgayDat(datPhongRequest.getNgayDat());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
-        datPhong.setNhanVien(datPhongRequest.getNhanVien());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         return datPhongRepository.save(datPhong);

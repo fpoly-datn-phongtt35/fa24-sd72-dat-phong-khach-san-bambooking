@@ -18,6 +18,7 @@ import TienIch from './components/TienIch/TienIch';
 import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
 import FormAddPage from './components/DatPhong/FormAddPage';
 import FormAdd from './components/DatPhong/FormAdd';
+import ThongTinDatPhong from './components/DatPhong/ThongTinDatPhong';
 function App() {
   return (
     <BrowserRouter>
@@ -26,7 +27,6 @@ function App() {
         <div className="slidebar">
           <SlideBar />
         </div>
-           
         <div className="main-content">
           <div className="header">
             <Header />
@@ -36,8 +36,8 @@ function App() {
             <Route path="/DatPhong" element={<DatPhong />} />
             <Route path='/tao-dat-phong' element={<FormAddPage />} />
             <Route path='/form-tao' element={<FormAdd />} />
-            {/* Dịch vụ */}
-            <Route path="/DichVu" element={<TableDichVu />} />
+            <Route path='/thong-tin-dat-phong' element={<ThongTinDatPhong />} />
+
             {/* Nhân viên */}
             <Route path="/NhanVien" element={<TableNhanVien />} />
             {/* Tiện ích */}

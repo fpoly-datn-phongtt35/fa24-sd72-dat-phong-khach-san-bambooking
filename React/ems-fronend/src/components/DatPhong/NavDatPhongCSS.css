@@ -1,11 +1,10 @@
 .vertical-bar {
-    width: 250px;  /* Có thể giữ nguyên chiều rộng */
+    width: 200px;  /* Có thể giữ nguyên chiều rộng */
     padding: 20px;
     background-color: #f8f9fa;
     border-right: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-right: 20px;
 }
 
 .create-booking-btn {

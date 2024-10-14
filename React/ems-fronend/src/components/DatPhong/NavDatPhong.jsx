@@ -34,30 +34,30 @@ const NavDatPhong = ({ onFilterChange }) => {
 
     return (
         <div className="vertical-bar">
-    <button className="create-booking-btn" onClick={handleCreateBooking}>
-        Tạo đặt phòng
-    </button>
+            <button className="create-booking-btn" onClick={handleCreateBooking}>
+                Tạo đặt phòng
+            </button>
 
-    <div className="filter-section">
-        <h5>Trạng thái</h5>
-        <label className="filter-label">
-            <span>Đã xác nhận:</span>
-            <input type="checkbox" value="Confirmed" checked={filters.Confirmed} onChange={handleFilterChange} />
-        </label>
-        <label className="filter-label">
-            <span>Chưa xác nhận:</span>
-            <input type="checkbox" value="Unconfirmed" checked={filters.Unconfirmed} onChange={handleFilterChange} />
-        </label>
-        <label className="filter-label">
-            <span>Đang chờ xử lý:</span>
-            <input type="checkbox" value="Processing" checked={filters.Processing} onChange={handleFilterChange} />
-        </label>
-        <label className="filter-label">
-            <span>Đã hủy:</span>
-            <input type="checkbox" value="Canceled" checked={filters.Canceled} onChange={handleFilterChange} />
-        </label>
-    </div>
-</div>
+            <div className="filter-section">
+                <h5>Trạng thái</h5>
+                <label className="filter-label">
+                    <span>Đã xác nhận:</span>
+                    <input type="checkbox" value="Confirmed" checked={filters.Confirmed} onChange={handleFilterChange} />
+                </label>
+                <label className="filter-label">
+                    <span>Chưa xác nhận:</span>
+                    <input type="checkbox" value="Unconfirmed" checked={filters.Unconfirmed} onChange={handleFilterChange} />
+                </label>
+                <label className="filter-label">
+                    <span>Đang chờ xử lý:</span>
+                    <input type="checkbox" value="Processing" checked={filters.Processing} onChange={handleFilterChange} />
+                </label>
+                <label className="filter-label">
+                    <span>Đã hủy:</span>
+                    <input type="checkbox" value="Canceled" checked={filters.Canceled} onChange={handleFilterChange} />
+                </label>
+            </div>
+        </div>
 
 
 

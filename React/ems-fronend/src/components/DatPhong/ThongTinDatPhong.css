@@ -1,0 +1,74 @@
+.room-booking-info {
+    padding: 20px;
+    font-family: 'Times New Roman', serif;
+    background-color: #f8f9fa; /* Màu nền nhẹ cho toàn bộ container */
+    min-height: 100vh; /* Đảm bảo chiều cao tối thiểu */
+}
+
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center; /* Canh giữa các thẻ */
+    align-items: stretch; /* Các thẻ có cùng chiều cao */
+}
+
+.booking-card-details {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Màu nhẹ cho đổ bóng */
+    padding: 20px;
+    width: 300px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hiệu ứng chuyển động mượt */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.booking-details h2 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333; /* Màu chữ tối */
+    padding-bottom: 10px;
+}
+
+.booking-details p {
+    margin: 8px 0;
+    font-size: 16px;
+    color: #555; /* Màu chữ trung tính */
+}
+
+.booking-card-details:hover {
+    transform: translateY(-5px); /* Nổi nhẹ khi hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Đổ bóng sâu hơn khi hover */
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination-controls button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.pagination-controls button:hover {
+    background-color: #0056b3;
+}
+
+.pagination-controls span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}

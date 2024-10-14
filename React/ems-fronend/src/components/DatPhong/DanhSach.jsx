@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DanhSachDatPhong, HienThiTheoLoc } from '../../services/DatPhong'; // Import cả hai hàm
-import ChiTietDatPhong from './DetailDatPhong';
 import NavDatPhong from './NavDatPhong';
 import './DanhSachCSS.css';
-
 const DanhSach = () => {
     const [data, setData] = useState([]); // Dữ liệu danh sách đặt phòng
     const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
@@ -12,7 +11,7 @@ const DanhSach = () => {
     const [showModal, setShowModal] = useState(false); // Điều khiển hiển thị modal
     const [filters, setFilters] = useState([]); // Trạng thái bộ lọc
     const itemsPerPage = 6;
-
+    const navigate = useNavigate();
     // Hàm lấy danh sách đặt phòng không có bộ lọc (Lần đầu load)
     const getAllDatPhong = () => {
         DanhSachDatPhong({ page: currentPage, size: itemsPerPage }, "")
@@ -25,6 +24,7 @@ const DanhSach = () => {
             });
     };
     
+
     const getFilteredDatPhong = () => {
         HienThiTheoLoc({ page: currentPage, size: itemsPerPage }, filters)
             .then((response) => {
@@ -50,8 +50,8 @@ const DanhSach = () => {
     };
 
     const handleViewDetails = (id) => {
-        setSelectedBookingId(id); // Lưu ID của đặt phòng được chọn
-        setShowModal(true); // Hiển thị modal chi tiết đặt phòng
+        navigate('/thong-tin-dat-phong', { state: { id } }); 
+        console.log(id);
     };
 
     const handleCloseModal = () => {
@@ -77,6 +77,10 @@ const DanhSach = () => {
             setCurrentPage((prevPage) => prevPage - 1);
         }
     };
+    // const handleViewDetails = (id) => {
+    //     setSelectedBookingId(id); // Lưu ID đặt phòng được chọn
+    //     getDetailDatPhong(id); // Gọi API lấy chi tiết đặt phòng
+    // };
 
     return (
         <div className="main-container">
@@ -117,8 +121,6 @@ const DanhSach = () => {
                         Trang sau
                     </button>
                 </div>
-
-                {showModal && <ChiTietDatPhong bookingId={selectedBookingId} handleClose={handleCloseModal} show={showModal} />}
             </div>
         </div>
     );

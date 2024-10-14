@@ -1,32 +1,35 @@
 .main-container {
     display: flex;
     align-items: flex-start;
+    width: 100%; /* Đảm bảo container rộng 100% */
 }
-
 
 .content-container {
     flex: 1;
-    padding: 20px;
+    padding: 10px;
 }
 
 .booking-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 cột */
-    gap: 20px;
+    grid-template-columns: repeat(3, minmax(100px, 1fr)); /* Tạo các cột với chiều rộng tối thiểu 350px */
+    gap: 10px; /* Khoảng cách giữa các cột */
+    justify-content: center; /* Canh giữa các cột */
 }
 
 .booking-card {
     background-color: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
     transition: transform 0.3s ease-in-out;
     padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    border: 1px solid #ddd; /* Thêm viền */
+    border: 1px solid #ddd;
+    width: 100%; /* Đảm bảo thẻ chiếm hết chiều rộng của cột */
 }
+
+
 
 .booking-card:hover {
     transform: translateY(-5px); /* Hiệu ứng nổi khi hover */
