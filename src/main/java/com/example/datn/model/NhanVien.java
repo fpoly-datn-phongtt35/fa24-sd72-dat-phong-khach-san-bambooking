@@ -38,8 +38,8 @@ public class NhanVien {
     private String gioiTinh;
 
 
-    @Column(name = "quoc_gia")
-    private String quocGia;
+    @Column(name = "dia_chi")
+    private String diaChi;
 
     @Column(name = "sdt")
     private String sdt;

@@ -1,5 +1,6 @@
 package com.example.datn.service.IMPL;
 
+<<<<<<< HEAD
 
 import com.example.datn.model.TienIch;
 import com.example.datn.repository.TienIchRepository;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+=======
+
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
 import com.example.datn.dto.request.TienIchPhongRequest;
 import com.example.datn.dto.request.TienIchRequest;
 import com.example.datn.dto.response.TienIchPhongResponse;
@@ -26,19 +30,28 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
 
 @Service
 public class TienIchServiceIMPL implements TienIchService {
     @Autowired
     TienIchRepository tienIchRepository;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
     @Override
     public List<TienIch> getAll() {
         return tienIchRepository.findAll();
     }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
     @Override
     public Page<TienIchResponse> getPage(Pageable pageable) {
 
@@ -58,7 +71,10 @@ public class TienIchServiceIMPL implements TienIchService {
 
     @Override
     public TienIch detail(Integer id) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
         return tienIchRepository.findById(id).get();
     }
 

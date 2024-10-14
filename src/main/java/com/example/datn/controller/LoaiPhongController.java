@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/loai-phong")
+@RequestMapping("/loai_phong")
 public class LoaiPhongController {
     @Autowired
     LoaiPhongServiceIMPL phongServiceIMPL;
-    @GetMapping("/home")
+
+    @GetMapping("")
     public ResponseEntity<?> home(){
         List<LoaiPhong> lp = phongServiceIMPL.getAll();
         return ResponseEntity.ok(lp);

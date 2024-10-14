@@ -1,8 +1,7 @@
-﻿Create database DATN_v2_1
+﻿Create database DATN_v2_2
 go
-use DATN_v2_1
+use DATN_v2_2
 go
-
 CREATE TABLE vai_tro (
   id INT IDENTITY(1,1) PRIMARY KEY,
   ten_vai_tro NVARCHAR (255),
@@ -23,7 +22,7 @@ CREATE TABLE nhan_vien (
   ho NVARCHAR(255),
   ten NVARCHAR(255),
   gioi_tinh NVARCHAR(255),
-  quoc_gia NVARCHAR(255),
+  dia_chi NVARCHAR(255),
   sdt VARCHAR(255) UNIQUE,
   email VARCHAR(255) UNIQUE,
   ngay_tao DATETIME,
@@ -31,24 +30,15 @@ CREATE TABLE nhan_vien (
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_vai_tro) REFERENCES vai_tro(id),
   FOREIGN KEY (id_tai_khoan) REFERENCES tai_khoan(id)
-<<<<<<< HEAD
 );
 
 CREATE TABLE khach_hang (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_tai_khoan INT NULL,
-  ho NVARCHAR(255), 
-=======
-
-);
-CREATE TABLE khach_hang (
-  id INT IDENTITY(1,1) PRIMARY KEY,
-  id_tai_khoan INT,
   ho NVARCHAR(255),
->>>>>>> long
   ten NVARCHAR(255),
   gioi_tinh NVARCHAR(255),
-  quoc_gia NVARCHAR(255),
+  dia_chi NVARCHAR(255),
   sdt VARCHAR(255) UNIQUE,
   email VARCHAR(255) UNIQUE,
   ngay_tao DATETIME,
@@ -57,26 +47,12 @@ CREATE TABLE khach_hang (
   FOREIGN KEY (id_tai_khoan) REFERENCES tai_khoan(id)
 );
 
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
-
->>>>>>> long
 CREATE TABLE tien_ich (
   id INT IDENTITY(1,1) PRIMARY KEY,
   ten_tien_ich NVARCHAR(255),
   hinh_anh VARCHAR(255)
 );
 
-<<<<<<< HEAD
-=======
-
->>>>>>> long
 CREATE TABLE loai_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   ten_loai_phong NVARCHAR(255),
@@ -91,9 +67,9 @@ CREATE TABLE tien_ich_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_loai_phong INT,
   id_tien_ich INT,
+  CONSTRAINT unique_tienich_loaiphong UNIQUE (id_tien_ich, id_loai_phong),
   FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id),
   FOREIGN KEY (id_tien_ich) REFERENCES tien_ich(id)
-  
 );
 
 CREATE TABLE dich_vu (
@@ -104,10 +80,7 @@ CREATE TABLE dich_vu (
   hinh_anh VARCHAR(255),
   trang_thai NVARCHAR(255)
 );
-<<<<<<< HEAD
 
-=======
->>>>>>> long
 CREATE TABLE phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_loai_phong INT,
@@ -118,10 +91,7 @@ CREATE TABLE phong (
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id)
 );
-<<<<<<< HEAD
 
-=======
->>>>>>> long
 CREATE TABLE hinh_anh (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_phong INT,
@@ -131,15 +101,6 @@ CREATE TABLE hinh_anh (
   FOREIGN KEY (id_phong) REFERENCES phong(id)
 );
 
-<<<<<<< HEAD
-=======
-
-
-
-
-
-
->>>>>>> long
 CREATE TABLE dat_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_nhan_vien INT,
@@ -152,44 +113,33 @@ CREATE TABLE dat_phong (
   FOREIGN KEY (id_khach_hang) REFERENCES khach_hang(id)
 );
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> long
 CREATE TABLE thong_tin_dat_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_dat_phong INT,
   id_phong INT,
+  ma_thong_tin_dat_phong VARCHAR(255) UNIQUE,
   ngay_nhan_phong DATETIME,
   ngay_tra_phong DATETIME,
+  gia_dat DECIMAL(18,2),
   so_nguoi INT,
-  so_ngay INT,
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_dat_phong) REFERENCES dat_phong(id),
   FOREIGN KEY (id_phong) REFERENCES phong(id)
 );
-<<<<<<< HEAD
 
-=======
->>>>>>> long
 CREATE TABLE hoa_don (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_nhan_vien INT ,
-  id_thong_tin_dat_phong INT,
+  id_dat_phong INT,
   ma_hoa_don VARCHAR(255) UNIQUE, 
   tong_tien DECIMAL(18,2),
   phuong_thuc_thanh_toan NVARCHAR(255),
   ngay_thanh_toan DATETIME,
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_nhan_vien) REFERENCES nhan_vien(id),
-  FOREIGN KEY (id_thong_tin_dat_phong) REFERENCES thong_tin_dat_phong(id)
+  FOREIGN KEY (id_dat_phong) REFERENCES dat_phong(id)
 );
 
-<<<<<<< HEAD
-=======
-
->>>>>>> long
 CREATE TABLE phieu_dich_vu (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_dich_vu INT,
@@ -197,24 +147,19 @@ CREATE TABLE phieu_dich_vu (
   so_luong_su_dung INT,
   ngay_bat_dau DATETIME,
   ngay_ket_thuc DATETIME,
+  gia_su_dung DECIMAL(18,2),
   thanh_tien DECIMAL(18,2),
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_dich_vu) REFERENCES dich_vu(id),
   FOREIGN KEY (id_thong_tin_dat_phong) REFERENCES thong_tin_dat_phong(id)
 );
 
-<<<<<<< HEAD
-=======
-
-
-
-
->>>>>>> long
 CREATE TABLE dich_vu_di_kem (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_dich_vu INT,
   id_loai_phong INT,
   trang_thai NVARCHAR(255),
+  CONSTRAINT unique_dichvu_loaiphong UNIQUE (id_dich_vu, id_loai_phong),
   FOREIGN KEY (id_dich_vu) REFERENCES dich_vu(id),
   FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id)
 );
@@ -244,12 +189,12 @@ VALUES
 ('nhanvien1', 'password123', 'active'),
 ('khachhang1', 'password123', 'active');
 
-INSERT INTO nhan_vien (id_vai_tro, id_tai_khoan, ho, ten, gioi_tinh, quoc_gia, sdt, email, ngay_tao, ngay_sua, trang_thai)
+INSERT INTO nhan_vien (id_vai_tro, id_tai_khoan, ho, ten, gioi_tinh, dia_chi, sdt, email, ngay_tao, ngay_sua, trang_thai)
 VALUES 
 (1, 1, N'Nguyễn', 'A', N'Nam', N'Việt Nam', '0123456789', 'nguyena@example.com', GETDATE(), GETDATE(), 'active'),
 (2, 2, N'Trần', 'B', N'Nữ', N'Việt Nam', '0987654321', 'tranb@example.com', GETDATE(), GETDATE(), 'active');
 
-INSERT INTO khach_hang (id_tai_khoan, ho, ten, gioi_tinh, quoc_gia, sdt, email, ngay_tao, ngay_sua, trang_thai)
+INSERT INTO khach_hang (id_tai_khoan, ho, ten, gioi_tinh, dia_chi, sdt, email, ngay_tao, ngay_sua, trang_thai)
 VALUES 
 (3, N'Lê', 'C', 'Nam', N'Việt Nam', '0912345678', 'lec@example.com', GETDATE(), GETDATE(), 'active');
 
@@ -275,8 +220,10 @@ VALUES
 
 INSERT INTO phong (id_loai_phong, ma_phong, ten_phong, gia_phong, tinh_trang, trang_thai)
 VALUES 
-(1, 'D001', N'Phòng Deluxe 1', 1000000, 'available', 'available'),
-(2, 'S001', N'Phòng Suite 1', 2000000, 'available', 'available');
+(1, 'P003', N'Phòng đơn', 1000000, 'available', 'available'),
+(1, 'P004', N'Phòng couple', 1000000, 'available', 'available'),
+(2, 'P005', N'Phòng king', 2000000, 'available', 'available'),
+(2, 'P006', N'Phòng zoro', 2000000, 'available', 'available'),
 
 INSERT INTO hinh_anh (id_phong, ten, duong_dan, trang_thai)
 VALUES 
@@ -295,11 +242,11 @@ VALUES
 (2, 1, 'DP008', GETDATE(), N'Đặt phòng nhanh', 'unconfirmed'),
 (2, 1, 'DP009', GETDATE(), N'Đặt phòng nhanh', 'confirmed');
 
-INSERT INTO thong_tin_dat_phong (id_dat_phong, id_phong, ngay_nhan_phong, ngay_tra_phong, so_nguoi, so_ngay, trang_thai)
+INSERT INTO thong_tin_dat_phong (id_dat_phong, id_phong, ngay_nhan_phong, ngay_tra_phong, gia_dat, so_nguoi, trang_thai)
 VALUES 
-(1, 1, '2024-10-01', '2024-10-05', 2, 4, 'booked');
+(1, 1, '2024-10-01', '2024-10-05', 200000, 4, 'booked');
 
-INSERT INTO hoa_don (id_nhan_vien, id_thong_tin_dat_phong, ma_hoa_don, tong_tien, phuong_thuc_thanh_toan, ngay_thanh_toan, trang_thai)
+INSERT INTO hoa_don (id_nhan_vien, id_dat_phong, ma_hoa_don, tong_tien, phuong_thuc_thanh_toan, ngay_thanh_toan, trang_thai)
 VALUES 
 (1, 1, 'HD001', 4000000, 'Credit Card', GETDATE(), 'paid');
 

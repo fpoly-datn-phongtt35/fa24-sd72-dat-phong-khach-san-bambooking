@@ -191,37 +191,33 @@ const FormDetail = ({ show, handleClose, data }) => {
                         <hr />
                         <h4>Danh sách tiện ích phòng</h4>
 
-                        {/* Danh sách tiện ích phòng */}
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>ID tiện ích phòng</th>
-                                    <th>Tên tiện ích</th>
-                                    <th>Hình ảnh</th>
-                                    <th>Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {ListTienIchPhong.length > 0 ? (
-                                    ListTienIchPhong.map(ti => (
-                                        <tr key={ti.id}>
-                                            <td>{ti.id}</td>
-                                            <td>{ti.tenTienIch}</td>
-                                            <td><img src={`../../../../public/images/${ti.hinhAnh}`} width="50" alt="Hình ảnh tiện ích" /></td>
-                                            <td>
-                                                <button type="button" className="btn btn-danger" onClick={() => handleDeleteTienIchPhong(ti.id)}>
-                                                    Xóa tiện ích
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="4">Không có tiện ích nào</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+
+                        <ul className="amenities-list">
+                            {ListTienIchPhong.length > 0 ? (
+                                ListTienIchPhong.map(ti => (
+                                    <li key={ti.id} className="amenity-item">
+                                        {/* Icon or Image */}
+                                        <span className="icon">
+                                            <img src={`../../../../public/images/${ti.hinhAnh}`} width="24" alt="Icon tiện ích" />
+                                        </span>
+
+                                        {/* Amenity Name */}
+                                        <span className="amenity-text">{ti.tenTienIch}</span>
+
+                                        {/* Delete Button */}
+                                        <button
+                                            type="button"
+                                            className="btn btn-danger btn-delete"
+                                            onClick={() => handleDeleteTienIchPhong(ti.id)}
+                                        >
+                                            Xóa tiện ích
+                                        </button>
+                                    </li>
+                                ))
+                            ) : (
+                                <li>Không có tiện ích nào</li>
+                            )}
+                        </ul>
 
                         {/* Ô select để chọn tiện ích */}
                         <div className="mb-3">
@@ -258,7 +254,38 @@ const FormDetail = ({ show, handleClose, data }) => {
                     </div>
                 </div>
             </div>
+            <style jsx>{`
+  .amenities-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .amenity-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eaeaea;
+  }
+
+  .icon {
+    margin-right: 10px;
+  }
+
+  .amenity-text {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  .btn-delete {
+    margin-left: 15px;
+  }
+`}</style>
         </div>
+
     );
 };
 
