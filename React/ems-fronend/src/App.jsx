@@ -8,6 +8,7 @@ import Upload from './components/DemoCloudinary';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
+import LoaiPhong from './components/LoaiPhong/LoaiPhong';
 import ListImage from './components/HinhAnh/ListImage';
 import HinhAnh from './components/HinhAnh/HinhAnh';
 import TableNhanVien from './components/TableNhanVien';
@@ -32,7 +33,7 @@ function App() {
               <Route path="/TienNghi" element={<TienNghi />} />
               <Route path="/DatPhong" element={<DatPhong />} />
                 <Route path="/TienIch" element={<TienIch />} />
-
+                <Route path="/LoaiPhong" element={<LoaiPhong />} />
             {/*Phòng */}
             <Route path='/phong' element={<ListPhong />}></Route>
             <Route path='/add-phong' element={<Phong />}></Route>

@@ -17,4 +17,6 @@ public interface TienIchPhongService {
     public void delete(Integer id);
 
     TienIchPhong update(TienIchPhongRequest tienIchPhongRequest);
+
+    Page<TienIchPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong,Pageable pageable);
 }

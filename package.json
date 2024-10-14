@@ -24,6 +24,7 @@
   "homepage": "https://github.com/ISunDevIl/DuAnTotNghiep#readme",
   "dependencies": {
     "bootstrap-icons": "^1.11.3",
-    "datn": "file:"
+    "datn": "file:",
+    "vite": "^5.4.8"
   }
 }
