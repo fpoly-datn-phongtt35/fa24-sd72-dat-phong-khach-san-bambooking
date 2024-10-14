@@ -27,19 +27,7 @@ function App() {
         <div className="slidebar">
           <SlideBar />
         </div>
-<<<<<<< HEAD
-          <div className="main-content">
-            <div className="header">
-              <Header />
-            </div>
-            <Routes>
-              <Route path="/DichVu" element={<TableDichVu />} />
-              <Route path="/NhanVien" element={<TableNhanVien />} />
-              <Route path="/TienNghi" element={<TienNghi />} />
-              <Route path="/DatPhong" element={<DatPhong />} />
-                <Route path="/TienIch" element={<TienIch />} />
-                <Route path="/LoaiPhong" element={<LoaiPhong />} />
-=======
+
            
         <div className="main-content">
           <div className="header">
@@ -62,7 +50,7 @@ function App() {
               <Route path="/DichVuDikem" element={<DanhSachDichVuDiKem />} />
               <Route path="/PhieuDichVu" element={<DanhSachPhieuDichVu />} />
               <Route path="/LoaiPhong" element={<TableLoaiPhong />} />
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
+
             {/*Phòng */}
             <Route path='/phong' element={<ListPhong />}></Route>
             <Route path='/add-phong' element={<Phong />}></Route>

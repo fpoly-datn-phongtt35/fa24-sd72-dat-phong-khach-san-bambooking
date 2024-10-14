@@ -6,15 +6,10 @@ const apiDPAdd = "http://localhost:8080/dat-phong/them-moi";
 const apiDPUpdate = "http://localhost:8080/dat-phong/cap-nhat";
 const apiNV = "http://localhost:8080/nhan-vien/hien-thi";
 const apiKH = "http://localhost:8080/khach-hang/hien-thi";
-<<<<<<< HEAD
-const apiLoc = "http://localhost:8080/dat-phong/bo-loc"
 
-
-
-=======
 const apiLoc = "http://localhost:8080/dat-phong/bo-loc";
 const apiPhong = "http://localhost:8080/dat-phong/phong-kha-dung"
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
+
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
     return axios.get(apiDP, {
@@ -54,10 +49,7 @@ export const ThemMoiDatPhong = (DatPhongRequest) => {
     return axios.post(apiDPAdd, DatPhongRequest);
 };
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
 export const DatPhongDetail = (id) => {
     return axios.get(`${apiDetail}/${id}`);
 };
@@ -84,7 +76,4 @@ export const HienThiTheoLoc = (pageable, trangThai) => {
 };
 
 
-<<<<<<< HEAD
-=======
 
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52

@@ -16,10 +16,7 @@ function Sidebar() {
         <li className="nav-item">
           <Link className="nav-link" to="/DatPhong">Đặt phòng</Link>
         </li>
-<<<<<<< HEAD
-  
-=======
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
+
         {/* Quản lý phòng with submenu */}
         <li
           className={`nav-item has-submenu ${activeSubmenu === 1 ? 'active' : ''}`}
@@ -30,10 +27,8 @@ function Sidebar() {
             <li className="nav-item">
               <Link className="nav-link" to="/phong">Phòng</Link>
             </li>
-<<<<<<< HEAD
-            
-=======
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
+
+
             <li className="nav-item">
               <Link className="nav-link" to="/LoaiPhong">Loại phòng</Link>
             </li>

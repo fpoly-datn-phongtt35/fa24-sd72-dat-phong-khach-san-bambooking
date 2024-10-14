@@ -1,12 +1,9 @@
 import axios from "axios";
-<<<<<<< HEAD
+
 
 const api = "http://localhost:8080/tien-ich-phong/index";
 const apiadd = "http://localhost:8080/tien-ich-phong/add";
-=======
-const api = "http://localhost:8080/tien-nghi/home";
-const apiadd = "http://localhost:8080/tien-nghi/add";
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
+
 const apiTI = "http://localhost:8080/tien-ich/home";
 const apiLP = "http://localhost:8080/loai-phong/home";
 const apiUD = "http://localhost:8080/tien-nghi/update";
@@ -39,7 +36,4 @@ export const updateTienNghiPhong = (tienNghiPhongRequest) => {
 export const deleteTienNghiPhong = (id) => {
     return axios.delete(`${apiDE}/${id}`);
 };
-<<<<<<< HEAD
 
-=======
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
