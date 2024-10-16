@@ -24,11 +24,14 @@ const Login = ({ onLoginSuccess }) => {
 
       if (response.status === 200) {
         // Lưu thông tin người dùng vào localStorage
-        localStorage.setItem('user', JSON.stringify(response.data));
-        
+        const userData = response.data;
+        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('isAuthenticated', 'true'); // Lưu trạng thái đăng nhập
+
         // Gọi hàm onLoginSuccess (nếu có) và điều hướng đến trang Nhân Viên
-        onLoginSuccess(response.data);
-        navigate('/NhanVien');
+        if (onLoginSuccess) onLoginSuccess(userData);
+
+        navigate('/NhanVien'); // Điều hướng sau khi đăng nhập
       }
     } catch (error) {
       if (error.response) {
@@ -48,7 +51,7 @@ const Login = ({ onLoginSuccess }) => {
     } finally {
       setLoading(false);
     }
-};
+  };
 
   return (
     <div className="login-container">
@@ -80,4 +83,3 @@ const Login = ({ onLoginSuccess }) => {
 };
 
 export default Login;
-

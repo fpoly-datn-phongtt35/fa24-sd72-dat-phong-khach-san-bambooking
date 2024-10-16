@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import '../assets/Header.css'; // CSS cho giao diện
+import '../assets/Header.css'; // Import CSS
 
 const HeaderComponents = () => {
     const [showUserInfo, setShowUserInfo] = useState(false);
@@ -11,17 +11,24 @@ const HeaderComponents = () => {
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user) {
-            navigate('/login', { replace: true }); // Điều hướng nếu không có thông tin người dùng
+            // Điều hướng nếu không có thông tin người dùng
+            navigate('/login', { replace: true });
         } else {
             setUserInfo(user); // Cập nhật thông tin người dùng nếu tồn tại
         }
-    }, []); 
+    }, [navigate]);
 
     // Hàm mở/đóng dropdown khi nhấp vào avatar
     const toggleUserInfo = () => {
         setShowUserInfo(!showUserInfo);
     };
 
+    // Hàm xử lý đăng xuất
+    const handleLogout = () => {
+        localStorage.removeItem('user'); // Xóa thông tin người dùng
+        localStorage.removeItem('isAuthenticated'); // Xóa trạng thái đăng nhập
+        navigate('/login', { replace: true }); // Điều hướng về trang login
+    };
 
     return (
         <header className="navbar text-bg-info">
@@ -51,6 +58,9 @@ const HeaderComponents = () => {
                         <div className="user-info-dropdown">
                             <p>Tài khoản: {userInfo.tenDangNhap}</p>
                             <p>Trạng thái: {userInfo.trangThai}</p>
+                            <button onClick={handleLogout} className="logout-button">
+                                Đăng Xuất
+                            </button>
                         </div>
                     )}
                 </li>
@@ -60,4 +70,3 @@ const HeaderComponents = () => {
 };
 
 export default HeaderComponents;
-

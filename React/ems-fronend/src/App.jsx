@@ -19,32 +19,39 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { useState, useEffect } from 'react';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    () => localStorage.getItem('isAuthenticated') === 'true' // Khởi tạo từ localStorage
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    const auth = localStorage.getItem('isAuthenticated');
+    return auth === 'true'; // Khởi tạo từ localStorage
+  });
 
   // Hàm xử lý khi đăng nhập thành công
   const handleLoginSuccess = () => {
-    localStorage.setItem('isAuthenticated', 'true'); // Lưu vào localStorage
-    setIsAuthenticated(true); // Cập nhật state
+    localStorage.setItem('isAuthenticated', 'true'); // Lưu trạng thái đăng nhập
+    setIsAuthenticated(true);
   };
 
   // Hàm xử lý đăng xuất
   const handleLogout = () => {
-    localStorage.removeItem('isAuthenticated'); // Xóa thông tin đăng nhập
+    // localStorage.removeItem('isAuthenticated'); // Xóa thông tin đăng nhập
     setIsAuthenticated(false); // Cập nhật state
+
   };
+
+  // Điều hướng về login nếu chưa đăng nhập hoặc backend không hoạt động
+  useEffect(() => {
+    if (!isAuthenticated) {
+      localStorage.removeItem('isAuthenticated'); // Xóa mọi thông tin cũ
+    }
+  }, [isAuthenticated]);
 
   // Component kiểm tra yêu cầu đăng nhập
   const RequireAuth = ({ children }) => {
-    const location = useLocation(); // Đảm bảo useLocation hoạt động đúng
+    const location = useLocation();
 
     if (!isAuthenticated) {
-      // Nếu chưa đăng nhập, điều hướng về trang login
       return <Navigate to="/login" state={{ from: location }} replace />;
     }
-
-    return children; // Nếu đã đăng nhập, hiển thị nội dung
+    return children;
   };
 
   return (
@@ -87,7 +94,9 @@ function App() {
                         <Route path="/update-phong/:id" element={<Phong />} />
                         <Route path="/hinh-anh" element={<ListImage />} />
                         <Route path="/add-hinh-anh" element={<HinhAnh />} />
-                        <Route path="*" element={<Navigate to="/NhanVien" replace />} />
+                        <Route path="/login" element={<Login />} />
+
+                        {/* <Route path="*" element={<Navigate to="/NhanVien" replace />} /> */}
                       </Routes>
                     </div>
                   </RequireAuth>
