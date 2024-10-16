@@ -1,14 +1,12 @@
 package com.example.datn.controller;
 
+import com.example.datn.dto.request.ThongTinNhanVienRequest;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -32,5 +30,13 @@ public class AuthController {
         TaiKhoan newTaiKhoan = authService.register(taiKhoan);
         return ResponseEntity.ok(newTaiKhoan);
     }
+
+    @GetMapping("/thong-tin-nhan-vien")
+    public ThongTinNhanVienRequest getThongTinNhanVien(@RequestParam String tenDangNhap) {
+        return authService.getThongTinNhanVien(tenDangNhap);
+    }
+
+
+
 
 }
