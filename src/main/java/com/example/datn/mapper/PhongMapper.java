@@ -42,7 +42,7 @@ public class PhongMapper {
         response.setTrangThai(phong.getTrangThai());
 
         String duongDanAnhDauTien = phong.getHinhAnhs().stream()
-                .filter(ha -> "Hoạt động".equals(ha.getTrangThai())) // Lọc theo trạng thái hoạt động
+                .filter(ha -> "hoat dong".equals(ha.getTrangThai())) // Lọc theo trạng thái hoạt động
                 .map(HinhAnh::getDuongDan)
                 .findFirst()
                 .orElse(null);
