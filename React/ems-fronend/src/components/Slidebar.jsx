@@ -5,6 +5,11 @@ import '../assets/Slidebar.css'; // File CSS cho sidebar
 
 function Sidebar() {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
+
+  const toggleSubmenu = (id, activeSubmenu, setActiveSubmenu) => {
+    setActiveSubmenu(activeSubmenu === id ? null : id);
+  };
+  
   return (
     <div className="sidebar">
       <ul>
@@ -14,7 +19,7 @@ function Sidebar() {
         <li className="nav-item">
           <Link className="nav-link" to="/DatPhong">Đặt phòng</Link>
         </li>
-        {/* Quản lý phòng với submenu */}
+        {/* Quản lý phòng with submenu */}
         <li
           className={`nav-item has-submenu ${activeSubmenu === 1 ? 'active' : ''}`}
           onClick={() => toggleSubmenu(1, activeSubmenu, setActiveSubmenu)}
@@ -30,10 +35,17 @@ function Sidebar() {
             <li className="nav-item">
               <Link className="nav-link" to="/TienNghi">Tiện nghi phòng</Link>
             </li>
+            <li className="nav-item">
+          <Link className="nav-link" to="/TienIch">Tiện ích</Link>
+        </li>
           </ul>
         </li>
-
-        <li className={`dv ${activeSubmenu === 1 ? 'active' : ''}`} >
+  
+        
+      </ul>
+  
+      <ul>
+        <li className={`dv ${activeSubmenu === 1 ? 'active' : ''}`}>
           <Link className="nav-link" to="/DichVu">Dịch vụ</Link>
         </li>
         <li className="nav-item">

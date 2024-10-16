@@ -12,6 +12,10 @@ import HinhAnh from './components/HinhAnh/HinhAnh';
 import ListKhachHang from './components/KhachHang/ListKhachHang';
 import KhachHangComponent from './components/KhachHang/KhachHangComponent';
 import ViewPhong from './components/TrangChu/ViewPhong';
+import TableNhanVien from './components/TableNhanVien';
+import TienIch from './components/TienIch/TienIch';
+import FormAddPage from './components/DatPhong/FormAddPage';
+import FormAdd from './components/DatPhong/FormAdd';
 function App() {
   return (
     <BrowserRouter>
@@ -20,24 +24,29 @@ function App() {
         <div className="slidebar">
           <SlideBar />
         </div>
-
         <div className="main-content">
           <div className="header">
             <Header />
           </div>
           <Routes>
-            <Route path="/DichVu" element={<TableDichVu />} />
-            <Route path="/TienNghi" element={<TienNghi />} />
+            {/* Đặt phòng */}
             <Route path="/DatPhong" element={<DatPhong />} />
+            <Route path='/tao-dat-phong' element={<FormAddPage />} />
+            <Route path='/form-tao' element={<FormAdd />} />
+            {/* Dịch vụ */}
+            <Route path="/DichVu" element={<TableDichVu />} />
+            {/* Nhân viên */}
+            <Route path="/NhanVien" element={<TableNhanVien />} />
+            {/* Tiện ích */}
+            <Route path="/TienNghi" element={<TienNghi />} />
+            <Route path="/TienIch" element={<TienIch />} />
             {/*Phòng */}
             <Route path='/phong' element={<ListPhong />}></Route>
             <Route path='/add-phong' element={<Phong />}></Route>
             <Route path='/update-phong/:id' element={<Phong />}></Route>
-
             {/*Image */}
             <Route path='/hinh-anh' element={<ListImage />}></Route>
             <Route path='/add-hinh-anh' element={<HinhAnh />}></Route>
-
             {/*Khách hàng */}
             <Route path='/khach-hang' element={<ListKhachHang />} />
             <Route path='/add-khach-hang' element={<KhachHangComponent />} />
@@ -48,6 +57,7 @@ function App() {
           </Routes>
         </div>
       </div>
+
     </BrowserRouter>
   );
 }

@@ -17,9 +17,5 @@ import java.util.List;
 @RequestMapping("/QuanLyPhong")
 public class QuanLyPhongController {
 
-
-
-
-
 }
 
