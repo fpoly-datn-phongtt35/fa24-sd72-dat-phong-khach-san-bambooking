@@ -33,7 +33,7 @@ const NavDatPhong = ({ onFilterChange }) => {
 
 
     return (
-        <div className="vertical-bar">
+        <div className="vertical-bar-datphong">
             <button className="create-booking-btn" onClick={handleCreateBooking}>
                 Tạo đặt phòng
             </button>

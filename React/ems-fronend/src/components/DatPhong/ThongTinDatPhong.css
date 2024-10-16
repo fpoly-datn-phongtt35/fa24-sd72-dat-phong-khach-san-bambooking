@@ -1,74 +1,48 @@
-.room-booking-info {
+.booking-form-details {
     padding: 20px;
     font-family: 'Times New Roman', serif;
-    background-color: #f8f9fa; /* Màu nền nhẹ cho toàn bộ container */
-    min-height: 100vh; /* Đảm bảo chiều cao tối thiểu */
+    background-color: #f8f9fa;
+    min-height: 100vh;
 }
 
-.card-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center; /* Canh giữa các thẻ */
-    align-items: stretch; /* Các thẻ có cùng chiều cao */
-}
-
-.booking-card-details {
+.booking-form {
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Màu nhẹ cho đổ bóng */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     padding: 20px;
-    width: 300px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Hiệu ứng chuyển động mượt */
+    width: 100%;
+    max-width: 500px;
+    margin: auto;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    gap: 15px;
 }
 
-.booking-details h2 {
-    margin-bottom: 15px;
-    font-size: 20px;
-    font-weight: bold;
-    color: #333; /* Màu chữ tối */
-    padding-bottom: 10px;
-}
-
-.booking-details p {
-    margin: 8px 0;
-    font-size: 16px;
-    color: #555; /* Màu chữ trung tính */
-}
-
-.booking-card-details:hover {
-    transform: translateY(-5px); /* Nổi nhẹ khi hover */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Đổ bóng sâu hơn khi hover */
-}
-
-.pagination-controls {
+.form-group {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
+    flex-direction: column;
 }
 
-.pagination-controls button {
-    padding: 10px 20px;
+.form-group label {
+    margin-bottom: 5px;
     font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
     border-radius: 5px;
-    cursor: pointer;
+    background-color: #f1f1f1;
+    color: #333;
     transition: background-color 0.3s ease;
 }
 
-.pagination-controls button:hover {
-    background-color: #0056b3;
-}
-
-.pagination-controls span {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
+.form-group input:focus {
+    background-color: #fff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }

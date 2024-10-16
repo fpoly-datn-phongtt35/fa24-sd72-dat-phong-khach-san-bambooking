@@ -2,11 +2,11 @@
     display: flex;
     align-items: flex-start;
     width: 100%; /* Đảm bảo container rộng 100% */
+    padding: 10px;
 }
 
 .content-container {
     flex: 1;
-    padding: 10px;
 }
 
 .booking-container {

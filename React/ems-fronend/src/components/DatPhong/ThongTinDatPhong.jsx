@@ -31,30 +31,61 @@ const ThongTinDatPhong = () => {
         }
     }, [id, currentPage]); // Gọi lại API khi trang thay đổi
 
+    // Hàm tính số ngày ở
+    const tinhSoNgayO = (ngayNhanPhong, ngayTraPhong) => {
+        const nhanPhong = new Date(ngayNhanPhong);
+        const traPhong = new Date(ngayTraPhong);
+        const diffTime = Math.abs(traPhong - nhanPhong);
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Số ngày ở
+    };
+
     // Tạo Tabs để hiển thị mỗi phòng dưới dạng Tab
     return (
         <div className="room-booking-info">
             {thongTinDatPhong.length > 0 ? (
                 <Tabs defaultActiveKey="1">
-                    {thongTinDatPhong.map((item, index) => (
-                        <TabPane tab={`Phòng ${index + 1}`} key={index + 1}>
-                            <div className="booking-card-details">
-                                <div className="booking-details">
-                                    <h2>Mã đặt phòng: {item.maThongTinDatPhong}</h2>
-                                    <p><strong>Ngày nhận phòng:</strong> {new Date(item.ngayNhanPhong).toLocaleDateString()}</p>
-                                    <p><strong>Ngày trả phòng:</strong> {new Date(item.ngayTraPhong).toLocaleDateString()}</p>
-                                    <p><strong>Giá đặt:</strong> ${item.giaDat}</p>
-                                    <p><strong>Số người:</strong> {item.soNguoi}</p>
-                                    <p><strong>Trạng thái:</strong> {item.trangThai}</p>
+                    {thongTinDatPhong.map((item) => {
+                        const soNgayO = tinhSoNgayO(item.ngayNhanPhong, item.ngayTraPhong); // Tính số ngày ở
+                        const thanhTien = soNgayO * item.giaDat; // Tính thành tiền
+
+                        return (
+                            <TabPane tab={`${item.maThongTinDatPhong}`} key={item.maThongTinDatPhong}>
+                                <div className="booking-form-details">
+                                    <form className="booking-form">
+                                        <div className="form-group">
+                                            <label htmlFor="ngayNhanPhong">Ngày Nhận Phòng:</label>
+                                            <input type="datetime" id="ngayNhanPhong" value={item.ngayNhanPhong} readOnly />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="ngayTraPhong">Ngày Trả Phòng:</label>
+                                            <input type="datetime" id="ngayTraPhong" value={item.ngayTraPhong} readOnly />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="giaDat">Giá Đặt:</label>
+                                            <input type="text" id="giaDat" value={`${item.giaDat}`} readOnly />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="soNguoi">Số Người:</label>
+                                            <input type="text" id="soNguoi" value={item.soNguoi} readOnly />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="thanhTien">Thành Tiền:</label>
+                                            <input type="text" id="thanhTien" value={thanhTien} readOnly />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="trangThai">Trạng Thái:</label>
+                                            <input type="text" id="trangThai" value={item.trangThai} readOnly />
+                                        </div>
+                                    </form>
                                 </div>
-                            </div>
-                        </TabPane>
-                    ))}
+                            </TabPane>
+                        );
+                    })}
                 </Tabs>
             ) : (
                 <p>Loading...</p>
             )}
-        </div>  
+        </div>
     );
 };
 

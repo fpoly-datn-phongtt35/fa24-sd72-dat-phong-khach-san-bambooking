@@ -100,7 +100,6 @@ const DanhSach = () => {
                                     </span>
                                 </div>
                                 <div className="booking-body">
-                                    <p><strong>Nhân viên:</strong> {dp.tenNhanVien}</p>
                                     <p><strong>Khách hàng:</strong> {dp.tenKhachHang}</p>
                                     <p><strong>Thời gian đặt:</strong> {dp.ngayDat}</p>
                                     <p><strong>Ghi chú:</strong> {dp.ghiChu}</p>
