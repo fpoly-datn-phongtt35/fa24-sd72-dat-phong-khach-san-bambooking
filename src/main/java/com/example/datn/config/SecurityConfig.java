@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,17 +19,22 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    @Value("${jwt.signer-key}")
-    private String signerKey;
+//    @Value("${jwt.signer-key}")
+//    private String signerKey;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors() // Kích hoạt CORS
-                .and()
-                .csrf().disable() // Vô hiệu hóa CSRF
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Kích hoạt CORS
+                .csrf().disable() // Vô hiệu hóa CSRF để đơn giản hóa
+
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // Cho phép tất cả request mà không cần xác thực
+                        .anyRequest().permitAll() // Cho phép tất cả request không cần đăng nhập (phục vụ kiểm thử)
+                )
+
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Không tạo session, chỉ sử dụng JWT
                 );
 
         return http.build();
@@ -37,14 +43,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));  // Cho phép từ React frontend
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));  // Các phương thức được phép
-        configuration.setAllowedHeaders(List.of("*"));  // Cho phép tất cả các header
-        configuration.setAllowCredentials(true);  // Cho phép gửi cookie nếu cần
-
+        configuration.addAllowedOriginPattern("http://localhost:3000"); // Cho phép React frontend
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true); // Cho phép gửi cookie
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);  // Áp dụng cho tất cả endpoint
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+
 
 }

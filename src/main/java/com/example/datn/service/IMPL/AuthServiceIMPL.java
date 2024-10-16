@@ -13,9 +13,6 @@ public class AuthServiceIMPL implements AuthService {
     @Autowired
     private TaiKhoanRepository taiKhoanRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
 
     @Override
     public TaiKhoan login(String tenDangNhap, String matKhau) {

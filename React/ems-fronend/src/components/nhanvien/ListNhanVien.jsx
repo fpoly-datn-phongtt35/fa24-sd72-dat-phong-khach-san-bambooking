@@ -105,7 +105,7 @@ const ListNhanVien = () => {
                     <td>{formatDateString(nv.ngaySua)}</td>
                     <td>{nv.trangThai}</td>
                     <td>
-                      <button onClick={() => navigate(`/update-nhan-vien/${nv.id}`)}>
+                      <button className="btn btn-warning" onClick={() => navigate(`/update-nhan-vien/${nv.id}`)}>
                         Update
                       </button>
                       <button
