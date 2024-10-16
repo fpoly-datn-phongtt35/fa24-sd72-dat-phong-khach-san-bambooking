@@ -1,75 +1,53 @@
 package com.example.datn.controller;
 
-import com.example.datn.dto.response.DatPhongResponse;
-import com.example.datn.model.KhachHang;
-import com.example.datn.service.IMPL.KhachHangServiceIMPL;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import com.example.datn.dto.request.KhachHangRequest;
+import com.example.datn.service.KhachHangService;
+import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-@CrossOrigin
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/khach-hang")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class KhachHangController {
-    @Autowired
-    KhachHangServiceIMPL khachHangServiceIMPL;
 
-    @GetMapping("hien-thi")
-    public ResponseEntity<?> HienThiKhachHang() {
-        List<KhachHang> kh = khachHangServiceIMPL.getAll();
-        return ResponseEntity.ok(kh);
-    }
-    @GetMapping("/khach-hang/view-add")
-    public String view_add(Model model) {
-        model.addAttribute("khachHang", new KhachHang());
-        return "/KhachHang/add";
+    KhachHangService khachHangService;
+
+    @GetMapping("")
+    public ResponseEntity<?> getAllKhachHang(Pageable pageable){
+        return ResponseEntity.ok(khachHangService.getAllKhachHang(pageable));
     }
 
-    @PostMapping("/khach-hang/add")
-    public String add(@ModelAttribute("khachHang") KhachHang khachHang) {
-        LocalDateTime now = LocalDateTime.now();
-        khachHang.setNgayTao(now);
-        khachHang.setNgaySua(now);
-        khachHangServiceIMPL.addKhachHang(khachHang);
-        return "redirect:/khach-hang";
+    @PostMapping("")
+    public ResponseEntity<?> createKhachHang(@RequestBody @Valid KhachHangRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(khachHangService.createKhachHang(request));
     }
 
-    @GetMapping("/khach-hang/detail/{id}")
-    public String detail(@PathVariable("id") Integer id, Model model) {
-        KhachHang khachHangDetail = khachHangServiceIMPL.findById(id);
-        model.addAttribute("khdetail", khachHangDetail);
-        return "/KhachHang/update";
+    @GetMapping("{id}")
+    public ResponseEntity<?> getOneKhachHang(@PathVariable("id") Integer id){
+        return ResponseEntity.ok(khachHangService.getOneKhachHang(id));
     }
 
-    @PostMapping("/khach-hang/update")
-    public String update(@ModelAttribute("khachHang") KhachHang khachHang) {
-        khachHangServiceIMPL.updateKhachHang(khachHang);
-        return "redirect:/khach-hang";
+    @PutMapping("{id}")
+    public ResponseEntity<?> updateKhachHang(@PathVariable("id") Integer id, @RequestBody @Valid KhachHangRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(khachHangService.updateKhachHang(id, request));
     }
 
-    @GetMapping("/khach-hang/status/{id}")
-    public String status(@PathVariable("id") Integer id) {
-        khachHangServiceIMPL.updateTrangThaiKhachHang(id);
-        return "redirect:/khach-hang";
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteKhachHang(@PathVariable("id") Integer id){
+        khachHangService.deleteKhachHang(id);
+        return ResponseEntity.ok("Xóa khách hàng có id: " + id + "thành công !");
     }
 
-    @GetMapping("/khach-hang/search")
-    public String search(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
-        List<KhachHang> list;
-
-        if (keyword != null && !keyword.isEmpty()) {
-            list = khachHangServiceIMPL.search(keyword);
-        } else {
-            list = khachHangServiceIMPL.getAll();
-        }
-        model.addAttribute("list", list);
-        return "KhachHang/index";
+    @GetMapping("/search")
+    public ResponseEntity<?> searchKhachHang(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(khachHangService.searchKhachHang(keyword, pageable));
     }
 }

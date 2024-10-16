@@ -1,11 +1,14 @@
 import React from 'react'
 import DanhSach from './DanhSach'
-import NavDatPhong from './NavDatPhong'
-import './DatPhongCSS.css'
 const DatPhong = () => {
     return (
         <div className="dat-phong-container">
+<<<<<<< HEAD
+
             {/* <NavDatPhong /> */}
+
+=======
+>>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
             <DanhSach />
         </div>
     )

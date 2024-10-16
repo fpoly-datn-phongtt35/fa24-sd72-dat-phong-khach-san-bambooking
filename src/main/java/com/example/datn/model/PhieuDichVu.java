@@ -39,8 +39,10 @@ public class PhieuDichVu {
 
     @Column(name = "gia_su_dung")
     private Double giaSuDung;
+
     @Column(name = "thanh_tien")
     private Double thanhTien;
+
     @Column(name = "trang_thai")
     private String trangThai;
 }
