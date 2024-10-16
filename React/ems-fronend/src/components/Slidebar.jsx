@@ -9,7 +9,7 @@ function Sidebar() {
     <div className="sidebar">
       <ul>
         <li className="nav-item">
-          <Link className="nav-link" to="/TrangChu">Trang chủ</Link>
+          <Link className="nav-link" to="/trang-chu">Trang chủ</Link>
         </li>
         <li className="nav-item">
           <Link className="nav-link" to="/DatPhong">Đặt phòng</Link>

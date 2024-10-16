@@ -1,10 +1,13 @@
 package com.example.datn.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,4 +33,7 @@ public class Phong {
     private String tinhTrang;
     @Column(name = "trang_thai")
     private String trangThai;
+    @OneToMany(mappedBy = "phong")
+    @JsonManagedReference
+    private List<HinhAnh> hinhAnhs;
 }

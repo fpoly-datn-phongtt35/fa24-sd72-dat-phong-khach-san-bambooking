@@ -11,6 +11,7 @@ import ListImage from './components/HinhAnh/ListImage';
 import HinhAnh from './components/HinhAnh/HinhAnh';
 import ListKhachHang from './components/KhachHang/ListKhachHang';
 import KhachHangComponent from './components/KhachHang/KhachHangComponent';
+import ViewPhong from './components/TrangChu/ViewPhong';
 function App() {
   return (
     <BrowserRouter>
@@ -38,9 +39,12 @@ function App() {
             <Route path='/add-hinh-anh' element={<HinhAnh />}></Route>
 
             {/*Khách hàng */}
-            <Route path='/khach-hang' element={<ListKhachHang/>} />
-            <Route path='/add-khach-hang' element={<KhachHangComponent/>} />
-            <Route path='/update-khach-hang/:id' element={<KhachHangComponent/>} />
+            <Route path='/khach-hang' element={<ListKhachHang />} />
+            <Route path='/add-khach-hang' element={<KhachHangComponent />} />
+            <Route path='/update-khach-hang/:id' element={<KhachHangComponent />} />
+
+            {/*Trang chủ */}
+            <Route path='/trang-chu' element={<ViewPhong />} />
           </Routes>
         </div>
       </div>
