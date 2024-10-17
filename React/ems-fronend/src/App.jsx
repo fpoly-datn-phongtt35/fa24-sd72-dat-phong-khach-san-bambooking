@@ -15,7 +15,7 @@ import ListImage from './components/HinhAnh/ListImage';
 import HinhAnh from './components/HinhAnh/HinhAnh';
 import TienIch from './components/TienIch/TienIch';
 import Login from './components/login/Login';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'; // Loại bỏ BrowserRouter
 import { useState, useEffect } from 'react';
 
 function App() {
@@ -32,81 +32,184 @@ function App() {
 
   // Hàm xử lý đăng xuất
   const handleLogout = () => {
-    // localStorage.removeItem('isAuthenticated'); // Xóa thông tin đăng nhập
+    localStorage.removeItem('isAuthenticated'); // Xóa thông tin đăng nhập
+    localStorage.removeItem('user'); // Xóa thông tin người dùng nếu có
     setIsAuthenticated(false); // Cập nhật state
-
   };
 
-  // Điều hướng về login nếu chưa đăng nhập hoặc backend không hoạt động
+  // Xóa mọi dữ liệu xác thực cũ khi trạng thái thay đổi
   useEffect(() => {
     if (!isAuthenticated) {
-      localStorage.removeItem('isAuthenticated'); // Xóa mọi thông tin cũ
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('user');
     }
   }, [isAuthenticated]);
 
-  // Component kiểm tra yêu cầu đăng nhập
+  // Component bảo vệ route
   const RequireAuth = ({ children }) => {
-    const location = useLocation();
-
     if (!isAuthenticated) {
-      return <Navigate to="/login" state={{ from: location }} replace />;
+      return <Navigate to="/login" replace />;
     }
     return children;
   };
 
-  return (
-    <BrowserRouter>
-      <div className="app-container">
-        <Routes>
-          {!isAuthenticated ? (
-            <>
-              {/* Trang login */}
-              <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </>
-          ) : (
-            <>
-              {/* Giao diện chính sau khi đăng nhập */}
-              <Route
-                path="/*"
-                element={
-                  <RequireAuth>
-                    <div className="slidebar">
-                      <SlideBar />
-                    </div>
-                    <div className="main-content">
-                      <div className="header">
-                        <Header onLogout={handleLogout} />
-                      </div>
-                      <Routes>
-                        <Route path="/NhanVien" element={<ListNhanVien />} />
-                        <Route path="/TaiKhoan" element={<ListTaiKhoan />} />
-                        <Route path="/VaiTro" element={<ListVaiTro />} />
-                        <Route path="/add-nhanvien" element={<NhanVienComponent />} />
-                        <Route path="/add-taikhoan" element={<TaiKhoanComponent />} />
-                        <Route path="/update-nhan-vien/:id" element={<NhanVienComponent />} />
-                        <Route path="/DichVu" element={<TableDichVu />} />
-                        <Route path="/TienNghi" element={<TienNghi />} />
-                        <Route path="/DatPhong" element={<DatPhong />} />
-                        <Route path="/TienIch" element={<TienIch />} />
-                        <Route path="/phong" element={<ListPhong />} />
-                        <Route path="/add-phong" element={<Phong />} />
-                        <Route path="/update-phong/:id" element={<Phong />} />
-                        <Route path="/hinh-anh" element={<ListImage />} />
-                        <Route path="/add-hinh-anh" element={<HinhAnh />} />
-                        <Route path="/login" element={<Login />} />
+  // Lấy đường dẫn hiện tại
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
 
-                        {/* <Route path="*" element={<Navigate to="/NhanVien" replace />} /> */}
-                      </Routes>
-                    </div>
-                  </RequireAuth>
-                }
-              />
-            </>
-          )}
-        </Routes>
+  return (
+    <div className="app-container">
+      {!isLoginPage && (
+        <div className="slidebar">
+          <SlideBar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+        </div>
+      )}
+      <div className="main-content">
+        {!isLoginPage && (
+          <div className="header">
+            <Header onLogout={handleLogout} isAuthenticated={isAuthenticated} />
+          </div>
+        )}
+        <div className="content-area">
+          <Routes>
+            {/* Route công khai */}
+            <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+            {/* Các route được bảo vệ */}
+            <Route
+              path="/NhanVien"
+              element={
+                <RequireAuth>
+                  <ListNhanVien />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/TaiKhoan"
+              element={
+                <RequireAuth>
+                  <ListTaiKhoan />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/VaiTro"
+              element={
+                <RequireAuth>
+                  <ListVaiTro />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-nhanvien"
+              element={
+                <RequireAuth>
+                  <NhanVienComponent />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-taikhoan"
+              element={
+                <RequireAuth>
+                  <TaiKhoanComponent />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/update-nhan-vien/:id"
+              element={
+                <RequireAuth>
+                  <NhanVienComponent />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/DichVu"
+              element={
+                <RequireAuth>
+                  <TableDichVu />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/TienNghi"
+              element={
+                <RequireAuth>
+                  <TienNghi />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/DatPhong"
+              element={
+                <RequireAuth>
+                  <DatPhong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/TienIch"
+              element={
+                <RequireAuth>
+                  <TienIch />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/phong"
+              element={
+                <RequireAuth>
+                  <ListPhong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-phong"
+              element={
+                <RequireAuth>
+                  <Phong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/update-phong/:id"
+              element={
+                <RequireAuth>
+                  <Phong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/hinh-anh"
+              element={
+                <RequireAuth>
+                  <ListImage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-hinh-anh"
+              element={
+                <RequireAuth>
+                  <HinhAnh />
+                </RequireAuth>
+              }
+            />
+            {/* Redirect các đường dẫn không xác định */}
+            <Route
+              path="*"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/NhanVien" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+          </Routes>
+        </div>
       </div>
-    </BrowserRouter>
+    </div>
   );
 }
 
