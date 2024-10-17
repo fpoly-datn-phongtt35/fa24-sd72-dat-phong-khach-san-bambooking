@@ -19,15 +19,11 @@ const DanhSach = () => {
             .then((response) => {
                 setData(response.data.content);
                 setTotalPages(response.data.totalPages);
-
             })
             .catch((error) => {
-
                 console.log(error);
             });
     };
-
-    // Gọi API để lọc danh sách đặt phòng khi có bộ lọc hoặc trang thay đổi
     const getFilteredDatPhong = () => {
         HienThiTheoLoc({ page: currentPage, size: itemsPerPage }, filters)
             .then((response) => {
@@ -38,13 +34,7 @@ const DanhSach = () => {
                 console.log(error);
             });
     };
-
-    // Gọi API lần đầu tiên khi component được mount
-    useEffect(() => {
-        getAllDatPhong();
-    }, []); // Chỉ gọi 1 lần khi component được mount
-
-    // Gọi API khi trang hiện tại hoặc bộ lọc thay đổi
+    
     useEffect(() => {
         if (filters.length > 0) {
             getFilteredDatPhong();
@@ -53,22 +43,26 @@ const DanhSach = () => {
         }
     }, [currentPage, filters]);
 
-    // Hàm xử lý việc chọn trạng thái lọc
     const handleFilterChange = (selectedFilters) => {
         setFilters(selectedFilters);
         setCurrentPage(0); // Đặt lại trang về 0 khi có bộ lọc mới
     };
 
-    // Hàm hiển thị modal chi tiết đặt phòng
     const handleViewDetails = (id) => {
         setSelectedBookingId(id); // Lưu ID của đặt phòng được chọn
         setShowModal(true); // Hiển thị modal chi tiết đặt phòng
     };
 
-    // Hàm đóng modal
     const handleCloseModal = () => {
         setShowModal(false); // Đóng modal
         setSelectedBookingId(null); // Xóa dữ liệu chi tiết
+    
+        // Tải lại dữ liệu ngay sau khi đóng modal
+        if (filters.length > 0) {
+            getFilteredDatPhong(); // Tải lại dữ liệu khi có bộ lọc
+        } else {
+            getAllDatPhong(); // Tải lại toàn bộ dữ liệu
+        }
     };
 
     const handleNextPage = () => {
@@ -85,7 +79,6 @@ const DanhSach = () => {
 
     return (
         <div className="main-container">
-            {/* Thanh điều hướng và lọc */}
             <NavDatPhong onFilterChange={handleFilterChange} />
 
             <div className="content-container">
@@ -97,32 +90,15 @@ const DanhSach = () => {
                                     <h3>Mã đặt phòng: {dp.maDatPhong}</h3>
                                 </div>
                                 <div className="status-container">
-                                    <span
-                                        className={`status ${dp.trangThai === 'confirmed'
-                                                ? 'confirmed'
-                                                : dp.trangThai === 'unconfirmed'
-                                                    ? 'unconfirmed'
-                                                    : dp.trangThai === 'processing'
-                                                        ? 'processing'
-                                                        : 'canceled'
-                                            }`}
-                                    >
+                                    <span className={`status ${dp.trangThai}`}>
                                         {dp.trangThai}
                                     </span>
                                 </div>
                                 <div className="booking-body">
-                                    <p>
-                                        <strong>Nhân viên:</strong> {dp.tenNhanVien}
-                                    </p>
-                                    <p>
-                                        <strong>Khách hàng:</strong> {dp.tenKhachHang}
-                                    </p>
-                                    <p>
-                                        <strong>Thời gian đặt:</strong> {dp.ngayDat}
-                                    </p>
-                                    <p>
-                                        <strong>Ghi chú:</strong> {dp.ghiChu}
-                                    </p>
+                                    <p><strong>Nhân viên:</strong> {dp.tenNhanVien}</p>
+                                    <p><strong>Khách hàng:</strong> {dp.tenKhachHang}</p>
+                                    <p><strong>Thời gian đặt:</strong> {dp.ngayDat}</p>
+                                    <p><strong>Ghi chú:</strong> {dp.ghiChu}</p>
                                 </div>
                             </div>
                         ))
@@ -131,24 +107,19 @@ const DanhSach = () => {
                     )}
                 </div>
 
-                {/* Nút điều hướng trang */}
                 <div className="pagination">
-                    <button className="btn btn-success" onClick={handlePreviousPage} disabled={currentPage === 0}>
+                    <button onClick={handlePreviousPage} disabled={currentPage === 0}>
                         Trang trước
                     </button>
-                    <span>
-                        Trang hiện tại: {currentPage + 1} / {totalPages}
-                    </span>
-                    <button className="btn btn-success" onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>
+                    <span>Trang hiện tại: {currentPage + 1} / {totalPages}</span>
+                    <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>
                         Trang sau
                     </button>
                 </div>
 
-                {/* Modal hiển thị chi tiết đặt phòng */}
                 {showModal && <ChiTietDatPhong bookingId={selectedBookingId} handleClose={handleCloseModal} show={showModal} />}
             </div>
         </div>
-
     );
 };
 

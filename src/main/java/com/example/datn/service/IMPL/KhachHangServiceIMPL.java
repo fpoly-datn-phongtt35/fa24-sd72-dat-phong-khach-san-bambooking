@@ -1,53 +1,95 @@
 package com.example.datn.service.IMPL;
 
+import com.example.datn.config.PasswordGenerator;
+import com.example.datn.dto.request.KhachHangRequest;
+import com.example.datn.dto.response.KhachHangResponse;
+import com.example.datn.mapper.KhachHangMapper;
 import com.example.datn.model.KhachHang;
+import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.KhachHangRepository;
+import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.service.KhachHangService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class KhachHangServiceIMPL implements KhachHangService {
-    @Autowired
     KhachHangRepository khachHangRepository;
+    TaiKhoanRepository taiKhoanRepository;
+    KhachHangMapper khachHangMapper;
 
     @Override
-    public List<KhachHang> getAll() {
-        return khachHangRepository.findAll();
+    public Page<KhachHang> getAllKhachHang(Pageable pageable) {
+        return khachHangRepository.findAll(pageable);
     }
 
     @Override
-    public KhachHang findById(Integer id) {
-        return khachHangRepository.findById(id).get();
+    public KhachHang createKhachHang(KhachHangRequest request) {
+        TaiKhoan taiKhoan = new TaiKhoan();
+        taiKhoan.setTenDangNhap(request.getEmail());
+
+        String generatedPassword = PasswordGenerator.generateRandomPassword();
+        taiKhoan.setMatKhau(generatedPassword);
+
+        TaiKhoan saveTaiKhoan = taiKhoanRepository.save(taiKhoan);
+
+        KhachHang khachHang = khachHangMapper.toKhachHang(request);
+        khachHang.setTaiKhoan(saveTaiKhoan);
+        khachHang.setNgayTao(LocalDateTime.now());
+        khachHang.setNgaySua(LocalDateTime.now());
+
+        return khachHangRepository.save(khachHang);
     }
 
     @Override
-    public void addKhachHang(KhachHang khachHang) {
-        khachHangRepository.save(khachHang);
+    public KhachHangResponse getOneKhachHang(Integer id) {
+        KhachHang khachHang = khachHangRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ID khach hang not found: " + id));
+
+        return khachHangMapper.toKhachHangResponse(khachHang);
     }
 
     @Override
-    public void updateKhachHang(KhachHang khachHang) {
-        khachHangRepository.save(khachHang);
-    }
+    public KhachHangResponse updateKhachHang(Integer id, KhachHangRequest request) {
+        KhachHang khachHang = khachHangRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ID khach hang not found: " + id));
+        khachHang.setHo(request.getHo());
+        khachHang.setTen(request.getTen());
+        khachHang.setGioiTinh(request.getGioiTinh());
+        khachHang.setDiaChi(request.getDiaChi());
+        khachHang.setSdt(request.getSdt());
+        khachHang.setEmail(request.getEmail());
+        khachHang.setTrangThai(request.getTrangThai());
+        khachHang.setNgaySua(LocalDateTime.now());
 
-    @Override
-    public void updateTrangThaiKhachHang(Integer id) {
-        KhachHang khachHang = khachHangRepository.findById(id).orElse(null);
-        if (khachHang != null) {
-            if (khachHang.getTrangThai().equals("Hoạt động")) {
-                khachHang.setTrangThai("Ngừng hoạt động");
-            } else {
-                khachHang.setTrangThai("Hoạt động");
-            }
-            khachHangRepository.save(khachHang);
+        KhachHang updateKH = khachHangRepository.save(khachHang);
+
+        TaiKhoan taiKhoan = updateKH.getTaiKhoan();
+        if (taiKhoan != null) {
+            taiKhoan.setTenDangNhap(request.getEmail());
+            taiKhoanRepository.save(taiKhoan);
         }
+        return khachHangMapper.toKhachHangResponse(updateKH);
     }
 
     @Override
-    public List<KhachHang> search(String keyword) {
-        return khachHangRepository.search(keyword);
+    public void deleteKhachHang(Integer id) {
+        KhachHang khachHang = khachHangRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ID khach hang not found: " + id));
+
+        khachHangRepository.delete(khachHang);
+    }
+
+    @Override
+    public Page<KhachHang> searchKhachHang(String keyword, Pageable pageable) {
+        return khachHangRepository.search(keyword, pageable);
     }
 }

@@ -1,23 +1,29 @@
 import './App.css';
 import Header from './components/Header';
 import SlideBar from './components/Slidebar';
-import TableDichVu from './components/tableDichVu';
-import ListNhanVien from './components/nhanvien/ListNhanVien';
 import TienNghi from './components/TienNghi';
 import NhanVienComponent from './components/nhanvien/NhanVienComponent';
 import ListTaiKhoan from './components/taikhoan/ListTaiKhoan';
 import ListVaiTro from './components/vaitro/ListVaiTro';
 import TaiKhoanComponent from './components/taikhoan/TaiKhoanComponent';
 import DatPhong from './components/DatPhong/DatPhong';
+import DanhSach from './components/DichVu/DanhSach';
+import DanhSachDichVuDiKem from './components/DichVuDikem/DanhSachDichVuDiKem';
+import TableLoaiPhong from './components/LoaiPhong/TableLoaiPhong';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
 import ListImage from './components/HinhAnh/ListImage';
 import HinhAnh from './components/HinhAnh/HinhAnh';
 import TienIch from './components/TienIch/TienIch';
 import Login from './components/login/Login';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'; // Loại bỏ BrowserRouter
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-
+import ListKhachHang from './components/KhachHang/ListKhachHang';
+import KhachHangComponent from './components/KhachHang/KhachHangComponent';
+import ListNhanVien from "./components/nhanvien/ListNhanVien.jsx";
+import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
+import FormAddPage from './components/DatPhong/FormAddPage';
+import FormAdd from './components/DatPhong/FormAdd';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
@@ -76,10 +82,85 @@ function App() {
             <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
             {/* Các route được bảo vệ */}
             <Route
+              path="/LoaiPhong"
+              element={
+                <RequireAuth>
+                  <TableLoaiPhong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/DichVuDikem"
+              element={
+                <RequireAuth>
+                  <DanhSachDichVuDiKem />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/DichVu"
+              element={
+                <RequireAuth>
+                  <DanhSach />
+                </RequireAuth>
+              }
+            />
+
+            <Route
+              path="/tao-dat-phong"
+              element={
+                <RequireAuth>
+                  <FormAddPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/PhieuDichVu"
+              element={
+                <RequireAuth>
+                  <DanhSachPhieuDichVu />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-khach-hang"
+              element={
+                <RequireAuth>
+                  <KhachHangComponent />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/update-khach-hang/:id"
+              element={
+                <RequireAuth>
+                  <KhachHangComponent />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/khach-hang"
+              element={
+                <RequireAuth>
+                  <ListKhachHang />
+                </RequireAuth>
+              }
+            />
+
+
+            <Route
               path="/NhanVien"
               element={
                 <RequireAuth>
                   <ListNhanVien />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/form-tao"
+              element={
+                <RequireAuth>
+                  <FormAdd />
                 </RequireAuth>
               }
             />
@@ -120,14 +201,6 @@ function App() {
               element={
                 <RequireAuth>
                   <NhanVienComponent />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/DichVu"
-              element={
-                <RequireAuth>
-                  <TableDichVu />
                 </RequireAuth>
               }
             />

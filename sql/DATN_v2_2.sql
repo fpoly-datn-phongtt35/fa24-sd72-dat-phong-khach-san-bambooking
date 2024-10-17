@@ -189,12 +189,12 @@ VALUES
 ('nhanvien1', 'password123', 'active'),
 ('khachhang1', 'password123', 'active');
 
-INSERT INTO nhan_vien (id_vai_tro, id_tai_khoan, ho, ten, gioi_tinh, quoc_gia, sdt, email, ngay_tao, ngay_sua, trang_thai)
+INSERT INTO nhan_vien (id_vai_tro, id_tai_khoan, ho, ten, gioi_tinh, dia_chi, sdt, email, ngay_tao, ngay_sua, trang_thai)
 VALUES 
 (1, 1, N'Nguyễn', 'A', N'Nam', N'Việt Nam', '0123456789', 'nguyena@example.com', GETDATE(), GETDATE(), 'active'),
 (2, 2, N'Trần', 'B', N'Nữ', N'Việt Nam', '0987654321', 'tranb@example.com', GETDATE(), GETDATE(), 'active');
 
-INSERT INTO khach_hang (id_tai_khoan, ho, ten, gioi_tinh, quoc_gia, sdt, email, ngay_tao, ngay_sua, trang_thai)
+INSERT INTO khach_hang (id_tai_khoan, ho, ten, gioi_tinh, dia_chi, sdt, email, ngay_tao, ngay_sua, trang_thai)
 VALUES 
 (3, N'Lê', 'C', 'Nam', N'Việt Nam', '0912345678', 'lec@example.com', GETDATE(), GETDATE(), 'active');
 
@@ -220,8 +220,10 @@ VALUES
 
 INSERT INTO phong (id_loai_phong, ma_phong, ten_phong, gia_phong, tinh_trang, trang_thai)
 VALUES 
-(1, 'D001', N'Phòng Deluxe 1', 1000000, 'available', 'available'),
-(2, 'S001', N'Phòng Suite 1', 2000000, 'available', 'available');
+(1, 'P003', N'Phòng đơn', 1000000, 'available', 'available'),
+(1, 'P004', N'Phòng couple', 1000000, 'available', 'available'),
+(2, 'P005', N'Phòng king', 2000000, 'available', 'available'),
+(2, 'P006', N'Phòng zoro', 2000000, 'available', 'available'),
 
 INSERT INTO hinh_anh (id_phong, ten, duong_dan, trang_thai)
 VALUES 
@@ -240,11 +242,11 @@ VALUES
 (2, 1, 'DP008', GETDATE(), N'Đặt phòng nhanh', 'unconfirmed'),
 (2, 1, 'DP009', GETDATE(), N'Đặt phòng nhanh', 'confirmed');
 
-INSERT INTO thong_tin_dat_phong (id_dat_phong, id_phong, ngay_nhan_phong, ngay_tra_phong, so_nguoi, so_ngay, trang_thai)
+INSERT INTO thong_tin_dat_phong (id_dat_phong, id_phong, ngay_nhan_phong, ngay_tra_phong, gia_dat, so_nguoi, trang_thai)
 VALUES 
-(1, 1, '2024-10-01', '2024-10-05', 2, 4, 'booked');
+(1, 1, '2024-10-01', '2024-10-05', 200000, 4, 'booked');
 
-INSERT INTO hoa_don (id_nhan_vien, id_thong_tin_dat_phong, ma_hoa_don, tong_tien, phuong_thuc_thanh_toan, ngay_thanh_toan, trang_thai)
+INSERT INTO hoa_don (id_nhan_vien, id_dat_phong, ma_hoa_don, tong_tien, phuong_thuc_thanh_toan, ngay_thanh_toan, trang_thai)
 VALUES 
 (1, 1, 'HD001', 4000000, 'Credit Card', GETDATE(), 'paid');
 

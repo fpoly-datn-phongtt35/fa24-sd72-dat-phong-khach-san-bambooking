@@ -6,10 +6,12 @@ import java.util.List;
 
 public interface DichVuService {
     List<DichVu> getAll();
-    void addDichVu(DichVu dv);
+    DichVu addDichVu(DichVu dv);
     DichVu detailDichVu(Integer id);
     void updateStatus(Integer id);
-    void updateDichVu(DichVu dv);
-
+    DichVu updateDichVu(DichVu dv);
+    void deleteDichVu(Integer id);
+    DichVu findById(Integer id);
     List<DichVu> findByAll(String key);
 }
+
