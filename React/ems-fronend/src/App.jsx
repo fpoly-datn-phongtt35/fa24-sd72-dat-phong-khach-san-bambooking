@@ -23,6 +23,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { useState, useEffect } from 'react';
 import ListKhachHang from './components/KhachHang/ListKhachHang';
 import KhachHangComponent from './components/KhachHang/KhachHangComponent';
+import ViewPhong from './components/TrangChu/ViewPhong';
 import TableNhanVien from './components/TableNhanVien';
 import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
 import FormAddPage from './components/DatPhong/FormAddPage';
@@ -144,9 +145,12 @@ function App() {
             <Route path='/hinh-anh' element={<ListImage />}></Route>
             <Route path='/add-hinh-anh' element={<HinhAnh />}></Route>
             {/*Khách hàng */}
-            <Route path='/khach-hang' element={<ListKhachHang/>} />
-            <Route path='/add-khach-hang' element={<KhachHangComponent/>} />
-            <Route path='/update-khach-hang/:id' element={<KhachHangComponent/>} />
+            <Route path='/khach-hang' element={<ListKhachHang />} />
+            <Route path='/add-khach-hang' element={<KhachHangComponent />} />
+            <Route path='/update-khach-hang/:id' element={<KhachHangComponent />} />
+
+            {/*Trang chủ */}
+            <Route path='/trang-chu' element={<ViewPhong />} />
           </Routes>
         </div>
       </div>

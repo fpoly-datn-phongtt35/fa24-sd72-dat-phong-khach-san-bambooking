@@ -14,6 +14,9 @@ function Sidebar() {
     <div className="sidebar">
       <ul>
         <li className="nav-item">
+          <Link className="nav-link" to="/trang-chu">Trang chủ</Link>
+        </li>
+        <li className="nav-item">
           <Link className="nav-link" to="/DatPhong">Đặt phòng</Link>
         </li>
         {/* Quản lý phòng with submenu */}
