@@ -66,9 +66,6 @@ function Sidebar({ isAuthenticated, onLogout }) {
             <li className="nav-item">
               <Link className="nav-link" to="/KhachHang">Khách hàng</Link>
             </li>
-            <li className="nav-item">
-              <button className="nav-link logout-button" onClick={onLogout}>Đăng xuất</button>
-            </li>
           </ul>
         </>
       ) : (

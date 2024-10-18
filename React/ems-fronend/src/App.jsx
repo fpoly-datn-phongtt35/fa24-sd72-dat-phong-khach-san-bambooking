@@ -21,6 +21,7 @@ import { useState, useEffect } from 'react';
 import ListKhachHang from './components/KhachHang/ListKhachHang';
 import KhachHangComponent from './components/KhachHang/KhachHangComponent';
 import ListNhanVien from "./components/nhanvien/ListNhanVien.jsx";
+import ViewPhong from './components/TrangChu/ViewPhong';
 import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
 import FormAddPage from './components/DatPhong/FormAddPage';
 import FormAdd from './components/DatPhong/FormAdd';
@@ -265,6 +266,14 @@ function App() {
               element={
                 <RequireAuth>
                   <HinhAnh />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/TrangChu"
+              element={
+                <RequireAuth>
+                  <ViewPhong />
                 </RequireAuth>
               }
             />

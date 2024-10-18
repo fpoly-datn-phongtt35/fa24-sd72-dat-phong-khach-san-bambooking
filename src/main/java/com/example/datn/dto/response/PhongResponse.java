@@ -20,4 +20,5 @@ public class PhongResponse {
     Double giaPhong;
     String tinhTrang;
     String trangThai;
+    String duongDanAnh;
 }

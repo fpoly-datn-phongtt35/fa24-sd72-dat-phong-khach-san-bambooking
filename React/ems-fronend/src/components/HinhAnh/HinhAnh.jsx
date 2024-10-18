@@ -36,7 +36,7 @@ const HinhAnh = ({ setImages }) => { // Nhận setImages từ props
         formData.append('file', file);
         formData.append('tenAnh', tenAnh);
         formData.append('idPhong', idPhong);
-        formData.append('trangThai', trangThai ? "Hoạt động" : "Ngừng hoạt động");
+        formData.append('trangThai', trangThai ? "hoat dong" : "ngung hoat dong");
 
         uploadImage(formData)
             .then((response) => {
