@@ -1,8 +1,6 @@
 import './App.css';
 import Header from './components/Header';
 import SlideBar from './components/Slidebar';
-import TableDichVu from './components/tableDichVu';
-import ListNhanVien from './components/nhanvien/ListNhanVien';
 import TienNghi from './components/TienNghi';
 import NhanVienComponent from './components/nhanvien/NhanVienComponent';
 import ListTaiKhoan from './components/taikhoan/ListTaiKhoan';
@@ -14,17 +12,16 @@ import DanhSachDichVuDiKem from './components/DichVuDikem/DanhSachDichVuDiKem';
 import TableLoaiPhong from './components/LoaiPhong/TableLoaiPhong';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
-import LoaiPhong from './components/LoaiPhong/LoaiPhong';
 import ListImage from './components/HinhAnh/ListImage';
 import HinhAnh from './components/HinhAnh/HinhAnh';
 import TienIch from './components/TienIch/TienIch';
 import Login from './components/login/Login';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import ListKhachHang from './components/KhachHang/ListKhachHang';
 import KhachHangComponent from './components/KhachHang/KhachHangComponent';
+import ListNhanVien from "./components/nhanvien/ListNhanVien.jsx";
 import ViewPhong from './components/TrangChu/ViewPhong';
-import TableNhanVien from './components/TableNhanVien';
 import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
 import FormAddPage from './components/DatPhong/FormAddPage';
 import FormAdd from './components/DatPhong/FormAdd';
@@ -42,120 +39,259 @@ function App() {
 
   // Hàm xử lý đăng xuất
   const handleLogout = () => {
-    // localStorage.removeItem('isAuthenticated'); // Xóa thông tin đăng nhập
+    localStorage.removeItem('isAuthenticated'); // Xóa thông tin đăng nhập
+    localStorage.removeItem('user'); // Xóa thông tin người dùng nếu có
     setIsAuthenticated(false); // Cập nhật state
-
   };
 
-  // Điều hướng về login nếu chưa đăng nhập hoặc backend không hoạt động
+  // Xóa mọi dữ liệu xác thực cũ khi trạng thái thay đổi
   useEffect(() => {
     if (!isAuthenticated) {
-      localStorage.removeItem('isAuthenticated'); // Xóa mọi thông tin cũ
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('user');
     }
   }, [isAuthenticated]);
 
-  // Component kiểm tra yêu cầu đăng nhập
+  // Component bảo vệ route
   const RequireAuth = ({ children }) => {
-    const location = useLocation();
-
     if (!isAuthenticated) {
-      return <Navigate to="/login" state={{ from: location }} replace />;
+      return <Navigate to="/login" replace />;
     }
     return children;
   };
 
+  // Lấy đường dẫn hiện tại
+  const location = useLocation();
+  const isLoginPage = location.pathname === '/login';
+
   return (
-    <BrowserRouter>
-      <div className="app-container">
-        <Routes>
-          {!isAuthenticated ? (
-            <>
-              {/* Trang login */}
-              <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </>
-          ) : (
-            <>
-              {/* Giao diện chính sau khi đăng nhập */}
-              <Route
-                path="/*"
-                element={
-                  <RequireAuth>
-                    <div className="slidebar">
-                      <SlideBar />
-                    </div>
-                    <div className="main-content">
-                      <div className="header">
-                        <Header onLogout={handleLogout} />
-                      </div>
-                      <Routes>
-                        <Route path="/NhanVien" element={<ListNhanVien />} />
-                        <Route path="/TaiKhoan" element={<ListTaiKhoan />} />
-                        <Route path="/VaiTro" element={<ListVaiTro />} />
-                        <Route path="/add-nhanvien" element={<NhanVienComponent />} />
-                        <Route path="/add-taikhoan" element={<TaiKhoanComponent />} />
-                        <Route path="/update-nhan-vien/:id" element={<NhanVienComponent />} />
-                        <Route path="/DichVu" element={<TableDichVu />} />
-                        <Route path="/TienNghi" element={<TienNghi />} />
-                        <Route path="/DatPhong" element={<DatPhong />} />
-                        <Route path="/TienIch" element={<TienIch />} />
-                        <Route path="/phong" element={<ListPhong />} />
-                        <Route path="/add-phong" element={<Phong />} />
-                        <Route path="/update-phong/:id" element={<Phong />} />
-                        <Route path="/hinh-anh" element={<ListImage />} />
-                        <Route path="/add-hinh-anh" element={<HinhAnh />} />
-                        <Route path="/login" element={<Login />} />
-
-                        {/* <Route path="*" element={<Navigate to="/NhanVien" replace />} /> */}
-                      </Routes>
-                    </div>
-                  </RequireAuth>
-                }
-              />
-            </>
-          )}
-        </Routes>
-      </div>
-        <div className="main-content">
+    <div className="app-container">
+      {!isLoginPage && (
+        <div className="slidebar">
+          <SlideBar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
+        </div>
+      )}
+      <div className="main-content">
+        {!isLoginPage && (
           <div className="header">
-            <Header />
+            <Header onLogout={handleLogout} isAuthenticated={isAuthenticated} />
           </div>
+        )}
+        <div className="content-area">
           <Routes>
-            {/* Đặt phòng */}
-            <Route path="/DatPhong" element={<DatPhong />} />
-            <Route path='/tao-dat-phong' element={<FormAddPage />} />
-            <Route path='/form-tao' element={<FormAdd />} />
-            {/* Dịch vụ */}
-            <Route path="/DichVu" element={<TableDichVu />} />
-            {/* Nhân viên */}
-            <Route path="/NhanVien" element={<TableNhanVien />} />
-            {/* Tiện ích */}
-            <Route path="/TienNghi" element={<TienNghi />} />
-            <Route path="/TienIch" element={<TienIch />} />
-               {/* Dịch vụ */}
-              <Route path="/DichVu" element={<DanhSach/>} />
-              <Route path="/DichVuDikem" element={<DanhSachDichVuDiKem />} />
-              <Route path="/PhieuDichVu" element={<DanhSachPhieuDichVu />} />
-              <Route path="/LoaiPhong" element={<TableLoaiPhong />} />
-            {/*Phòng */}
-            <Route path='/phong' element={<ListPhong />}></Route>
-            <Route path='/add-phong' element={<Phong />}></Route>
-            <Route path='/update-phong/:id' element={<Phong />}></Route>
-            {/*Image */}
-            <Route path='/hinh-anh' element={<ListImage />}></Route>
-            <Route path='/add-hinh-anh' element={<HinhAnh />}></Route>
-            {/*Khách hàng */}
-            <Route path='/khach-hang' element={<ListKhachHang />} />
-            <Route path='/add-khach-hang' element={<KhachHangComponent />} />
-            <Route path='/update-khach-hang/:id' element={<KhachHangComponent />} />
+            {/* Route công khai */}
+            <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+            {/* Các route được bảo vệ */}
+            <Route
+              path="/LoaiPhong"
+              element={
+                <RequireAuth>
+                  <TableLoaiPhong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/DichVuDikem"
+              element={
+                <RequireAuth>
+                  <DanhSachDichVuDiKem />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/DichVu"
+              element={
+                <RequireAuth>
+                  <DanhSach />
+                </RequireAuth>
+              }
+            />
 
-            {/*Trang chủ */}
-            <Route path='/trang-chu' element={<ViewPhong />} />
+            <Route
+              path="/tao-dat-phong"
+              element={
+                <RequireAuth>
+                  <FormAddPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/PhieuDichVu"
+              element={
+                <RequireAuth>
+                  <DanhSachPhieuDichVu />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-khach-hang"
+              element={
+                <RequireAuth>
+                  <KhachHangComponent />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/update-khach-hang/:id"
+              element={
+                <RequireAuth>
+                  <KhachHangComponent />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/khach-hang"
+              element={
+                <RequireAuth>
+                  <ListKhachHang />
+                </RequireAuth>
+              }
+            />
+
+
+            <Route
+              path="/NhanVien"
+              element={
+                <RequireAuth>
+                  <ListNhanVien />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/form-tao"
+              element={
+                <RequireAuth>
+                  <FormAdd />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/TaiKhoan"
+              element={
+                <RequireAuth>
+                  <ListTaiKhoan />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/VaiTro"
+              element={
+                <RequireAuth>
+                  <ListVaiTro />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-nhanvien"
+              element={
+                <RequireAuth>
+                  <NhanVienComponent />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-taikhoan"
+              element={
+                <RequireAuth>
+                  <TaiKhoanComponent />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/update-nhan-vien/:id"
+              element={
+                <RequireAuth>
+                  <NhanVienComponent />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/TienNghi"
+              element={
+                <RequireAuth>
+                  <TienNghi />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/DatPhong"
+              element={
+                <RequireAuth>
+                  <DatPhong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/TienIch"
+              element={
+                <RequireAuth>
+                  <TienIch />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/phong"
+              element={
+                <RequireAuth>
+                  <ListPhong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-phong"
+              element={
+                <RequireAuth>
+                  <Phong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/update-phong/:id"
+              element={
+                <RequireAuth>
+                  <Phong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/hinh-anh"
+              element={
+                <RequireAuth>
+                  <ListImage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-hinh-anh"
+              element={
+                <RequireAuth>
+                  <HinhAnh />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/TrangChu"
+              element={
+                <RequireAuth>
+                  <ViewPhong />
+                </RequireAuth>
+              }
+            />
+            {/* Redirect các đường dẫn không xác định */}
+            <Route
+              path="*"
+              element={
+                isAuthenticated ? (
+                  <Navigate to="/NhanVien" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
           </Routes>
         </div>
       </div>
-
-    </BrowserRouter>
+    </div>
   );
 }
 

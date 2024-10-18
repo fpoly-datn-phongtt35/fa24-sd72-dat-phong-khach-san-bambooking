@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './NavDatPhongCSS.css';
-
-<<<<<<< HEAD
-
-=======
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
 const NavDatPhong = ({ onFilterChange }) => {
     const [show, setShow] = useState(false); // Quản lý trạng thái hiển thị form
     const navigate = useNavigate(); // Sử dụng hook để điều hướng
@@ -20,9 +15,6 @@ const NavDatPhong = ({ onFilterChange }) => {
         Processing: false,
         Canceled: false
     });
-<<<<<<< HEAD
-
-
     const handleOpenForm = () => {
         setShow(true); // Mở form
     };
@@ -30,11 +22,6 @@ const NavDatPhong = ({ onFilterChange }) => {
     const handleCloseForm = () => {
         setShow(false); // Đóng form
     };
-
-
-=======
-
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
     const handleFilterChange = (event) => {
         const { value, checked } = event.target;
         const updatedFilters = {
@@ -52,8 +39,6 @@ const NavDatPhong = ({ onFilterChange }) => {
 
     return (
         <div className="vertical-bar">
-<<<<<<< HEAD
-
             <button onClick={handleOpenForm}>
                 Tạo đặt phòng
             </button>
@@ -83,35 +68,6 @@ const NavDatPhong = ({ onFilterChange }) => {
                 </label>
             </div>
         </div>
-=======
-    <button className="create-booking-btn" onClick={handleCreateBooking}>
-        Tạo đặt phòng
-    </button>
-
-    <div className="filter-section">
-        <h5>Trạng thái</h5>
-        <label className="filter-label">
-            <span>Đã xác nhận:</span>
-            <input type="checkbox" value="Confirmed" checked={filters.Confirmed} onChange={handleFilterChange} />
-        </label>
-        <label className="filter-label">
-            <span>Chưa xác nhận:</span>
-            <input type="checkbox" value="Unconfirmed" checked={filters.Unconfirmed} onChange={handleFilterChange} />
-        </label>
-        <label className="filter-label">
-            <span>Đang chờ xử lý:</span>
-            <input type="checkbox" value="Processing" checked={filters.Processing} onChange={handleFilterChange} />
-        </label>
-        <label className="filter-label">
-            <span>Đã hủy:</span>
-            <input type="checkbox" value="Canceled" checked={filters.Canceled} onChange={handleFilterChange} />
-        </label>
-    </div>
-</div>
-
-
-
->>>>>>> 4a9d16d10993730f890375ebab567cbddfd2fb52
     );
 };
 
