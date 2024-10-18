@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './NavDatPhongCSS.scss';
-
 const NavDatPhong = ({ onFilterChange }) => {
     const [show, setShow] = useState(false); // Quản lý trạng thái hiển thị form
     const [filters, setFilters] = useState({
@@ -15,7 +14,6 @@ const NavDatPhong = ({ onFilterChange }) => {
     const handleCreateBooking = () => {
         navigate('/tao-dat-phong'); // Điều hướng đến trang tạo đặt phòng
     };
-
     const handleOpenForm = () => {
         setShow(true); // Mở form
     };
@@ -23,7 +21,6 @@ const NavDatPhong = ({ onFilterChange }) => {
     const handleCloseForm = () => {
         setShow(false); // Đóng form
     };
-
     const handleFilterChange = (event) => {
         const { value, checked } = event.target;
         const updatedFilters = {

@@ -1,72 +1,78 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { toggleSubmenu } from '../assets/Slidebar';
-import '../assets/Slidebar.css'; // File CSS cho sidebar
+import '../assets/Slidebar.css'; // File CSS cho Sidebar
 
-function Sidebar() {
+function Sidebar({ isAuthenticated, onLogout }) {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
 
-  const toggleSubmenu = (id, activeSubmenu, setActiveSubmenu) => {
+  const toggleSubmenu = (id) => {
     setActiveSubmenu(activeSubmenu === id ? null : id);
   };
-  
+
   return (
     <div className="sidebar">
-      <ul>
-        <li className="nav-item">
-          <Link className="nav-link" to="/DatPhong">Đặt phòng</Link>
-        </li>
-        {/* Quản lý phòng with submenu */}
-        <li
-          className={`nav-item has-submenu ${activeSubmenu === 1 ? 'active' : ''}`}
-          onClick={() => toggleSubmenu(1, activeSubmenu, setActiveSubmenu)}
-        >
-          <Link className="nav-link" to="#">Quản lý phòng</Link>
-          <ul className="submenu">
+      {isAuthenticated ? (
+        <>
+          <ul>
             <li className="nav-item">
-              <Link className="nav-link" to="/phong">Phòng</Link>
+              <Link className="nav-link" to="/TrangChu">Trang chủ</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/LoaiPhong">Loại phòng</Link>
+              <Link className="nav-link" to="/DatPhong">Đặt phòng</Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/TienNghi">Tiện nghi phòng</Link>
+
+            {/* Quản lý phòng với submenu */}
+            <li
+              className={`nav-item has-submenu quan-ly-phong ${activeSubmenu === 1 ? 'active' : ''}`}
+              onClick={() => toggleSubmenu(1)}
+            >
+              <div className="nav-link">Quản lý phòng</div>
+              <ul className={`submenu ${activeSubmenu === 1 ? 'open' : ''}`}>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/phong">Phòng</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/LoaiPhong">Loại phòng</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/TienNghi">Tiện nghi phòng</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/TienIch">Tiện ích</Link>
+                </li>
+              </ul>
             </li>
-            <li className="nav-item">
-          <Link className="nav-link" to="/TienIch">Tiện ích</Link>
-        </li>
+
           </ul>
-        </li>
-  
-        
-      </ul>
-  
-      <ul>
-        <li className={`dv ${activeSubmenu === 1 ? 'active' : ''}`}>
-          <Link className="nav-link" to="/DichVu">Dịch vụ</Link>
-        </li>
-        <li className="nav-item">
-          <Link className="nav-link" to="/hinh-anh">Hình ảnh</Link>
-        </li>
-        <li className="nav-item">
-          <Link className="nav-link" to="/HoaDon">Hóa đơn</Link>
-        </li>
-        <li className="nav-item">
-          <Link className="nav-link" to="/NhanVien">Nhân viên</Link>
-        </li>
-        <li className="nav-item">
-          <Link className="nav-link" to="/TaiKhoan">Tài Khoản</Link>
-        </li>
-        <li className="nav-item">
-          <Link className="nav-link" to="/VaiTro">Vai Trò</Link>
-        </li>
-        <li className="nav-item">
-          <Link className="nav-link" to="/KhachHang">Khách hàng</Link>
-        </li>
-        <li className="nav-item">
-          <Link className="nav-link" to="/DangXuat">Đăng xuất</Link>
-        </li>
-      </ul>
+
+          <ul>
+            <li className="nav-item">
+              <Link className="nav-link" to="/DichVu">Dịch vụ</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/hinh-anh">Hình ảnh</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/HoaDon">Hóa đơn</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/NhanVien">Nhân viên</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/TaiKhoan">Tài Khoản</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/VaiTro">Vai Trò</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/KhachHang">Khách hàng</Link>
+            </li>
+          </ul>
+        </>
+      ) : (
+        // Nội dung trống khi chưa đăng nhập
+        <div className="empty-sidebar"></div>
+      )}
     </div>
   );
 }

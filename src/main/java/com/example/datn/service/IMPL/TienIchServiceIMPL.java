@@ -29,7 +29,6 @@ public class TienIchServiceIMPL implements TienIchService {
     public List<TienIch> getAll() {
         return tienIchRepository.findAll();
     }
-
     @Override
     public Page<TienIchResponse> getPage(Pageable pageable) {
 

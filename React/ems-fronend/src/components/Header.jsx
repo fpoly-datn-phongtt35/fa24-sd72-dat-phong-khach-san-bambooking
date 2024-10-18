@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import '../assets/Header.css'; // Import CSS
 
-const HeaderComponents = () => {
+const HeaderComponents = ({ isAuthenticated, onLogout }) => {
     const [showUserInfo, setShowUserInfo] = useState(false);
     const [userInfo, setUserInfo] = useState(null);
-    const navigate = useNavigate(); // Hook điều hướng
 
     // Lấy thông tin người dùng từ localStorage khi component được mount
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (!user) {
-            // Điều hướng nếu không có thông tin người dùng
-            navigate('/login', { replace: true });
+        if (isAuthenticated) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                setUserInfo(user); // Cập nhật thông tin người dùng nếu tồn tại
+            }
         } else {
-            setUserInfo(user); // Cập nhật thông tin người dùng nếu tồn tại
+            setUserInfo(null); // Xóa thông tin người dùng khi chưa đăng nhập
         }
-    }, [navigate]);
+    }, [isAuthenticated]);
 
     // Hàm mở/đóng dropdown khi nhấp vào avatar
     const toggleUserInfo = () => {
@@ -24,19 +24,14 @@ const HeaderComponents = () => {
     };
 
     // Hàm xử lý đăng xuất
-    const handleLogout = () => {
-        localStorage.removeItem('user'); // Xóa thông tin người dùng
-        localStorage.removeItem('isAuthenticated'); // Xóa trạng thái đăng nhập
-        navigate('/login', { replace: true }); // Điều hướng đến trang login
-
-        setTimeout(() => {
-            window.location.reload(); // Reload trang sau khi điều hướng
-        }, 100); // Đợi 100ms để đảm bảo điều hướng hoàn tất trước khi reload
+    const handleLogoutClick = () => {
+        if (onLogout) {
+            onLogout(); // Gọi hàm onLogout được truyền từ props
+        }
     };
 
     return (
-        <header className="navbar text-bg-info">
-            <button className="navbar-item">Button</button>
+        <header className="navbar">
             <ul className="navbar-navbar">
                 <li className="navbar-item">
                     <Link className="navbar-link" to="#">Trang chủ</Link>
@@ -47,27 +42,29 @@ const HeaderComponents = () => {
                 <li className="navbar-item">
                     <Link className="navbar-link" to="/NhanVien">Nhân viên</Link>
                 </li>
-                <li className="navbar-item">
-                    {/* Avatar hình tròn */}
-                    <div className="user-avatar" onClick={toggleUserInfo}>
-                        <img
-                            src="https://via.placeholder.com/40"
-                            alt="User Avatar"
-                            className="avatar-img"
-                        />
-                    </div>
-
-                    {/* Dropdown thông tin tài khoản */}
-                    {showUserInfo && userInfo && (
-                        <div className="user-info-dropdown">
-                            <p>Tài khoản: {userInfo.tenDangNhap}</p>
-                            <p>Trạng thái: {userInfo.trangThai}</p>
-                            <button onClick={handleLogout} className="logout-button">
-                                Đăng Xuất
-                            </button>
+                {isAuthenticated && (
+                    <li className="navbar-item">
+                        {/* Avatar hình tròn */}
+                        <div className="user-avatar" onClick={toggleUserInfo}>
+                            <img
+                                src="https://via.placeholder.com/40"
+                                alt="User Avatar"
+                                className="avatar-img"
+                            />
                         </div>
-                    )}
-                </li>
+
+                        {/* Dropdown thông tin tài khoản */}
+                        {showUserInfo && userInfo && (
+                            <div className="user-info-dropdown">
+                                <p>Tài khoản: {userInfo.tenDangNhap}</p>
+                                <p>Trạng thái: {userInfo.trangThai}</p>
+                                <button onClick={handleLogoutClick} className="logout-button">
+                                    Đăng Xuất
+                                </button>
+                            </div>
+                        )}
+                    </li>
+                )}
             </ul>
         </header>
     );
