@@ -9,7 +9,6 @@ import TaiKhoanComponent from './components/taikhoan/TaiKhoanComponent';
 import DatPhong from './components/DatPhong/DatPhong';
 import DanhSach from './components/DichVu/DanhSach';
 import DanhSachDichVuDiKem from './components/DichVuDikem/DanhSachDichVuDiKem';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
 import ListImage from './components/HinhAnh/ListImage';
