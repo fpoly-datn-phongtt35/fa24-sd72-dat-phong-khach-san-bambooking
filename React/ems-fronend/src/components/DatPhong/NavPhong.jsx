@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './NavPhong.css';
+import './NavPhong.scss';
 import ThemKhachHangMoi from './ThemKhachHangMoi';
 import { listKhachHang } from '../../services/KhachHangService';
 import { ThemMoiDatPhong } from '../../services/DatPhong';

@@ -1,5 +1,5 @@
 import React from 'react';
-import './FormAddPage.css'; // Để định kiểu cho giao diện
+import './FormAddPage.scss'; // Để định kiểu cho giao diện
 import BookingForm from './BookingForm';
 import NavPhong from './NavPhong';
 const FormAddPage = () => {

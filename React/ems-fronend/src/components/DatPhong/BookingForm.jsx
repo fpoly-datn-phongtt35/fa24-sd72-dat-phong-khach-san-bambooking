@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Row, Col, Button, Dropdown, DropdownButton, Card } from 'react-bootstrap';
-import './BookingForm.css'; // Import file CSS
+import './BookingForm.scss'; // Import file CSS
 import { PhongKhaDung } from '../../services/DatPhong';
 import XacNhanDatPhong from './XacNhanDatPhong'; // Import the new modal component
 
@@ -14,7 +14,7 @@ const BookingForm = () => {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const [showModal, setShowModal] = useState(false); // State to handle modal visibility
-    const [selectedRoom, setSelectedRoom] = useState(null); // State to store selected room
+    const [selectedRooms, setSelectedRooms] = useState([]); // Mảng chứa các phòng đã chọn
     const [multipleBookings, setMultipleBookings] = useState(false); // State to manage multiple bookings
 
     const navigate = useNavigate();
@@ -52,8 +52,19 @@ const BookingForm = () => {
     };
 
     const handleCreateBooking = (room) => {
-        setSelectedRoom(room); // Set selected room
-        setShowModal(true); // Show modal
+        setSelectedRooms((prevRooms) => [...prevRooms, room]); // Thêm phòng vào mảng các phòng đã chọn
+        setShowModal(true); // Hiển thị modal
+        console.log(startDate);
+        console.log(endDate);
+        console.log(children);
+        console.log(adults);
+
+    };
+
+
+    const handleOpenModal = () => {
+        setShowModal(true);
+        console.log(showModal)
     };
 
     const handleCloseModal = () => {
@@ -61,7 +72,7 @@ const BookingForm = () => {
     };
 
     const handleConfirmBooking = () => {
-        navigate('/form-tao', { state: { room: selectedRoom, startDate, endDate, multipleBookings } });
+        navigate('/form-tao', { state: { room: selectedRooms, startDate, endDate, multipleBookings } });
         setShowModal(false);
     };
 
@@ -152,6 +163,10 @@ const BookingForm = () => {
                         <Button type="submit" className="custom-search-btn">
                             Tìm Kiếm
                         </Button>
+                        <Button onClick={() => handleOpenModal()} className="custom-cart-btn">
+                            Giỏ
+                        </Button>
+
                     </Col>
                 </Row>
             </Form>
@@ -199,15 +214,24 @@ const BookingForm = () => {
             </div>
 
             {/* Use the new XacNhanDatPhong component */}
-            <XacNhanDatPhong
-                showModal={showModal}
-                handleCloseModal={handleCloseModal}
-                handleConfirmBooking={handleConfirmBooking}
-                selectedRoom={selectedRoom}
-                startDate={startDate}
-                endDate={endDate}
-                handleAdditionalRoom={handleAdditionalRoom}
-            />
+
+            {showModal && (
+                <div className="XNDP-modal-backdrop-x">
+                    <div className="XNDP-modal-body">
+                        <XacNhanDatPhong
+                            showModal={showModal}
+                            handleCloseModal={handleCloseModal}
+                            handleConfirmBooking={handleConfirmBooking}
+                            selectedRooms={selectedRooms}
+                            startDate={startDate}
+                            endDate={endDate}
+                            children = {children}
+                            adults = {adults}
+                        />
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };

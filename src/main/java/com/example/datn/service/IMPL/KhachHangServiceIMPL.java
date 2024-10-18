@@ -38,14 +38,14 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
         String generatedPassword = PasswordGenerator.generateRandomPassword();
         taiKhoan.setMatKhau(generatedPassword);
-
+        taiKhoan.setTrangThai("active");
         TaiKhoan saveTaiKhoan = taiKhoanRepository.save(taiKhoan);
 
         KhachHang khachHang = khachHangMapper.toKhachHang(request);
         khachHang.setTaiKhoan(saveTaiKhoan);
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
-
+        khachHang.setTrangThai("active");
         return khachHangRepository.save(khachHang);
     }
 

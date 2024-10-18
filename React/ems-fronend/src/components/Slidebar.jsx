@@ -55,7 +55,13 @@ function Sidebar() {
           <Link className="nav-link" to="/NhanVien">Nhân viên</Link>
         </li>
         <li className="nav-item">
-          <Link className="nav-link" to="/khach-hang">Khách hàng</Link>
+          <Link className="nav-link" to="/TaiKhoan">Tài Khoản</Link>
+        </li>
+        <li className="nav-item">
+          <Link className="nav-link" to="/VaiTro">Vai Trò</Link>
+        </li>
+        <li className="nav-item">
+          <Link className="nav-link" to="/KhachHang">Khách hàng</Link>
         </li>
         <li className="nav-item">
           <Link className="nav-link" to="/DangXuat">Đăng xuất</Link>

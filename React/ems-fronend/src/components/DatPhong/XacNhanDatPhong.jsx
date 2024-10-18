@@ -1,27 +1,38 @@
-import React from 'react';
-import './XacNhanDatPhong.css'; // Import CSS tùy chỉnh
-
-const XacNhanDatPhong = ({ showModal, handleCloseModal, handleConfirmBooking, selectedRoom, startDate, endDate, handleAdditionalRoom }) => {
+const XacNhanDatPhong = ({
+    showModal,
+    handleCloseModal,
+    handleConfirmBooking,
+    selectedRooms = [], // Mảng chứa các phòng đã chọn
+    startDate,
+    endDate,
+    children,
+    adults
+}) => {
     return (
-        <div className={`modal-container ${showModal ? 'show' : ''}`}>
-            <div className="modal-content">
-                <span className="close-btn" onClick={handleCloseModal}>&times;</span>
-                <h2>Xác nhận đặt phòng</h2>
-                {selectedRoom && (
-                    <>
-                        <h5>{selectedRoom.tenLoaiPhong} - {selectedRoom.tenPhong}</h5>
-                        <p>Mã phòng: {selectedRoom.maPhong}</p>
-                        <p>Giá: {selectedRoom.giaPhong} VND</p>
-                        <p>Ngày check-in: {startDate}</p>
-                        <p>Ngày check-out: {endDate}</p>
-                    </>
+        <div className={`XNDP-modal-container ${showModal ? 'show' : ''}`}>
+            <div className="XNDP-modal-content">
+                <h2>Rooms ({selectedRooms.length})</h2>
+                <p>{startDate} - {endDate}</p>
+                {selectedRooms.length > 0 ? (
+                    selectedRooms.map((room, index) => (
+                        <div key={index} className="room-card">
+                            <h5>{room.tenLoaiPhong} - {room.tenPhong}</h5>
+                            <div className="room-details">
+                                <p>Mã phòng: {room.maPhong}</p>
+                                <div className="room-persons">
+                                    <label>Adults: {adults}</label>
+                                    <label>Children: {children}</label>
+
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p>No rooms selected</p>
                 )}
-                <label>
-                    <input type="checkbox" onChange={handleAdditionalRoom} /> Chọn thêm phòng khác
-                </label>
                 <div className="modal-footer">
-                    <button onClick={handleCloseModal}>Hủy</button>
-                    <button onClick={handleConfirmBooking}>Xác nhận đặt phòng</button>
+                    <button className="cancel-btn" onClick={handleCloseModal}>Cancel</button>
+                    <button className="confirm-btn" onClick={handleConfirmBooking}>Create Reservation</button>
                 </div>
             </div>
         </div>

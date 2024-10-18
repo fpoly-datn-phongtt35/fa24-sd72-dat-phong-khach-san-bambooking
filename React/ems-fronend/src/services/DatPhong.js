@@ -46,7 +46,6 @@ export const DanhSachKhachHang = () => {
 export const ThemMoiDatPhong = (DatPhongRequest) => {
     return axios.post(apiDPAdd, DatPhongRequest);
 };
-
 export const DatPhongDetail = (id) => {
     return axios.get(`${apiDetail}/${id}`);
 };
@@ -71,6 +70,3 @@ export const HienThiTheoLoc = (pageable, trangThai) => {
     
     return axios.get(apiLoc, { params: params });
 };
-
-
-

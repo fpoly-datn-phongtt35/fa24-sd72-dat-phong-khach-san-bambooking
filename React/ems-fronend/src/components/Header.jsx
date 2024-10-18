@@ -1,19 +1,76 @@
-import React,{ useState } from 'react';
-import { Link } from 'react-router-dom';
-import '../assets/Header.css';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import '../assets/Header.css'; // Import CSS
+
 const HeaderComponents = () => {
+    const [showUserInfo, setShowUserInfo] = useState(false);
+    const [userInfo, setUserInfo] = useState(null);
+    const navigate = useNavigate(); // Hook điều hướng
+
+    // Lấy thông tin người dùng từ localStorage khi component được mount
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            // Điều hướng nếu không có thông tin người dùng
+            navigate('/login', { replace: true });
+        } else {
+            setUserInfo(user); // Cập nhật thông tin người dùng nếu tồn tại
+        }
+    }, [navigate]);
+
+    // Hàm mở/đóng dropdown khi nhấp vào avatar
+    const toggleUserInfo = () => {
+        setShowUserInfo(!showUserInfo);
+    };
+
+    // Hàm xử lý đăng xuất
+    const handleLogout = () => {
+        localStorage.removeItem('user'); // Xóa thông tin người dùng
+        localStorage.removeItem('isAuthenticated'); // Xóa trạng thái đăng nhập
+        navigate('/login', { replace: true }); // Điều hướng đến trang login
+
+        setTimeout(() => {
+            window.location.reload(); // Reload trang sau khi điều hướng
+        }, 100); // Đợi 100ms để đảm bảo điều hướng hoàn tất trước khi reload
+    };
+
     return (
-        <header className="navbar">
+        <header className="navbar text-bg-info">
             <button className="navbar-item">Button</button>
-                <ul className="navbar-navbar">
-                    <li className="navbar-item">
-                        <Link className="navbar-link" to="/NhanVien">Giỏ hàng</Link>
-                    </li>
-                </ul>
+            <ul className="navbar-navbar">
+                <li className="navbar-item">
+                    <Link className="navbar-link" to="#">Trang chủ</Link>
+                </li>
+                <li className="navbar-item">
+                    <Link className="navbar-link" to="/DichVu">Dịch vụ</Link>
+                </li>
+                <li className="navbar-item">
+                    <Link className="navbar-link" to="/NhanVien">Nhân viên</Link>
+                </li>
+                <li className="navbar-item">
+                    {/* Avatar hình tròn */}
+                    <div className="user-avatar" onClick={toggleUserInfo}>
+                        <img
+                            src="https://via.placeholder.com/40"
+                            alt="User Avatar"
+                            className="avatar-img"
+                        />
+                    </div>
+
+                    {/* Dropdown thông tin tài khoản */}
+                    {showUserInfo && userInfo && (
+                        <div className="user-info-dropdown">
+                            <p>Tài khoản: {userInfo.tenDangNhap}</p>
+                            <p>Trạng thái: {userInfo.trangThai}</p>
+                            <button onClick={handleLogout} className="logout-button">
+                                Đăng Xuất
+                            </button>
+                        </div>
+                    )}
+                </li>
+            </ul>
         </header>
-
     );
-
-}
+};
 
 export default HeaderComponents;

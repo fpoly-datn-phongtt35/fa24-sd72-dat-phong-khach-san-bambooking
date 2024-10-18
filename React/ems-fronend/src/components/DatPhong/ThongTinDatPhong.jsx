@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './ThongTinDatPhong.css';
+import './ThongTinDatPhong.scss';
 import { useLocation } from 'react-router-dom';
 import { getThongTinDatPhong } from '../../services/TTDP';
 import { Tabs } from 'antd';  // Import Tabs từ Ant Design

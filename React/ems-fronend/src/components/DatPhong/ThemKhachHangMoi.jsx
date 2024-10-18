@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import './ThemKhachHangMoi.css'; 
-
+import './ThemKhachHangMoi.scss'; 
+import { createKhachHang } from '../../services/KhachHangService';
 const ThemKhachHangMoi = ({ handleCloseModal }) => { 
     const [formData, setFormData] = useState({
         ho: '',
@@ -8,7 +8,8 @@ const ThemKhachHangMoi = ({ handleCloseModal }) => {
         gioiTinh: '',
         diaChi: '',
         sdt: '',
-        email: ''
+        email: '',
+        trangThai: 'active'
     });
 
     const handleChange = (e) => {
@@ -21,6 +22,16 @@ const ThemKhachHangMoi = ({ handleCloseModal }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Khách hàng mới:', formData);
+        createKhachHang(formData)
+        .then(response => {
+            alert('Thêm khách hàng mới thành công!');
+            console.log(response.data);
+            window.location.reload();
+        })
+        .catch(error => {
+            console.error(error);
+            alert('Thêm khách hàng mới thất bại, vui lòng thử lại.');
+        })
         handleCloseModal(); 
     };
 

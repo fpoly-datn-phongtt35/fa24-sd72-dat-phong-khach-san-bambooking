@@ -25,4 +25,5 @@ public class TaiKhoan {
 
     @Column(name = "trang_thai")
     private String trangThai;
+
 }
