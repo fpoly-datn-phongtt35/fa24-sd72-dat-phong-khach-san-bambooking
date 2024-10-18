@@ -17,17 +17,15 @@ import java.time.format.DateTimeFormatter;
 
 public class DatPhongResponse {
     private Integer id;
-    private String tenNhanVien;
     private String tenKhachHang;
     private String maDatPhong;
     private String ngayDat;
     private String ghiChu;
     private String trangThai;
 
-    public DatPhongResponse(Integer id, String tenNhanVien, String tenKhachHang, String maDatPhong,
+    public DatPhongResponse(Integer id, String tenKhachHang, String maDatPhong,
                             LocalDateTime ngayDat, String ghiChu, String trangThai) {
         this.id = id;
-        this.tenNhanVien = tenNhanVien;
         this.tenKhachHang = tenKhachHang;
         this.maDatPhong = maDatPhong;
         this.ngayDat = formatDateTime(ngayDat);

@@ -1,65 +1,59 @@
 package com.example.datn.controller;
-
-import com.example.datn.model.NhanVien;
 import com.example.datn.model.TaiKhoan;
-import com.example.datn.service.IMPL.NhanVienServiceIMPL;
-import com.example.datn.service.IMPL.TaiKhoanServiceIMPL;
+import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.service.TaiKhoanService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/tai-khoan")
+@RestController
+@CrossOrigin("*")
 public class TaiKhoanController {
     @Autowired
-    TaiKhoanServiceIMPL taiKhoanServiceIMPL;
+    TaiKhoanService taiKhoanService;
+
     @Autowired
-    NhanVienServiceIMPL nhanVienServiceIMPL;
+    TaiKhoanRepository taiKhoanRepository;
 
-    @ModelAttribute("listNhanVien")
-    List<NhanVien> getListNhanVien() {
-        return nhanVienServiceIMPL.getAll();
+    @GetMapping("/tai-khoan")
+    public List<TaiKhoan> getAll(){
+        return taiKhoanRepository.findAll();
+    }
+    @PostMapping("/tai-khoan")
+    public ResponseEntity<String> add(@RequestBody TaiKhoan taiKhoan) {
+        try {
+            taiKhoanService.create(taiKhoan);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Tài khoản đã được thêm thành công");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi thêm tài khoản: " + e.getMessage());
+        }
     }
 
-    @GetMapping("")
-    public String home(Model model) {
-        List<TaiKhoan> list = taiKhoanServiceIMPL.findAll();
-        model.addAttribute("list", list);
-        return "/taiKhoan/index";
+    @PutMapping("/tai-khoan/{id}")
+    public ResponseEntity<String> update(@PathVariable Integer id, @RequestBody TaiKhoan taiKhoan) {
+        try {
+            taiKhoan.setId(id);
+            taiKhoanService.update(taiKhoan);
+            return ResponseEntity.status(HttpStatus.OK).body("tài khoản đã được cập nhật thành công");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi cập nhật tài khoản: " + e.getMessage());
+        }
     }
 
-    @GetMapping("/view-add")
-    public String viewAddTaiKhoan(Model model) {
-        model.addAttribute("taiKhoan", new TaiKhoan());
-        return "/taiKhoan/add";
+    @DeleteMapping("/tai-khoan/{id}")
+    public ResponseEntity<?> deleteTaiKhoan(@PathVariable Integer id) {
+        taiKhoanService.deleteTaiKhoan(id);
+        return ResponseEntity.ok("Tài khoản đã được xóa thành công!");
     }
 
-    @PostMapping("/add")
-    public String addTaiKhoan(@ModelAttribute("taiKhoan") TaiKhoan taiKhoan) {
-        taiKhoanServiceIMPL.addTaiKhoan(taiKhoan);
-        return "redirect:/tai-khoan";
+    @GetMapping("/tai-khoan/search")
+    public Page<TaiKhoan> searchTaiKhoan(@RequestParam(required = false) String keyword, Pageable pageable) {
+        return taiKhoanService.searchTaiKhoan(keyword, pageable);
     }
 
-    @GetMapping("/detail/{id}")
-    public String detaiTaiKhoan(@PathVariable("id") Integer id, Model model){
-        TaiKhoan taiKhoan = taiKhoanServiceIMPL.detailTaiKhoan(id);
-        model.addAttribute("tkDetail", taiKhoan);
-        return "/taiKhoan/update";
-    }
-
-    @PostMapping("/update")
-    public String updateTaiKhoan(@ModelAttribute("taiKhoan") TaiKhoan taiKhoan){
-        taiKhoanServiceIMPL.updateTaiKhoan(taiKhoan);
-        return "redirect:/tai-khoan";
-    }
-
-    @GetMapping("/updateStatus/{id}")
-    public String updateStatus(@PathVariable("id") Integer id){
-        taiKhoanServiceIMPL.updateStatusTaiKhoan(id);
-        return "redirect:/tai-khoan";
-    }
 }

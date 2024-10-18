@@ -13,7 +13,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "tai_khoan")
 public class TaiKhoan {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -26,4 +25,5 @@ public class TaiKhoan {
 
     @Column(name = "trang_thai")
     private String trangThai;
+
 }

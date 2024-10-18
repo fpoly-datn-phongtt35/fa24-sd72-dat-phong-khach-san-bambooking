@@ -22,13 +22,15 @@ public class ThongTinDatPhong {
     private Integer id;
 
     @JoinColumn(name = "id_dat_phong")
-    @ManyToOne()
+    @ManyToOne
     private DatPhong datPhong;
 
     @ManyToOne
     @JoinColumn(name = "id_phong")
     private Phong phong;
 
+    @Column(name = "ma_thong_tin_dat_phong")
+    private String maThongTinDatPhong;
 
     @Column(name = "ngay_nhan_phong")
     private LocalDateTime ngayNhanPhong;
@@ -36,14 +38,11 @@ public class ThongTinDatPhong {
     @Column(name = "ngay_tra_phong")
     private LocalDateTime ngayTraPhong;
 
+    @Column(name = "gia_dat")
+    private Double giaDat;
 
     @Column(name = "so_nguoi")
     private Integer soNguoi;
-    @Column(name = "tien_phong")
-    private Double tienPhong;
-
-    @Column(name = "tien_dich_vu")
-    private Double tienDichVu;
 
     @Column(name = "trang_thai")
     private String trangThai;

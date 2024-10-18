@@ -1,9 +1,12 @@
 package com.example.datn.service.IMPL;
 
+import com.example.datn.dto.request.TTDPRequest;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.service.ThongTinDatPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,33 +17,19 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Autowired
     ThongTinDatPhongRepository thongTinDatPhongRepository;
 
-    @Override
-    public List<ThongTinDatPhong> findAll() {
-        return thongTinDatPhongRepository.findAll();
-    }
 
     @Override
-    public void add(ThongTinDatPhong thongTinDatPhong) {
-        thongTinDatPhongRepository.save(thongTinDatPhong);
-    }
-
-    @Override
-    public ThongTinDatPhong detail(Integer id) {
-        return thongTinDatPhongRepository.findById(id).get();
-    }
-
-    @Override
-    public void update(ThongTinDatPhong thongTinDatPhong) {
-        thongTinDatPhongRepository.save(thongTinDatPhong);
-    }
-
-    @Override
-    public ThongTinDatPhong delete(Integer id) {
-        Optional<ThongTinDatPhong> chiTietHoaDon = thongTinDatPhongRepository.findById(id);
-        if (chiTietHoaDon.isPresent()){
-            thongTinDatPhongRepository.delete(chiTietHoaDon.get());
-            return chiTietHoaDon.get();
-        }
+    public ThongTinDatPhong add(TTDPRequest request) {
         return null;
+    }
+
+    @Override
+    public Page<ThongTinDatPhong> getAll(Pageable pageable) {
+        return thongTinDatPhongRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<ThongTinDatPhong> getByIDDP(Integer iddp, Pageable pageable) {
+        return thongTinDatPhongRepository.findByDatPhongId(iddp,pageable);
     }
 }

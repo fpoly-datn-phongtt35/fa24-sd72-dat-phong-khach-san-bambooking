@@ -1,5 +1,0 @@
-.dat-phong-container {
-    display: flex;
-    justify-content: space-between; /* Tách hai phần tử ra hai bên */
-    align-items: flex-start; /* Canh hai phần tử theo đỉnh */
-}

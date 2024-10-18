@@ -1,5 +1,6 @@
 package com.example.datn.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,13 +14,12 @@ import lombok.Setter;
 @Table(name = "hinh_anh")
 @Entity
 public class HinhAnh {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     @JoinColumn(name = "id_phong")
     @ManyToOne
+    @JsonBackReference
     private Phong phong;
 
     @Column(name = "ten")

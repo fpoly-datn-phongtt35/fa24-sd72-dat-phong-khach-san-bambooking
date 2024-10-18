@@ -1,0 +1,33 @@
+/* FormAddPage.css */
+.form-add-page {
+    display: flex;
+    height: 100vh; /* Chiều cao toàn màn hình */
+}
+
+.form-container {
+    width: 20%;
+    padding: 10px;
+    background-color: #fff; /* Màu nền sáng */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+    display: flex;
+    flex-direction: column;
+}
+
+.empty-space {
+    width: 80%; /* Phần còn lại của màn hình */
+    background-color: #fff; /* Màu trắng cho sự tương phản */
+    padding: 10px;
+}
+
+input, select, textarea {
+    margin-bottom: 15px; /* Khoảng cách giữa các input */
+    width: 100%; /* Full chiều ngang */
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100px; /* Độ rộng cho nút */
+    margin-right: 10px;
+}
