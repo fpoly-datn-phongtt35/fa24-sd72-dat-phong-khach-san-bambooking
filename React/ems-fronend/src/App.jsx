@@ -5,7 +5,7 @@ import DanhSach from './components/DichVu/DanhSach';
 import DatPhong from './components/DatPhong/DatPhong';
 import TienNghi from './components/TienNghi';
 import DanhSachDichVuDiKem from './components/DichVuDikem/DanhSachDichVuDiKem';
-import TableLoaiPhong from './components/LoaiPhong/TableLoaiPhong';
+
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
@@ -38,8 +38,7 @@ function App() {
             <Route path="/DatPhong" element={<DatPhong />} />
             <Route path='/tao-dat-phong' element={<FormAddPage />} />
             <Route path='/form-tao' element={<FormAdd />} />
-            {/* Dịch vụ */}
-            <Route path="/DichVu" element={<TableDichVu />} />
+          
             {/* Nhân viên */}
             <Route path="/NhanVien" element={<TableNhanVien />} />
             {/* Tiện ích */}
@@ -49,7 +48,7 @@ function App() {
               <Route path="/DichVu" element={<DanhSach/>} />
               <Route path="/DichVuDikem" element={<DanhSachDichVuDiKem />} />
               <Route path="/PhieuDichVu" element={<DanhSachPhieuDichVu />} />
-              <Route path="/LoaiPhong" element={<TableLoaiPhong />} />
+              <Route path="/LoaiPhong" element={<LoaiPhong />} />
 
             {/*Phòng */}
             <Route path='/phong' element={<ListPhong />}></Route>
