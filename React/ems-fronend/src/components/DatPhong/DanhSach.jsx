@@ -24,8 +24,6 @@ const DanhSach = () => {
                 console.log(error);
             });
     };
-    
-
     const getFilteredDatPhong = () => {
         HienThiTheoLoc({ page: currentPage, size: itemsPerPage }, filters)
             .then((response) => {
@@ -70,13 +68,11 @@ const DanhSach = () => {
     const handleNextPage = () => {
         if (currentPage < totalPages - 1) {
             setCurrentPage((prevPage) => prevPage + 1);
-
         }
     };
 
     const handlePreviousPage = () => {
         if (currentPage > 0) {
-
             setCurrentPage((prevPage) => prevPage - 1);
         }
     };

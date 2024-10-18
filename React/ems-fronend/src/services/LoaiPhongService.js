@@ -1,6 +1,4 @@
 import axios from "axios";
-
-
 const api = "http://localhost:8080/loai-phong/index";
 const apiadd = "http://localhost:8080/loai-phong/add";
 const apiUD = "http://localhost:8080/loai-phong/update";
@@ -44,4 +42,3 @@ export const updateLoaiPhong = (loaiPhongRequest) => {
 export const deleteLoaiPhong = (id) => {
     return axios.delete(`${apiDE}/${id}`);
 };
-

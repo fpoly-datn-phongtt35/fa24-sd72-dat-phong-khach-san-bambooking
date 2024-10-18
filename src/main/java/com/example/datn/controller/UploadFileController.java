@@ -32,6 +32,7 @@ public class UploadFileController {
         Page<HinhAnhResponse> responsePage = imagesPage.map(image -> {
             HinhAnhResponse response = new HinhAnhResponse();
             response.setId(image.getId());
+            response.setTenPhong(image.getPhong().getTenPhong());
             response.setTenAnh(image.getTenAnh());
             response.setDuongDan(image.getDuongDan());
             response.setTrangThai(image.getTrangThai());
