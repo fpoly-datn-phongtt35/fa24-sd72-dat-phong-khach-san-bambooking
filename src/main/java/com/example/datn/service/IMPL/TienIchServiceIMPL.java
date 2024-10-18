@@ -50,6 +50,7 @@ public class TienIchServiceIMPL implements TienIchService {
 
     @Override
     public TienIch detail(Integer id) {
+
         return tienIchRepository.findById(id).get();
     }
 

@@ -9,7 +9,7 @@ import TaiKhoanComponent from './components/taikhoan/TaiKhoanComponent';
 import DatPhong from './components/DatPhong/DatPhong';
 import DanhSach from './components/DichVu/DanhSach';
 import DanhSachDichVuDiKem from './components/DichVuDikem/DanhSachDichVuDiKem';
-import TableLoaiPhong from './components/LoaiPhong/TableLoaiPhong';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
 import ListImage from './components/HinhAnh/ListImage';
@@ -25,6 +25,7 @@ import ViewPhong from './components/TrangChu/ViewPhong';
 import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
 import FormAddPage from './components/DatPhong/FormAddPage';
 import FormAdd from './components/DatPhong/FormAdd';
+import LoaiPhong from './components/LoaiPhong/LoaiPhong';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
@@ -86,7 +87,7 @@ function App() {
               path="/LoaiPhong"
               element={
                 <RequireAuth>
-                  <TableLoaiPhong />
+                  <LoaiPhong />
                 </RequireAuth>
               }
             />

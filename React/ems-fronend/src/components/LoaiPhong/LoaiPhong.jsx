@@ -7,7 +7,7 @@ const LoaiPhong = () => {
     const [data, setData] = useState([]); // Dữ liệu tiện ích
     const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
     const [totalPages, setTotalPages] = useState(0); // Tổng số trang
-    const itemsPerPage = 8;
+    const itemsPerPage = 7;
     const [selectedData, setSelectedData] = useState(null); // Lưu tiện ích được chọn
 
     // Hàm lấy dữ liệu tiện ích
