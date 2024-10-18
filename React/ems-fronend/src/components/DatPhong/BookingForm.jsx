@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Row, Col, Button, Dropdown, DropdownButton, Card } from 'react-bootstrap';
-import './BookingForm.css'; // Import file CSS
+import './BookingForm.scss'; // Import file CSS
 import { PhongKhaDung } from '../../services/DatPhong';
+import XacNhanDatPhong from './XacNhanDatPhong'; // Import the new modal component
+
 const BookingForm = () => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -11,13 +13,15 @@ const BookingForm = () => {
     const [phongKhaDung, setPhongKhaDung] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
-    // State quản lý form đặt phòng và phòng được chọn
+    const [showModal, setShowModal] = useState(false); // State to handle modal visibility
+    const [selectedRooms, setSelectedRooms] = useState([]); // Mảng chứa các phòng đã chọn
+    const [multipleBookings, setMultipleBookings] = useState(false); // State to manage multiple bookings
+
     const navigate = useNavigate();
-    // Hàm lấy dữ liệu phòng khả dụng
+
     const getPhongKhaDung = (ngayNhanPhong, ngayTraPhong, adults, children) => {
         PhongKhaDung(ngayNhanPhong, ngayTraPhong, adults, children, { page: currentPage })
             .then((response) => {
-                console.log(response.data.content);
                 setPhongKhaDung(response.data.content);
                 setTotalPages(response.data.totalPages);
             })
@@ -30,14 +34,8 @@ const BookingForm = () => {
         getPhongKhaDung();
     }, [currentPage]);
 
-    // Hàm xử lý tìm kiếm với các giá trị người dùng nhập
     const handleSearch = (e) => {
         e.preventDefault();
-        // Gọi API với các giá trị startDate và endDate mà người dùng chọn
-        console.log(startDate);
-        console.log(endDate);
-        console.log(adults);
-        console.log(children);
         getPhongKhaDung(startDate, endDate, adults, children);
     };
 
@@ -53,10 +51,35 @@ const BookingForm = () => {
         }
     };
 
-    // Hàm mở form đặt phòng
     const handleCreateBooking = (room) => {
-        navigate('/form-tao', { state: { room, startDate, endDate } }); // Điều hướng và truyền dữ liệu
+        setSelectedRooms((prevRooms) => [...prevRooms, room]); // Thêm phòng vào mảng các phòng đã chọn
+        setShowModal(true); // Hiển thị modal
+        console.log(startDate);
+        console.log(endDate);
+        console.log(children);
+        console.log(adults);
+
     };
+
+
+    const handleOpenModal = () => {
+        setShowModal(true);
+        console.log(showModal)
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false); // Hide modal
+    };
+
+    const handleConfirmBooking = () => {
+        navigate('/form-tao', { state: { room: selectedRooms, startDate, endDate, multipleBookings } });
+        setShowModal(false);
+    };
+
+    const handleAdditionalRoom = (e) => {
+        setMultipleBookings(e.target.checked); // Set multiple bookings state based on checkbox
+    };
+
     return (
         <div className="booking-form-container">
             <Form onSubmit={handleSearch}>
@@ -140,11 +163,14 @@ const BookingForm = () => {
                         <Button type="submit" className="custom-search-btn">
                             Tìm Kiếm
                         </Button>
+                        <Button onClick={() => handleOpenModal()} className="custom-cart-btn">
+                            Giỏ
+                        </Button>
+
                     </Col>
                 </Row>
             </Form>
 
-            {/* Hiển thị danh sách phòng */}
             <div className="room-list">
                 {phongKhaDung.map((p) => (
                     <Card className="room-card" key={p.id}>
@@ -186,6 +212,26 @@ const BookingForm = () => {
                     Trang sau
                 </button>
             </div>
+
+            {/* Use the new XacNhanDatPhong component */}
+
+            {showModal && (
+                <div className="XNDP-modal-backdrop-x">
+                    <div className="XNDP-modal-body">
+                        <XacNhanDatPhong
+                            showModal={showModal}
+                            handleCloseModal={handleCloseModal}
+                            handleConfirmBooking={handleConfirmBooking}
+                            selectedRooms={selectedRooms}
+                            startDate={startDate}
+                            endDate={endDate}
+                            children = {children}
+                            adults = {adults}
+                        />
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };

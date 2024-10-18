@@ -5,6 +5,8 @@ import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.service.ThongTinDatPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,5 +21,15 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Override
     public ThongTinDatPhong add(TTDPRequest request) {
         return null;
+    }
+
+    @Override
+    public Page<ThongTinDatPhong> getAll(Pageable pageable) {
+        return thongTinDatPhongRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<ThongTinDatPhong> getByIDDP(Integer iddp, Pageable pageable) {
+        return thongTinDatPhongRepository.findByDatPhongId(iddp,pageable);
     }
 }

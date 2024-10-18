@@ -1,56 +1,108 @@
+/* Căn chỉnh chung cho sidebar */
+.sidebar {
+  width: 180px;
+  height: 100vh;
+  padding-top: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+  /* Scroll nếu nội dung quá dài */
+  scrollbar-width: none;
+}
+
 .sidebar ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    height: auto;
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.nav-item {
+  padding: 10px 10px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #adb5bd;
+  font-size: 17px;
+  display: block;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+/* Hiệu ứng hover */
+.nav-link:hover {
+  color: #fff;
+  /* Chữ trắng khi hover */
+  background-color: #166df8;
+  /* Màu nền khi hover */
+}
+
+/* Submenu */
+.has-submenu .nav-link {
+  position: relative;
+}
+
+/* Thêm icon tam giác chỉ cho mục Quản lý phòng */
+.quan-ly-phong .nav-link::after {
+  content: '\25BC';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+/* Xoay icon tam giác khi submenu mở */
+.quan-ly-phong.active .nav-link::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+
+/* Submenu ẩn và hiển thị */
+.submenu {
+  display: none;
+  background-color: #495057;
+  padding-left: 20px;
+  margin-top: 10px;
+}
+
+.submenu.open {
+  display: block;
+}
+
+/* Căn chỉnh cho các mục trong submenu */
+.submenu .nav-item {
+  padding: 10px 0;
+}
+
+.submenu .nav-link {
+  font-size: 14px;
+  color: #ced4da;
+}
+
+
+/* Khi sidebar rỗng (chưa đăng nhập) */
+.empty-sidebar {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #adb5bd;
+  font-size: 18px;
+}
+
+/* Đảm bảo responsive cho màn hình nhỏ */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
   }
 
-  .sidebar ul li ,.dv{
-    font-size: 15px;
-    height: 50px;
-    margin: 0.8rem auto;
-    line-height: 50px;
-    width: 100%;
-    list-style: none;
-    padding-left: 0;
-    position: relative; /* Để submenu có thể được định vị */
-    
+  .nav-link {
+    font-size: 14px;
   }
-  .sidebar ul li:hover{
-    background-color: #5786e6;
-  }
-  .sidebar ul li a {
-    text-decoration: none;
-    color: #101828;
-    display: block;
-    padding-left: 20px;
-  }
-  
-  .submenu {
-    display: none; /* Ẩn submenu mặc định */
-    position: relative; /* Đảm bảo submenu được hiển thị trong cùng khu vực */
-    background-color: #f0f0f0; /* Màu nền cho submenu */
-    bottom: 13px;
-  }
-  
-  .nav-item.has-submenu.active .submenu {
-    display: block; /* Hiển thị submenu khi mục cha có lớp active */
-  }
-  
-  .submenu li {
-    height: 40px;
-    line-height: 40px;
-  }
-  
-  .submenu li a {
-    font-size: 17px;
-  }
-  
-  /* Đảm bảo các mục li có đủ khoảng cách giữa các mục để submenu không bị đè lên */
 
-  .dv.active{
-
-    margin-top: 250px;
-    
+  .submenu .nav-link {
+    font-size: 12px;
   }
-  
+}

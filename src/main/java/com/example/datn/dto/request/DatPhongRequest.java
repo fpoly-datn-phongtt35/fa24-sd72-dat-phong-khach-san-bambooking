@@ -18,8 +18,6 @@ import java.time.LocalDateTime;
 @Setter
 public class DatPhongRequest {
     private Integer id;
-    private NhanVien nhanVien;
-
     private KhachHang khachHang;
 
     private String maDatPhong;
@@ -28,5 +26,5 @@ public class DatPhongRequest {
 
     private String ghiChu;
 
-    private String trangThai;
+        private String trangThai;
 }
