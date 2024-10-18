@@ -10,22 +10,35 @@ const DanhSachPhieuDichVu = () => {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [currentPhieuDichVu, setCurrentPhieuDichVu] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
-    const [searchKeyword, setSearchKeyword] = useState(''); // Tìm kiếm
-    const [filterStatus, setFilterStatus] = useState(''); // Lọc trạng thái
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
+    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
+    const [totalPages, setTotalPages] = useState(0); // Tổng số trang
+    const itemsPerPage = 5; // Số lượng item trên mỗi trang
 
     const loadPhieuDichVu = () => {
         DuLieuPhieuDichVu()
             .then(response => {
-                const filteredData = response.data.filter(phieu => {
-                    const matchesKeyword = searchKeyword
-                        ? phieu.dichVu.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase())
-                        : true;
-                    const matchesStatus = filterStatus
-                        ? phieu.trangThai === filterStatus
-                        : true;
-                    return matchesKeyword && matchesStatus;
-                });
-                setPhieuDichVuList(filteredData);
+                if (response && response.data) {
+                    const filteredData = response.data.filter(phieu => {
+                        const matchesKeyword = searchKeyword
+                            ? phieu.dichVu.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase())
+                            : true;
+                        const matchesStatus = filterStatus
+                            ? phieu.trangThai === filterStatus
+                            : true;
+                        return matchesKeyword && matchesStatus;
+                    });
+
+                    // Phân trang dữ liệu
+                    const startIndex = currentPage * itemsPerPage;
+                    const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+                    setPhieuDichVuList(paginatedData);
+                    setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
+                } else {
+                    setPhieuDichVuList([]);
+                    setTotalPages(0);
+                }
             })
             .catch(error => {
                 console.error("Lỗi khi tải danh sách phiếu dịch vụ:", error);
@@ -34,7 +47,7 @@ const DanhSachPhieuDichVu = () => {
 
     useEffect(() => {
         loadPhieuDichVu();
-    }, [searchKeyword, filterStatus]); // Khi searchKeyword hoặc filterStatus thay đổi, gọi lại loadPhieuDichVu
+    }, [searchKeyword, filterStatus, currentPage]);
 
     const openForm = () => setShowForm(true);
     const closeForm = () => setShowForm(false);
@@ -48,6 +61,18 @@ const DanhSachPhieuDichVu = () => {
             XoaPhieuDichVu(id)
                 .then(() => loadPhieuDichVu())
                 .catch(error => console.error("Lỗi khi xóa phiếu dịch vụ:", error));
+        }
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
         }
     };
 
@@ -105,6 +130,13 @@ const DanhSachPhieuDichVu = () => {
                     ))}
                 </tbody>
             </table>
+
+            {/* Pagination */}
+            <div className="pagination">
+                <button onClick={handlePreviousPage} disabled={currentPage === 0}>Trang trước</button>
+                <span>Trang {currentPage + 1} / {totalPages}</span>
+                <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>Trang sau</button>
+            </div>
 
             {showForm && <FormAddPhieuDichVu show={showForm} handleClose={closeForm} refreshData={loadPhieuDichVu} />}
             {showUpdateForm && <FormUpdatePhieuDichVu show={showUpdateForm} handleClose={closeUpdateForm} refreshData={loadPhieuDichVu} phieuDichVu={currentPhieuDichVu} />}

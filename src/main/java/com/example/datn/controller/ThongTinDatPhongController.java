@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/thong_tin_dat_phong")
 public class ThongTinDatPhongController {
@@ -22,6 +22,6 @@ public class ThongTinDatPhongController {
 
     @GetMapping("")
     public List<ThongTinDatPhong> ThongTinDatPhongHome() {
-        return thongTinDatPhongServiceIMPL.findAll();
+        return thongTinDatPhongServiceIMPL.getAll();
     }
 }

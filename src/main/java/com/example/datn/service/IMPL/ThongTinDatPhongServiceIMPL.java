@@ -17,6 +17,11 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
 
     @Override
+    public List<ThongTinDatPhong> getAll() {
+        return thongTinDatPhongRepository.findAll();
+    }
+
+    @Override
     public ThongTinDatPhong add(TTDPRequest request) {
         return null;
     }

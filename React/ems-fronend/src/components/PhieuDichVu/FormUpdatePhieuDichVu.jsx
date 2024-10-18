@@ -123,7 +123,7 @@ const FormUpdatePhieuDichVu = ({ show, handleClose, refreshData, phieuDichVu }) 
                             type="date"
                             value={ngayBatDau}
                             onChange={(e) => setNgayBatDau(e.target.value)}
-                            required
+                            required disabled
                         />
                     </div>
                     <div>
@@ -132,7 +132,7 @@ const FormUpdatePhieuDichVu = ({ show, handleClose, refreshData, phieuDichVu }) 
                             type="date"
                             value={ngayKetThuc}
                             onChange={(e) => setNgayKetThuc(e.target.value)}
-                            required
+                            required disabled
                         />
                     </div>
                     <div>

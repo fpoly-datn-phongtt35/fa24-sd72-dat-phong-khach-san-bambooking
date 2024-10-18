@@ -12,6 +12,9 @@ const DanhSach = () => {
     const [showDetail, setShowDetail] = useState(false);
     const [searchKeyword, setSearchKeyword] = useState(''); // Tìm kiếm
     const [filterStatus, setFilterStatus] = useState(''); // Lọc trạng thái
+    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
+    const [totalPages, setTotalPages] = useState(0); // Tổng số trang
+    const itemsPerPage = 5; // Số lượng item trên mỗi trang
 
     const loadDichVu = () => {
         DuLieu()
@@ -24,10 +27,15 @@ const DanhSach = () => {
                         ? dv.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) || 
                           dv.moTa.toLowerCase().includes(searchKeyword.toLowerCase())
                         : true;
-    
+
                     return matchesStatus && matchesKeyword;
                 });
-                setDichVuList(filteredData);
+
+                // Phân trang dữ liệu
+                const startIndex = currentPage * itemsPerPage;
+                const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+                setDichVuList(paginatedData);
+                setTotalPages(Math.ceil(filteredData.length / itemsPerPage)); // Cập nhật tổng số trang
             })
             .catch(error => {
                 console.error("Lỗi khi tải danh sách dịch vụ:", error);
@@ -36,7 +44,7 @@ const DanhSach = () => {
 
     useEffect(() => {
         loadDichVu();
-    }, [searchKeyword, filterStatus]); // Tự động tải lại khi từ khóa hoặc trạng thái thay đổi
+    }, [searchKeyword, filterStatus, currentPage]); // Tự động tải lại khi từ khóa, trạng thái hoặc trang thay đổi
 
     const openForm = () => setShowForm(true);
     const closeForm = () => setShowForm(false);
@@ -70,6 +78,18 @@ const DanhSach = () => {
                 .catch(error => {
                     console.error("Lỗi khi xóa dịch vụ:", error);
                 });
+        }
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
         }
     };
 
@@ -118,6 +138,13 @@ const DanhSach = () => {
                     ))}
                 </tbody>
             </table>
+
+            {/* Phân trang */}
+            <div className="pagination">
+                <button onClick={handlePreviousPage} disabled={currentPage === 0}>Trang trước</button>
+                <span>Trang {currentPage + 1} / {totalPages}</span>
+                <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>Trang sau</button>
+            </div>
 
             {showForm && <FormAdd show={showForm} handleClose={closeForm} refreshData={loadDichVu} />}
             {showUpdateForm && <FormUpdate show={showUpdateForm} handleClose={closeUpdateForm} refreshData={loadDichVu} dichVu={currentDichVu} />}

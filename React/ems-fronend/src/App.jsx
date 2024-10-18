@@ -36,18 +36,16 @@ function App() {
             <Route path="/DatPhong" element={<DatPhong />} />
             <Route path='/tao-dat-phong' element={<FormAddPage />} />
             <Route path='/form-tao' element={<FormAdd />} />
-            {/* Dịch vụ */}
-            <Route path="/DichVu" element={<TableDichVu />} />
             {/* Nhân viên */}
             <Route path="/NhanVien" element={<TableNhanVien />} />
             {/* Tiện ích */}
             <Route path="/TienNghi" element={<TienNghi />} />
             <Route path="/TienIch" element={<TienIch />} />
-               {/* Dịch vụ */}
-              <Route path="/DichVu" element={<DanhSach/>} />
-              <Route path="/DichVuDikem" element={<DanhSachDichVuDiKem />} />
-              <Route path="/PhieuDichVu" element={<DanhSachPhieuDichVu />} />
-              <Route path="/LoaiPhong" element={<TableLoaiPhong />} />
+            {/* Dịch vụ */}
+            <Route path="/DichVu" element={<DanhSach/>} />
+            <Route path="/DichVuDikem" element={<DanhSachDichVuDiKem />} />
+            <Route path="/PhieuDichVu" element={<DanhSachPhieuDichVu />} />
+            <Route path="/LoaiPhong" element={<TableLoaiPhong />} />
             {/*Phòng */}
             <Route path='/phong' element={<ListPhong />}></Route>
             <Route path='/add-phong' element={<Phong />}></Route>

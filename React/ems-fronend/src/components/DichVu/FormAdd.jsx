@@ -9,7 +9,7 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
         donGia: '',
         moTa: '',
         //hinhAnh: '',
-        trangThai: 'active', // Đảm bảo giá trị mặc định không null
+        trangThai: 'Hoạt động', // Đảm bảo giá trị mặc định không null
     });
 
     // Hàm xử lý thay đổi giá trị input
@@ -104,8 +104,8 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
                             value={formData.trangThai}
                             onChange={handleInputChange}
                         >
-                            <option value="active">Hoạt động</option>
-                            <option value="inactive">Không hoạt động</option>
+                            <option value="Hoạt động">Hoạt động</option>
+                            <option value="Ngừng hoạt động">Ngừng hoạt động</option>
                         </select>
                     </div>
                     <div className="modal-actions">

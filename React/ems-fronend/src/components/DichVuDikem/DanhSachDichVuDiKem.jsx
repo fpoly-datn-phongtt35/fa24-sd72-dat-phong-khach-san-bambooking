@@ -12,20 +12,34 @@ const DanhSachDichVuDiKem = () => {
     const [showDetail, setShowDetail] = useState(false);
     const [searchKeyword, setSearchKeyword] = useState(''); // Tìm kiếm
     const [filterStatus, setFilterStatus] = useState(''); // Lọc trạng thái
+    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
+    const [totalPages, setTotalPages] = useState(0); // Tổng số trang
+    const itemsPerPage = 5; // Số lượng item trên mỗi trang
 
     const loadDichVuDiKem = () => {
         LayDanhSachDichVuDiKem()
             .then(response => {
-                const filteredData = response.data.filter(dvDiKem => {
-                    const matchesStatus = filterStatus ? dvDiKem.trangThai === filterStatus : true;
-                    const matchesKeyword = searchKeyword
-                        ? (dvDiKem.dichVu?.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) || 
-                           dvDiKem.loaiPhong?.tenLoaiPhong.toLowerCase().includes(searchKeyword.toLowerCase()))
-                        : true;
+                if (response && response.data) {
+                    const filteredData = response.data.filter(dvDiKem => {
+                        const matchesKeyword = searchKeyword
+                            ? (dvDiKem.dichVu?.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) || 
+                               dvDiKem.loaiPhong?.tenLoaiPhong.toLowerCase().includes(searchKeyword.toLowerCase()))
+                            : true;
+                        const matchesStatus = filterStatus
+                            ? dvDiKem.trangThai === filterStatus
+                            : true;
+                        return matchesKeyword && matchesStatus;
+                    });
 
-                    return matchesStatus && matchesKeyword;
-                });
-                setDichVuDiKemList(filteredData);
+                    // Phân trang dữ liệu
+                    const startIndex = currentPage * itemsPerPage;
+                    const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+                    setDichVuDiKemList(paginatedData);
+                    setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
+                } else {
+                    setDichVuDiKemList([]);
+                    setTotalPages(0);
+                }
             })
             .catch(error => {
                 console.error("Lỗi khi tải danh sách dịch vụ đi kèm:", error);
@@ -34,7 +48,7 @@ const DanhSachDichVuDiKem = () => {
 
     useEffect(() => {
         loadDichVuDiKem();
-    }, [searchKeyword, filterStatus]);
+    }, [searchKeyword, filterStatus, currentPage]);
 
     const openForm = () => setShowForm(true);
     const closeForm = () => setShowForm(false);
@@ -48,6 +62,18 @@ const DanhSachDichVuDiKem = () => {
             XoaDichVuDiKem(id)
                 .then(() => loadDichVuDiKem())
                 .catch(error => console.error("Lỗi khi xóa dịch vụ đi kèm:", error));
+        }
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
         }
     };
 
@@ -66,7 +92,6 @@ const DanhSachDichVuDiKem = () => {
                     <option value="Hoạt động">Hoạt động</option>
                     <option value="Ngừng hoạt động">Ngừng hoạt động</option>
                 </select>
-                {/* <button onClick={loadDichVuDiKem}>Lọc</button> */}
             </div> <br />
 
             <button onClick={openForm}>Thêm Dịch Vụ Đi Kèm</button>
@@ -94,6 +119,13 @@ const DanhSachDichVuDiKem = () => {
                     ))}
                 </tbody>
             </table>
+
+            {/* Phân trang */}
+            <div className="pagination">
+                <button onClick={handlePreviousPage} disabled={currentPage === 0}>Trang trước</button>
+                <span>Trang {currentPage + 1} / {totalPages}</span>
+                <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>Trang sau</button>
+            </div>
 
             {showForm && <FormAddDichVuDiKem show={showForm} handleClose={closeForm} refreshData={loadDichVuDiKem} />}
             {showUpdateForm && <FormUpdateDichVuDiKem show={showUpdateForm} handleClose={closeUpdateForm} refreshData={loadDichVuDiKem} dichVuDiKem={currentDichVuDiKem} />}
