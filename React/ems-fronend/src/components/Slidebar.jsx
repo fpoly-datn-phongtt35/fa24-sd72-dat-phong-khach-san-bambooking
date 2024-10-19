@@ -23,10 +23,10 @@ function Sidebar({ isAuthenticated, onLogout }) {
 
             {/* Quản lý phòng với submenu */}
             <li
-              className={`nav-item has-submenu ${activeSubmenu === 1 ? 'active' : ''}`}
+              className={`nav-item has-submenu quan-ly-phong ${activeSubmenu === 1 ? 'active' : ''}`}
               onClick={() => toggleSubmenu(1)}
             >
-              <Link className="nav-link" to="#">Quản lý phòng</Link>
+              <div className="nav-link">Quản lý phòng</div>
               <ul className={`submenu ${activeSubmenu === 1 ? 'open' : ''}`}>
                 <li className="nav-item">
                   <Link className="nav-link" to="/phong">Phòng</Link>
@@ -42,6 +42,7 @@ function Sidebar({ isAuthenticated, onLogout }) {
                 </li>
               </ul>
             </li>
+
           </ul>
 
           <ul>

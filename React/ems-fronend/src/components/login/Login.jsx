@@ -31,7 +31,7 @@ const Login = ({ onLoginSuccess }) => {
         // Gọi hàm onLoginSuccess (nếu có) và điều hướng đến trang Nhân Viên
         if (onLoginSuccess) onLoginSuccess(userData);
 
-        navigate('/NhanVien'); // Điều hướng sau khi đăng nhập
+        navigate('/*'); // Điều hướng sau khi đăng nhập
       }
     } catch (error) {
       if (error.response) {

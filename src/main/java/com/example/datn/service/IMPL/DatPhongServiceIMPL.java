@@ -8,6 +8,7 @@ import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.repository.KhachHangRepository;
 import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.service.DatPhongService;
+import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,12 +41,14 @@ public class DatPhongServiceIMPL implements DatPhongService {
     @Override
     public DatPhong addDatPhong(DatPhongRequest datPhongRequest) {
         DatPhong datPhong = new DatPhong();
-        datPhong.setMaDatPhong(datPhongRequest.getMaDatPhong());
-        datPhong.setNgayDat(datPhongRequest.getNgayDat());
-        datPhong.setGhiChu(datPhongRequest.getGhiChu());
-        datPhong.setNhanVien(datPhongRequest.getNhanVien());
+        UniqueDatPhongCode code = new UniqueDatPhongCode();
+        String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
+        datPhong.setMaDatPhong(codeDP);
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
-        datPhong.setTrangThai(datPhongRequest.getTrangThai());
+        datPhong.setNgayDat(LocalDateTime.now());
+        datPhong.setGhiChu(datPhongRequest.getGhiChu());
+        datPhong.setKhachHang(datPhongRequest.getKhachHang());
+        datPhong.setTrangThai("Processing");
         return datPhongRepository.save(datPhong);
     }
 
@@ -76,7 +79,6 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setMaDatPhong(datPhongRequest.getMaDatPhong());
         datPhong.setNgayDat(datPhongRequest.getNgayDat());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
-        datPhong.setNhanVien(datPhongRequest.getNhanVien());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         return datPhongRepository.save(datPhong);

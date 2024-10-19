@@ -95,7 +95,6 @@ const DanhSach = () => {
 
     return (
         <div>
-            <h1>Danh Sách Dịch Vụ</h1>
             <div>
                 <input
                     type="text"

@@ -19,10 +19,6 @@ public class DatPhong {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @JoinColumn(name = "id_nhan_vien")
-    @ManyToOne
-    private NhanVien nhanVien;
-
     @ManyToOne
     @JoinColumn(name = "id_khach_hang")
     private KhachHang khachHang;

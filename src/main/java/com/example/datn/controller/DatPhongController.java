@@ -46,10 +46,6 @@ public class DatPhongController {
 
     @PostMapping("them-moi")
     public ResponseEntity<?> createDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
-        UniqueDatPhongCode code = new UniqueDatPhongCode();
-        String codeDP = code.generateUniqueCode(datPhongServiceIMPL.getAll());
-        datPhongRequest.setMaDatPhong(codeDP);
-        datPhongRequest.setNgayDat(LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.CREATED).body(datPhongServiceIMPL.addDatPhong(datPhongRequest));
     }
 
