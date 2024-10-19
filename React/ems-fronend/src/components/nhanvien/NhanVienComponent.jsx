@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { createNhanVien, updateNhanVien, getNhanVienById } from "../../services/NhanVienService";
-import { getTaiKhoanList } from "../../services/TaiKhoanService";
 import { getVaiTroList } from "../../services/VaiTroService";
 import { useNavigate, useParams } from "react-router-dom";
 
 const NhanVienComponent = () => {
   const [formData, setFormData] = useState({
-    taiKhoan: "",
-    vaiTro: "",
+    vaiTro: "", // Lưu ID vai trò dưới dạng chuỗi
     ho: "",
     ten: "",
     gioiTinh: "Nam",
@@ -20,7 +18,6 @@ const NhanVienComponent = () => {
   });
 
   const [listVaiTro, setListVaiTro] = useState([]);
-  const [listTaiKhoan, setListTaiKhoan] = useState([]);
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -36,16 +33,12 @@ const NhanVienComponent = () => {
         const vaiTroResponse = await getVaiTroList();
         setListVaiTro(vaiTroResponse);
 
-        const taiKhoanResponse = await getTaiKhoanList();
-        setListTaiKhoan(taiKhoanResponse);
-
         if (id) {
           const nhanVienResponse = await getNhanVienById(id);
           const nhanVien = nhanVienResponse.data;
           setFormData({
             ...nhanVien,
-            taiKhoan: nhanVien.taiKhoan?.id || "",
-            vaiTro: nhanVien.vaiTro?.id || "",
+            vaiTro: nhanVien.vaiTro?.id.toString() || "", // Chuyển ID thành chuỗi để khớp với <select>
             ngayTao: formatDateString(nhanVien.ngayTao),
             ngaySua: formatDateString(nhanVien.ngaySua),
           });
@@ -73,8 +66,7 @@ const NhanVienComponent = () => {
 
     const payload = {
       ...formData,
-      taiKhoan: { id: parseInt(formData.taiKhoan) }, // Sửa thành đối tượng
-      vaiTro: { id: parseInt(formData.vaiTro) }, // Sửa thành đối tượng
+      vaiTro: { id: parseInt(formData.vaiTro) }, // Chuyển thành số nguyên
     };
 
     try {
@@ -94,8 +86,6 @@ const NhanVienComponent = () => {
     }
   };
 
-
-
   return (
     <div className="container">
       <br />
@@ -108,24 +98,6 @@ const NhanVienComponent = () => {
             <div className="card-body">
               <form onSubmit={saveNhanVien}>
                 <div className="mb-3">
-                  <label className="form-label">Tài Khoản</label>
-                  <select
-                    className="form-select"
-                    name="taiKhoan"
-                    value={formData.taiKhoan}
-                    onChange={handleSelectChange}
-                    required
-                  >
-                    <option value="">Chọn tài khoản</option>
-                    {listTaiKhoan.map((tk) => (
-                      <option key={tk.id} value={tk.id}>
-                        {tk.tenDangNhap}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="mb-3">
                   <label className="form-label">Vai Trò</label>
                   <select
                     className="form-select"
@@ -136,7 +108,7 @@ const NhanVienComponent = () => {
                   >
                     <option value="">Chọn vai trò</option>
                     {listVaiTro.map((vt) => (
-                      <option key={vt.id} value={vt.id}>
+                      <option key={vt.id} value={vt.id.toString()}>
                         {vt.tenVaiTro}
                       </option>
                     ))}

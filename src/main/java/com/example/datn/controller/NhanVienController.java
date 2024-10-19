@@ -1,5 +1,6 @@
 package com.example.datn.controller;
 
+import com.example.datn.dto.request.NhanVienRequest;
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.NhanVien;
 import com.example.datn.repository.NhanVienRepository;
@@ -31,15 +32,27 @@ public class NhanVienController {
     }
 
 
+//    @PostMapping("/nhan-vien")
+//    public ResponseEntity<String> addNhanVien(@RequestBody NhanVien nhanVien) {
+//        // Kiểm tra nếu số điện thoại đã tồn tại
+//        Optional<NhanVien> existingNhanVien = nhanVienService.findBySdt(nhanVien.getSdt());
+//        if (existingNhanVien.isPresent()) {
+//            return ResponseEntity.status(HttpStatus.CONFLICT).body("Số điện thoại đã tồn tại.");
+//        }
+//        // Thêm nhân viên mới
+//        nhanVienService.create(nhanVien);
+//        return ResponseEntity.ok("Thêm nhân viên thành công");
+//    }
+
     @PostMapping("/nhan-vien")
-    public ResponseEntity<String> addNhanVien(@RequestBody NhanVien nhanVien) {
+    public ResponseEntity<String> addNhanVien(@RequestBody NhanVienRequest nhanVienRequest) {
         // Kiểm tra nếu số điện thoại đã tồn tại
-        Optional<NhanVien> existingNhanVien = nhanVienService.findBySdt(nhanVien.getSdt());
+        Optional<NhanVien> existingNhanVien = nhanVienService.findBySdt(nhanVienRequest.getSdt());
         if (existingNhanVien.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Số điện thoại đã tồn tại.");
         }
         // Thêm nhân viên mới
-        nhanVienService.create(nhanVien);
+        nhanVienService.createNhanVien(nhanVienRequest);
         return ResponseEntity.ok("Thêm nhân viên thành công");
     }
 
