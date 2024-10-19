@@ -1,6 +1,10 @@
 package com.example.datn.service.IMPL;
-
-
+import com.example.datn.model.TienIch;
+import com.example.datn.repository.TienIchRepository;
+import com.example.datn.service.TienIchService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
 import com.example.datn.dto.request.TienIchPhongRequest;
 import com.example.datn.dto.request.TienIchRequest;
 import com.example.datn.dto.response.TienIchPhongResponse;
@@ -27,7 +31,6 @@ public class TienIchServiceIMPL implements TienIchService {
     public List<TienIch> getAll() {
         return tienIchRepository.findAll();
     }
-
     @Override
     public Page<TienIchResponse> getPage(Pageable pageable) {
 

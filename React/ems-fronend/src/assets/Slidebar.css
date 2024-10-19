@@ -2,10 +2,11 @@
     margin: 0;
     padding: 0;
     list-style: none;
+    height: auto;
   }
-  
+
   .sidebar ul li ,.dv{
-    font-size: 20px;
+    font-size: 15px;
     height: 50px;
     margin: 0.8rem auto;
     line-height: 50px;

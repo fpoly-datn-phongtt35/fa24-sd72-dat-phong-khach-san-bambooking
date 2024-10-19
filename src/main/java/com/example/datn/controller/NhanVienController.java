@@ -2,74 +2,79 @@ package com.example.datn.controller;
 
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.NhanVien;
-import com.example.datn.service.IMPL.NhanVienServiceIMPL;
+import com.example.datn.repository.NhanVienRepository;
+import com.example.datn.service.NhanVienService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
-@CrossOrigin
+@CrossOrigin(origins = "*")
+
 @RestController
-@RequestMapping("nhan-vien")
+
 public class NhanVienController {
     @Autowired
-    NhanVienServiceIMPL nhanVienServiceIMPL;
+    NhanVienService nhanVienService;
 
-    @GetMapping("hien-thi")
-    public ResponseEntity<?> HienThiNhanVien() {
-        List<NhanVien> kh = nhanVienServiceIMPL.getAll();
-        return ResponseEntity.ok(kh);
+    @Autowired
+    NhanVienRepository nhanVienRepository;
+
+    @GetMapping("/nhan-vien")
+    public List<NhanVien> hienThi(){
+        return nhanVienRepository.findAll();
     }
 
-    @GetMapping("/nhan-vien/view-add")
-    public String view_add(Model model) {
-        model.addAttribute("nhanVien", new NhanVien());
-        return "/nhanVien/add";
+
+    @PostMapping("/nhan-vien")
+    public ResponseEntity<String> addNhanVien(@RequestBody NhanVien nhanVien) {
+        // Kiểm tra nếu số điện thoại đã tồn tại
+        Optional<NhanVien> existingNhanVien = nhanVienService.findBySdt(nhanVien.getSdt());
+        if (existingNhanVien.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Số điện thoại đã tồn tại.");
+        }
+        // Thêm nhân viên mới
+        nhanVienService.create(nhanVien);
+        return ResponseEntity.ok("Thêm nhân viên thành công");
     }
 
-    @PostMapping("/nhan-vien/add")
-    public String add(@ModelAttribute("nhanVien") NhanVien nhanVien) {
-        LocalDateTime now = LocalDateTime.now();
-        nhanVien.setNgayTao(now);
-        nhanVien.setNgaySua(now);
-        nhanVienServiceIMPL.addNhanVien(nhanVien);
-        return "redirect:/nhan-vien";
+    @PutMapping("/nhan-vien/{id}")
+    public ResponseEntity<String> update(@PathVariable Integer id, @RequestBody NhanVien nhanVien) {
+        try {
+            // Gọi hàm trong service để cập nhật nhân viên, có thể cần kiểm tra ID
+            nhanVien.setId(id); // Đảm bảo rằng đối tượng nhanVien có ID chính xác
+            nhanVienService.update(nhanVien);
+            return ResponseEntity.status(HttpStatus.OK).body("Nhân viên đã được cập nhật thành công");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Lỗi khi cập nhật nhân viên: " + e.getMessage());
+        }
     }
 
-    @GetMapping("/nhan-vien/detail/{id}")
-    public String detail(@PathVariable("id") Integer id, Model model) {
-        NhanVien nhanVienDetail = nhanVienServiceIMPL.findById(id);
-        model.addAttribute("nvdetail", nhanVienDetail);
-        return "/nhanVien/update";
-    }
-    @PostMapping("/nhan-vien/update")
-    public String update(@ModelAttribute("nhanVien") NhanVien nhanVien) {
-        nhanVienServiceIMPL.updateNhanVien(nhanVien);
-        return "redirect:/nhan-vien";
-    }
 
-    @GetMapping("/nhan-vien/status/{id}")
-    public String status(@PathVariable("id") Integer id) {
-        nhanVienServiceIMPL.updateTrangThaiNhanVien(id);
-        return "redirect:/nhan-vien";
+    @DeleteMapping("/nhan-vien/{id}")
+    public ResponseEntity<?> deleteNhanVien(@PathVariable Integer id) {
+        // Logic xóa nhân viên
+        nhanVienService.deleteNhanVien(id);
+        return ResponseEntity.ok("Nhân viên đã được xóa thành công!");
     }
 
     @GetMapping("/nhan-vien/search")
-    public String search(@RequestParam(name = "keyword", required = false) String keyword, Model model) {
-        List<NhanVien> list;
-
-        if (keyword != null && !keyword.isEmpty()) {
-            list = nhanVienServiceIMPL.search(keyword);
-        } else {
-            list = nhanVienServiceIMPL.getAll();
-        }
-        model.addAttribute("list", list);
-        return "nhanVien/index";
+    public Page<NhanVien> searchNhanVien(@RequestParam(required = false) String keyword, Pageable pageable) {
+        return nhanVienService.searchNhanVien(keyword, pageable);
     }
 
-
+    @GetMapping("/nhan-vien/{id}")
+    public ResponseEntity<NhanVien> getNhanVienById(@PathVariable Integer id) {
+        NhanVien nhanVien = nhanVienService.getNhanVienById(id);
+        if (nhanVien != null) {
+            return ResponseEntity.ok(nhanVien);
+        } else {
+            return ResponseEntity.notFound().build(); // Trả về mã 404 nếu không tìm thấy nhân viên
+        }
+    }
 }

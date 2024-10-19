@@ -5,7 +5,8 @@ const TableLoaiPhong = () => {
     const [loaiPhong, setLoaiPhong] = useState([]);
 
     useEffect(() => {
-        listLoaiPhong().then((response) => {
+        listLoaiPhong()
+        .then((response) => {
             setLoaiPhong(response.data);
         }).catch(error => {
             console.log(error);

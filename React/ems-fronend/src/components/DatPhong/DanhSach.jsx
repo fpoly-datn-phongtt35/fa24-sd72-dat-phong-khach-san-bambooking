@@ -24,7 +24,6 @@ const DanhSach = () => {
                 console.log(error);
             });
     };
-    
     const getFilteredDatPhong = () => {
         HienThiTheoLoc({ page: currentPage, size: itemsPerPage }, filters)
             .then((response) => {

@@ -54,9 +54,9 @@ const Upload = () => {
                     <label>Chọn ảnh</label>
                     <input type="file" multiple id="file" name="anh" />
                 </div>
-                <div>
+                {/* <div>
                     <button type="submit">Add</button>
-                </div>
+                </div> */}
             </form>
 
             {/* Hiển thị các ảnh đã upload */}

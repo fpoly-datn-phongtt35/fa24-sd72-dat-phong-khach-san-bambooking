@@ -71,6 +71,3 @@ export const HienThiTheoLoc = (pageable, trangThai) => {
     
     return axios.get(apiLoc, { params: params });
 };
-
-
-
