@@ -1,6 +1,7 @@
 package com.example.datn.utilities;
 
 import com.example.datn.model.DatPhong;
+import com.example.datn.model.ThongTinDatPhong;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,22 @@ public class UniqueDatPhongCode {
         // Lấy tất cả các mã hiện có trong danh sách và lưu vào Set để kiểm tra nhanh hơn
         for (DatPhong dp : listCheck) {
             existingCodes.add(dp.getMaDatPhong()); // Giả sử DatPhong có phương thức getMaDatPhong()
+        }
+
+        String newCode;
+        do {
+            newCode = generateRandomCode();
+        } while (existingCodes.contains(newCode)); // Tiếp tục tạo lại nếu mã bị trùng
+
+        return newCode;
+    }
+
+    public String generateUniqueCodeTTDP(List<ThongTinDatPhong> listCheck) {
+        List<String> existingCodes = new ArrayList<>();
+
+        // Lấy tất cả các mã hiện có trong danh sách và lưu vào Set để kiểm tra nhanh hơn
+        for (ThongTinDatPhong dp : listCheck) {
+            existingCodes.add(dp.getMaThongTinDatPhong()); // Giả sử DatPhong có phương thức getMaDatPhong()
         }
 
         String newCode;

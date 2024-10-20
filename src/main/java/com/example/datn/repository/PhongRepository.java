@@ -30,14 +30,21 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
             ") FROM Phong p " +
             "LEFT JOIN ThongTinDatPhong t ON p.id = t.phong.id AND (:ngayNhanPhong IS NOT NULL AND :ngayTraPhong IS NOT NULL AND " +
             "      t.ngayNhanPhong <= :ngayTraPhong AND t.ngayTraPhong >= :ngayNhanPhong) " +
-            "WHERE t.id IS NULL " +  // Chỉ chọn phòng không có trong ThongTinDatPhong
-            "AND (:sucChuaLon IS NULL OR p.loaiPhong.sucChuaLon >= :sucChuaLon) " +  // Điều kiện về sức chứa lớn
-            "AND (:sucChuaNho IS NULL OR p.loaiPhong.sucChuaNho >= :sucChuaNho)")
+            "WHERE ( " +
+            "   (:ngayNhanPhong IS NOT NULL AND :ngayTraPhong IS NOT NULL AND t.id IS NULL) " +  // Điều kiện kiểm tra ngày và phòng trống
+            "   AND (:sucChuaLon IS NOT NULL OR :sucChuaNho IS NOT NULL) " +  // Điều kiện đảm bảo ít nhất một giá trị sức chứa được truyền vào
+            "   AND (:sucChuaLon IS NULL OR p.loaiPhong.sucChuaLon >= :sucChuaLon) " +  // Điều kiện sức chứa lớn nếu có
+            "   AND (:sucChuaNho IS NULL OR p.loaiPhong.sucChuaNho >= :sucChuaNho) " +  // Điều kiện sức chứa nhỏ nếu có
+            ")")
     Page<PhongResponseDat> PhongKhaDung(@Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
                                         @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
                                         @Param("sucChuaLon") Integer sucChuaLon,
                                         @Param("sucChuaNho") Integer sucChuaNho,
                                         Pageable pageable);
+
+
+
+
 
 
 }

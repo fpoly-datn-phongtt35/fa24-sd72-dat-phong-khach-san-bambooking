@@ -84,11 +84,6 @@ public class DatPhongController {
                                           @RequestParam(required = false) Integer sucChuaNho,
                                           Pageable pageable){
         Pageable pa = PageRequest.of(pageable.getPageNumber(),5);
-        System.out.println(ngayNhanPhong);
-        System.out.println(ngayTraPhong);
-        System.out.println(sucChuaLon);
-        System.out.println("Lon nho");
-        System.out.println(sucChuaNho);
         Page<PhongResponseDat> p = phongServiceIMPL.PhongKhaDung(ngayNhanPhong,ngayTraPhong,sucChuaLon, sucChuaNho,pa);
         return ResponseEntity.ok(p);
     }

@@ -3,8 +3,9 @@ import './NavPhong.scss';
 import ThemKhachHangMoi from './ThemKhachHangMoi';
 import { listKhachHang } from '../../services/KhachHangService';
 import { ThemMoiDatPhong } from '../../services/DatPhong';
-
+import { useNavigate } from 'react-router-dom';
 const NavPhong = () => {
+    const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
     const [khachHangList, setKhachHangList] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
@@ -12,7 +13,7 @@ const NavPhong = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedKhachHang, setSelectedKhachHang] = useState(null);
     const [datPhongSelected, setDatPhongSelected] = useState(null); // Quản lý trạng thái của đặt phòng đã chọn
-
+    
     // State cho đặt phòng
     const [datPhong, setDatPhong] = useState({
         khachHang: null,
@@ -36,8 +37,18 @@ const NavPhong = () => {
     };
 
     useEffect(() => {
+        const storedDatPhong = localStorage.getItem('datPhong');
+        if (storedDatPhong) {
+            setDatPhongSelected(JSON.parse(storedDatPhong)); // Chuyển đổi từ chuỗi JSON thành đối tượng
+            localStorage.removeItem('datPhong');
+        }else {
+            setDatPhongSelected(null); // Đặt lại trạng thái về null
+            localStorage.removeItem('datPhong'); // Xóa localStorage để tránh lỗi
+        }
+
         getAllKhachHang();
     }, [currentPage, searchQuery]);
+    
 
     const handleOpenModal = () => {
         setShowModal(true);
@@ -76,24 +87,29 @@ const NavPhong = () => {
 
     const handleTaoDatPhong = (e) => {
         e.preventDefault();
-
+    
         // Tạo payload cho việc đặt phòng
         const payload = {
             khachHang: datPhong.khachHang,
             ghiChu: datPhong.ghiChu || 'Không có ghi chú',
         };
-
+    
         ThemMoiDatPhong(payload)
             .then(response => {
                 alert('Đặt phòng thành công!');
                 console.log(response.data);
                 setDatPhongSelected(response.data); // Lưu thông tin đặt phòng đã tạo
+                // Chuyển đổi đối tượng thành chuỗi JSON trước khi lưu vào localStorage
+                localStorage.setItem('datPhong', JSON.stringify(response.data)); 
+    
+                console.log(response.data);
             })
             .catch(error => {
                 console.error(error);
                 alert('Đặt phòng thất bại, vui lòng thử lại.');
             });
     };
+    
 
     return (
         <div className="vertical-bar">
