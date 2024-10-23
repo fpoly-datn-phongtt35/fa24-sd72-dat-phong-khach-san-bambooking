@@ -21,15 +21,14 @@ public class UniqueDatPhongCode {
     public String generateUniqueCode(List<DatPhong> listCheck) {
         List<String> existingCodes = new ArrayList<>();
 
-        // Lấy tất cả các mã hiện có trong danh sách và lưu vào Set để kiểm tra nhanh hơn
         for (DatPhong dp : listCheck) {
-            existingCodes.add(dp.getMaDatPhong()); // Giả sử DatPhong có phương thức getMaDatPhong()
+            existingCodes.add(dp.getMaDatPhong());
         }
 
         String newCode;
         do {
             newCode = generateRandomCode();
-        } while (existingCodes.contains(newCode)); // Tiếp tục tạo lại nếu mã bị trùng
+        } while (existingCodes.contains(newCode));
 
         return newCode;
     }
@@ -37,15 +36,14 @@ public class UniqueDatPhongCode {
     public String generateUniqueCodeTTDP(List<ThongTinDatPhong> listCheck) {
         List<String> existingCodes = new ArrayList<>();
 
-        // Lấy tất cả các mã hiện có trong danh sách và lưu vào Set để kiểm tra nhanh hơn
         for (ThongTinDatPhong dp : listCheck) {
-            existingCodes.add(dp.getMaThongTinDatPhong()); // Giả sử DatPhong có phương thức getMaDatPhong()
+            existingCodes.add(dp.getMaThongTinDatPhong());
         }
 
         String newCode;
         do {
             newCode = generateRandomCode();
-        } while (existingCodes.contains(newCode)); // Tiếp tục tạo lại nếu mã bị trùng
+        } while (existingCodes.contains(newCode));
 
         return newCode;
     }

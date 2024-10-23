@@ -34,10 +34,8 @@ public class TTDPController {
     public ResponseEntity<ThongTinDatPhong> createDatPhong(@RequestBody TTDPRequest request) {
         ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.add(request);
         if (ttdp != null) {
-            // Trả về ThongTinDatPhong vừa được tạo với mã HTTP 201
             return ResponseEntity.status(HttpStatus.CREATED).body(ttdp);
         } else {
-            // Trả về mã lỗi nếu việc tạo không thành công
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }

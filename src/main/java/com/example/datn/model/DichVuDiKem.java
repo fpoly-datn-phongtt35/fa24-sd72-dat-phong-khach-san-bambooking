@@ -26,5 +26,5 @@ public class DichVuDiKem {
     private LoaiPhong loaiPhong;
 
     @Column(name = "trang_thai")
-    private String trangThai;
+    private Boolean trangThai;
 }
