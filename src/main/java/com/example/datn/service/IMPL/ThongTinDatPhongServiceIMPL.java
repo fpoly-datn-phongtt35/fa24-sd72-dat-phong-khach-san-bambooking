@@ -4,6 +4,7 @@ import com.example.datn.dto.request.TTDPRequest;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.service.ThongTinDatPhongService;
+import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +21,17 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
     @Override
     public ThongTinDatPhong add(TTDPRequest request) {
-        return null;
+        ThongTinDatPhong ttdp = new ThongTinDatPhong();
+        UniqueDatPhongCode code = new UniqueDatPhongCode();
+        ttdp.setDatPhong(request.getDatPhong());
+        ttdp.setPhong(request.getPhong());
+        ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
+        ttdp.setGiaDat(request.getGiaDat());
+        ttdp.setNgayNhanPhong(request.getNgayNhanPhong());
+        ttdp.setNgayTraPhong(request.getNgayTraPhong());
+        ttdp.setSoNguoi(request.getSoNguoi());
+        ttdp.setTrangThai(request.getTrangThai());
+        return thongTinDatPhongRepository.save(ttdp);
     }
 
     @Override

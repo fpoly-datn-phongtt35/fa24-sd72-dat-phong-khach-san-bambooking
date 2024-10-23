@@ -20,10 +20,10 @@
     </div>
     <div class="mb-3">
         <label>Id phiếu dịch vụ</label>
-        <select class="form-select" aria-label="Default select example" name="phieuDichVu">
+        <select class="form-select" aria-label="Default select example" name="dichVuSuDung">
             <c:forEach items="${listPhieuDichVu}" var="pdv">
                 <option value="${pdv.id}"
-                    ${cthdDetail.phieuDichVu.id == pdv.id ?'selected':''}
+                    ${cthdDetail.dichVuSuDung.id == pdv.id ?'selected':''}
                 >${pdv.id}</option>
             </c:forEach>
         </select>

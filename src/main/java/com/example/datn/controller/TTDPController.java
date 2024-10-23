@@ -31,8 +31,13 @@ public class TTDPController {
         return thongTinDatPhongServiceIMPL.getByIDDP(idDP,pageable);
     }
     @PostMapping("them-moi")
-    public ResponseEntity<?> createDatPhong(@RequestBody TTDPRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(thongTinDatPhongServiceIMPL.add(request));
+    public ResponseEntity<ThongTinDatPhong> createDatPhong(@RequestBody TTDPRequest request) {
+        ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.add(request);
+        if (ttdp != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(ttdp);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 
 }

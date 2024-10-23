@@ -13,8 +13,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "loai_phong")
 public class LoaiPhong {
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -25,15 +23,15 @@ public class LoaiPhong {
     @Column(name = "dien_tich")
     private Integer dienTich;
 
-    @Column(name = "suc_chua_lon")
-    private Integer sucChuaLon;
+    @Column(name = "so_khach_toi_da")
+    private Integer soKhachToiDa;
 
-    @Column(name = "suc_chua_nho")
-    private Integer sucChuaNho;
+    @Column(name = "don_gia")
+    private Integer donGia;
 
+    @Column(name = "don_gia_phu_thu")
+    private Integer donGiaPhuThu;
     @Column(name = "mo_ta")
     private String moTa;
 
-    @Column(name = "trang_thai")
-    private String trangThai;
 }

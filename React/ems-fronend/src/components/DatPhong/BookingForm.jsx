@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Form, Row, Col, Button, Dropdown, DropdownButton, Card } from 'react-bootstrap';
 import './BookingForm.scss'; // Import file CSS
 import { PhongKhaDung } from '../../services/DatPhong';
 import XacNhanDatPhong from './XacNhanDatPhong'; // Import the new modal component
-
+import { addThongTinDatPhong } from '../../services/TTDP';
 const BookingForm = () => {
+    const [datPhong, setDatPhong] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [adults, setAdults] = useState(2);
@@ -16,8 +17,10 @@ const BookingForm = () => {
     const [showModal, setShowModal] = useState(false); // State to handle modal visibility
     const [selectedRooms, setSelectedRooms] = useState([]); // Mảng chứa các phòng đã chọn
     const [multipleBookings, setMultipleBookings] = useState(false); // State to manage multiple bookings
-
     const navigate = useNavigate();
+    const storedDatPhong = localStorage.getItem('datPhong');
+    const parsedDatPhong = storedDatPhong ? JSON.parse(storedDatPhong) : null;
+    const [ttdpList, setTTDPList] = useState([]);
 
     const getPhongKhaDung = (ngayNhanPhong, ngayTraPhong, adults, children) => {
         PhongKhaDung(ngayNhanPhong, ngayTraPhong, adults, children, { page: currentPage })
@@ -29,10 +32,27 @@ const BookingForm = () => {
                 console.error(error);
             });
     };
+    const addTTDP = async (ttdp) => {
+        try {
+            const response = await addThongTinDatPhong(ttdp); // Trả về Promise
+            console.log(response.data); // Log dữ liệu phản hồi từ API
+            return response;
+        } catch (error) {
+            console.error("Lỗi khi thêm thông tin đặt phòng:", error);
+            throw error; // Ném lỗi để xử lý sau này
+        }
+    };
+    
 
     useEffect(() => {
-        getPhongKhaDung();
-    }, [currentPage]);
+        const storedDatPhong = localStorage.getItem('datPhong');
+        if (storedDatPhong) {
+            setDatPhong(JSON.parse(storedDatPhong)); // Chuyển đổi từ chuỗi JSON sang đối tượng
+        } else {
+            console.log("Không tìm thấy dữ liệu đặt phòng trong localStorage");
+        }
+    }, []);
+
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -51,20 +71,48 @@ const BookingForm = () => {
         }
     };
 
-    const handleCreateBooking = (room) => {
-        setSelectedRooms((prevRooms) => [...prevRooms, room]); // Thêm phòng vào mảng các phòng đã chọn
-        setShowModal(true); // Hiển thị modal
-        console.log(startDate);
-        console.log(endDate);
-        console.log(children);
-        console.log(adults);
+    const handleCreateBooking = async (room) => {
+        const newTTDP = {
+            datPhong: parsedDatPhong,
+            phong: room,
+            maThongTinDatPhong: '',
+            ngayNhanPhong: startDate,
+            ngayTraPhong: endDate,
+            giaDat: room.giaPhong,
+            soNguoi: children + adults,
+            trangThai: 'Unconfirmed',
+        };
+        try {
+            const response = await addTTDP(newTTDP);
+
+            if (response.status === 200) { // Kiểm tra mã trạng thái HTTP
+                const createdTTDP = response.data; // Lấy dữ liệu từ phản hồi
+
+                console.log("TTDP created successfully:", createdTTDP);
+
+                // Sau khi nhận được phản hồi từ backend, ta cập nhật maThongTinDatPhong từ kết quả trả về
+                const updatedTTDP = {
+                    ...newTTDP, // Giữ nguyên các thông tin đã có
+                    maThongTinDatPhong: createdTTDP.maThongTinDatPhong, // Cập nhật maThongTinDatPhong từ backend
+                };
+                console.log(updatedTTDP);
+                setDatPhong(parsedDatPhong);
+                setTTDPList((prevList) => [...prevList, updatedTTDP]);
+                setSelectedRooms((prevRooms) => [...prevRooms, room]);
+                setShowModal(true); // Hiển thị modal
+                console.log("ttdp " + ttdpList.data);
+            } else {
+                console.error("Failed to create TTDP:", response);
+            }
+        } catch (error) {
+            console.error("Error while creating booking:", error);
+        }
 
     };
 
 
     const handleOpenModal = () => {
         setShowModal(true);
-        console.log(showModal)
     };
 
     const handleCloseModal = () => {
@@ -72,7 +120,6 @@ const BookingForm = () => {
     };
 
     const handleConfirmBooking = () => {
-        navigate('/form-tao', { state: { room: selectedRooms, startDate, endDate, multipleBookings } });
         setShowModal(false);
     };
 
@@ -80,6 +127,7 @@ const BookingForm = () => {
         setMultipleBookings(e.target.checked); // Set multiple bookings state based on checkbox
     };
 
+    
     return (
         <div className="booking-form-container">
             <Form onSubmit={handleSearch}>
@@ -221,12 +269,14 @@ const BookingForm = () => {
                         <XacNhanDatPhong
                             showModal={showModal}
                             handleCloseModal={handleCloseModal}
-                            handleConfirmBooking={handleConfirmBooking}
+                            handleConfirmBooking = {handleConfirmBooking}
                             selectedRooms={selectedRooms}
                             startDate={startDate}
                             endDate={endDate}
-                            children = {children}
-                            adults = {adults}
+                            children={children}
+                            adults={adults}
+                            datPhong={datPhong}
+                            ttdpList={ttdpList}
                         />
                     </div>
                 </div>

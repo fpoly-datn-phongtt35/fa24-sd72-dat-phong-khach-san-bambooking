@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import { getThongTinDatPhong } from '../../services/TTDP';
+import "./XacNhanDatPhong.scss";
 const XacNhanDatPhong = ({
     showModal,
     handleCloseModal,
@@ -6,33 +9,49 @@ const XacNhanDatPhong = ({
     startDate,
     endDate,
     children,
-    adults
+    adults,
+    datPhong,
+    ttdpList = []
 }) => {
+    const [ttdp, setTTDP] = useState([]);
+    const hienThi = (datPhong) => {
+        getThongTinDatPhong(datPhong.id)
+            .then((response) => {
+                setTTDP(response.data.content);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+    useEffect(() => {
+        if (ttdpList.length > 0) {
+            setTTDP(ttdpList);
+        }
+        console.log(ttdp);
+    }, [ttdpList]);
+
     return (
         <div className={`XNDP-modal-container ${showModal ? 'show' : ''}`}>
             <div className="XNDP-modal-content">
                 <h2>Rooms ({selectedRooms.length})</h2>
-                <p>{startDate} - {endDate}</p>
-                {selectedRooms.length > 0 ? (
-                    selectedRooms.map((room, index) => (
-                        <div key={index} className="room-card">
-                            <h5>{room.tenLoaiPhong} - {room.tenPhong}</h5>
-                            <div className="room-details">
-                                <p>Mã phòng: {room.maPhong}</p>
-                                <div className="room-persons">
-                                    <label>Adults: {adults}</label>
-                                    <label>Children: {children}</label>
-
-                                </div>
-                            </div>
+                <h2>Mã đặt phòng: {datPhong.maDatPhong} </h2>
+                {ttdp.length > 0 ? (
+                    ttdp.map((ttdp, index) => (
+                        <div key={index} className="ttdp-card">
+                            <p>Mã thông tin đặt phòng: {ttdp.maThongTinDatPhong}</p>
+                            <p>Thời gian: {ttdp.ngayNhanPhong} - {ttdp.ngayTraPhong}</p>
+                            <p>Phòng: {ttdp.phong.maPhong}</p>
+                            <p>Giá đặt: {ttdp.giaDat}</p>
+                            <p>Số người: {ttdp.soNguoi}</p>
                         </div>
                     ))
                 ) : (
-                    <p>No rooms selected</p>
+                    <p>Không có thông tin đặt phòng nào</p>
                 )}
+
                 <div className="modal-footer">
                     <button className="cancel-btn" onClick={handleCloseModal}>Cancel</button>
-                    <button className="confirm-btn" onClick={handleConfirmBooking}>Create Reservation</button>
+                    <button className="confirm-btn" onClick={handleConfirmBooking}>Create</button>
                 </div>
             </div>
         </div>

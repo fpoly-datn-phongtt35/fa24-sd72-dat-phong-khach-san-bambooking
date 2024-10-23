@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "phieu_dich_vu")
-public class PhieuDichVu {
+public class DichVuSuDung {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -44,5 +44,5 @@ public class PhieuDichVu {
     private Double thanhTien;
 
     @Column(name = "trang_thai")
-    private String trangThai;
+    private Boolean trangThai;
 }
