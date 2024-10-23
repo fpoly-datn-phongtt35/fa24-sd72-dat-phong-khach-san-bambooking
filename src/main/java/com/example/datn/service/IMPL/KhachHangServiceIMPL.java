@@ -12,11 +12,16 @@ import com.example.datn.service.KhachHangService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -25,6 +30,8 @@ public class KhachHangServiceIMPL implements KhachHangService {
     KhachHangRepository khachHangRepository;
     TaiKhoanRepository taiKhoanRepository;
     KhachHangMapper khachHangMapper;
+    @Autowired
+    JavaMailSender mailSender;
 
     @Override
     public Page<KhachHang> getAllKhachHang(Pageable pageable) {
@@ -92,4 +99,43 @@ public class KhachHangServiceIMPL implements KhachHangService {
     public Page<KhachHang> searchKhachHang(String keyword, Pageable pageable) {
         return khachHangRepository.search(keyword, pageable);
     }
+
+    @Override
+    public KhachHang findByEmail(String email) {
+        KhachHang khachHang = khachHangRepository.findByEmail(email);
+        if (khachHang == null) {
+            throw new RuntimeException("Không tìm thấy khách hàng với email: " + email);
+        }
+        return khachHang;
+    }
+
+    @Override
+    public void sendPasswordEmail(String email, String generatedPassword) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);  // Gửi tới email người dùng nhập
+        message.setSubject("Mật khẩu đăng ký của bạn");
+        message.setText("Mật khẩu của bạn là: " + generatedPassword);
+
+        try {
+            mailSender.send(message);
+            System.out.println("Email đã được gửi thành công tới: " + email);
+        } catch (Exception e) {
+            System.err.println("Lỗi khi gửi email: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public String generatePassword() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        for (int i = 0; i < 8; i++) {
+            int index = random.nextInt(characters.length());
+            password.append(characters.charAt(index));  // Thêm ký tự ngẫu nhiên vào mật khẩu
+        }
+
+        return password.toString();
+    }
+
 }

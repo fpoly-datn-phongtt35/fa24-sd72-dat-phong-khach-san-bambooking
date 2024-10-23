@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Optional;
+
 public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
     @Query("""
             SELECT kh
@@ -20,4 +22,5 @@ public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
             or kh.diaChi like %:keyword%
             """)
     Page<KhachHang> search(@Param("keyword") String keyword, Pageable pageable);
+    KhachHang findByEmail(String email);
 }

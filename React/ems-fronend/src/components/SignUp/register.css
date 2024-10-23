@@ -1,0 +1,60 @@
+/* Đảm bảo CSS chỉ áp dụng trong phạm vi của RegisterForm */
+.register-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f2f5;
+  }
+  
+  .register-container {
+    width: 400px;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+  
+  .register-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .register-container input[type="email"],
+  .register-container input[type="password"],
+  .register-container button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .register-container button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .register-container button:hover {
+    background-color: #45a049;
+  }
+  
+  .register-container .login-link {
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  .register-container .login-link a {
+    color: #4CAF50;
+    text-decoration: none;
+  }
+  
+  .register-container .login-link a:hover {
+    text-decoration: underline;
+  }
+  
