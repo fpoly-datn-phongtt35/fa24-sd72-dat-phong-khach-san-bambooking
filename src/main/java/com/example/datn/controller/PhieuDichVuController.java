@@ -1,6 +1,6 @@
 package com.example.datn.controller;
 
-import com.example.datn.dto.request.PhieuDichVuRequest;
+import com.example.datn.dto.request.DichVuSuDungRequest;
 import com.example.datn.model.DichVuSuDung;
 
 import com.example.datn.service.IMPL.DichVuServiceIMPL;
@@ -34,12 +34,12 @@ public class PhieuDichVuController {
     }
 
     @PostMapping("add")
-    public ResponseEntity<?> createDichVuDikem(@RequestBody PhieuDichVuRequest phieuDichVuRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(phieuDichVuServiceIMPL.addPhieuDichVu(phieuDichVuRequest));
+    public ResponseEntity<?> createDichVuDikem(@RequestBody DichVuSuDungRequest dichVuSuDungRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(phieuDichVuServiceIMPL.addPhieuDichVu(dichVuSuDungRequest));
     }
     @PostMapping("/update")
-    public ResponseEntity<?> update(@RequestBody PhieuDichVuRequest phieuDichVuRequest) {
-        DichVuSuDung updateDichVuSuDung = phieuDichVuServiceIMPL.updatePhieuDichVu(phieuDichVuRequest);
+    public ResponseEntity<?> update(@RequestBody DichVuSuDungRequest dichVuSuDungRequest) {
+        DichVuSuDung updateDichVuSuDung = phieuDichVuServiceIMPL.updatePhieuDichVu(dichVuSuDungRequest);
         return ResponseEntity.ok(updateDichVuSuDung);
     }
     @DeleteMapping("/delete/{id}")

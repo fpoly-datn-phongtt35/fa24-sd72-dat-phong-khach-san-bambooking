@@ -32,10 +32,10 @@ public class DichVuServiceIMPL implements DichVuService {
     public void updateStatus(Integer id) {
         DichVu dichVu = dichVuRepository.findById(id).orElse(null);
         if (dichVu != null) {
-            if (dichVu.getTrangThai().equals("Hoạt động")) {
-                dichVu.setTrangThai("Ngừng hoạt động");
+            if (dichVu.getTrangThai()) {
+                dichVu.setTrangThai(false);
             } else {
-                dichVu.setTrangThai("Hoạt động");
+                dichVu.setTrangThai(true);
             }
             dichVuRepository.save(dichVu);
         }

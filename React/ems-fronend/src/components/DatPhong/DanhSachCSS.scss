@@ -52,19 +52,22 @@
             display: inline-block;
 
             &.Confirmed {
-                background-color: #28a745;
+                background-color: #4CAF50;
             }
 
             &.Canceled {
-                background-color: #dc3545;
+                background-color: #F44336;
             }
 
-            &.Unconfirmed {
-                background-color: #ffc107;
+            &.Completed {
+                background-color: #388E3C;
             }
 
-            &.Processing {
-                background-color: #007bff;
+            &.Pending  {
+                background-color: #FFEB3B;
+            }
+            &.Paid  {
+                background-color: #2196F3;
             }
         }
     }

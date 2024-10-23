@@ -27,11 +27,10 @@ public class LoaiPhong {
     private Integer soKhachToiDa;
 
     @Column(name = "don_gia")
-    private Integer donGia;
+    private Double donGia;
 
     @Column(name = "don_gia_phu_thu")
-    private Integer donGiaPhuThu;
+    private Double donGiaPhuThu;
     @Column(name = "mo_ta")
     private String moTa;
-
 }

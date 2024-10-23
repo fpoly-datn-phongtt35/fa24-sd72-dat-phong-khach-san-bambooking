@@ -2,12 +2,6 @@ package com.example.datn.dto.request;
 
 import com.example.datn.model.DichVu;
 import com.example.datn.model.ThongTinDatPhong;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
-public class PhieuDichVuRequest {
+public class DichVuSuDungRequest {
 
     private Integer id;
     private DichVu dichVu;
@@ -29,5 +23,5 @@ public class PhieuDichVuRequest {
     private LocalDateTime ngayKetThuc;
     private Double giaSuDung;
     private Double thanhTien;
-    private String trangThai;
+    private Boolean trangThai;
 }

@@ -56,7 +56,7 @@ public class UploadFileController {
         HinhAnhRequest request = new HinhAnhRequest();
         request.setIdPhong(idPhong);
         request.setTenAnh(tenAnh);
-        request.setTrangThai(trangThai);
+        request.setTrangThai(true);
 
         try {
             HinhAnhResponse response = uploadImageFile.uploadImage(request, file);
