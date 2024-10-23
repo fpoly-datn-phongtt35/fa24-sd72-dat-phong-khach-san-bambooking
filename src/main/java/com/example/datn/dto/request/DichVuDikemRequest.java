@@ -15,5 +15,5 @@ public class DichVuDikemRequest {
     private Integer id;
     private DichVu dichVu;
     private LoaiPhong loaiPhong;
-    private String trangThai;
+    private Boolean trangThai;
 }

@@ -1,10 +1,10 @@
 package com.example.datn.controller;
 
-import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.request.TTDPRequest;
+import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.model.ThongTinDatPhong;
+import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
-import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +20,9 @@ import java.time.LocalDateTime;
 public class TTDPController {
     @Autowired
     ThongTinDatPhongServiceIMPL thongTinDatPhongServiceIMPL;
+
+    @Autowired
+    LoaiPhongServiceIMPL loaiPhongServiceIMPL;
 
     @GetMapping("all")
     public Page<ThongTinDatPhong> all(Pageable pageable){
@@ -40,4 +43,11 @@ public class TTDPController {
         }
     }
 
+    @GetMapping("loai-phong-kha-dung")
+    public ResponseEntity<?> PhongKhaDung(@RequestParam(required = false) LocalDateTime ngayNhanPhong,
+                                          @RequestParam(required = false) LocalDateTime ngayTraPhong,
+                                          Pageable pageable){
+        Page<LoaiPhongResponse> p = loaiPhongServiceIMPL.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,pageable);
+        return ResponseEntity.ok(p);
+    }
 }

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface DichVuRepository extends JpaRepository<DichVu,Integer> {
-    @Query("SELECT dv FROM DichVu dv WHERE dv.trangThai = 'Hoạt động' AND dv.tenDichVu LIKE %:tenDichVu%")
+    @Query("SELECT dv FROM DichVu dv WHERE dv.trangThai = TRUE AND dv.tenDichVu LIKE %:tenDichVu%")
     List<DichVu> findByTenDichVu(@Param("tenDichVu") String tenDichVu);
 
 }

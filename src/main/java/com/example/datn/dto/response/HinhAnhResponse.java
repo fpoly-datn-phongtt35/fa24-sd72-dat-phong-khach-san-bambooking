@@ -13,5 +13,5 @@ public class HinhAnhResponse {
     private String tenPhong;
     private String tenAnh;
     private String duongDan;
-    private String trangThai;
+    private Boolean trangThai;
 }

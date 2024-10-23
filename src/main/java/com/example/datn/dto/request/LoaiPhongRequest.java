@@ -1,5 +1,6 @@
 package com.example.datn.dto.request;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,15 +12,15 @@ import lombok.Setter;
 @Setter
 public class LoaiPhongRequest {
     private Integer id;
+
     private String tenLoaiPhong;
 
     private Integer dienTich;
 
-    private Integer sucChuaLon;
+    private Integer soKhachToiDa;
 
-    private Integer sucChuaNho;
+    private Double donGia;
 
+    private Double donGiaPhuThu;
     private String moTa;
-
-    private String trangThai;
 }

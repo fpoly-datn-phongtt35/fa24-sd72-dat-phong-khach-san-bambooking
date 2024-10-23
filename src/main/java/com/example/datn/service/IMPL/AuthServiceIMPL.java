@@ -2,7 +2,9 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.ThongTinNhanVienRequest;
 import com.example.datn.model.TaiKhoan;
+import com.example.datn.model.ThongTinNhanVien;
 import com.example.datn.repository.TaiKhoanRepository;
+import com.example.datn.repository.ThongTinNhanVienRepository;
 import com.example.datn.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

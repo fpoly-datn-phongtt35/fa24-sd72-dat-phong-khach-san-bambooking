@@ -1,6 +1,7 @@
 package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.TTDPRequest;
+import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.service.ThongTinDatPhongService;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,8 +26,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ThongTinDatPhong ttdp = new ThongTinDatPhong();
         UniqueDatPhongCode code = new UniqueDatPhongCode();
         ttdp.setDatPhong(request.getDatPhong());
-        ttdp.setPhong(request.getPhong());
+        ttdp.setLoaiPhong(request.getLoaiPhong());
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
+        ttdp.setSoLuongPhong(request.getSoLuongPhong());
         ttdp.setGiaDat(request.getGiaDat());
         ttdp.setNgayNhanPhong(request.getNgayNhanPhong());
         ttdp.setNgayTraPhong(request.getNgayTraPhong());
@@ -43,4 +46,10 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     public Page<ThongTinDatPhong> getByIDDP(Integer iddp, Pageable pageable) {
         return thongTinDatPhongRepository.findByDatPhongId(iddp,pageable);
     }
+
+    @Override
+    public ThongTinDatPhong update(TTDPRequest request) {
+        return null;
+    }
+
 }

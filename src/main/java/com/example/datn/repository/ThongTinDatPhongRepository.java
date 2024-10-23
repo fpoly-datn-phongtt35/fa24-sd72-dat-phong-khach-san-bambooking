@@ -12,5 +12,8 @@ import org.springframework.stereotype.Repository;
 public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPhong, Integer> {
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp")
     Page<ThongTinDatPhong> findByDatPhongId(@Param("iddp") Integer iddp, Pageable pageable);
+
+
+
 }
 
