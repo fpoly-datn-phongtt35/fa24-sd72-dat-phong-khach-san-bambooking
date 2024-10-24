@@ -32,16 +32,6 @@ const RegisterForm = () => {
     }
   };
 
-  // Xử lý đăng nhập
-  // const handlePasswordSubmit = (e) => {
-  //   e.preventDefault();
-  //   if (password === '123456') {
-  //     alert('Đăng nhập thành công!');
-  //   } else {
-  //     alert('Mật khẩu không chính xác!');
-  //   }
-  // };
-
   return (
     <div className="register-wrapper">
       <div className="register-container">
@@ -61,7 +51,7 @@ const RegisterForm = () => {
             <button type="submit">Tiếp theo</button>
           </form>
         ) : (
-          <form onSubmit={handlePasswordSubmit}>
+          <form>
             <input
               type="password"
               placeholder="Nhập mật khẩu"

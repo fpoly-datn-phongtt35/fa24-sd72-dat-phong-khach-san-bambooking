@@ -1,6 +1,5 @@
 package com.example.datn.repository;
 
-import com.example.datn.model.NhanVien;
 import com.example.datn.model.TaiKhoan;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +16,6 @@ public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, Integer> {
                 select t
                 from TaiKhoan t
                 where t.tenDangNhap like %:keyword%
-                or t.trangThai like %:keyword%
                 """)
     Page<TaiKhoan> searchByName(@Param("keyword") String keyword, Pageable pageable);
     Optional<TaiKhoan> findByTenDangNhap(String tenDangNhap);

@@ -13,8 +13,7 @@ import java.util.Optional;
 @Service
 public class AuthServiceIMPL implements AuthService {
     @Autowired
-    private TaiKhoanRepository taiKhoanRepository;
-
+    TaiKhoanRepository taiKhoanRepository;
     @Autowired
     private ThongTinNhanVienRepository thongTinNhanVienRepository;
 

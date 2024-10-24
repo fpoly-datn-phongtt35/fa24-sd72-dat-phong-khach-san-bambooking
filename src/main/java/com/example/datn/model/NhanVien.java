@@ -56,5 +56,5 @@ public class NhanVien {
     private LocalDate ngaySua;
 
     @Column(name = "trang_thai")
-    private String trangThai;
+    private boolean trangThai;
 }

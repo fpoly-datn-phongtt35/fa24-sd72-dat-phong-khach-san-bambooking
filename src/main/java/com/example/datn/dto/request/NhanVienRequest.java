@@ -20,6 +20,6 @@ public class NhanVienRequest {
     private String email;
     private LocalDate ngayTao;
     private LocalDate ngaySua;
-    private String trangThai;
+    private boolean trangThai;
     private VaiTro vaiTro;
 }

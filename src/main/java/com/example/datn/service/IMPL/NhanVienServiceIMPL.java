@@ -85,7 +85,7 @@ public class NhanVienServiceIMPL implements NhanVienService{
         taiKhoan.setTenDangNhap(request.getEmail());
         String generatedPassword = PasswordGenerator.generateRandomPassword();
         taiKhoan.setMatKhau(generatedPassword);
-        taiKhoan.setTrangThai("active");
+        taiKhoan.setTrangThai(true);
 
         TaiKhoan saveTaiKhoan = taiKhoanRepository.save(taiKhoan);
 
@@ -106,9 +106,10 @@ public class NhanVienServiceIMPL implements NhanVienService{
         nhanVien.setEmail(request.getEmail());
         nhanVien.setNgayTao(LocalDate.now());
         nhanVien.setNgaySua(LocalDate.now());
-        nhanVien.setTrangThai(request.getTrangThai());
+        nhanVien.setTrangThai(request.isTrangThai());
 
         return nhanVienRepository.save(nhanVien);
     }
+
 
 }

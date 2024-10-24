@@ -24,6 +24,6 @@ public class TaiKhoan {
     private String matKhau;
 
     @Column(name = "trang_thai")
-    private String trangThai;
+    private boolean trangThai;
 
 }

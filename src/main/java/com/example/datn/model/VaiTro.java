@@ -21,5 +21,5 @@ public class VaiTro {
     private String tenVaiTro;
 
     @Column(name = "trang_thai")
-    private String trangThai;
+    private boolean trangThai;
 }

@@ -31,19 +31,6 @@ public class NhanVienController {
         return nhanVienRepository.findAll();
     }
 
-
-//    @PostMapping("/nhan-vien")
-//    public ResponseEntity<String> addNhanVien(@RequestBody NhanVien nhanVien) {
-//        // Kiểm tra nếu số điện thoại đã tồn tại
-//        Optional<NhanVien> existingNhanVien = nhanVienService.findBySdt(nhanVien.getSdt());
-//        if (existingNhanVien.isPresent()) {
-//            return ResponseEntity.status(HttpStatus.CONFLICT).body("Số điện thoại đã tồn tại.");
-//        }
-//        // Thêm nhân viên mới
-//        nhanVienService.create(nhanVien);
-//        return ResponseEntity.ok("Thêm nhân viên thành công");
-//    }
-
     @PostMapping("/nhan-vien")
     public ResponseEntity<String> addNhanVien(@RequestBody NhanVienRequest nhanVienRequest) {
         // Kiểm tra nếu số điện thoại đã tồn tại

@@ -45,7 +45,7 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
         String generatedPassword = PasswordGenerator.generateRandomPassword();
         taiKhoan.setMatKhau(generatedPassword);
-        taiKhoan.setTrangThai("active");
+        taiKhoan.setTrangThai(true);
         TaiKhoan saveTaiKhoan = taiKhoanRepository.save(taiKhoan);
 
         KhachHang khachHang = khachHangMapper.toKhachHang(request);
