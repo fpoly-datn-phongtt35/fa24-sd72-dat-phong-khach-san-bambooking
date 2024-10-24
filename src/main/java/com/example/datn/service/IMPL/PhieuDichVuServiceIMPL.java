@@ -1,8 +1,7 @@
 package com.example.datn.service.IMPL;
 
-import com.example.datn.dto.request.PhieuDichVuRequest;
-import com.example.datn.model.DichVuDiKem;
-import com.example.datn.model.PhieuDichVu;
+import com.example.datn.dto.request.DichVuSuDungRequest;
+import com.example.datn.model.DichVuSuDung;
 import com.example.datn.repository.PhieuDichVuRepository;
 import com.example.datn.service.PhieuDichVuService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,47 +15,47 @@ public class PhieuDichVuServiceIMPL implements PhieuDichVuService {
     @Autowired
     PhieuDichVuRepository phieuDichVuRepository;
     @Override
-    public List<PhieuDichVu> getAll() {
+    public List<DichVuSuDung> getAll() {
         return phieuDichVuRepository.findAll();
     }
 
     @Override
-    public PhieuDichVu addPhieuDichVu(PhieuDichVuRequest phieuDichVuRequest) {
-        PhieuDichVu phieuDichVu = new PhieuDichVu();
-        phieuDichVu.setDichVu(phieuDichVuRequest.getDichVu());
-        phieuDichVu.setThongTinDatPhong(phieuDichVuRequest.getThongTinDatPhong());
-        phieuDichVu.setSoLuongSuDung(phieuDichVuRequest.getSoLuongSuDung());
+    public DichVuSuDung addPhieuDichVu(DichVuSuDungRequest dichVuSuDungRequest) {
+        DichVuSuDung dichVuSuDung = new DichVuSuDung();
+        dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
+        dichVuSuDung.setThongTinDatPhong(dichVuSuDungRequest.getThongTinDatPhong());
+        dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
         // Ngày bắt đầu và kết thúc tự động
-        phieuDichVu.setNgayBatDau(LocalDateTime.now());
-        phieuDichVu.setNgayKetThuc(LocalDateTime.now().plusDays(1)); // Ví dụ cộng 1 ngày
-        phieuDichVu.setGiaSuDung(phieuDichVuRequest.getGiaSuDung());
-        phieuDichVu.setThanhTien(phieuDichVuRequest.getThanhTien());
-        phieuDichVu.setTrangThai(phieuDichVuRequest.getTrangThai());
-        return phieuDichVuRepository.save(phieuDichVu);
+        dichVuSuDung.setNgayBatDau(LocalDateTime.now());
+        dichVuSuDung.setNgayKetThuc(LocalDateTime.now().plusDays(1)); // Ví dụ cộng 1 ngày
+        dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
+        dichVuSuDung.setThanhTien(dichVuSuDungRequest.getThanhTien());
+        dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
+        return phieuDichVuRepository.save(dichVuSuDung);
     }
 
 
     @Override
-    public PhieuDichVu detailPhieuDichVu(Integer id) {
+    public DichVuSuDung detailPhieuDichVu(Integer id) {
         return phieuDichVuRepository.findById(id).get();
     }
 
     @Override
-    public PhieuDichVu updatePhieuDichVu(PhieuDichVuRequest phieuDichVuRequest) {
+    public DichVuSuDung updatePhieuDichVu(DichVuSuDungRequest dichVuSuDungRequest) {
         // Tìm dịch vụ đi kèm bằng ID
-        PhieuDichVu phieuDichVu = phieuDichVuRepository.findById(phieuDichVuRequest.getId()).orElse(null);
+        DichVuSuDung dichVuSuDung = phieuDichVuRepository.findById(dichVuSuDungRequest.getId()).orElse(null);
 
-        if (phieuDichVu != null) {
-            phieuDichVu.setDichVu(phieuDichVuRequest.getDichVu());
-            phieuDichVu.setThongTinDatPhong(phieuDichVuRequest.getThongTinDatPhong());
-            phieuDichVu.setSoLuongSuDung(phieuDichVuRequest.getSoLuongSuDung());
+        if (dichVuSuDung != null) {
+            dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
+            dichVuSuDung.setThongTinDatPhong(dichVuSuDungRequest.getThongTinDatPhong());
+            dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
             // Thiết lập ngày kết thúc từ yêu cầu
-            phieuDichVu.setNgayKetThuc(phieuDichVuRequest.getNgayKetThuc());
-            phieuDichVu.setGiaSuDung(phieuDichVuRequest.getGiaSuDung());
-            phieuDichVu.setThanhTien(phieuDichVuRequest.getThanhTien());
-            phieuDichVu.setTrangThai(phieuDichVuRequest.getTrangThai());
+            dichVuSuDung.setNgayKetThuc(dichVuSuDungRequest.getNgayKetThuc());
+            dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
+            dichVuSuDung.setThanhTien(dichVuSuDungRequest.getThanhTien());
+            dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
 
-            return phieuDichVuRepository.save(phieuDichVu);
+            return phieuDichVuRepository.save(dichVuSuDung);
         }
 
         return null;
@@ -70,14 +69,14 @@ public class PhieuDichVuServiceIMPL implements PhieuDichVuService {
 
     @Override
     public void updateStatus(Integer id) {
-        PhieuDichVu phieuDichVu = phieuDichVuRepository.findById(id).orElse(null);
-        if (phieuDichVu != null) {
-            if (phieuDichVu.getTrangThai().equals("Hoạt động")) {
-                phieuDichVu.setTrangThai("Ngừng hoạt động");
+        DichVuSuDung dichVuSuDung = phieuDichVuRepository.findById(id).orElse(null);
+        if (dichVuSuDung != null) {
+            if (dichVuSuDung.getTrangThai()) {
+                dichVuSuDung.setTrangThai(false);
             } else {
-                phieuDichVu.setTrangThai("Hoạt động");
+                dichVuSuDung.setTrangThai(true);
             }
-            phieuDichVuRepository.save(phieuDichVu);
+            phieuDichVuRepository.save(dichVuSuDung);
         }
     }
 }

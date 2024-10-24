@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { DatPhongDetail, CapNhatDatPhong } from '../../services/DatPhong'; // Import hàm cập nhật
-import './DetailDatPhong.css';
+import './DetailDatPhong.scss';
 
 const ChiTietDatPhong = ({ bookingId, handleClose, show }) => {
     const [datPhong, setDatPhong] = useState(null); // Dữ liệu chi tiết đặt phòng

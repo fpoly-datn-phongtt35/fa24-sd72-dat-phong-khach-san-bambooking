@@ -46,15 +46,12 @@ public class NhanVien {
 
     @Column(name = "email")
     private String email;
-
-    // Thay đổi kiểu dữ liệu từ String sang LocalDate
     @Column(name = "ngay_tao")
     private LocalDate ngayTao;
 
-    // Thay đổi kiểu dữ liệu từ String sang LocalDate
     @Column(name = "ngay_sua")
     private LocalDate ngaySua;
 
     @Column(name = "trang_thai")
-    private String trangThai;
+    private Boolean trangThai;
 }

@@ -30,5 +30,5 @@ public class DichVu {
     private String hinhAnh;
 
     @Column(name = "trang_thai")
-    private String trangThai;
+    private Boolean trangThai;
 }

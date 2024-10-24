@@ -34,5 +34,5 @@ public class PhongRequest {
     String tinhTrang;
 
     @NotBlank(message = "Vui lòng chọn trạng thái!")
-    String trangThai;
+    Boolean trangThai;
 }

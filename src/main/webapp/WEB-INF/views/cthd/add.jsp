@@ -16,7 +16,7 @@
 <form action="/chi-tiet-hoa-don/add" method="post">
     <div class="mb-3">
         <label>Id phiếu dịch vụ</label>
-        <select class="form-select" aria-label="Default select example" name="phieuDichVu">
+        <select class="form-select" aria-label="Default select example" name="dichVuSuDung">
             <c:forEach items="${listPhieuDichVu}" var="pdv">
                 <option value="${pdv.id}">${pdv.id}</option>
             </c:forEach>

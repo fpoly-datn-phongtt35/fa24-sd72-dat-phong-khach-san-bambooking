@@ -20,6 +20,7 @@ import { useState, useEffect } from 'react';
 import ListKhachHang from './components/KhachHang/ListKhachHang';
 import KhachHangComponent from './components/KhachHang/KhachHangComponent';
 import ListNhanVien from "./components/nhanvien/ListNhanVien.jsx";
+import ThongTinDatPhong from './components/DatPhong/ThongTinDatPhong';
 import ViewPhong from './components/TrangChu/ViewPhong';
 import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
 import FormAddPage from './components/DatPhong/FormAddPage';
@@ -28,8 +29,10 @@ import LoaiPhong from './components/LoaiPhong/LoaiPhong';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
+    console.log('Initial isAuthenticated value:', auth);
     return auth === 'true'; // Khởi tạo từ localStorage
   });
+
 
   // Hàm xử lý khi đăng nhập thành công
   const handleLoginSuccess = () => {
@@ -37,6 +40,7 @@ function App() {
     setIsAuthenticated(true);
   };
 
+  // Hàm xử lý đăng xuất
   // Hàm xử lý đăng xuất
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated'); // Xóa thông tin đăng nhập
@@ -46,11 +50,13 @@ function App() {
 
   // Xóa mọi dữ liệu xác thực cũ khi trạng thái thay đổi
   useEffect(() => {
+    console.log('isAuthenticated:', isAuthenticated);
     if (!isAuthenticated) {
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('user');
     }
   }, [isAuthenticated]);
+
 
   // Component bảo vệ route
   const RequireAuth = ({ children }) => {
@@ -59,7 +65,6 @@ function App() {
     }
     return children;
   };
-
   // Lấy đường dẫn hiện tại
   const location = useLocation();
   const isLoginPage = location.pathname === '/login';
@@ -82,6 +87,14 @@ function App() {
             {/* Route công khai */}
             <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
             {/* Các route được bảo vệ */}
+            <Route
+              path="/thong-tin-dat-phong"
+              element={
+                <RequireAuth>
+                  <ThongTinDatPhong />
+                </RequireAuth>
+              }
+            />
             <Route
               path="/LoaiPhong"
               element={
@@ -287,5 +300,4 @@ function App() {
     </div>
   );
 }
-
-export default App;
+export default App; 

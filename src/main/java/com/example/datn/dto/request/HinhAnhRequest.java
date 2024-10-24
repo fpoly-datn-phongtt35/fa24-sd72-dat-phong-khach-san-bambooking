@@ -15,5 +15,5 @@ public class HinhAnhRequest {
     @NotBlank(message = "Đường dẫn không được trống!")
     private String duongDan;
     @NotBlank(message = "Trạng thái không được để trống!")
-    private String trangThai;
+    private Boolean trangThai;
 }

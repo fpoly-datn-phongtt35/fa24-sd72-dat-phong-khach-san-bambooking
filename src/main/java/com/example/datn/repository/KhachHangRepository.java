@@ -15,7 +15,7 @@ public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
             or  kh.ten like %:keyword%
             or kh.sdt like %:keyword%
             or kh.email like %:keyword%
-            or kh.trangThai like %:keyword%
+            or kh.trangThai = TRUE
             or kh.gioiTinh like %:keyword%
             or kh.diaChi like %:keyword%
             """)

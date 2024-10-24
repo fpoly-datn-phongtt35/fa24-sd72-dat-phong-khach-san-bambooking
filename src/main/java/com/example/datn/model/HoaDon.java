@@ -21,9 +21,6 @@ public class HoaDon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
-
-
     @ManyToOne
     @JoinColumn(name = "id_nhan_vien")
     private NhanVien nhanVien;
@@ -38,11 +35,8 @@ public class HoaDon {
     @Column(name = "tong_tien")
     private Double tongTien;
 
-    @Column(name = "phuong_thuc_thanh_toan")
-    private String phuongThucThanhToan;
-
-    @Column(name = "ngay_thanh_toan")
-    private LocalDate ngayThanhToan;
+    @Column(name = "ngay_tao")
+    private LocalDate ngayTao;
 
     @Column(name = "trang_thai")
     private String trangThai;

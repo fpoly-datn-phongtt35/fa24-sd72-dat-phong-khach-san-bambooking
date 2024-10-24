@@ -17,6 +17,7 @@ const ListImage = () => {
         console.log(response.data.content);
         setImages(response.data.content);
         setTotalPages(response.data.totalPages);
+        
       })
       .catch((error) => {
         console.log("Lỗi : " + error);
@@ -97,7 +98,7 @@ const ListImage = () => {
               {images.length > 0 ? (
                 images.map(image => (
                   <tr key={image.id}>
-                    <td>{image.id}</td>
+                    <td>{image.id}</td> 
                     <td>{image.phong?.tenPhong}</td>
                     <td>{image.tenAnh}</td>
                     <td>

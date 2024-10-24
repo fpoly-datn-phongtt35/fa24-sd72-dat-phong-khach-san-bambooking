@@ -2,6 +2,7 @@
 go
 use DATN_v2_2
 go
+
 CREATE TABLE vai_tro (
   id INT IDENTITY(1,1) PRIMARY KEY,
   ten_vai_tro NVARCHAR (255),
@@ -103,13 +104,11 @@ CREATE TABLE hinh_anh (
 
 CREATE TABLE dat_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
-  id_nhan_vien INT,
   id_khach_hang INT,
   ma_dat_phong VARCHAR(255) UNIQUE,
   ngay_dat DATETIME,
   ghi_chu NVARCHAR(255),
   trang_thai NVARCHAR(255),
-  FOREIGN KEY (id_nhan_vien) REFERENCES nhan_vien(id),
   FOREIGN KEY (id_khach_hang) REFERENCES khach_hang(id)
 );
 
@@ -205,8 +204,8 @@ VALUES
 
 INSERT INTO loai_phong (ten_loai_phong, dien_tich, suc_chua_lon, suc_chua_nho, mo_ta, trang_thai)
 VALUES 
-(N'Phòng Deluxe', 50, 4, 2, N'Phòng sang trọng với đầy đủ tiện nghi', 'available'),
-(N'Phòng Suite', 70, 6, 3, N'Phòng cao cấp với view đẹp', 'available');
+(N'Phòng đơn', 30, 2, 0, N'Phòng sang trọng với đầy đủ tiện nghi', 'available'),
+(N'Phòng đôi', 50, 3, 1, N'Phòng cao cấp với view đẹp', 'available');
 
 INSERT INTO tien_ich_phong (id_loai_phong, id_tien_ich)
 VALUES 
@@ -230,17 +229,17 @@ VALUES
 (1, N'Phòng Deluxe 1 - Hình 1', 'deluxe1_1.jpg', 'active'),
 (2, N'Phòng Suite 1 - Hình 1', 'suite1_1.jpg', 'active');
 
-INSERT INTO dat_phong (id_nhan_vien, id_khach_hang, ma_dat_phong, ngay_dat, ghi_chu, trang_thai)
+INSERT INTO dat_phong (id_khach_hang, ma_dat_phong, ngay_dat, ghi_chu, trang_thai)
 VALUES 
-(1, 1, 'DP001', GETDATE(), N'Đặt phòng nhanh', 'confirmed'),
-(1, 1, 'DP002', GETDATE(), N'Đặt phòng nhanh', 'confirmed'),
-(2, 1, 'DP003', GETDATE(), N'Đặt phòng nhanh', 'canceled'),
-(2, 1, 'DP004', GETDATE(), N'Đặt phòng nhanh', 'canceled'),
-(1, 1, 'DP005', GETDATE(), N'Đặt phòng nhanh', 'confirmed'),
-(1, 1, 'DP006', GETDATE(), N'Đặt phòng nhanh', 'placing'),
-(2, 1, 'DP007', GETDATE(), N'Đặt phòng nhanh', 'unconfirmed'),
-(2, 1, 'DP008', GETDATE(), N'Đặt phòng nhanh', 'unconfirmed'),
-(2, 1, 'DP009', GETDATE(), N'Đặt phòng nhanh', 'confirmed');
+( 1, 'DP001', GETDATE(), N'Đặt phòng nhanh', 'confirmed'),
+( 1, 'DP002', GETDATE(), N'Đặt phòng nhanh', 'confirmed'),
+(  1, 'DP003', GETDATE(), N'Đặt phòng nhanh', 'canceled'),
+(  1, 'DP004', GETDATE(), N'Đặt phòng nhanh', 'canceled'),
+(  1, 'DP005', GETDATE(), N'Đặt phòng nhanh', 'confirmed'),
+(  1, 'DP006', GETDATE(), N'Đặt phòng nhanh', 'placing'),
+(  1, 'DP007', GETDATE(), N'Đặt phòng nhanh', 'unconfirmed'),
+( 1, 'DP008', GETDATE(), N'Đặt phòng nhanh', 'unconfirmed'),
+(  1, 'DP009', GETDATE(), N'Đặt phòng nhanh', 'confirmed');
 
 INSERT INTO thong_tin_dat_phong (id_dat_phong, id_phong, ngay_nhan_phong, ngay_tra_phong, gia_dat, so_nguoi, trang_thai)
 VALUES 
