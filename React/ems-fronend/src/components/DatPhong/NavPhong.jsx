@@ -25,7 +25,6 @@ const NavPhong = () => {
 
     const itemsPerPage = 5;
 
-    // Gọi API lấy danh sách khách hàng
     const getAllKhachHang = () => {
         listKhachHang({ page: currentPage, size: itemsPerPage }, searchQuery)
             .then((response) => {
@@ -113,46 +112,7 @@ const NavPhong = () => {
 
     return (
         <div className="vertical-bar">
-            <div className="customer-section">
-                {/* Hiển thị danh sách khách hàng trong thẻ select */}
-                <select className="select-customer" value={selectedKhachHang?.id || ''} onChange={handleSelectChange}>
-                    <option value="">Chọn khách hàng</option>
-                    {khachHangList.map((khachHang) => (
-                        <option key={khachHang.id} value={khachHang.id}>
-                            {khachHang.ten} {/* Hiển thị tên khách hàng */}
-                        </option>
-                    ))}
-                </select>
-
-                <button className="btn-add" onClick={handleOpenModal}>
-                    Thêm mới
-                </button>
-                <br />
-                <label htmlFor="khachHang" className="customer-label">
-                    <span>Tên khách hàng:</span> 
-                    <br/>
-                    {/* Hiển thị tên khách hàng đã chọn hoặc thông báo nếu chưa chọn */}
-                    <span>{selectedKhachHang ? selectedKhachHang.ten : 'Chưa chọn'}</span> 
-                </label>
-                <label htmlFor="datPhong" className="customer-label">
-                    <span>Mã đặt phòng:</span> 
-                    <br/>
-                    {/* Hiển thị mã đặt phòng vừa tạo hoặc "Trống" */}
-                    <span>{datPhongSelected ? datPhongSelected.maDatPhong : 'Trống'}</span> 
-                </label>
-            </div>
-
-            <button className="btn-add" onClick={handleTaoDatPhong}>
-                Tạo đặt phòng
-            </button>
-
             <div className="filter-section">
-                <h5 className="filter-title">Loại phòng</h5>
-                <label className="filter-label">
-                    <span>Loại phòng:</span>
-                    <input type="checkbox" value="Confirmed" />
-                </label>
-
                 <h5 className="filter-title">Tiện ích</h5>
                 <label className="filter-label">
                     <span>Tiện ích:</span>

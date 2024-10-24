@@ -1,5 +1,6 @@
 package com.example.datn.service.IMPL;
 import com.example.datn.dto.request.LoaiPhongRequest;
+import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.repository.LoaiPhongRepository;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +82,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     @Override
-    public Page<LoaiPhongResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable) {
+    public Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable) {
         return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,pageable);
     }
 

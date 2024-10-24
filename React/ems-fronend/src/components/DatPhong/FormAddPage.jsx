@@ -9,7 +9,6 @@ const FormAddPage = () => {
                 <NavPhong />
             </div>
             <div className="empty-space">
-                {/* Phần còn lại của màn hình, có thể để trống hoặc hiển thị nội dung khác */}
                 <BookingForm />
             </div>
         </div>

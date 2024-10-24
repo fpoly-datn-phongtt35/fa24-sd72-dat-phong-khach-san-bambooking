@@ -18,11 +18,11 @@ public class XepPhong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @JoinColumn(name = "phong")
+    @JoinColumn(name = "id_phong")
     @ManyToOne
     private Phong phong;
 
-    @JoinColumn(name = "thong_tin_dat_phong")
+    @JoinColumn(name = "id_thong_tin_dat_phong")
     @ManyToOne
     private ThongTinDatPhong thongTinDatPhong;
     @Column(name = "ngay_nhan_phong")
