@@ -6,29 +6,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-@Table(name = "dich_vu")
-public class DichVu {
+@Table(name = "tra_phong")
+public class TraPhong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(name = "ten_dich_vu")
-    private String tenDichVu;
-
-    @Column(name = "don_gia")
-    private Double donGia;
-
-    @Column(name = "mo_ta")
-    private String moTa;
-
-    @Column(name = "hinh_anh")
-    private String hinhAnh;
-
+    @JoinColumn(name = "thong_tin_dat_phong")
+    @ManyToOne
+    private ThongTinDatPhong thongTinDatPhong;
+    @Column(name = "ngay_tra_phong_thuc_te")
+    private LocalDateTime ngayTraPhongThucTe;
     @Column(name = "trang_thai")
     private Boolean trangThai;
 }

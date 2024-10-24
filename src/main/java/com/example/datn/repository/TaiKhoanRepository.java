@@ -17,7 +17,7 @@ public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, Integer> {
                 select t
                 from TaiKhoan t
                 where t.tenDangNhap like %:keyword%
-                or t.trangThai like %:keyword%
+                and t.trangThai = TRUE
                 """)
     Page<TaiKhoan> searchByName(@Param("keyword") String keyword, Pageable pageable);
     Optional<TaiKhoan> findByTenDangNhap(String tenDangNhap);

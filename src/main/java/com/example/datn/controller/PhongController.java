@@ -55,13 +55,4 @@ public class PhongController {
     public ResponseEntity<?> searchPhong(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(phongService.searchPhong(keyword, pageable));
     }
-
-    // Thêm phương thức tìm phòng theo ID
-    @GetMapping("/detail/{id}")
-    public ResponseEntity<Phong> getPhongById(@PathVariable("id") Integer id) {
-        Phong phong = phongService.getPhongById(id);
-        return ResponseEntity.ok(phong);
-    }
-
-
 }

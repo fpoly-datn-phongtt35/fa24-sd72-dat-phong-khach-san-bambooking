@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,12 +23,6 @@ import java.util.List;
 public class DatPhongServiceIMPL implements DatPhongService {
     @Autowired
     DatPhongRepository datPhongRepository;
-
-    @Autowired
-    KhachHangRepository khachHangRepository;
-
-    @Autowired
-    NhanVienRepository nhanVienRepository;
 
     @Override
     public Page<DatPhongResponse> getByTrangThai(String tt, Pageable pageable) {
@@ -45,10 +41,11 @@ public class DatPhongServiceIMPL implements DatPhongService {
         String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
         datPhong.setMaDatPhong(codeDP);
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
-        datPhong.setNgayDat(LocalDateTime.now());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
-        datPhong.setKhachHang(datPhongRequest.getKhachHang());
-        datPhong.setTrangThai("Processing");
+        datPhong.setTongTien(0.0);
+        datPhong.setDatCoc(0.0);
+        datPhong.setNgayDat(LocalDate.now());
+        datPhong.setTrangThai("Pending");
         return datPhongRepository.save(datPhong);
     }
 
@@ -73,34 +70,17 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
 
     @Override
-    public DatPhong updateDatPhong(Integer id, DatPhongRequest datPhongRequest) {
+    public DatPhong updateDatPhong(DatPhongRequest datPhongRequest) {
         DatPhong datPhong = new DatPhong();
         datPhong.setId(datPhongRequest.getId());
         datPhong.setMaDatPhong(datPhongRequest.getMaDatPhong());
+        datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
+        datPhong.setTongTien(datPhongRequest.getTongTien());
+        datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(datPhongRequest.getNgayDat());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         return datPhongRepository.save(datPhong);
-    }
-
-
-
-    @Override
-    public Boolean update(DatPhong datPhong) {
-        if(datPhong!=null){
-            datPhongRepository.save(datPhong);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public Boolean delete(Integer id) {
-        if(id!=null){
-            datPhongRepository.deleteById(id);
-            return true;
-        }
-        return false;
     }
 }

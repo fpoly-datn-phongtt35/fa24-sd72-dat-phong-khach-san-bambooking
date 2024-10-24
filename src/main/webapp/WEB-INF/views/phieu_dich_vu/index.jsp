@@ -64,13 +64,13 @@
             </div>
             <div class="modal-body">
                 <form action="/phieu-dich-vu/update" method="post">
-                    <input type="hidden" id="id" name="id" value="${phieuDichVu.id}">
+                    <input type="hidden" id="id" name="id" value="${dichVuSuDung.id}">
                     <div class="mb-3">
                         <label>Tên dịch vụ</label>
                         <select name="dichVu">
                             <c:forEach items="${listDichVu}" var="dv">
                                 <option value="${dv.id}"
-                                        <c:if test="${phieuDichVu.dichVu.id == dv.id}">
+                                        <c:if test="${dichVuSuDung.dichVu.id == dv.id}">
                                             selected
                                         </c:if>
                                 >${dv.tenDichVu}</option>
@@ -81,12 +81,12 @@
                     <div class="mb-3">
                         <label class="form-label">Số lượng sử dụng</label>
                         <input type="number" class="form-control" id="soLuongSuDung" name="soLuongSuDung"
-                               value="${phieuDichVu.soLuongSuDung}">
+                               value="${dichVuSuDung.soLuongSuDung}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Thành tiền</label>
                         <input type="number" class="form-control" id="thanhTien" name="thanhTien"
-                               value="${phieuDichVu.thanhTien}">
+                               value="${dichVuSuDung.thanhTien}">
                     </div>
                     <button type="submit" class="btn btn-primary">Cập nhật</button>
                 </form>
@@ -99,7 +99,7 @@
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        var hasDetails = ${not empty phieuDichVu};
+        var hasDetails = ${not empty dichVuSuDung};
         if (hasDetails) {
             var modal = new bootstrap.Modal(document.getElementById('detailModal'), {});
             modal.show();

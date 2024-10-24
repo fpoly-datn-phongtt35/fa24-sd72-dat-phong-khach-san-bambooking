@@ -23,5 +23,5 @@ public class KhachHangRequest {
     @NotBlank(message = "Email không được để trống")
     private String email;
 
-    private String trangThai;
+    private Boolean trangThai;
 }

@@ -10,6 +10,6 @@ import java.util.List;
 
 @Repository
 public interface DichVuDiKemRepository extends JpaRepository<DichVuDiKem,Integer> {
-    @Query("SELECT dvdk FROM DichVuDiKem dvdk JOIN dvdk.loaiPhong lp WHERE lp.trangThai = :trangThai")
-    List<DichVuDiKem> findAllByLoaiPhongTrangThai(@Param("trangThai") String trangThai);
+//    @Query("SELECT dvdk FROM DichVuDiKem dvdk JOIN dvdk.loaiPhong lp WHERE lp.trangThai = :trangThai")
+//    List<DichVuDiKem> findAllByLoaiPhongTrangThai(@Param("trangThai") String trangThai);
 }
