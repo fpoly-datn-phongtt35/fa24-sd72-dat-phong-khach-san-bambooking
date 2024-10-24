@@ -15,15 +15,10 @@ public interface DatPhongService {
     Page<DatPhongResponse> getByTrangThai(String tt, Pageable pageable);
     List<DatPhong> getAll();
     DatPhong addDatPhong(DatPhongRequest datPhongRequest);
-
     DatPhongResponse detailDatPhong(Integer id);
-
-
     Page<DatPhongResponse> LocTheoTrangThai(List<String> trangThai,Pageable pageable);
     Page<DatPhongResponse> searchDatPhong(@Param("keyword") String keyword,@Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,Pageable pageable);
-    DatPhong updateDatPhong(Integer id,DatPhongRequest datPhongRequest);
+    DatPhong updateDatPhong(DatPhongRequest datPhongRequest);
 
-    Boolean update(DatPhong datPhong);
-    Boolean delete(Integer id);
 }

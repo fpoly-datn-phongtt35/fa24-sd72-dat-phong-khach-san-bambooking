@@ -17,5 +17,5 @@ public class KhachHangResponse {
     private String email;
     private String ngayTao;
     private String ngaySua;
-    private String trangThai;
+    private Boolean trangThai;
 }

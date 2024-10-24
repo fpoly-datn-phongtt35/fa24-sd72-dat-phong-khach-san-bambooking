@@ -17,8 +17,6 @@ public class TienIch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-
     @Column(name = "ten_tien_ich")
     private String tenTienIch;
 

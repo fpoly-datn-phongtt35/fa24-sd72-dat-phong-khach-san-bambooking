@@ -61,7 +61,6 @@ const ListPhong = () => {
 
     return (
         <div className='container'>
-            <h5>Phòng</h5>
             <div className='card'>
                 <div className='card-body'>
                     <div className='d-flex justify-content-between'>

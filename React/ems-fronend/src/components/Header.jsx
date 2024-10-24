@@ -31,8 +31,7 @@ const HeaderComponents = ({ isAuthenticated, onLogout }) => {
     };
 
     return (
-        <header className="navbar text-bg-info">
-            <button className="navbar-item">Button</button>
+        <header className="navbar">
             <ul className="navbar-navbar">
                 <li className="navbar-item">
                     <Link className="navbar-link" to="#">Trang chủ</Link>

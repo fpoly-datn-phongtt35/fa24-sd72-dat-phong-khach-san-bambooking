@@ -34,7 +34,7 @@
     <c:forEach items="${list}" var="cthd" varStatus="i">
         <tr>
             <td>${i.index+1}</td>
-            <td>${cthd.phieuDichVu.id}</td>
+            <td>${cthd.dichVuSuDung.id}</td>
             <td>${cthd.hoaDon.id}</td>
             <td>${cthd.phong.id}</td>
             <td>${cthd.hinhThucThue}</td>

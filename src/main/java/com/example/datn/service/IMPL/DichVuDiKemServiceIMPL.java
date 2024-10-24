@@ -37,10 +37,10 @@ public class DichVuDiKemServiceIMPL implements DichVuDiKemService {
     public void updateStatus(Integer id) {
         DichVuDiKem dichVuDiKem = dichVuDiKemRepository.findById(id).orElse(null);
         if (dichVuDiKem != null) {
-            if (dichVuDiKem.getTrangThai().equals("Hoạt động")) {
-                dichVuDiKem.setTrangThai("Ngừng hoạt động");
+            if (dichVuDiKem.getTrangThai()) {
+                dichVuDiKem.setTrangThai(false);
             } else {
-                dichVuDiKem.setTrangThai("Hoạt động");
+                dichVuDiKem.setTrangThai(true);
             }
             dichVuDiKemRepository.save(dichVuDiKem);
         }

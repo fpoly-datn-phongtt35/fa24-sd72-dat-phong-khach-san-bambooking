@@ -1,10 +1,7 @@
 package com.example.datn.service.IMPL;
 import com.example.datn.dto.request.LoaiPhongRequest;
-import com.example.datn.dto.request.TienIchRequest;
 import com.example.datn.dto.response.LoaiPhongResponse;
-import com.example.datn.dto.response.TienIchResponse;
 import com.example.datn.model.LoaiPhong;
-import com.example.datn.model.TienIch;
 import com.example.datn.repository.LoaiPhongRepository;
 import com.example.datn.service.LoaiPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,10 +43,10 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         LoaiPhong loaiPhong = new LoaiPhong();
         loaiPhong.setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
         loaiPhong.setDienTich(loaiPhongRequest.getDienTich());
-        loaiPhong.setSucChuaLon(loaiPhongRequest.getSucChuaLon());
-        loaiPhong.setSucChuaNho(loaiPhongRequest.getSucChuaNho());
+        loaiPhong.setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
+        loaiPhong.setDonGiaPhuThu(loaiPhongRequest.getDonGiaPhuThu());
         loaiPhong.setMoTa(loaiPhongRequest.getMoTa());
-        loaiPhong.setTrangThai(loaiPhongRequest.getTrangThai());
+        loaiPhong.setDonGia(loaiPhongRequest.getDonGia());
         return loaiPhongRepository.save(loaiPhong);
     }
 
@@ -69,10 +67,10 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         loaiPhong.get().setId(loaiPhongRequest.getId());
         loaiPhong.get().setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
         loaiPhong.get().setDienTich(loaiPhongRequest.getDienTich());
-        loaiPhong.get().setSucChuaLon(loaiPhongRequest.getSucChuaLon());
-        loaiPhong.get().setSucChuaNho(loaiPhongRequest.getSucChuaNho());
+        loaiPhong.get().setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
+        loaiPhong.get().setDonGia(loaiPhongRequest.getDonGia());
         loaiPhong.get().setMoTa(loaiPhongRequest.getMoTa());
-        loaiPhong.get().setTrangThai(loaiPhongRequest.getTrangThai());
+        loaiPhong.get().setDonGiaPhuThu(loaiPhongRequest.getDonGiaPhuThu());
         return loaiPhongRepository.save(loaiPhong.get());
     }
 
@@ -81,7 +79,10 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.search(tenTienIch,pageable);
     }
 
-
+    @Override
+    public Page<LoaiPhongResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable) {
+        return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,pageable);
+    }
 
 
 }
