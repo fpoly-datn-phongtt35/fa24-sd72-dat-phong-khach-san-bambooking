@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Repository
@@ -39,5 +40,6 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
                                         @Param("sucChuaNho") Integer sucChuaNho,
                                         Pageable pageable);
 
-
+    //
+    Phong findById(int id);
 }

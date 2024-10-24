@@ -11,7 +11,7 @@ const apiThongTinDatPhong = "http://localhost:8080/thong_tin_dat_phong";
 // Lấy danh sách phiếu dịch vụ
 export const DuLieuPhieuDichVu = () => axios.get(apiPhieuDichVu);
 
-// Thêm phiếu dịch vụ
+// Thêm phiếu dịch vụ   
 export const ThemPhieuDichVu = (phieuDichVu) => {
     return axios.post(apiAddPhieuDichVu, phieuDichVu);
 };

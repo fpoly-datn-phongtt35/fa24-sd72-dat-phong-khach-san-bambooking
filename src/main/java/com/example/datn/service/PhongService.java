@@ -19,4 +19,8 @@ public interface PhongService {
 
     Page<PhongResponseDat> PhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong ,
                                         Integer sucChuaLon,Integer sucChuaNho, Pageable pageable);
+    //
+
+    //Phong findPhongWithThongTinAndPhieuDichVu(Integer phongId, LocalDateTime currentTime);
+    Phong getPhongById(Integer id);
 }

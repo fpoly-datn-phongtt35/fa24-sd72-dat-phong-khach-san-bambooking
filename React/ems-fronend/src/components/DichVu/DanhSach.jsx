@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DuLieu, XoaDichVu } from '../../services/DichVuService'; 
+import { DuLieu, XoaDichVu } from '../../services/DichVuService';
 import FormAdd from './FormAdd';
 import FormUpdate from './FormUpdate';
 import DetailDichVu from './DetailDichVu';
@@ -8,7 +8,7 @@ const DanhSach = () => {
     const [dichVuList, setDichVuList] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [currentDichVu, setCurrentDichVu] = useState(null); 
+    const [currentDichVu, setCurrentDichVu] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
     const [searchKeyword, setSearchKeyword] = useState(''); // Tìm kiếm
     const [filterStatus, setFilterStatus] = useState(''); // Lọc trạng thái
@@ -20,12 +20,12 @@ const DanhSach = () => {
         DuLieu()
             .then(response => {
                 const filteredData = response.data.filter(dv => {
-                    const matchesStatus = filterStatus 
-                        ? dv.trangThai.trim().toLowerCase() === filterStatus.trim().toLowerCase() 
+                    const matchesStatus = filterStatus
+                        ? dv.trangThai.trim().toLowerCase() === filterStatus.trim().toLowerCase()
                         : true;
                     const matchesKeyword = searchKeyword
-                        ? dv.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) || 
-                          dv.moTa.toLowerCase().includes(searchKeyword.toLowerCase())
+                        ? dv.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+                        dv.moTa.toLowerCase().includes(searchKeyword.toLowerCase())
                         : true;
 
                     return matchesStatus && matchesKeyword;
@@ -48,7 +48,7 @@ const DanhSach = () => {
 
     const openForm = () => setShowForm(true);
     const closeForm = () => setShowForm(false);
-    
+
     const openUpdateForm = (dv) => {
         setCurrentDichVu(dv);
         setShowUpdateForm(true);

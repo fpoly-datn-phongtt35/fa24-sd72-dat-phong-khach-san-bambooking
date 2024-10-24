@@ -91,4 +91,11 @@ public class PhongServiceIMPL implements PhongService {
                                                Integer sucChuaLon,Integer sucChuaNho,Pageable pageable) {
         return phongRepository.PhongKhaDung(ngayNhanPhong,ngayTraPhong,sucChuaLon,sucChuaNho,pageable);
     }
+
+    @Override
+    public Phong getPhongById(Integer id) {
+        return phongRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Room not found: " + id));
+    }
+
 }

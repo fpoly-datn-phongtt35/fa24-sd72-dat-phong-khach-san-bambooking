@@ -1,15 +1,21 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.PhongRequest;
+import com.example.datn.model.Phong;
+import com.example.datn.service.IMPL.PhieuDichVuServiceIMPL;
+import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
 import com.example.datn.service.PhongService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @CrossOrigin("*")
 @RestController
@@ -17,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PhongController {
+
     PhongService phongService;
 
     @GetMapping("")
@@ -47,6 +54,14 @@ public class PhongController {
     @GetMapping("/search")
     public ResponseEntity<?> searchPhong(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(phongService.searchPhong(keyword, pageable));
-
     }
+
+    // Thêm phương thức tìm phòng theo ID
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<Phong> getPhongById(@PathVariable("id") Integer id) {
+        Phong phong = phongService.getPhongById(id);
+        return ResponseEntity.ok(phong);
+    }
+
+
 }
