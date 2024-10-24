@@ -51,7 +51,6 @@ const LoaiPhong = () => {
 
    const handleOpenFormDetail = (id) => {
     const selectedItem = data.find(item => item.id === id);
-    console.log("Selected Item: ", selectedItem); // Kiểm tra giá trị của selectedItem
     setSelectedData(selectedItem);
     setShowDetailForm(true);
 };

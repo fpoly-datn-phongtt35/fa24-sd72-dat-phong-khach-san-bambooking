@@ -1,13 +1,13 @@
 import './App.css';
 import Header from './components/Header';
 import SlideBar from './components/Slidebar';
-import TienNghi from './components/TienNghi';
+
 import NhanVienComponent from './components/nhanvien/NhanVienComponent';
 import ListTaiKhoan from './components/taikhoan/ListTaiKhoan';
 import ListVaiTro from './components/vaitro/ListVaiTro';
 import TaiKhoanComponent from './components/taikhoan/TaiKhoanComponent';
 import DatPhong from './components/DatPhong/DatPhong';
-import DanhSach from './components/DichVu/DanhSach';
+import DanhSach from './components/DichVu/DanhSach';    
 import DanhSachDichVuDiKem from './components/DichVuDikem/DanhSachDichVuDiKem';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
@@ -205,14 +205,7 @@ function App() {
                 </RequireAuth>
               }
             />
-            <Route
-              path="/TienNghi"
-              element={
-                <RequireAuth>
-                  <TienNghi />
-                </RequireAuth>
-              }
-            />
+            
             <Route
               path="/DatPhong"
               element={

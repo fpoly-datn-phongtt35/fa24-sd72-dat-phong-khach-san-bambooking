@@ -3,7 +3,7 @@ const api = "http://localhost:8080/loai-phong/index";
 const apiadd = "http://localhost:8080/loai-phong/add";
 const apiUD = "http://localhost:8080/loai-phong/update";
 const apiDE = "http://localhost:8080/loai-phong/delete";
-const apiTNP = "http://localhost:8080/tien-ich-phong/findByIDLoaiPhong";
+const apiTi= "http://localhost:8080/tien-ich-phong/home";
 
 
 // export const listTienNghi = () => axios.get(api);
@@ -19,7 +19,7 @@ export const listLoaiPhong= (pageable) => {
 
 
 // Service call trong frontend
-export const DanhSachTienNghiPhong = (idLoaiPhong, pageable) => {
+export const DanhSachTienIchPhong = (idLoaiPhong, pageable) => {
     return axios.get(`http://localhost:8080/tien-ich-phong/findByIDLoaiPhong/${idLoaiPhong}`, {
         params: {
             page: pageable.page,
@@ -42,3 +42,13 @@ export const updateLoaiPhong = (loaiPhongRequest) => {
 export const deleteLoaiPhong = (id) => {
     return axios.delete(`${apiDE}/${id}`);
 };
+
+export const TienIchPhongByIDLoaiPhong = (idLoaiPhong,pageable) => {
+    return axios.get(`${apiTi}/${idLoaiPhong}`,{
+        params: {
+            page: pageable.page,
+            size: pageable.size,
+        }
+    });
+};
+
