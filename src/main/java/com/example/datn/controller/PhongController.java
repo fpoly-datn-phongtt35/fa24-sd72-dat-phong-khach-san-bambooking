@@ -1,21 +1,15 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.PhongRequest;
-import com.example.datn.model.Phong;
-import com.example.datn.service.IMPL.PhieuDichVuServiceIMPL;
-import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
 import com.example.datn.service.PhongService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @CrossOrigin("*")
 @RestController

@@ -23,7 +23,7 @@ import ListNhanVien from "./components/nhanvien/ListNhanVien.jsx";
 import ThongTinDatPhong from './components/DatPhong/ThongTinDatPhong';
 import ViewPhong from './components/TrangChu/ViewPhong';
 import RoomDetail from './components/TrangChu/RoomDetail.jsx';
-import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
+import DanhSachDichVuSuDung from './components/DichVuSuDung/DanhSachDichVuSuDung.jsx';
 import FormAddPage from './components/DatPhong/FormAddPage';
 import FormAdd from './components/DatPhong/FormAdd';
 import LoaiPhong from './components/LoaiPhong/LoaiPhong';
@@ -91,7 +91,7 @@ function App() {
             <Route path="/DichVuDikem" element={<RequireAuth><DanhSachDichVuDiKem /></RequireAuth>} />
             <Route path="/DichVu" element={<RequireAuth><DanhSach /></RequireAuth>} />
             <Route path="/tao-dat-phong" element={<RequireAuth><FormAddPage /></RequireAuth>} />
-            <Route path="/PhieuDichVu" element={<RequireAuth><DanhSachPhieuDichVu /></RequireAuth>} />
+            <Route path="/DichVuSuDung" element={<RequireAuth> <DanhSachDichVuSuDung /> </RequireAuth>} />
             <Route path="/add-khach-hang" element={<RequireAuth><KhachHangComponent /></RequireAuth>} />
             <Route path="/update-khach-hang/:id" element={<RequireAuth><KhachHangComponent /></RequireAuth>} />
             <Route path="/khach-hang" element={<RequireAuth><ListKhachHang /></RequireAuth>} />

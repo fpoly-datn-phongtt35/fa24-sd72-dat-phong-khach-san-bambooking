@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { getPhong, uploadImage } from '../../services/ImageService';
 import { useNavigate } from 'react-router-dom';
 
-const HinhAnh = ({ setImages }) => { // Nhận setImages từ props
+const HinhAnh = ({ setImages }) => {
     const [file, setFile] = useState(null);
     const [tenAnh, setTenAnh] = useState('');
     const [p, setPhong] = useState([]);
     const [idPhong, setIdPhong] = useState('');
     const [trangThai, setTrangThai] = useState(true);
-    const navigate = useNavigate(); // Khởi tạo useNavigate
+    const navigate = useNavigate();
 
     useEffect(() => {
         getPhong()
@@ -32,11 +32,16 @@ const HinhAnh = ({ setImages }) => { // Nhận setImages từ props
     const saveOrUpdate = (e) => {
         e.preventDefault();
 
+        // Kiểm tra giá trị trangThai
+        console.log('Giá trị trangThai trước khi gửi:', trangThai);
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('tenAnh', tenAnh);
         formData.append('idPhong', idPhong);
-        formData.append('trangThai', trangThai ? "hoat dong" : "ngung hoat dong");
+        
+        // Gửi giá trị trạng thái dưới dạng boolean
+        formData.append('trangThai', trangThai);
 
         uploadImage(formData)
             .then((response) => {
@@ -46,8 +51,6 @@ const HinhAnh = ({ setImages }) => { // Nhận setImages từ props
                 setFile(null);
                 setIdPhong('');
                 setTrangThai(true);
-                
-
                 navigate('/hinh-anh');
             })
             .catch((error) => {
@@ -113,7 +116,7 @@ const HinhAnh = ({ setImages }) => { // Nhận setImages từ props
                                         value={true}
                                         checked={trangThai === true}
                                         className={`form-check-input`}
-                                        onChange={() => setTrangThai(true)}
+                                        onChange={() => setTrangThai(true)} // Cập nhật trạng thái khi chọn
                                     />
                                     <label htmlFor="active">Hoạt động</label>
                                 </div>
@@ -124,7 +127,7 @@ const HinhAnh = ({ setImages }) => { // Nhận setImages từ props
                                         value={false}
                                         checked={trangThai === false}
                                         className={`form-check-input`}
-                                        onChange={() => setTrangThai(false)}
+                                        onChange={() => setTrangThai(false)} // Cập nhật trạng thái khi chọn
                                     />
                                     <label htmlFor="inactive">Ngừng hoạt động</label>
                                 </div>
@@ -133,7 +136,7 @@ const HinhAnh = ({ setImages }) => { // Nhận setImages từ props
                         <button type="submit" className="btn btn-outline-primary">
                             Upload
                         </button>
-                        <button className='btn btn-outline-primary' style={{marginLeft: "6px"}} onClick={() => navigate('/hinh-anh')}>Quay lại</button>
+                        <button className='btn btn-outline-primary' style={{ marginLeft: "6px" }} onClick={() => navigate('/hinh-anh')}>Quay lại</button>
                     </form>
                 </div>
             </div>

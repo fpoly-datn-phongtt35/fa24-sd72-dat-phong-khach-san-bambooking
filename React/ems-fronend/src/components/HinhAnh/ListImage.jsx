@@ -17,7 +17,6 @@ const ListImage = () => {
         console.log(response.data.content);
         setImages(response.data.content);
         setTotalPages(response.data.totalPages);
-        
       })
       .catch((error) => {
         console.log("Lỗi : " + error);
@@ -59,8 +58,8 @@ const ListImage = () => {
 
   const handleSearchInput = (e) => {
     setSearchQuery(e.target.value);
-    currentPage(0);
-  }
+    setCurrentPage(0); // Đặt lại trang về 0 khi tìm kiếm
+  };
 
   return (
     <div className='container'>
@@ -98,7 +97,7 @@ const ListImage = () => {
               {images.length > 0 ? (
                 images.map(image => (
                   <tr key={image.id}>
-                    <td>{image.id}</td> 
+                    <td>{image.id}</td>
                     <td>{image.phong?.tenPhong}</td>
                     <td>{image.tenAnh}</td>
                     <td>
@@ -112,7 +111,7 @@ const ListImage = () => {
                         <span>Không có hình ảnh</span>
                       )}
                     </td>
-                    <td>{image.trangThai}</td>
+                    <td>{image.trangThai ? "Hoạt động" : "Ngừng hoạt động"}</td>
                     <td>
                       <button
                         className='btn btn-outline-danger'

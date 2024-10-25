@@ -5,17 +5,19 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
     const [tenDichVu, setTenDichVu] = useState('');
     const [donGia, setDonGia] = useState('');
     const [moTa, setMoTa] = useState('');
-    const [trangThai, setTrangThai] = useState('');
+    const [trangThai, setTrangThai] = useState(true); // Mặc định là true (Hoạt động)
 
+    // Sử dụng useEffect để cập nhật state khi dichVu thay đổi
     useEffect(() => {
         if (dichVu) {
             setTenDichVu(dichVu.tenDichVu);
             setDonGia(dichVu.donGia);
             setMoTa(dichVu.moTa);
-            setTrangThai(dichVu.trangThai);
+            setTrangThai(dichVu.trangThai); // Giá trị boolean từ dichVu
         }
     }, [dichVu]);
 
+    // Hàm xử lý khi submit form cập nhật dịch vụ
     const handleUpdate = (e) => {
         e.preventDefault();
         const updatedDichVu = {
@@ -23,7 +25,7 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
             tenDichVu,
             donGia,
             moTa,
-            trangThai,
+            trangThai, // Boolean lưu vào
         };
 
         // Gọi API cập nhật dịch vụ
@@ -50,6 +52,7 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
                             type="text" 
                             value={tenDichVu} 
                             onChange={(e) => setTenDichVu(e.target.value)} 
+                            required
                         />
                     </div>
                     <div>
@@ -58,6 +61,7 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
                             type="number" 
                             value={donGia} 
                             onChange={(e) => setDonGia(e.target.value)} 
+                            required
                         />
                     </div>
                     <div>
@@ -65,15 +69,16 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
                         <textarea 
                             value={moTa} 
                             onChange={(e) => setMoTa(e.target.value)} 
+                            required
                         />
                     </div>
                     <div>
                         <label>Trạng Thái:</label>
                         <select 
                             value={trangThai} 
-                            onChange={(e) => setTrangThai(e.target.value)}>
-                            <option value="Hoạt Động">Hoạt Động</option>
-                            <option value="Ngừng Hoạt Động">Ngừng Hoạt Động</option>
+                            onChange={(e) => setTrangThai(e.target.value === 'true')}>
+                            <option value={true}>Hoạt Động</option>
+                            <option value={false}>Ngừng Hoạt Động</option>
                         </select>
                     </div>
                     <button type="submit">Cập Nhật</button>

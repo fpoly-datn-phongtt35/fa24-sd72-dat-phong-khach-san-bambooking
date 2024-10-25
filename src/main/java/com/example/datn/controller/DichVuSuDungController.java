@@ -4,7 +4,7 @@ import com.example.datn.dto.request.DichVuSuDungRequest;
 import com.example.datn.model.DichVuSuDung;
 
 import com.example.datn.service.IMPL.DichVuServiceIMPL;
-import com.example.datn.service.IMPL.PhieuDichVuServiceIMPL;
+import com.example.datn.service.IMPL.DichVuSuDungServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,31 +21,31 @@ import java.util.List;
 
 @CrossOrigin("*")
 @RestController
-@RequestMapping("/phieu_dich_vu")
-public class PhieuDichVuController {
+@RequestMapping("/dich_vu_su_dung")
+public class DichVuSuDungController {
     @Autowired
-    PhieuDichVuServiceIMPL phieuDichVuServiceIMPL;
+    DichVuSuDungServiceIMPL dichVuSuDungServiceIMPL;
     @Autowired
     DichVuServiceIMPL dichVuServiceIMPL;
 
     @GetMapping("")
     public List<DichVuSuDung> dichVuHome() {
-        return phieuDichVuServiceIMPL.getAll();
+        return dichVuSuDungServiceIMPL.getAll();
     }
 
     @PostMapping("add")
     public ResponseEntity<?> createDichVuDikem(@RequestBody DichVuSuDungRequest dichVuSuDungRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(phieuDichVuServiceIMPL.addPhieuDichVu(dichVuSuDungRequest));
+        return ResponseEntity.status(HttpStatus.CREATED).body(dichVuSuDungServiceIMPL.addPhieuDichVu(dichVuSuDungRequest));
     }
     @PostMapping("/update")
     public ResponseEntity<?> update(@RequestBody DichVuSuDungRequest dichVuSuDungRequest) {
-        DichVuSuDung updateDichVuSuDung = phieuDichVuServiceIMPL.updatePhieuDichVu(dichVuSuDungRequest);
+        DichVuSuDung updateDichVuSuDung = dichVuSuDungServiceIMPL.updatePhieuDichVu(dichVuSuDungRequest);
         return ResponseEntity.ok(updateDichVuSuDung);
     }
     @DeleteMapping("/delete/{id}")
     public String delete(@PathVariable("id") Integer id) {
-        phieuDichVuServiceIMPL.deletePhieuDichVu(id);
-        return "redirect:/phieu_dich_vu";
+        dichVuSuDungServiceIMPL.deletePhieuDichVu(id);
+        return "redirect:/dich_vu_su_dung";
     }
 
 }

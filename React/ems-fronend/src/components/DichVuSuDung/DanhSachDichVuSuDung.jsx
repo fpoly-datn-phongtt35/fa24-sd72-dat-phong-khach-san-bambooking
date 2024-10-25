@@ -1,66 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { DuLieuPhieuDichVu, XoaPhieuDichVu } from '../../services/PhieuDichVuService';
-import FormAddPhieuDichVu from './FormAddPhieuDichVu';
-import FormUpdatePhieuDichVu from './FormUpdatePhieuDichVu';
-import DetailPhieuDichVu from './DetailPhieuDichVu';
+import { DuLieuDichVuSuDung, XoaDichVuSuDung } from '../../services/DichVuSuDungService';
+import FormAddDichVuSuDung from './FormAddDichVuSuDung';
+import FormUpdateDichVuSuDung from './FormUpdateDichVuSuDung';
+import DetailDichVuSuDung from './DetailDichVuSuDung';
 
-const DanhSachPhieuDichVu = () => {
-    const [phieuDichVuList, setPhieuDichVuList] = useState([]);
+const DanhSachDichVuSuDung = () => {
+    const [dichVuSuDungList, setDichVuSuDungList] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [currentPhieuDichVu, setCurrentPhieuDichVu] = useState(null);
+    const [currentDichVuSuDung, setCurrentDichVuSuDung] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
     const [searchKeyword, setSearchKeyword] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
-    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
-    const [totalPages, setTotalPages] = useState(0); // Tổng số trang
-    const itemsPerPage = 5; // Số lượng item trên mỗi trang
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const itemsPerPage = 5;
 
-    const loadPhieuDichVu = () => {
-        DuLieuPhieuDichVu()
+    const loadDichVuSuDung = () => {
+        DuLieuDichVuSuDung()
             .then(response => {
                 if (response && response.data) {
-                    const filteredData = response.data.filter(phieu => {
+                    const filteredData = response.data.filter(dichVu => {
                         const matchesKeyword = searchKeyword
-                            ? phieu.dichVu.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase())
+                            ? dichVu.dichVu.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase())
                             : true;
                         const matchesStatus = filterStatus
-                            ? phieu.trangThai === filterStatus
+                            ? (filterStatus === 'Hoạt động' ? dichVu.trangThai : !dichVu.trangThai)
                             : true;
                         return matchesKeyword && matchesStatus;
                     });
 
-                    // Phân trang dữ liệu
                     const startIndex = currentPage * itemsPerPage;
                     const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
-                    setPhieuDichVuList(paginatedData);
+                    setDichVuSuDungList(paginatedData);
                     setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
                 } else {
-                    setPhieuDichVuList([]);
+                    setDichVuSuDungList([]);
                     setTotalPages(0);
                 }
             })
             .catch(error => {
-                console.error("Lỗi khi tải danh sách phiếu dịch vụ:", error);
+                console.error("Lỗi khi tải danh sách dịch vụ sử dụng:", error);
             });
     };
 
     useEffect(() => {
-        loadPhieuDichVu();
+        loadDichVuSuDung();
     }, [searchKeyword, filterStatus, currentPage]);
 
     const openForm = () => setShowForm(true);
     const closeForm = () => setShowForm(false);
-    const openUpdateForm = (phieuDichVu) => { setCurrentPhieuDichVu(phieuDichVu); setShowUpdateForm(true); };
-    const closeUpdateForm = () => { setShowUpdateForm(false); setCurrentPhieuDichVu(null); };
-    const openDetail = (phieuDichVu) => { setCurrentPhieuDichVu(phieuDichVu); setShowDetail(true); };
-    const closeDetail = () => { setShowDetail(false); setCurrentPhieuDichVu(null); };
+    const openUpdateForm = (dichVuSuDung) => { setCurrentDichVuSuDung(dichVuSuDung); setShowUpdateForm(true); };
+    const closeUpdateForm = () => { setShowUpdateForm(false); setCurrentDichVuSuDung(null); };
+    const openDetail = (dichVuSuDung) => { setCurrentDichVuSuDung(dichVuSuDung); setShowDetail(true); };
+    const closeDetail = () => { setShowDetail(false); setCurrentDichVuSuDung(null); };
 
     const handleDelete = (id) => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa phiếu dịch vụ này?")) {
-            XoaPhieuDichVu(id)
-                .then(() => loadPhieuDichVu())
-                .catch(error => console.error("Lỗi khi xóa phiếu dịch vụ:", error));
+        if (window.confirm("Bạn có chắc chắn muốn xóa dịch vụ sử dụng này?")) {
+            XoaDichVuSuDung(id)
+                .then(() => loadDichVuSuDung())
+                .catch(error => console.error("Lỗi khi xóa dịch vụ sử dụng:", error));
         }
     };
 
@@ -78,7 +77,7 @@ const DanhSachPhieuDichVu = () => {
 
     return (
         <div>
-            <h1>Danh Sách Phiếu Dịch Vụ</h1>
+            <h1>Danh Sách Dịch Vụ Sử Dụng</h1>
 
             {/* Tìm kiếm và lọc trạng thái */}
             <div>
@@ -95,12 +94,12 @@ const DanhSachPhieuDichVu = () => {
                 </select>
             </div>
 
-            <button onClick={openForm}>Thêm Phiếu Dịch Vụ</button>
+            <button onClick={openForm}>Thêm Dịch Vụ Sử Dụng</button>
             <table className='table'>
                 <thead>
                     <tr>
                         <th>Tên Dịch Vụ</th>
-                        <th>Id thông tin đặt phòng</th>
+                        <th>Id xếp phòng</th>
                         <th>Số Lượng Sử Dụng</th>
                         <th>Ngày Bắt Đầu</th>
                         <th>Ngày Kết Thúc</th>
@@ -111,24 +110,25 @@ const DanhSachPhieuDichVu = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {phieuDichVuList.map((phieu) => (
-                        <tr key={phieu.id}>
-                            <td>{phieu.dichVu.tenDichVu}</td>
-                            <td>{phieu.thongTinDatPhong.id}</td>
-                            <td>{phieu.soLuongSuDung}</td>
-                            <td>{new Date(phieu.ngayBatDau).toLocaleDateString()}</td>
-                            <td>{new Date(phieu.ngayKetThuc).toLocaleDateString()}</td>
-                            <td>{phieu.giaSuDung}</td>
-                            <td>{phieu.thanhTien}</td>
-                            <td>{phieu.trangThai}</td>
+                    {dichVuSuDungList.map((dichVu) => (
+                        <tr key={dichVu.id}>
+                            <td>{dichVu.dichVu.tenDichVu}</td>
+                            <td>{dichVu.xepPhong.id}</td>
+                            <td>{dichVu.soLuongSuDung}</td>
+                            <td>{new Date(dichVu.ngayBatDau).toLocaleDateString()}</td>
+                            <td>{new Date(dichVu.ngayKetThuc).toLocaleDateString()}</td>
+                            <td>{dichVu.giaSuDung}</td>
+                            <td>{dichVu.thanhTien}</td>
+                            <td>{dichVu.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</td>
                             <td>
-                                <button onClick={() => openUpdateForm(phieu)}>Sửa</button>
-                                <button onClick={() => handleDelete(phieu.id)}>Xóa</button>
-                                <button onClick={() => openDetail(phieu)}>Chi Tiết</button>
+                                <button onClick={() => openUpdateForm(dichVu)}>Sửa</button>
+                                <button onClick={() => handleDelete(dichVu.id)}>Xóa</button>
+                                <button onClick={() => openDetail(dichVu)}>Chi Tiết</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
+
             </table>
 
             {/* Pagination */}
@@ -138,11 +138,11 @@ const DanhSachPhieuDichVu = () => {
                 <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>Trang sau</button>
             </div>
 
-            {showForm && <FormAddPhieuDichVu show={showForm} handleClose={closeForm} refreshData={loadPhieuDichVu} />}
-            {showUpdateForm && <FormUpdatePhieuDichVu show={showUpdateForm} handleClose={closeUpdateForm} refreshData={loadPhieuDichVu} phieuDichVu={currentPhieuDichVu} />}
-            {showDetail && <DetailPhieuDichVu phieuDichVu={currentPhieuDichVu} handleClose={closeDetail} />}
+            {showForm && <FormAddDichVuSuDung show={showForm} handleClose={closeForm} refreshData={loadDichVuSuDung} />}
+            {showUpdateForm && <FormUpdateDichVuSuDung show={showUpdateForm} handleClose={closeUpdateForm} refreshData={loadDichVuSuDung} dichVuSuDung={currentDichVuSuDung} />}
+            {showDetail && <DetailDichVuSuDung dichVuSuDung={currentDichVuSuDung} handleClose={closeDetail} />}
         </div>
     );
 };
 
-export default DanhSachPhieuDichVu;
+export default DanhSachDichVuSuDung;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayDanhSachDichVuDiKem, XoaDichVuDiKem } from '../../services/DichVuDiKemService'; 
+import { LayDanhSachDichVuDiKem, XoaDichVuDiKem } from '../../services/DichVuDiKemService';
 import FormAddDichVuDiKem from './FormAddDichVuDiKem';
 import FormUpdateDichVuDiKem from './FormUpdateDichVuDiKem';
 import DetailDichVuDiKem from './DetailDichVuDiKem';
@@ -10,11 +10,11 @@ const DanhSachDichVuDiKem = () => {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [currentDichVuDiKem, setCurrentDichVuDiKem] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
-    const [searchKeyword, setSearchKeyword] = useState(''); // Tìm kiếm
+    const [searchKeyword, setSearchKeyword] = useState('');
     const [filterStatus, setFilterStatus] = useState(''); // Lọc trạng thái
-    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
-    const [totalPages, setTotalPages] = useState(0); // Tổng số trang
-    const itemsPerPage = 5; // Số lượng item trên mỗi trang
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const itemsPerPage = 5;
 
     const loadDichVuDiKem = () => {
         LayDanhSachDichVuDiKem()
@@ -22,12 +22,14 @@ const DanhSachDichVuDiKem = () => {
                 if (response && response.data) {
                     const filteredData = response.data.filter(dvDiKem => {
                         const matchesKeyword = searchKeyword
-                            ? (dvDiKem.dichVu?.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) || 
-                               dvDiKem.loaiPhong?.tenLoaiPhong.toLowerCase().includes(searchKeyword.toLowerCase()))
+                            ? (dvDiKem.dichVu?.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+                                dvDiKem.loaiPhong?.tenLoaiPhong.toLowerCase().includes(searchKeyword.toLowerCase()))
                             : true;
+
                         const matchesStatus = filterStatus
-                            ? dvDiKem.trangThai === filterStatus
+                            ? (filterStatus === 'Hoạt động' ? dvDiKem.trangThai : !dvDiKem.trangThai) // Kiểm tra trạng thái tương ứng
                             : true;
+
                         return matchesKeyword && matchesStatus;
                     });
 
@@ -92,14 +94,14 @@ const DanhSachDichVuDiKem = () => {
                     <option value="Hoạt động">Hoạt động</option>
                     <option value="Ngừng hoạt động">Ngừng hoạt động</option>
                 </select>
-            </div> <br />
+            </div><br />
 
             <button onClick={openForm}>Thêm Dịch Vụ Đi Kèm</button>
             <table className='table'>
                 <thead>
                     <tr>
-                        <th>ID Dịch Vụ</th>
-                        <th>ID Loại Phòng</th>
+                        <th>Tên Dịch Vụ</th>
+                        <th>Tên Loại Phòng</th>
                         <th>Trạng Thái</th>
                         <th>Hành Động</th>
                     </tr>
@@ -109,7 +111,7 @@ const DanhSachDichVuDiKem = () => {
                         <tr key={dvDiKem.id}>
                             <td>{dvDiKem.dichVu?.tenDichVu}</td>
                             <td>{dvDiKem.loaiPhong?.tenLoaiPhong}</td>
-                            <td>{dvDiKem.trangThai}</td>
+                            <td>{dvDiKem.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</td>
                             <td>
                                 <button onClick={() => openUpdateForm(dvDiKem)}>Sửa</button>
                                 <button onClick={() => handleDelete(dvDiKem.id)}>Xóa</button>

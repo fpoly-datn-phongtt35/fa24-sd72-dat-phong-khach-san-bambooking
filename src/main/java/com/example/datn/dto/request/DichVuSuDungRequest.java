@@ -2,6 +2,7 @@ package com.example.datn.dto.request;
 
 import com.example.datn.model.DichVu;
 import com.example.datn.model.ThongTinDatPhong;
+import com.example.datn.model.XepPhong;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class DichVuSuDungRequest {
 
     private Integer id;
     private DichVu dichVu;
-    private ThongTinDatPhong thongTinDatPhong;
+    private XepPhong xepPhong;
     private Integer soLuongSuDung;
     private LocalDateTime ngayBatDau;
     private LocalDateTime ngayKetThuc;

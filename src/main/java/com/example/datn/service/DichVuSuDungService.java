@@ -5,7 +5,7 @@ import com.example.datn.model.DichVuSuDung;
 
 import java.util.List;
 
-public interface PhieuDichVuService {
+public interface DichVuSuDungService {
     List<DichVuSuDung> getAll();
     DichVuSuDung addPhieuDichVu(DichVuSuDungRequest dichVuSuDungRequest);
     DichVuSuDung detailPhieuDichVu(Integer id);

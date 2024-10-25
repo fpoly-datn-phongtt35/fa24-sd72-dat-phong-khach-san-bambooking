@@ -18,9 +18,9 @@ public class KhachHang {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @ManyToOne
-    @JoinColumn(name = "id_tai_khoan")
-    private TaiKhoan taiKhoan;
+//    @ManyToOne
+//    @JoinColumn(name = "id_tai_khoan")
+//    private TaiKhoan taiKhoan;
     @Column(name = "ho")
     private String ho;
     @Column(name = "ten")

@@ -20,9 +20,11 @@ const DanhSach = () => {
         DuLieu()
             .then(response => {
                 const filteredData = response.data.filter(dv => {
-                    const matchesStatus = filterStatus
-                        ? dv.trangThai.trim().toLowerCase() === filterStatus.trim().toLowerCase()
+                    // Lọc theo trạng thái boolean
+                    const matchesStatus = filterStatus !== ''
+                        ? dv.trangThai === (filterStatus === 'true')
                         : true;
+                    
                     const matchesKeyword = searchKeyword
                         ? dv.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) ||
                         dv.moTa.toLowerCase().includes(searchKeyword.toLowerCase())
@@ -104,8 +106,8 @@ const DanhSach = () => {
                 />
                 <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                     <option value="">Tất cả trạng thái</option>
-                    <option value="Hoạt động">Hoạt động</option>
-                    <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+                    <option value="true">Hoạt động</option>
+                    <option value="false">Ngừng hoạt động</option>
                 </select>
                 <button onClick={loadDichVu}>Lọc</button>
             </div> <br />
@@ -127,7 +129,8 @@ const DanhSach = () => {
                             <td>{dv.tenDichVu}</td>
                             <td>{dv.donGia}</td>
                             <td>{dv.moTa}</td>
-                            <td>{dv.trangThai}</td>
+                            {/* Hiển thị trạng thái dưới dạng chuỗi dựa trên giá trị boolean */}
+                            <td>{dv.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</td>
                             <td>
                                 <button onClick={() => openUpdateForm(dv)}>Sửa</button>
                                 <button onClick={() => handleDelete(dv.id)}>Xóa</button>
