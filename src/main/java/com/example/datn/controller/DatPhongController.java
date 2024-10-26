@@ -38,7 +38,7 @@ public class DatPhongController {
 
 
     @PostMapping("them-moi")
-    public ResponseEntity<?> createDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
+    public ResponseEntity<DatPhongResponse> createDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(datPhongServiceIMPL.addDatPhong(datPhongRequest));
     }
 

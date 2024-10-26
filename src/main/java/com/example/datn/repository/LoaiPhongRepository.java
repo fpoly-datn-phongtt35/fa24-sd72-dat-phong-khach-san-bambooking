@@ -47,4 +47,6 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
             Pageable pageable);
 
+    LoaiPhong findLoaiPhongById(@Param("idLoaiPhong") Integer idLoaiPhong);
+
 }

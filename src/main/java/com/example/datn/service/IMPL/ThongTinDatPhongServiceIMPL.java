@@ -20,13 +20,17 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Autowired
     ThongTinDatPhongRepository thongTinDatPhongRepository;
 
+    @Autowired
+    LoaiPhongServiceIMPL loaiPhongServiceIMPL;
 
     @Override
     public ThongTinDatPhong add(TTDPRequest request) {
         ThongTinDatPhong ttdp = new ThongTinDatPhong();
+        System.out.println("id lp" + request.getIdLoaiPhong());
+        LoaiPhong lp = loaiPhongServiceIMPL.findByID(request.getIdLoaiPhong());
         UniqueDatPhongCode code = new UniqueDatPhongCode();
         ttdp.setDatPhong(request.getDatPhong());
-        ttdp.setLoaiPhong(request.getLoaiPhong());
+        ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
         ttdp.setGiaDat(request.getGiaDat());
         ttdp.setNgayNhanPhong(request.getNgayNhanPhong());

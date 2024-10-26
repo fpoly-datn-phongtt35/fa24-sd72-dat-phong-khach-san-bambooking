@@ -25,8 +25,8 @@ public class DichVuSuDung {
     private DichVu dichVu;
 
     @ManyToOne
-    @JoinColumn(name = "id_thong_tin_dat_phong")
-    private ThongTinDatPhong thongTinDatPhong;
+    @JoinColumn(name = "id_xep_phong")
+    private XepPhong xepPhong;
 
     @Column(name = "so_luong_su_dung")
     private Integer soLuongSuDung;

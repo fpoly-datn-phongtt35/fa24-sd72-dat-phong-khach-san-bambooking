@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import './TaoDatPhong.scss';
-import { ThemKhachHangDatPhong } from '../../services/DatPhong';
+import { ThemKhachHangDatPhong, ThemMoiDatPhong } from '../../services/DatPhong';
+import { addThongTinDatPhong } from '../../services/TTDP';
 const TaoDatPhong = () => {
     const location = useLocation();
     const { startDate, endDate, adults } = location.state || {};
@@ -16,11 +17,12 @@ const TaoDatPhong = () => {
     const calculateDays = (start, end) => {
         const startDate = new Date(start);
         const endDate = new Date(end);
-        const diffTime = Math.abs(endDate - startDate);
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const diffTime = Math.abs(endDate - startDate); // Khoảng cách thời gian bằng milliseconds
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Chuyển đổi sang số ngày
+        return diffDays === 0 ? 1 : diffDays; // Đảm bảo ít nhất là 1 ngày
     };
 
-    // Hàm tính tổng tiền cho mỗi phòng
+    // Hàm tính tổng tiền
     const calculateTotalPrice = (donGia, start, end) => {
         const days = calculateDays(start, end);
         return donGia * days;
@@ -45,17 +47,64 @@ const TaoDatPhong = () => {
             email: formData.email,
             sdt: formData.sdt,
         };
-        
-        // Gửi yêu cầu API
+    
+        const datPhongRequest = {
+            khachHang: null, // Chờ cập nhật id khách hàng sau khi tạo
+            maDatPhong: 'DP' + Date.now(),
+            ngayDat: new Date().toISOString(),
+            tongTien: calculateTotalAmount(),
+            datCoc: 0,
+            ghiChu: 'Ghi chú thêm nếu cần',
+            trangThai: 'Đang xử lý'
+        };
+    
         try {
-            const response = await ThemKhachHangDatPhong(khachHangRequest);
-            console.log( response );
-            alert('Đặt phòng thành công');
+            // Tạo khách hàng
+            const khachHangResponse = await ThemKhachHangDatPhong(khachHangRequest);
+            console.log(khachHangResponse.data);
+    
+            if (khachHangResponse != null) {
+                // Gán id của khách hàng vào datPhongRequest
+                datPhongRequest.khachHang = khachHangResponse.data;
+    
+                // Tạo và lưu `datPhong`
+                const datPhongResponse = await ThemMoiDatPhong(datPhongRequest);
+                console.log(datPhongResponse);
+                
+                const dp = datPhongResponse.data; // Đối tượng `datPhong` đã được lưu
+                console.log( dp );
+
+                
+                // Tạo danh sách `thongTinDatPhongRequestList` với `datPhong` đã được lưu
+                const thongTinDatPhongRequestList = selectedRooms.map(room => ({
+                    datPhong: dp,  // Gán đối tượng `datPhong` đã được lưu
+                    idLoaiPhong: room.id,
+                    maThongTinDatPhong: 'TTDP' + Date.now() + Math.random().toString(36).substr(2, 9),
+                    ngayNhanPhong: room.startDate,
+                    ngayTraPhong: room.endDate,
+                    soNguoi: room.adults,
+                    giaDat: room.donGia,
+                    trangThai: 'Đang xử lý'
+                }));
+    
+                // Lưu từng `ThongTinDatPhong` trong danh sách
+                for (const thongTinDatPhong of thongTinDatPhongRequestList) {
+                    const thongTinDatPhongResponse = await addThongTinDatPhong(thongTinDatPhong);
+                    console.log(thongTinDatPhongResponse);
+                }
+    
+                alert('Đặt phòng thành công');
+            } else {
+                throw new Error('Không thể lấy id khách hàng');
+            }
         } catch (error) {
-            console.error('Lỗi khi gửi thông tin khách hàng:', error);
+            console.error('Lỗi khi gửi thông tin khách hàng hoặc đặt phòng:', error);
             alert('Đã xảy ra lỗi trong quá trình đặt phòng');
         }
     };
+    
+
+
 
     // Cập nhật giá trị của formData khi người dùng nhập
     const handleInputChange = (e) => {
@@ -133,9 +182,9 @@ const TaoDatPhong = () => {
                                 <p>Loại phòng: {room.tenLoaiPhong}</p>
                                 <p>Số người: {adults}</p>
                                 <p>Giá phòng mỗi đêm: {room.donGia.toLocaleString()} VND</p>
-                                <p>Số đêm: {calculateDays(startDate, endDate)}</p>
+                                <p>Số đêm: {calculateDays(room.startDate, room.endDate)}</p>
                                 <p>
-                                    Thành tiền: {calculateTotalPrice(room.donGia, startDate, endDate).toLocaleString()} VND
+                                    Thành tiền: {calculateTotalPrice(room.donGia, room.startDate, room.endDate).toLocaleString()} VND
                                 </p>
                             </div>
                         ))

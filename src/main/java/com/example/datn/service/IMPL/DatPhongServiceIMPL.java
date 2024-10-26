@@ -35,18 +35,28 @@ public class DatPhongServiceIMPL implements DatPhongService {
     }
 
     @Override
-    public DatPhong addDatPhong(DatPhongRequest datPhongRequest) {
+    public DatPhongResponse addDatPhong(DatPhongRequest datPhongRequest) {
         DatPhong datPhong = new DatPhong();
+        DatPhongResponse datPhongResponse = new DatPhongResponse();
         UniqueDatPhongCode code = new UniqueDatPhongCode();
         String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
         datPhong.setMaDatPhong(codeDP);
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
-        datPhong.setGhiChu(datPhongRequest.getGhiChu());
+        datPhong.setGhiChu("Test");
         datPhong.setTongTien(0.0);
         datPhong.setDatCoc(0.0);
         datPhong.setNgayDat(LocalDate.now());
         datPhong.setTrangThai("Pending");
-        return datPhongRepository.save(datPhong);
+        DatPhong dp = datPhongRepository.save(datPhong);
+        datPhongResponse.setId(dp.getId());
+        datPhongResponse.setMaDatPhong(dp.getMaDatPhong());
+        datPhongResponse.setTenKhachHang(dp.getKhachHang().getTen());
+        datPhongResponse.setTongTien(dp.getTongTien());
+        datPhongResponse.setNgayDat(dp.getNgayDat());
+        datPhongResponse.setDatCoc(dp.getDatCoc());
+        datPhongResponse.setGhiChu(dp.getGhiChu());
+        datPhongResponse.setTrangThai(dp.getTrangThai());
+        return datPhongResponse;
     }
 
     @Override

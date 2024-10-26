@@ -86,5 +86,14 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,pageable);
     }
 
-
+    @Override
+    public LoaiPhong findByID(Integer idLoaiPhong) {
+        LoaiPhong lp = new LoaiPhong();
+        for(LoaiPhong l: loaiPhongRepository.findAll()){
+            if(l.getId()==idLoaiPhong){
+                lp = l;
+            }
+        }
+        return lp;
+    }
 }

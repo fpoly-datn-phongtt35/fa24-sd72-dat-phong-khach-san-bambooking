@@ -18,13 +18,10 @@ const BookingForm = () => {
     const [selectedRooms, setSelectedRooms] = useState([]); // Mảng chứa các phòng đã chọn
     const navigate = useNavigate();
 
-    const [ttdpList, setTTDPList] = useState([]);
-
     const LoaiPhongKhaDung = (ngayNhanPhong, ngayTraPhong) => {
         getLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, { page: currentPage })
             .then((response) => {
                 setLoaiPhongKhaDung(response.data.content);
-                console.log(loaiPhongKhaDung);
                 setTotalPages(response.data.totalPages);
             })
             .catch((error) => {
@@ -52,13 +49,14 @@ const BookingForm = () => {
     const handleAddSelectedRooms = (room) => {
         const selectedRoomInfo = {
             ...room,
-            adults,
-            startDate,
-            endDate,
+            adults: adults,
+            startDate: startDate,
+            endDate: endDate
         };
         setSelectedRooms((prevRooms) => [...prevRooms, selectedRoomInfo]);
         setShowModal(true);
     };
+    
     
 
 
@@ -70,23 +68,20 @@ const BookingForm = () => {
         setShowModal(false);
     };
 
-    const handleConfirmBooking = () => {
-        setShowModal(false);
-    };
-
     const calculateDays = (start, end) => {
         const startDate = new Date(start);
         const endDate = new Date(end);
         const diffTime = Math.abs(endDate - startDate); // Khoảng cách thời gian bằng milliseconds
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Chuyển đổi sang số ngày
-        return diffDays;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Chuyển đổi sang số ngày
+        return diffDays === 0 ? 1 : diffDays; // Đảm bảo ít nhất là 1 ngày
     };
-
+    
     // Hàm tính tổng tiền
     const calculateTotalPrice = (donGia, start, end) => {
         const days = calculateDays(start, end);
         return donGia * days;
     };
+    
     const getTodayDate = () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để tránh vấn đề chênh lệch múi giờ
@@ -110,10 +105,28 @@ const BookingForm = () => {
         setSelectedRooms((prevRooms) => {
             const updatedRooms = [...prevRooms, selectedRoomInfo];
             // Điều hướng sang TaoDatPhong với toàn bộ danh sách phòng
-            navigate('/tao-dat-phong', { state: { selectedRooms: updatedRooms, startDate, endDate, adults, children } });
+            navigate('/tao-dat-phong', { state: { selectedRooms: updatedRooms, startDate, endDate, adults } });
             return updatedRooms;
         });
     };
+    const getMinMaxDates = () => {
+        if (selectedRooms.length === 0) return { minDate: '', maxDate: '' };
+    
+        const dates = selectedRooms.map(room => ({
+            start: new Date(room.startDate),
+            end: new Date(room.endDate)
+        }));
+    
+        const minDate = new Date(Math.min(...dates.map(date => date.start)));
+        const maxDate = new Date(Math.max(...dates.map(date => date.end)));
+    
+        return {
+            minDate: minDate.toISOString().split('T')[0], // Định dạng lại nếu cần
+            maxDate: maxDate.toISOString().split('T')[0]
+        };
+    };
+    
+    const { minDate, maxDate } = getMinMaxDates();
     
     return (
         <div className="booking-form-container">
@@ -254,10 +267,9 @@ const BookingForm = () => {
                         <ModalSelectedRoom
                             showModal={showModal}
                             handleCloseModal={handleCloseModal}
-                            handleConfirmBooking={handleConfirmBooking}
                             selectedRooms={selectedRooms}
-                            startDate={startDate}
-                            endDate={endDate}
+                            startDate={minDate}
+                            endDate={maxDate}
                             adults={adults}
                             handleRemoveRoom = {handleRemoveRoom}
                         />

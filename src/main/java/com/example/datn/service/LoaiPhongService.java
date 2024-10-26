@@ -31,4 +31,5 @@ public interface LoaiPhongService {
     Page<LoaiPhong> search ( String tenLoaiPhong, Pageable pageable);
 
     Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable);
+    LoaiPhong findByID(Integer idLoaiPhong);
 }

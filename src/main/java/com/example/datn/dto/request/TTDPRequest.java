@@ -22,7 +22,7 @@ public class TTDPRequest {
 
     private DatPhong datPhong;
 
-    private LoaiPhong loaiPhong;
+    private Integer idLoaiPhong;
 
     private String maThongTinDatPhong;
 

@@ -38,7 +38,10 @@ public class TTDPController {
     }
     @PostMapping("them-moi")
     public ResponseEntity<ThongTinDatPhong> createDatPhong(@RequestBody TTDPRequest request) {
+        System.out.println("sádsdsd");
         ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.add(request);
+        System.out.println(ttdp.getLoaiPhong());
+
         if (ttdp != null) {
             return ResponseEntity.status(HttpStatus.CREATED).body(ttdp);
         } else {
@@ -54,6 +57,6 @@ public class TTDPController {
         LocalDateTime ngayTraPhongEnd = ngayTraPhong.atTime(23, 59, 59);
         Page<LoaiPhongKhaDungResponse> p = loaiPhongServiceIMPL.LoaiPhongKhaDung(ngayNhanPhongStart,ngayTraPhongEnd,pageable);
         return ResponseEntity.ok(p);
-
     }
+
 }
