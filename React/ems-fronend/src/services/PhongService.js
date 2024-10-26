@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const apiPhong = 'http://localhost:8080/phong';
-const apiLoaiPhong = 'http://localhost:8080/loai-phong';
+const apiLoaiPhong = 'http://localhost:8080/loai_phong';
 
 export const listPhong = (pageable, searchQuery = '') => {
     return axios.get(apiPhong + '/search', {

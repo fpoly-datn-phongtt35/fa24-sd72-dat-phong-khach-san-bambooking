@@ -4,13 +4,14 @@ import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.model.DatPhong;
 import com.example.datn.repository.DatPhongRepository;
-import com.example.datn.repository.KhachHangRepository;
-import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.service.DatPhongService;
+import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,12 +19,6 @@ import java.util.List;
 public class DatPhongServiceIMPL implements DatPhongService {
     @Autowired
     DatPhongRepository datPhongRepository;
-
-    @Autowired
-    KhachHangRepository khachHangRepository;
-
-    @Autowired
-    NhanVienRepository nhanVienRepository;
 
     @Override
     public Page<DatPhongResponse> getByTrangThai(String tt, Pageable pageable) {
@@ -38,11 +33,15 @@ public class DatPhongServiceIMPL implements DatPhongService {
     @Override
     public DatPhong addDatPhong(DatPhongRequest datPhongRequest) {
         DatPhong datPhong = new DatPhong();
-        datPhong.setMaDatPhong(datPhongRequest.getMaDatPhong());
-        datPhong.setNgayDat(datPhongRequest.getNgayDat());
-        datPhong.setGhiChu(datPhongRequest.getGhiChu());
+        UniqueDatPhongCode code = new UniqueDatPhongCode();
+        String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
+        datPhong.setMaDatPhong(codeDP);
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
-        datPhong.setTrangThai(datPhongRequest.getTrangThai());
+        datPhong.setGhiChu(datPhongRequest.getGhiChu());
+        datPhong.setTongTien(0.0);
+        datPhong.setDatCoc(0.0);
+        datPhong.setNgayDat(LocalDate.now());
+        datPhong.setTrangThai("Pending");
         return datPhongRepository.save(datPhong);
     }
 
@@ -67,34 +66,16 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
 
     @Override
-    public DatPhong updateDatPhong(Integer id, DatPhongRequest datPhongRequest) {
+    public DatPhong updateDatPhong(DatPhongRequest datPhongRequest) {
         DatPhong datPhong = new DatPhong();
         datPhong.setId(datPhongRequest.getId());
         datPhong.setMaDatPhong(datPhongRequest.getMaDatPhong());
+        datPhong.setTongTien(datPhongRequest.getTongTien());
+        datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(datPhongRequest.getNgayDat());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         return datPhongRepository.save(datPhong);
-    }
-
-
-
-    @Override
-    public Boolean update(DatPhong datPhong) {
-        if(datPhong!=null){
-            datPhongRepository.save(datPhong);
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public Boolean delete(Integer id) {
-        if(id!=null){
-            datPhongRepository.deleteById(id);
-            return true;
-        }
-        return false;
     }
 }

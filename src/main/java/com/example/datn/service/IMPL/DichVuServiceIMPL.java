@@ -19,8 +19,8 @@ public class DichVuServiceIMPL implements DichVuService {
     }
 
     @Override
-    public void addDichVu(DichVu dv) {
-        dichVuRepository.save(dv);
+    public DichVu addDichVu(DichVu dv) {
+       return dichVuRepository.save(dv);
     }
 
     @Override
@@ -30,12 +30,32 @@ public class DichVuServiceIMPL implements DichVuService {
 
     @Override
     public void updateStatus(Integer id) {
-        dichVuRepository.getById(id).setTrangThai("Ngừng hoạt động");
+        DichVu dichVu = dichVuRepository.findById(id).orElse(null);
+        if (dichVu != null) {
+            if (dichVu.getTrangThai()) {
+                dichVu.setTrangThai(false);
+            } else {
+                dichVu.setTrangThai(true);
+            }
+            dichVuRepository.save(dichVu);
+        }
+
     }
 
     @Override
-    public void updateDichVu(DichVu dv) {
+    public DichVu updateDichVu(DichVu dv) {
         dichVuRepository.save(dv);
+        return dv;
+    }
+
+    @Override
+    public void deleteDichVu(Integer id) {
+        dichVuRepository.deleteById(id);
+    }
+
+    @Override
+    public DichVu findById(Integer id) {
+        return dichVuRepository.findById(id).get();
     }
 
     @Override

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DanhSachDatPhong, HienThiTheoLoc } from '../../services/DatPhong'; // Import cả hai hàm
-import ChiTietDatPhong from './DetailDatPhong';
 import NavDatPhong from './NavDatPhong';
-import './DanhSachCSS.css';
+import './DanhSachCSS.scss';
 
 const DanhSach = () => {
     const [data, setData] = useState([]); // Dữ liệu danh sách đặt phòng
@@ -12,6 +12,7 @@ const DanhSach = () => {
     const [showModal, setShowModal] = useState(false); // Điều khiển hiển thị modal
     const [filters, setFilters] = useState([]); // Trạng thái bộ lọc
     const itemsPerPage = 6;
+    const navigate = useNavigate();
 
     // Hàm lấy danh sách đặt phòng không có bộ lọc (Lần đầu load)
     const getAllDatPhong = () => {
@@ -24,7 +25,6 @@ const DanhSach = () => {
                 console.log(error);
             });
     };
-    
     const getFilteredDatPhong = () => {
         HienThiTheoLoc({ page: currentPage, size: itemsPerPage }, filters)
             .then((response) => {
@@ -35,7 +35,7 @@ const DanhSach = () => {
                 console.log(error);
             });
     };
-    
+
     useEffect(() => {
         if (filters.length > 0) {
             getFilteredDatPhong();
@@ -50,14 +50,14 @@ const DanhSach = () => {
     };
 
     const handleViewDetails = (id) => {
-        setSelectedBookingId(id); // Lưu ID của đặt phòng được chọn
-        setShowModal(true); // Hiển thị modal chi tiết đặt phòng
+        navigate('/thong-tin-dat-phong', { state: { id } });
+        console.log(id);
     };
 
     const handleCloseModal = () => {
         setShowModal(false); // Đóng modal
         setSelectedBookingId(null); // Xóa dữ liệu chi tiết
-    
+
         // Tải lại dữ liệu ngay sau khi đóng modal
         if (filters.length > 0) {
             getFilteredDatPhong(); // Tải lại dữ liệu khi có bộ lọc
@@ -85,24 +85,26 @@ const DanhSach = () => {
             <div className="content-container">
                 <div className="booking-container">
                     {data.length > 0 ? (
-                        data.map((dp) => (
-                            <div key={dp.id} className="booking-card" onClick={() => handleViewDetails(dp.id)}>
-                                <div className="booking-header">
-                                    <h3>Mã đặt phòng: {dp.maDatPhong}</h3>
+                        data.map((dp) => {
+                            const { id, maDatPhong, trangThai, tenKhachHang, ngayDat, ghiChu } = dp;
+                            return (
+                                <div key={id} className="booking-card" onClick={() => handleViewDetails(id)}>
+                                    <div className="booking-header">
+                                        <h3>Mã đặt phòng: {maDatPhong}</h3>
+                                    </div>
+                                    <div className="status-container">
+                                        <span className={`status ${trangThai}`}>
+                                            {trangThai}
+                                        </span>
+                                    </div>
+                                    <div className="booking-body">
+                                        <p><strong>Khách hàng:</strong> {tenKhachHang}</p>
+                                        <p><strong>Thời gian đặt:</strong> {ngayDat}</p>
+                                        <p><strong>Ghi chú:</strong> {ghiChu}</p>
+                                    </div>
                                 </div>
-                                <div className="status-container">
-                                    <span className={`status ${dp.trangThai}`}>
-                                        {dp.trangThai}
-                                    </span>
-                                </div>
-                                <div className="booking-body">
-                                    <p><strong>Nhân viên:</strong> {dp.tenNhanVien}</p>
-                                    <p><strong>Khách hàng:</strong> {dp.tenKhachHang}</p>
-                                    <p><strong>Thời gian đặt:</strong> {dp.ngayDat}</p>
-                                    <p><strong>Ghi chú:</strong> {dp.ghiChu}</p>
-                                </div>
-                            </div>
-                        ))
+                            );
+                        })
                     ) : (
                         <p>Không có dữ liệu</p>
                     )}
@@ -117,7 +119,6 @@ const DanhSach = () => {
                         Trang sau
                     </button>
                 </div>
-
                 {showModal && <ChiTietDatPhong bookingId={selectedBookingId} handleClose={handleCloseModal} show={showModal} />}
             </div>
         </div>

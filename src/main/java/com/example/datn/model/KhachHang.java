@@ -18,9 +18,6 @@ public class KhachHang {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @ManyToOne
-    @JoinColumn(name = "id_tai_khoan")
-    private TaiKhoan taiKhoan;
     @Column(name = "ho")
     private String ho;
     @Column(name = "ten")
@@ -33,11 +30,13 @@ public class KhachHang {
     private String sdt;
     @Column(name = "email")
     private String email;
+    @Column(name = "mat_khau")
+    private String matKhau;
     @Column(name = "ngay_tao")
     private LocalDateTime ngayTao;
     @Column(name = "ngay_sua")
     private LocalDateTime ngaySua;
 
     @Column(name = "trang_thai")
-    private String trangThai;
+    private Boolean trangThai;
 }

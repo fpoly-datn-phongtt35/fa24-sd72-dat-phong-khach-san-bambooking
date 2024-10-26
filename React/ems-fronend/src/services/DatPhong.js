@@ -7,7 +7,7 @@ const apiDPUpdate = "http://localhost:8080/dat-phong/cap-nhat";
 const apiNV = "http://localhost:8080/nhan-vien/hien-thi";
 const apiKH = "http://localhost:8080/khach-hang/hien-thi";
 const apiLoc = "http://localhost:8080/dat-phong/bo-loc";
-const apiPhong = "http://localhost:8080/dat-phong/phong-kha-dung"
+const apiCreateKH = "http://localhost:8080/khach-hang/create-kh-dp";
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
     return axios.get(apiDP, {
@@ -15,19 +15,6 @@ export const DanhSachDatPhong = (pageable, trangThai) => {
             page: pageable.page, 
             size: pageable.size,
             trangThai: trangThai
-        }
-    });
-};
-
-export const PhongKhaDung = (ngayNhanPhong , ngayTraPhong ,sucChuaLon,sucChuaNho, pageable) => {
-    return axios.get(apiPhong, {
-        params: {
-            ngayNhanPhong: ngayNhanPhong,
-            ngayTraPhong: ngayTraPhong,
-            sucChuaLon: sucChuaLon,
-            sucChuaNho: sucChuaNho,
-            page: pageable.page, 
-            size: pageable.size
         }
     });
 };
@@ -46,11 +33,9 @@ export const DanhSachKhachHang = () => {
 export const ThemMoiDatPhong = (DatPhongRequest) => {
     return axios.post(apiDPAdd, DatPhongRequest);
 };
-
 export const DatPhongDetail = (id) => {
     return axios.get(`${apiDetail}/${id}`);
 };
-
 
 export const CapNhatDatPhong = (id, DatPhongRequest) => {
     return axios.put(`${apiDPUpdate}/${id}`, DatPhongRequest);
@@ -71,6 +56,6 @@ export const HienThiTheoLoc = (pageable, trangThai) => {
     
     return axios.get(apiLoc, { params: params });
 };
-
-
-
+export const ThemKhachHangDatPhong = (khachHangRequest) => {
+    return axios.post(apiCreateKH, khachHangRequest);
+};

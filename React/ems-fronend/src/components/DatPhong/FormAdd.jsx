@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, Form, Row, Col, Button } from 'react-bootstrap';
 import { useLocation } from 'react-router-dom';
-import './FormAdd.css';
+import './FormAdd.scss';
 
 const FormAdd = () => {
     const location = useLocation();

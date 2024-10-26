@@ -28,12 +28,10 @@ public class Phong {
     private String maPhong;
     @Column(name = "ten_phong")
     private String tenPhong;
-    @Column(name = "gia_phong")
-    private Double giaPhong;
     @Column(name = "tinh_trang")
     private String tinhTrang;
     @Column(name = "trang_thai")
-    private String trangThai;
+    private Boolean trangThai;
     @OneToMany(mappedBy = "phong")
     @JsonManagedReference
     private List<HinhAnh> hinhAnhs;

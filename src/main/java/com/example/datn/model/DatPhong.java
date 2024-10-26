@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,10 +19,6 @@ public class DatPhong {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @JoinColumn(name = "id_nhan_vien")
-    @ManyToOne
-    private NhanVien nhanVien;
-
     @ManyToOne
     @JoinColumn(name = "id_khach_hang")
     private KhachHang khachHang;
@@ -30,8 +27,11 @@ public class DatPhong {
     private String maDatPhong;
 
     @Column(name = "ngay_dat")
-    private LocalDateTime ngayDat;
-
+    private LocalDate ngayDat;
+    @Column(name = "tong_tien")
+    private Double tongTien;
+    @Column(name = "dat_coc")
+    private Double datCoc;
     @Column(name = "ghi_chu")
     private String ghiChu;
     @Column(name = "trang_thai")

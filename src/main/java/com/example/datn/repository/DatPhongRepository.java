@@ -14,60 +14,47 @@ import java.util.List;
 
 @Repository
 public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
-    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id," +
-            " CONCAT(dp.nhanVien.ho, ' ', dp.nhanVien.ten), " +
-            "CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), dp.maDatPhong," +
-            "dp.ngayDat, dp.ghiChu, dp.trangThai) " +
+    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
             "FROM DatPhong dp " +
             "WHERE (:trangThai IS NULL OR :trangThai = '' OR dp.trangThai = :trangThai) " +
             "ORDER BY dp.ngayDat DESC")
     Page<DatPhongResponse> DatPhongTheoTrangThai(@Param("trangThai") String trangThai, Pageable pageable);
 
 
-
-    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id," +
-            " CONCAT(dp.nhanVien.ho, ' ', dp.nhanVien.ten), " +
-            " CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), dp.maDatPhong," +
-            " dp.ngayDat, dp.ghiChu, dp.trangThai) " +
+    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
             " FROM DatPhong dp " +
-            " WHERE dp.id = :id"+
+            " WHERE dp.id = :id" +
             " ORDER BY dp.ngayDat DESC")
     DatPhongResponse findByIdDatPhong(@Param("id") Integer id);
 
-    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id," +
-            " CONCAT(dp.nhanVien.ho, ' ', dp.nhanVien.ten), " +
-            " CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), dp.maDatPhong," +
-            " dp.ngayDat, dp.ghiChu, dp.trangThai) " +
-            " FROM DatPhong dp"+
+    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
+            " FROM DatPhong dp " +
+            " WHERE dp.trangThai IN :trangThai" +
+            " ORDER BY dp.ngayDat DESC")
+    Page<DatPhongResponse> DatPhongTheoTrangThai(@Param("trangThai") List<String> trangThai, Pageable pageable);
+
+    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
+            " FROM DatPhong dp" +
             " ORDER BY dp.ngayDat DESC")
     Page<DatPhongResponse> findAllDP(Pageable pageable);
 
-    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id," +
-            " CONCAT(dp.nhanVien.ho, ' ', dp.nhanVien.ten), " +
-            " CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), dp.maDatPhong," +
-            " dp.ngayDat, dp.ghiChu, dp.trangThai) " +
-            " FROM DatPhong dp " +
-            " WHERE dp.trangThai IN :trangThai" +
-                    " ORDER BY dp.ngayDat DESC")
-    Page<DatPhongResponse> DatPhongTheoTrangThai(@Param("trangThai") List<String> trangThai, Pageable pageable);
-    
-    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id," +
-            " CONCAT(dp.nhanVien.ho, ' ', dp.nhanVien.ten), " +
-            " CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), dp.maDatPhong," +
-            " dp.ngayDat, dp.ghiChu, dp.trangThai) " +
+
+    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten), " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
             " FROM DatPhong dp " +
             " WHERE (:keyword IS NULL OR dp.trangThai LIKE %:keyword%" +
-            " OR CONCAT(dp.nhanVien.ho, ' ', dp.nhanVien.ten) LIKE %:keyword%" +
             " OR CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten) LIKE %:keyword%" +
             " OR dp.maDatPhong LIKE %:keyword%)" +
-            " AND (:startDate IS NULL OR :endDate IS NULL OR dp.ngayDat BETWEEN :startDate AND :endDate)"+
+            " AND (:startDate IS NULL OR :endDate IS NULL OR dp.ngayDat BETWEEN :startDate AND :endDate)" +
             " ORDER BY dp.ngayDat DESC")
-
     Page<DatPhongResponse> searchDatPhong(
             @Param("keyword") String keyword,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate,
             Pageable pageable);
-
 }
 

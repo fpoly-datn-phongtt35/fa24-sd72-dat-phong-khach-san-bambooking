@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "thong_tin_dat_phong")
-
 public class ThongTinDatPhong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,9 +27,9 @@ public class ThongTinDatPhong {
     @Column(name = "ma_thong_tin_dat_phong")
     private String maThongTinDatPhong;
     @Column(name = "ngay_nhan_phong")
-    private LocalDateTime ngayNhanPhong;
+    private LocalDate ngayNhanPhong;
     @Column(name = "ngay_tra_phong")
-    private LocalDateTime ngayTraPhong;
+    private LocalDate ngayTraPhong;
     @Column(name = "so_nguoi")
     private Integer soNguoi;
     @Column(name = "gia_dat")

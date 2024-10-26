@@ -33,4 +33,5 @@ public class DichVuSuDung {
     Double giaSuDung;
     @Column(name = "trang_thai")
     Boolean trangThai;
+
 }

@@ -1,5 +1,6 @@
 package com.example.datn.controller;
 
+import com.example.datn.dto.request.KhachHangDatPhongRequest;
 import com.example.datn.dto.request.KhachHangRequest;
 import com.example.datn.service.KhachHangService;
 import jakarta.validation.Valid;
@@ -49,5 +50,10 @@ public class KhachHangController {
     @GetMapping("/search")
     public ResponseEntity<?> searchKhachHang(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(khachHangService.searchKhachHang(keyword, pageable));
+    }
+
+    @PostMapping("/create-kh-dp")
+    public ResponseEntity<?> createKhachHangDatPhong(@RequestBody KhachHangDatPhongRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(khachHangService.createKhachHangDatPhong(request));
     }
 }

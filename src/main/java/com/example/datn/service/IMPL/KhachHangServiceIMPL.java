@@ -1,6 +1,7 @@
 package com.example.datn.service.IMPL;
 
 import com.example.datn.config.PasswordGenerator;
+import com.example.datn.dto.request.KhachHangDatPhongRequest;
 import com.example.datn.dto.request.KhachHangRequest;
 import com.example.datn.dto.response.KhachHangResponse;
 import com.example.datn.mapper.KhachHangMapper;
@@ -33,19 +34,14 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
     @Override
     public KhachHang createKhachHang(KhachHangRequest request) {
-        TaiKhoan taiKhoan = new TaiKhoan();
-        taiKhoan.setTenDangNhap(request.getEmail());
-
-        String generatedPassword = PasswordGenerator.generateRandomPassword();
-        taiKhoan.setMatKhau(generatedPassword);
-
-        TaiKhoan saveTaiKhoan = taiKhoanRepository.save(taiKhoan);
-
         KhachHang khachHang = khachHangMapper.toKhachHang(request);
-        khachHang.setTaiKhoan(saveTaiKhoan);
+        khachHang.setTen(request.getTen());
+        khachHang.setHo(request.getHo());
+        khachHang.setSdt(request.getSdt());
+        khachHang.setEmail(request.getEmail());
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
-
+        khachHang.setTrangThai(true);
         return khachHangRepository.save(khachHang);
     }
 
@@ -59,25 +55,26 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
     @Override
     public KhachHangResponse updateKhachHang(Integer id, KhachHangRequest request) {
-        KhachHang khachHang = khachHangRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ID khach hang not found: " + id));
-        khachHang.setHo(request.getHo());
-        khachHang.setTen(request.getTen());
-        khachHang.setGioiTinh(request.getGioiTinh());
-        khachHang.setDiaChi(request.getDiaChi());
-        khachHang.setSdt(request.getSdt());
-        khachHang.setEmail(request.getEmail());
-        khachHang.setTrangThai(request.getTrangThai());
-        khachHang.setNgaySua(LocalDateTime.now());
-
-        KhachHang updateKH = khachHangRepository.save(khachHang);
-
-        TaiKhoan taiKhoan = updateKH.getTaiKhoan();
-        if (taiKhoan != null) {
-            taiKhoan.setTenDangNhap(request.getEmail());
-            taiKhoanRepository.save(taiKhoan);
-        }
-        return khachHangMapper.toKhachHangResponse(updateKH);
+//        KhachHang khachHang = khachHangRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("ID khach hang not found: " + id));
+//        khachHang.setHo(request.getHo());
+//        khachHang.setTen(request.getTen());
+//        khachHang.setGioiTinh(request.getGioiTinh());
+//        khachHang.setDiaChi(request.getDiaChi());
+//        khachHang.setSdt(request.getSdt());
+//        khachHang.setEmail(request.getEmail());
+//        khachHang.setTrangThai(request.getTrangThai());
+//        khachHang.setNgaySua(LocalDateTime.now());
+//
+//        KhachHang updateKH = khachHangRepository.save(khachHang);
+//
+//        TaiKhoan taiKhoan = updateKH.getTaiKhoan();
+//        if (taiKhoan != null) {
+//            taiKhoan.setTenDangNhap(request.getEmail());
+//            taiKhoanRepository.save(taiKhoan);
+//        }
+//        return khachHangMapper.toKhachHangResponse(updateKH);
+        return null;
     }
 
     @Override
@@ -91,5 +88,18 @@ public class KhachHangServiceIMPL implements KhachHangService {
     @Override
     public Page<KhachHang> searchKhachHang(String keyword, Pageable pageable) {
         return khachHangRepository.search(keyword, pageable);
+    }
+
+    @Override
+    public KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request) {
+        KhachHang khachHang = new KhachHang();
+        khachHang.setTen(request.getTen());
+        khachHang.setHo(request.getHo());
+        khachHang.setSdt(request.getSdt());
+        khachHang.setEmail(request.getEmail());
+        khachHang.setNgayTao(LocalDateTime.now());
+        khachHang.setNgaySua(LocalDateTime.now());
+        khachHang.setTrangThai(false);
+        return khachHangRepository.save(khachHang);
     }
 }
