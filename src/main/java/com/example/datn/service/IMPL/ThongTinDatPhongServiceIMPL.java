@@ -28,7 +28,6 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setDatPhong(request.getDatPhong());
         ttdp.setLoaiPhong(request.getLoaiPhong());
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
-        ttdp.setSoLuongPhong(request.getSoLuongPhong());
         ttdp.setGiaDat(request.getGiaDat());
         ttdp.setNgayNhanPhong(request.getNgayNhanPhong());
         ttdp.setNgayTraPhong(request.getNgayTraPhong());

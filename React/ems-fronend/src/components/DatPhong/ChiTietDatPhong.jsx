@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import './ThongTinDatPhong.scss';
+import './ChiTietDatPhong.scss';
 import { useLocation } from 'react-router-dom';
 import { getThongTinDatPhong } from '../../services/TTDP';
 import { Tabs } from 'antd';  // Import Tabs từ Ant Design
 
 const { TabPane } = Tabs;
 
-const ThongTinDatPhong = () => {
+const ChiTietDatPhong = () => {
     const [thongTinDatPhong, setThongTinDatPhong] = useState([]); // Chuyển sang mảng để chứa danh sách
     const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
     const [totalPages, setTotalPages] = useState(0); // Tổng số trang
@@ -89,4 +89,4 @@ const ThongTinDatPhong = () => {
     );
 };
 
-export default ThongTinDatPhong;
+export default ChiTietDatPhong;

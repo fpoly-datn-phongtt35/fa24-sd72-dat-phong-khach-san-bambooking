@@ -12,7 +12,7 @@ const NavDatPhong = ({ onFilterChange }) => {
     const navigate = useNavigate(); // Sử dụng hook để điều hướng
 
     const handleCreateBooking = () => {
-        navigate('/tao-dat-phong'); // Điều hướng đến trang tạo đặt phòng
+        navigate('/giao-dien-tao-dp');
     };
     const handleOpenForm = () => {
         setShow(true); // Mở form

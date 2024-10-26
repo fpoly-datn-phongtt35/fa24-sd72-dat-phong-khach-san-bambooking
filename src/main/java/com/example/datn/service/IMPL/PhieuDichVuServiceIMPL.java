@@ -29,7 +29,6 @@ public class PhieuDichVuServiceIMPL implements PhieuDichVuService {
         dichVuSuDung.setNgayBatDau(LocalDateTime.now());
         dichVuSuDung.setNgayKetThuc(LocalDateTime.now().plusDays(1)); // Ví dụ cộng 1 ngày
         dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
-        dichVuSuDung.setThanhTien(dichVuSuDungRequest.getThanhTien());
         dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
         return phieuDichVuRepository.save(dichVuSuDung);
     }
@@ -52,7 +51,6 @@ public class PhieuDichVuServiceIMPL implements PhieuDichVuService {
             // Thiết lập ngày kết thúc từ yêu cầu
             dichVuSuDung.setNgayKetThuc(dichVuSuDungRequest.getNgayKetThuc());
             dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
-            dichVuSuDung.setThanhTien(dichVuSuDungRequest.getThanhTien());
             dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
 
             return phieuDichVuRepository.save(dichVuSuDung);

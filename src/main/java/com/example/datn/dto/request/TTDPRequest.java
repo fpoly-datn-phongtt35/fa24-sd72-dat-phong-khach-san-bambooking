@@ -31,6 +31,5 @@ public class TTDPRequest {
     private LocalDate ngayTraPhong;
     private Integer soNguoi;
     private Double giaDat;
-    private Integer soLuongPhong;
     private String trangThai;
 }

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Form, Row, Col, Button, Dropdown, DropdownButton, Card } from 'react-bootstrap';
 import './BookingForm.scss'; // Import file CSS
-import XacNhanDatPhong from './XacNhanDatPhong'; // Import the new modal component
+import ModalSelectedRoom from './ModalSelectedRoom'; // Import the new modal component
 import { addThongTinDatPhong, getLoaiPhongKhaDung } from '../../services/TTDP';
+import TaoDatPhong from './TaoDatPhong';
 const BookingForm = () => {
     const [datPhong, setDatPhong] = useState(null);
     const [startDate, setStartDate] = useState('');
@@ -48,11 +49,17 @@ const BookingForm = () => {
         }
     };
 
-    const handleCreateBooking = async (room) => {
-        setSelectedRooms((prevRooms) => [...prevRooms, room]);
-        // alert(`Đã thêm phòng ${room.tenLoaiPhong} vào danh sách giỏ hàng.`);
+    const handleAddSelectedRooms = (room) => {
+        const selectedRoomInfo = {
+            ...room,
+            adults,
+            startDate,
+            endDate,
+        };
+        setSelectedRooms((prevRooms) => [...prevRooms, selectedRoomInfo]);
         setShowModal(true);
     };
+    
 
 
     const handleOpenModal = () => {
@@ -92,7 +99,22 @@ const BookingForm = () => {
         setSelectedRooms((prevRooms) =>
             prevRooms.filter((_, index) => index !== roomIndex)
         );
-    };    
+    };
+    const handleCreateBooking = (room) => {
+        const selectedRoomInfo = {
+            ...room,
+            adults,
+            startDate,
+            endDate,
+        };
+        setSelectedRooms((prevRooms) => {
+            const updatedRooms = [...prevRooms, selectedRoomInfo];
+            // Điều hướng sang TaoDatPhong với toàn bộ danh sách phòng
+            navigate('/tao-dat-phong', { state: { selectedRooms: updatedRooms, startDate, endDate, adults, children } });
+            return updatedRooms;
+        });
+    };
+    
     return (
         <div className="booking-form-container">
             <form className="search-form" onSubmit={handleSearch}>
@@ -133,7 +155,7 @@ const BookingForm = () => {
                         <label htmlFor="formGuests">Số Người</label>
                         <div className="dropdown">
                             <button type="button" className="dropdown-toggle">
-                                Người lớn: {adults}, Trẻ em: {children}
+                                Số người: {adults}
                             </button>
                             <div className="dropdown-menu">
                                 <div className="dropdown-item">
@@ -149,25 +171,6 @@ const BookingForm = () => {
                                         <button
                                             className="round-button"
                                             onClick={() => setAdults(adults + 1)}
-                                        >
-                                            +
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="dropdown-item">
-                                    <span>Trẻ em:</span>
-                                    <div className="quantity-control">
-                                        <button
-                                            className="round-button"
-                                            onClick={() => setChildren(children > 0 ? children - 1 : 0)}
-                                        >
-                                            -
-                                        </button>
-                                        <span>{children}</span>
-                                        <button
-                                            className="round-button"
-                                            onClick={() => setChildren(children + 1)}
                                         >
                                             +
                                         </button>
@@ -224,10 +227,12 @@ const BookingForm = () => {
                             </p>
                         </div>
                         <div className="room-actions">
-                            <button className="primary-btn" onClick={() => handleCreateBooking(lp)}>
-                                Đặt Phòng
+                            <button className="secondary-btn" onClick={() => handleCreateBooking(lp)}>
+                                Đặt ngay
                             </button>
-                            <button className="secondary-btn">Xem Chi Tiết</button>
+                            <button className="primary-btn" onClick={() => handleAddSelectedRooms(lp)}>
+                                Thêm vào giỏ
+                            </button>
                         </div>
                     </div>
                 ))}
@@ -246,14 +251,13 @@ const BookingForm = () => {
             {showModal && (
                 <div className="XNDP-modal-backdrop-x">
                     <div className="XNDP-modal-body">
-                        <XacNhanDatPhong
+                        <ModalSelectedRoom
                             showModal={showModal}
                             handleCloseModal={handleCloseModal}
                             handleConfirmBooking={handleConfirmBooking}
                             selectedRooms={selectedRooms}
                             startDate={startDate}
                             endDate={endDate}
-                            children={children}
                             adults={adults}
                             handleRemoveRoom = {handleRemoveRoom}
                         />

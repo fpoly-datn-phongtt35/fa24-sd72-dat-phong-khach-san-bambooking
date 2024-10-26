@@ -4,7 +4,7 @@ public class ThongTinHoaDon {
     private Integer id;
     private TraPhong traPhong;
     private HoaDon hoaDon;
-    private DichVuSuDung dichVuSuDung;
+    private Double tienDichVu;
     private Double tienPhong;
     private Double tienPhuThu;
 }

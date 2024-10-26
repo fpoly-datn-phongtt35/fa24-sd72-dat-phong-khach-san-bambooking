@@ -41,8 +41,6 @@ public class ThongTinDatPhong {
     private Integer soNguoi;
     @Column(name = "gia_dat")
     private Double giaDat;
-    @Column(name = "so_luong_phong")
-    private Integer soLuongPhong;
     @Column(name = "trang_thai")
     private String trangThai;
 }

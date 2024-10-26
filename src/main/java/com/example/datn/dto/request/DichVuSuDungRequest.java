@@ -22,6 +22,5 @@ public class DichVuSuDungRequest {
     private LocalDateTime ngayBatDau;
     private LocalDateTime ngayKetThuc;
     private Double giaSuDung;
-    private Double thanhTien;
     private Boolean trangThai;
 }

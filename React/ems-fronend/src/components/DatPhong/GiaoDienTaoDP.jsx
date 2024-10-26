@@ -1,8 +1,8 @@
 import React from 'react';
-import './FormAddPage.scss'; // Để định kiểu cho giao diện
+import './GiaoDienTaoDP.scss'; // Để định kiểu cho giao diện
 import BookingForm from './BookingForm';
 import NavPhong from './NavPhong';
-const FormAddPage = () => {
+const GiaoDienTaoDP = () => {
     return (
         <div className="form-add-page">
             <div className="form-container">
@@ -15,4 +15,4 @@ const FormAddPage = () => {
     );
 };
 
-export default FormAddPage;
+export default GiaoDienTaoDP;

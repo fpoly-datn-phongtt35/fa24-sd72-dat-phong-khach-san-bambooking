@@ -20,12 +20,12 @@ import { useState, useEffect } from 'react';
 import ListKhachHang from './components/KhachHang/ListKhachHang';
 import KhachHangComponent from './components/KhachHang/KhachHangComponent';
 import ListNhanVien from "./components/nhanvien/ListNhanVien.jsx";
-import ThongTinDatPhong from './components/DatPhong/ThongTinDatPhong';
+import ChiTietDatPhong from './components/DatPhong/ChiTietDatPhong.jsx';
 import ViewPhong from './components/TrangChu/ViewPhong';
 import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
-import FormAddPage from './components/DatPhong/FormAddPage';
-import FormAdd from './components/DatPhong/FormAdd';
 import LoaiPhong from './components/LoaiPhong/LoaiPhong';
+import TaoDatPhong from './components/DatPhong/TaoDatPhong.jsx';
+import GiaoDienTaoDP from './components/DatPhong/GiaoDienTaoDP.jsx'
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
@@ -87,14 +87,40 @@ function App() {
             {/* Route công khai */}
             <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
             {/* Các route được bảo vệ */}
+            {/* tuan_dat */}
+            <Route
+              path="/giao-dien-tao-dp"
+              element={
+                <RequireAuth>
+                  <GiaoDienTaoDP />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/tao-dat-phong"
+              element={
+                <RequireAuth>
+                  <TaoDatPhong />
+                </RequireAuth>
+              }
+            />
             <Route
               path="/thong-tin-dat-phong"
               element={
                 <RequireAuth>
-                  <ThongTinDatPhong />
+                  <ChiTietDatPhong />
                 </RequireAuth>
               }
             />
+            <Route
+              path="/DatPhong"
+              element={
+                <RequireAuth>
+                  <DatPhong />
+                </RequireAuth>
+              }
+            />
+
             <Route
               path="/LoaiPhong"
               element={
@@ -116,15 +142,6 @@ function App() {
               element={
                 <RequireAuth>
                   <DanhSach />
-                </RequireAuth>
-              }
-            />
-
-            <Route
-              path="/tao-dat-phong"
-              element={
-                <RequireAuth>
-                  <FormAddPage />
                 </RequireAuth>
               }
             />
@@ -160,21 +177,11 @@ function App() {
                 </RequireAuth>
               }
             />
-
-
             <Route
               path="/NhanVien"
               element={
                 <RequireAuth>
                   <ListNhanVien />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/form-tao"
-              element={
-                <RequireAuth>
-                  <FormAdd />
                 </RequireAuth>
               }
             />
@@ -223,14 +230,6 @@ function App() {
               element={
                 <RequireAuth>
                   <TienNghi />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/DatPhong"
-              element={
-                <RequireAuth>
-                  <DatPhong />
                 </RequireAuth>
               }
             />

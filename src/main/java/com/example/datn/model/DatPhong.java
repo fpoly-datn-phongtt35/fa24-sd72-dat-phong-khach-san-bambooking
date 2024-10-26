@@ -29,10 +29,6 @@ public class DatPhong {
 
     @Column(name = "ngay_dat")
     private LocalDate ngayDat;
-
-    @Column(name = "so_nguoi")
-    private Integer soNguoi;
-
     @Column(name = "tong_tien")
     private Double tongTien;
     @Column(name = "dat_coc")
