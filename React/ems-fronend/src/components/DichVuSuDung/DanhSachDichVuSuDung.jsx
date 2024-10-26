@@ -104,7 +104,6 @@ const DanhSachDichVuSuDung = () => {
                         <th>Ngày Bắt Đầu</th>
                         <th>Ngày Kết Thúc</th>
                         <th>Giá Sử Dụng</th>
-                        <th>Thành Tiền</th>
                         <th>Trạng Thái</th>
                         <th>Hành Động</th>
                     </tr>
@@ -118,7 +117,6 @@ const DanhSachDichVuSuDung = () => {
                             <td>{new Date(dichVu.ngayBatDau).toLocaleDateString()}</td>
                             <td>{new Date(dichVu.ngayKetThuc).toLocaleDateString()}</td>
                             <td>{dichVu.giaSuDung}</td>
-                            <td>{dichVu.thanhTien}</td>
                             <td>{dichVu.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</td>
                             <td>
                                 <button onClick={() => openUpdateForm(dichVu)}>Sửa</button>

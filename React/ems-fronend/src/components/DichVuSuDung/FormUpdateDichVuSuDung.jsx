@@ -30,7 +30,6 @@ const FormUpdateDichVuSuDung = ({ show, handleClose, refreshData, dichVuSuDung }
             setNgayBatDau(dichVuSuDung.ngayBatDau ? new Date(dichVuSuDung.ngayBatDau).toISOString().slice(0, 10) : '');
             setNgayKetThuc(dichVuSuDung.ngayKetThuc ? new Date(dichVuSuDung.ngayKetThuc).toISOString().slice(0, 10) : '');
             setGiaSuDung(dichVuSuDung.giaSuDung || '');
-            setThanhTien(dichVuSuDung.thanhTien || '');
             setTrangThai(dichVuSuDung.trangThai === true); // Cập nhật trạng thái từ boolean
             setXepPhong(dichVuSuDung.xepPhong?.id || '');
             setSoLuongSuDung(dichVuSuDung.soLuongSuDung || '');
@@ -48,7 +47,6 @@ const FormUpdateDichVuSuDung = ({ show, handleClose, refreshData, dichVuSuDung }
             ngayBatDau: `${ngayBatDau}T00:00:00`,
             ngayKetThuc: `${ngayKetThuc}T00:00:00`,
             giaSuDung,
-            thanhTien,
             trangThai, // Gửi giá trị boolean
             soLuongSuDung,
         };
@@ -138,14 +136,6 @@ const FormUpdateDichVuSuDung = ({ show, handleClose, refreshData, dichVuSuDung }
                             value={giaSuDung}
                             onChange={(e) => setGiaSuDung(e.target.value)}
                             required
-                        />
-                    </div>
-                    <div>
-                        <label>Thành Tiền:</label>
-                        <input
-                            type="number"
-                            value={thanhTien}
-                            onChange={(e) => setThanhTien(e.target.value)}
                         />
                     </div>
                     <div>

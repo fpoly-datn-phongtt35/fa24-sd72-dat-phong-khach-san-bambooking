@@ -74,7 +74,6 @@ public class DatPhongServiceIMPL implements DatPhongService {
         DatPhong datPhong = new DatPhong();
         datPhong.setId(datPhongRequest.getId());
         datPhong.setMaDatPhong(datPhongRequest.getMaDatPhong());
-        datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
         datPhong.setTongTien(datPhongRequest.getTongTien());
         datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(datPhongRequest.getNgayDat());
