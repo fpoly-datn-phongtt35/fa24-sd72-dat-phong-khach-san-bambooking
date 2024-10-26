@@ -1,48 +1,98 @@
 package com.example.datn.service.IMPL;
 
+import com.example.datn.dto.request.HoaDonRequest;
+import com.example.datn.dto.response.HoaDonResponse;
+import com.example.datn.mapper.HoaDonMapper;
+import com.example.datn.model.DatPhong;
 import com.example.datn.model.HoaDon;
+import com.example.datn.model.NhanVien;
+import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.repository.HoaDonRepository;
+import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.service.HoaDonService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.security.SecureRandom;
+import java.time.LocalDate;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
 public class HoaDonServiceIMPL implements HoaDonService {
-    @Autowired
     HoaDonRepository hoaDonRepository;
+    NhanVienRepository nhanVienRepository;
+    DatPhongRepository datPhongRepository;
+    HoaDonMapper hoaDonMapper;
+
+    private static final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final int code_length = 6;
+    private final SecureRandom random = new SecureRandom();
 
     @Override
-    public List<HoaDon> findAll() {
-        return hoaDonRepository.findAll();
-    }
-
-    @Override
-    public void addHoaDon(HoaDon hoaDon) {
-        hoaDonRepository.save(hoaDon);
-    }
-
-    @Override
-    public HoaDon detailHoaDon(Integer id) {
-        return hoaDonRepository.findById(id).get();
-    }
-
-    @Override
-    public void updateHoaDon(HoaDon hoaDon) {
-        hoaDonRepository.save(hoaDon);
-    }
-
-    @Override
-    public void updateStatusHoaDon(Integer id) {
-        HoaDon hoaDon = hoaDonRepository.findById(id).orElse(null);
-        if (hoaDon != null){
-            if (hoaDon.getTrangThai().equals("Chưa thanh toán")){
-                hoaDon.setTrangThai("Đã thanh toán");
-            }else {
-                hoaDon.setTrangThai("Chưa thanh toán");
-            }
-            hoaDonRepository.save(hoaDon);
+    public Page<HoaDonResponse> getHoaDonByTrangThai(String trangThai, Pageable pageable) {
+        Page<HoaDon> hoaDons;
+        if (trangThai == null || trangThai.isEmpty()) {
+            hoaDons = hoaDonRepository.findAll(pageable);
+        } else {
+            hoaDons = hoaDonRepository.findByTrangThai(trangThai, pageable);
         }
+        return hoaDons.map(hoaDonMapper::toHoaDonResponse);
+    }
+
+    //Sinh mã hóa đơn 6 ký tự
+    private String generateMaaHoaDon() {
+        StringBuilder stringBuilder = new StringBuilder(code_length);
+        for (int i = 0; i < code_length; i++) {
+            int index = random.nextInt(characters.length());
+            stringBuilder.append(characters.charAt(index));
+        }
+        return stringBuilder.toString();
+    }
+
+    //Kiểm tra xem mã hóa đơn tồn tại hay chưa
+    private boolean isMaHoaDonExists(String maHoaDon) {
+        return hoaDonRepository.existsByMaHoaDon(maHoaDon);
+    }
+
+    @Override
+    public HoaDonResponse createHoaDon(HoaDonRequest request) {
+        // Check trùng mã hóa đơn
+        String maHoaDon;
+        do {
+            maHoaDon = generateMaaHoaDon();
+        } while (isMaHoaDonExists(maHoaDon));
+
+        // Tìm kiếm nhân viên và đặt phòng
+        NhanVien nhanVien = nhanVienRepository.findById(request.getNhanVien().getId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên"));
+
+        DatPhong datPhong = datPhongRepository.findById(request.getDatPhong().getId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin đặt phòng"));
+
+        // Tạo hóa đơn
+        request.setNhanVien(nhanVien);
+        request.setDatPhong(datPhong);
+        request.setNgayTao(LocalDate.now());
+
+        HoaDon hoaDon = hoaDonMapper.toHoaDon(request);
+        HoaDon savedHoaDon = hoaDonRepository.save(hoaDon);
+
+        return hoaDonMapper.toHoaDonResponse(savedHoaDon); // Trả về phản hồi
+    }
+
+
+    @Override
+    public void changeStatusHoaDon(Integer idHoaDon) {
+
+    }
+
+    @Override
+    public Page<HoaDonResponse> searchHoaDon(String keyword, Pageable pageable) {
+        return null;
     }
 }

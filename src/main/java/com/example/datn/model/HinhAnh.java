@@ -21,7 +21,6 @@ public class HinhAnh {
     @ManyToOne
     @JsonBackReference
     private Phong phong;
-
     @Column(name = "ten")
     private String tenAnh;
     @Column(name = "duong_dan")
