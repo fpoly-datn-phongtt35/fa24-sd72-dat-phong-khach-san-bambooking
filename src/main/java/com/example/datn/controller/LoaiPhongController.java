@@ -32,7 +32,6 @@ public class LoaiPhongController {
 
     @GetMapping("/index")
     public ResponseEntity<?> DanhSachTienNghi(Pageable pageable){
-
         Page<LoaiPhongResponse> ti = phongServiceIMPL.getPage(pageable);
         return ResponseEntity.ok(ti);
     }

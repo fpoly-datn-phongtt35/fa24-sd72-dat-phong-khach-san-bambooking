@@ -4,7 +4,7 @@ const api = "http://localhost:8080/dich_vu_di_kem";
 const apiAdd = "http://localhost:8080/dich_vu_di_kem/add";
 const apiUpdate = "http://localhost:8080/dich_vu_di_kem/update";
 const apiDelete = "http://localhost:8080/dich_vu_di_kem/delete";
-const apiLoaiPhong = "http://localhost:8080/loai_phong";
+const apiLoaiPhong = "http://localhost:8080/loai-phong";
 const apiDichVu = "http://localhost:8080/dich_vu";
 
 export const LayDanhSachDichVuDiKem = () => axios.get(api);

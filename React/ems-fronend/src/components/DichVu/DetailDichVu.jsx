@@ -1,7 +1,7 @@
 import React from 'react';
 
 const DetailDichVu = ({ dichVu, handleClose }) => {
-    if (!dichVu) return null; // Không hiển thị nếu không có thông tin dịch vụ
+    if (!dichVu) return null;
 
     return (
         <div className="modal-overlay">
@@ -10,7 +10,8 @@ const DetailDichVu = ({ dichVu, handleClose }) => {
                 <p><strong>Tên Dịch Vụ:</strong> {dichVu.tenDichVu}</p>
                 <p><strong>Giá:</strong> {dichVu.donGia}</p>
                 <p><strong>Mô Tả:</strong> {dichVu.moTa}</p>
-                <p><strong>Trạng Thái:</strong> {dichVu.trangThai}</p>
+                {/* Hiển thị trạng thái dưới dạng chuỗi dựa trên giá trị boolean */}
+                <p><strong>Trạng Thái:</strong> {dichVu.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</p>
                 <button onClick={handleClose}>Đóng</button>
             </div>
         </div>

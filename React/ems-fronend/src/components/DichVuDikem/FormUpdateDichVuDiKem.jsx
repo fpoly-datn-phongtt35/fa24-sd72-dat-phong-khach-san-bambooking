@@ -4,10 +4,11 @@ import { CapNhatDichVuDiKem, DanhSachDichVu, DanhSachLoaiPhong } from '../../ser
 const FormUpdateDichVuDiKem = ({ show, handleClose, refreshData, dichVuDiKem }) => {
     const [dichVu, setDichVu] = useState('');
     const [loaiPhong, setLoaiPhong] = useState('');
-    const [trangThai, setTrangThai] = useState('');
+    const [trangThai, setTrangThai] = useState(true); // Đặt trạng thái mặc định là true
 
     const [dichVuList, setDichVuList] = useState([]);
     const [loaiPhongList, setLoaiPhongList] = useState([]);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         // Lấy danh sách dịch vụ
@@ -32,13 +33,14 @@ const FormUpdateDichVuDiKem = ({ show, handleClose, refreshData, dichVuDiKem }) 
         if (dichVuDiKem) {
             setDichVu(dichVuDiKem.dichVu?.id || '');
             setLoaiPhong(dichVuDiKem.loaiPhong?.id || '');
-            setTrangThai(dichVuDiKem.trangThai || '');
+            setTrangThai(dichVuDiKem.trangThai); // Giữ nguyên giá trị boolean từ database
         }
     }, [dichVuDiKem]);
 
     const handleUpdate = (e) => {
         e.preventDefault();
-    
+        setErrorMessage('');
+
         // Tạo đối tượng cập nhật theo định dạng yêu cầu
         const updatedDichVuDiKem = {
             id: dichVuDiKem.id,
@@ -48,11 +50,11 @@ const FormUpdateDichVuDiKem = ({ show, handleClose, refreshData, dichVuDiKem }) 
             loaiPhong: {
                 id: loaiPhong // Lấy id loại phòng từ state
             },
-            trangThai: trangThai, // Trạng thái từ state
+            trangThai: trangThai, // Trạng thái boolean
         };
-    
+
         console.log('Dữ liệu gửi đi:', updatedDichVuDiKem);
-    
+
         // Gọi service cập nhật
         CapNhatDichVuDiKem(updatedDichVuDiKem)
             .then((response) => {
@@ -62,9 +64,20 @@ const FormUpdateDichVuDiKem = ({ show, handleClose, refreshData, dichVuDiKem }) 
             })
             .catch(error => {
                 console.error("Lỗi khi cập nhật dịch vụ đi kèm:", error);
+
+                // Kiểm tra lỗi cụ thể
+                if (error.response && error.response.data) {
+                    const errorMsg = error.response.data.message || 'Đã xảy ra lỗi, vui lòng thử lại!';
+                    if (errorMsg.includes('UNIQUE KEY constraint')) {
+                        setErrorMessage('Dịch vụ và loại phòng đã tồn tại, vui lòng chọn khác!');
+                    } else {
+                        setErrorMessage(errorMsg);
+                    }
+                } else {
+                    setErrorMessage('Đã xảy ra lỗi không xác định, vui lòng thử lại!');
+                }
             });
     };
-    
 
     if (!show) return null;
 
@@ -72,6 +85,7 @@ const FormUpdateDichVuDiKem = ({ show, handleClose, refreshData, dichVuDiKem }) 
         <div className="modal-overlay">
             <div className="modal-container">
                 <h2>Cập Nhật Dịch Vụ Đi Kèm</h2>
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
                 <form onSubmit={handleUpdate}>
                     <div>
                         <label>Dịch Vụ:</label>
@@ -106,11 +120,10 @@ const FormUpdateDichVuDiKem = ({ show, handleClose, refreshData, dichVuDiKem }) 
                     <div>
                         <label>Trạng Thái:</label>
                         <select
-                            value={trangThai}
-                            onChange={(e) => setTrangThai(e.target.value)} 
+                            value={trangThai ? 'Hoạt động' : 'Ngừng hoạt động'} // Chuyển đổi boolean thành chuỗi cho dropdown
+                            onChange={(e) => setTrangThai(e.target.value === 'Hoạt động')} // Chuyển đổi chuỗi thành boolean
                             required
                         >
-                            <option value="">Chọn trạng thái</option>
                             <option value="Hoạt động">Hoạt động</option>
                             <option value="Ngừng hoạt động">Ngừng hoạt động</option>
                         </select>

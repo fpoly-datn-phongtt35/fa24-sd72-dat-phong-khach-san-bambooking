@@ -9,16 +9,25 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
         donGia: '',
         moTa: '',
         //hinhAnh: '',
-        trangThai: 'active', // Đảm bảo giá trị mặc định không null
+        trangThai: true, // Dùng boolean, mặc định là true (Hoạt động)
     });
 
     // Hàm xử lý thay đổi giá trị input
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,  // Cập nhật formData dựa trên thuộc tính name của input
-        });
+
+        // Nếu là select của trangThai, chuyển đổi giá trị từ chuỗi thành boolean
+        if (name === "trangThai") {
+            setFormData({
+                ...formData,
+                [name]: value === 'true',  // Chuyển đổi chuỗi 'true' hoặc 'false' thành boolean
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value,  // Cập nhật formData dựa trên thuộc tính name của input
+            });
+        }
     };
 
     // Hàm xử lý khi nhấn nút lưu
@@ -35,7 +44,7 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
                     donGia: '',
                     moTa: '',
                     //hinhAnh: '',
-                    trangThai: 'active',
+                    trangThai: true, // Reset về trạng thái hoạt động
                 });
 
                 refreshData(); // Gọi callback để load lại dữ liệu bảng
@@ -104,8 +113,8 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
                             value={formData.trangThai}
                             onChange={handleInputChange}
                         >
-                            <option value="active">Hoạt động</option>
-                            <option value="inactive">Không hoạt động</option>
+                            <option value={true}>Hoạt động</option>
+                            <option value={false}>Ngừng hoạt động</option>
                         </select>
                     </div>
                     <div className="modal-actions">

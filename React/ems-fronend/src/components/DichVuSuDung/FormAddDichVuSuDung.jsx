@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { ThemPhieuDichVu, DanhSachDichVu, DanhSachThongTinDatPhong } from '../../services/PhieuDichVuService';
+import { ThemDichVuSuDung, DanhSachDichVu, DanhSachXepPhong } from '../../services/DichVuSuDungService';
 
-const FormAddPhieuDichVu = ({ show, handleClose, refreshData }) => {
+const FormAddDichVuSuDung = ({ show, handleClose, refreshData }) => {
     const [formData, setFormData] = useState({
         dichVu: null,
-        thongTinDatPhong: null,
+        xepPhong: null,
         soLuongSuDung: 1,
         ngayBatDau: '',
         ngayKetThuc: '',
         giaSuDung: 0,
-        trangThai: 'Hoạt động',
+        trangThai: true, // Set initial state to boolean
     });
 
     const [dichVuList, setDichVuList] = useState([]);
-    const [thongTinDatPhongList, setThongTinDatPhongList] = useState([]);
+    const [xepPhongList, setXepPhongList] = useState([]);
 
     useEffect(() => {
         DanhSachDichVu()
@@ -24,12 +24,12 @@ const FormAddPhieuDichVu = ({ show, handleClose, refreshData }) => {
                 console.error("Lỗi khi lấy danh sách dịch vụ:", error);
             });
 
-        DanhSachThongTinDatPhong()
+        DanhSachXepPhong()
             .then(response => {
-                setThongTinDatPhongList(response.data);
+                setXepPhongList(response.data);
             })
             .catch(error => {
-                console.error("Lỗi khi lấy danh sách thông tin đặt phòng:", error);
+                console.error("Lỗi khi lấy danh sách xếp phòng:", error);
             });
     }, []);
 
@@ -41,11 +41,11 @@ const FormAddPhieuDichVu = ({ show, handleClose, refreshData }) => {
         });
     };
 
-    const handleThongTinDatPhongChange = (e) => {
-        const selectedThongTinDatPhong = thongTinDatPhongList.find(tp => tp.id === parseInt(e.target.value));
+    const handleXepPhongChange = (e) => {
+        const selectedXepPhong = xepPhongList.find(tp => tp.id === parseInt(e.target.value));
         setFormData({
             ...formData,
-            thongTinDatPhong: selectedThongTinDatPhong
+            xepPhong: selectedXepPhong
         });
     };
 
@@ -57,19 +57,28 @@ const FormAddPhieuDichVu = ({ show, handleClose, refreshData }) => {
         });
     };
 
+    const handleTrangThaiChange = (e) => {
+        // Convert the string value from the dropdown to boolean
+        const isActive = e.target.value === 'true'; // 'true' is converted to true, 'false' to false
+        setFormData({
+            ...formData,
+            trangThai: isActive
+        });
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        ThemPhieuDichVu(formData)
+        ThemDichVuSuDung(formData)
             .then(response => {
                 console.log("Phiếu dịch vụ đã được thêm thành công:", response.data);
                 setFormData({
                     dichVu: null,
-                    thongTinDatPhong: null,
+                    xepPhong: null,
                     soLuongSuDung: 1,
                     ngayBatDau: '',
                     ngayKetThuc: '',
                     giaSuDung: 0,
-                    trangThai: 'Hoạt động',
+                    trangThai: true, // Reset to boolean
                 });
 
                 refreshData();
@@ -103,12 +112,12 @@ const FormAddPhieuDichVu = ({ show, handleClose, refreshData }) => {
                                 </select>
                             </div>
 
-                            {/* Thông Tin Đặt Phòng */}
+                            {/* Xếp Phòng */}
                             <div className="mb-3">
-                                <label htmlFor="thongTinDatPhong" className="form-label">Thông Tin Đặt Phòng</label>
-                                <select className="form-select" id="thongTinDatPhong" name="thongTinDatPhong" value={formData.thongTinDatPhong?.id || ''} onChange={handleThongTinDatPhongChange} required>
-                                    <option value="">Chọn thông tin đặt phòng</option>
-                                    {thongTinDatPhongList.map(tp => (
+                                <label htmlFor="xepPhong" className="form-label">Xếp Phòng</label>
+                                <select className="form-select" id="xepPhong" name="xepPhong" value={formData.xepPhong?.id || ''} onChange={handleXepPhongChange} required>
+                                    <option value="">Chọn xếp phòng</option>
+                                    {xepPhongList.map(tp => (
                                         <option key={tp.id} value={tp.id}>{tp.id}</option>
                                     ))}
                                 </select>
@@ -129,34 +138,6 @@ const FormAddPhieuDichVu = ({ show, handleClose, refreshData }) => {
                                 />
                             </div>
 
-                            {/* Ngày Bắt Đầu
-                            <div className="mb-3">
-                                <label htmlFor="ngayBatDau" className="form-label">Ngày Bắt Đầu</label>
-                                <input
-                                    type="date"
-                                    className="form-control"
-                                    id="ngayBatDau"
-                                    name="ngayBatDau"
-                                    value={formData.ngayBatDau}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div> */}
-
-                            {/* Ngày Kết Thúc */}
-                            {/* <div className="mb-3">
-                                <label htmlFor="ngayKetThuc" className="form-label">Ngày Kết Thúc</label>
-                                <input
-                                    type="date"
-                                    className="form-control"
-                                    id="ngayKetThuc"
-                                    name="ngayKetThuc"
-                                    value={formData.ngayKetThuc}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div> */}
-
                             {/* Giá Sử Dụng */}
                             <div className="mb-3">
                                 <label htmlFor="giaSuDung" className="form-label">Giá Sử Dụng</label>
@@ -174,9 +155,9 @@ const FormAddPhieuDichVu = ({ show, handleClose, refreshData }) => {
                             {/* Trạng Thái */}
                             <div className="mb-3">
                                 <label htmlFor="trangThai" className="form-label">Trạng Thái</label>
-                                <select className="form-select" id="trangThai" name="trangThai" value={formData.trangThai} onChange={handleInputChange} required>
-                                    <option value="Hoạt động">Hoạt động</option>
-                                    <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+                                <select className="form-select" id="trangThai" name="trangThai" value={formData.trangThai} onChange={handleTrangThaiChange} required>
+                                    <option value={true}>Hoạt động</option>
+                                    <option value={false}>Ngừng hoạt động</option>
                                 </select>
                             </div>
 
@@ -192,4 +173,4 @@ const FormAddPhieuDichVu = ({ show, handleClose, refreshData }) => {
     );
 };
 
-export default FormAddPhieuDichVu;
+export default FormAddDichVuSuDung;

@@ -22,7 +22,6 @@ public class DatPhongRequest {
     private KhachHang khachHang;
     private String maDatPhong;
     private LocalDate ngayDat;
-    private Integer soNguoi;
     private Double tongTien;
     private Double datCoc;
     private String ghiChu;

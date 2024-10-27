@@ -22,13 +22,17 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
 
     @Override
+    public List<ThongTinDatPhong> getAll() {
+        return thongTinDatPhongRepository.findAll();
+    }
+
+    @Override
     public ThongTinDatPhong add(TTDPRequest request) {
         ThongTinDatPhong ttdp = new ThongTinDatPhong();
         UniqueDatPhongCode code = new UniqueDatPhongCode();
         ttdp.setDatPhong(request.getDatPhong());
         ttdp.setLoaiPhong(request.getLoaiPhong());
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
-        ttdp.setSoLuongPhong(request.getSoLuongPhong());
         ttdp.setGiaDat(request.getGiaDat());
         ttdp.setNgayNhanPhong(request.getNgayNhanPhong());
         ttdp.setNgayTraPhong(request.getNgayTraPhong());

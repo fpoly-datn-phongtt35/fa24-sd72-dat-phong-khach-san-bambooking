@@ -51,12 +51,14 @@ public class UploadFileController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("idPhong") Integer idPhong,
             @RequestParam("tenAnh") String tenAnh,
-            @RequestParam("trangThai") String trangThai
+            @RequestParam("trangThai") String  trangThai
     ) {
         HinhAnhRequest request = new HinhAnhRequest();
         request.setIdPhong(idPhong);
         request.setTenAnh(tenAnh);
-        request.setTrangThai(true);
+        // Chuyển đổi từ String sang boolean
+        boolean trangThaiBoolean = Boolean.parseBoolean(trangThai);
+        request.setTrangThai(trangThaiBoolean); // Gán giá trị đã chuyển đổi
 
         try {
             HinhAnhResponse response = uploadImageFile.uploadImage(request, file);

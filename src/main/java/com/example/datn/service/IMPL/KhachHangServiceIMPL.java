@@ -42,7 +42,7 @@ public class KhachHangServiceIMPL implements KhachHangService {
         TaiKhoan saveTaiKhoan = taiKhoanRepository.save(taiKhoan);
 
         KhachHang khachHang = khachHangMapper.toKhachHang(request);
-        khachHang.setTaiKhoan(saveTaiKhoan);
+        //khachHang.setTaiKhoan(saveTaiKhoan);
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(true);
@@ -72,11 +72,11 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
         KhachHang updateKH = khachHangRepository.save(khachHang);
 
-        TaiKhoan taiKhoan = updateKH.getTaiKhoan();
-        if (taiKhoan != null) {
-            taiKhoan.setTenDangNhap(request.getEmail());
-            taiKhoanRepository.save(taiKhoan);
-        }
+        //TaiKhoan taiKhoan = updateKH.getTaiKhoan();
+//        if (taiKhoan != null) {
+//            taiKhoan.setTenDangNhap(request.getEmail());
+//            taiKhoanRepository.save(taiKhoan);
+//        }
         return khachHangMapper.toKhachHangResponse(updateKH);
     }
 
