@@ -26,6 +26,7 @@ import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
 import LoaiPhong from './components/LoaiPhong/LoaiPhong';
 import TaoDatPhong from './components/DatPhong/TaoDatPhong.jsx';
 import GiaoDienTaoDP from './components/DatPhong/GiaoDienTaoDP.jsx'
+import QuanLyDatPhong from './components/DatPhong/QuanLyDatPhong.jsx';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
@@ -88,6 +89,14 @@ function App() {
             <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
             {/* Các route được bảo vệ */}
             {/* tuan_dat */}
+            <Route
+              path="/quan-ly-dat-phong"
+              element={
+                <RequireAuth>
+                  <QuanLyDatPhong />
+                </RequireAuth>
+              }
+            />
             <Route
               path="/giao-dien-tao-dp"
               element={
