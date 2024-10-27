@@ -1,0 +1,16 @@
+/* Rooms.css */
+.rooms-page {
+    padding: 20px;
+  }
+  
+  .room-list {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .room-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  

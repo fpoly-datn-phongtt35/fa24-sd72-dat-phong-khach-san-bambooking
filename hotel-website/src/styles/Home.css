@@ -1,0 +1,15 @@
+/* Home.css */
+.home-page {
+    text-align: center;
+    padding: 50px;
+  }
+  
+  .explore-button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
