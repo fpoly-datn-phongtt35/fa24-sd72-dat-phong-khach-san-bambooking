@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @Setter
 
 @Entity
-@Table(name = "phieu_dich_vu")
+@Table(name = "dich_vu_su_dung")
 public class DichVuSuDung {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +25,8 @@ public class DichVuSuDung {
     private DichVu dichVu;
 
     @ManyToOne
-    @JoinColumn(name = "id_thong_tin_dat_phong")
-    private ThongTinDatPhong thongTinDatPhong;
+    @JoinColumn(name = "id_xep_phong")
+    private XepPhong xepPhong;
 
     @Column(name = "so_luong_su_dung")
     private Integer soLuongSuDung;
@@ -39,9 +39,6 @@ public class DichVuSuDung {
 
     @Column(name = "gia_su_dung")
     private Double giaSuDung;
-
-    @Column(name = "thanh_tien")
-    private Double thanhTien;
 
     @Column(name = "trang_thai")
     private Boolean trangThai;

@@ -1,76 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import { CapNhatPhieuDichVu, DanhSachDichVu, DanhSachThongTinDatPhong } from '../../services/PhieuDichVuService';
+import { CapNhatDichVuSuDung, DanhSachDichVu, DanhSachXepPhong } from '../../services/DichVuSuDungService';
 
-const FormUpdatePhieuDichVu = ({ show, handleClose, refreshData, phieuDichVu }) => {
+const FormUpdateDichVuSuDung = ({ show, handleClose, refreshData, dichVuSuDung }) => {
     const [dichVu, setDichVu] = useState('');
     const [ngayBatDau, setNgayBatDau] = useState('');
     const [ngayKetThuc, setNgayKetThuc] = useState('');
     const [giaSuDung, setGiaSuDung] = useState('');
     const [thanhTien, setThanhTien] = useState('');
-    const [trangThai, setTrangThai] = useState('');
-    const [thongTinDatPhong, setThongTinDatPhong] = useState('');
-    const [soLuongSuDung, setSoLuongSuDung] = useState(''); // Thêm state cho số lượng sử dụng
+    const [trangThai, setTrangThai] = useState(false); // Đặt trạng thái mặc định là boolean
+    const [xepPhong, setXepPhong] = useState('');
+    const [soLuongSuDung, setSoLuongSuDung] = useState('');
 
     const [dichVuList, setDichVuList] = useState([]);
-    const [thongTinDatPhongList, setThongTinDatPhongList] = useState([]);
+    const [xepPhongList, setXepPhongList] = useState([]);
 
     useEffect(() => {
-        // Lấy danh sách dịch vụ
+        // Fetching service and room allocation data
         DanhSachDichVu()
-            .then(response => {
-                setDichVuList(response.data);
-            })
-            .catch(error => {
-                console.error("Lỗi khi lấy danh sách dịch vụ:", error);
-            });
+            .then(response => setDichVuList(response.data))
+            .catch(error => console.error("Lỗi khi lấy danh sách dịch vụ:", error));
 
-        // Lấy danh sách thông tin đặt phòng
-        DanhSachThongTinDatPhong()
-            .then(response => {
-                setThongTinDatPhongList(response.data);
-            })
-            .catch(error => {
-                console.error("Lỗi khi lấy danh sách thông tin đặt phòng:", error);
-            });
+        DanhSachXepPhong()
+            .then(response => setXepPhongList(response.data))
+            .catch(error => console.error("Lỗi khi lấy danh sách xếp phòng:", error));
 
-        // Cập nhật giá trị hiện tại từ phiếu dịch vụ được truyền vào
-        if (phieuDichVu) {
-            setDichVu(phieuDichVu.dichVu?.id || '');
-            setNgayBatDau(phieuDichVu.ngayBatDau ? new Date(phieuDichVu.ngayBatDau).toISOString().slice(0, 10) : '');
-            setNgayKetThuc(phieuDichVu.ngayKetThuc ? new Date(phieuDichVu.ngayKetThuc).toISOString().slice(0, 10) : '');
-            setGiaSuDung(phieuDichVu.giaSuDung || '');
-            setThanhTien(phieuDichVu.thanhTien || '');
-            setTrangThai(phieuDichVu.trangThai || '');
-            setThongTinDatPhong(phieuDichVu.thongTinDatPhong?.id || '');
-            setSoLuongSuDung(phieuDichVu.soLuongSuDung || ''); // Lấy số lượng sử dụng
+        // Updating state with the current service ticket details
+        if (dichVuSuDung) {
+            setDichVu(dichVuSuDung.dichVu?.id || '');
+            setNgayBatDau(dichVuSuDung.ngayBatDau ? new Date(dichVuSuDung.ngayBatDau).toISOString().slice(0, 10) : '');
+            setNgayKetThuc(dichVuSuDung.ngayKetThuc ? new Date(dichVuSuDung.ngayKetThuc).toISOString().slice(0, 10) : '');
+            setGiaSuDung(dichVuSuDung.giaSuDung || '');
+            setTrangThai(dichVuSuDung.trangThai === true); // Cập nhật trạng thái từ boolean
+            setXepPhong(dichVuSuDung.xepPhong?.id || '');
+            setSoLuongSuDung(dichVuSuDung.soLuongSuDung || '');
         }
-    }, [phieuDichVu]);
+    }, [dichVuSuDung]);
 
     const handleUpdate = (e) => {
         e.preventDefault();
 
-        // Tạo đối tượng cập nhật theo định dạng yêu cầu
-        const updatedPhieuDichVu = {
-            id: phieuDichVu.id,
-            dichVu: {
-                id: dichVu
-            },
-            thongTinDatPhong: {
-                id: thongTinDatPhong // Gửi id của thông tin đặt phòng
-            },
-            ngayBatDau: `${ngayBatDau}T00:00:00`, // Gửi ngày bắt đầu
+        // Creating update object
+        const updatedDichVuSuDung = {
+            id: dichVuSuDung.id,
+            dichVu: { id: dichVu },
+            xepPhong: { id: xepPhong },
+            ngayBatDau: `${ngayBatDau}T00:00:00`,
             ngayKetThuc: `${ngayKetThuc}T00:00:00`,
             giaSuDung,
-            thanhTien,
-            trangThai,
-            soLuongSuDung, // Gửi số lượng sử dụng
+            trangThai, // Gửi giá trị boolean
+            soLuongSuDung,
         };
 
-        console.log('Dữ liệu gửi đi:', updatedPhieuDichVu);
+        console.log('Dữ liệu gửi đi:', updatedDichVuSuDung);
 
-        // Gọi service cập nhật
-        CapNhatPhieuDichVu(updatedPhieuDichVu)
-            .then((response) => {
+        // Calling the update service
+        CapNhatDichVuSuDung(updatedDichVuSuDung)
+            .then(response => {
                 console.log("Cập nhật thành công:", response.data);
                 refreshData();
                 handleClose();
@@ -103,16 +88,16 @@ const FormUpdatePhieuDichVu = ({ show, handleClose, refreshData, phieuDichVu }) 
                         </select>
                     </div>
                     <div>
-                        <label>Thông Tin Đặt Phòng:</label>
+                        <label>Xếp Phòng:</label>
                         <select
-                            value={thongTinDatPhong}
-                            onChange={(e) => setThongTinDatPhong(e.target.value)}
+                            value={xepPhong}
+                            onChange={(e) => setXepPhong(e.target.value)}
                             required
                         >
-                            <option value="">Chọn thông tin đặt phòng</option>
-                            {thongTinDatPhongList.map(thongTin => (
-                                <option key={thongTin.id} value={thongTin.id}>
-                                    {thongTin.id} {/* Thay đổi tên hiển thị theo thuộc tính phù hợp */}
+                            <option value="">Chọn xếp phòng</option>
+                            {xepPhongList.map(xepPhong => (
+                                <option key={xepPhong.id} value={xepPhong.id}>
+                                    {xepPhong.id} {/* Hiển thị id hoặc thuộc tính khác nếu cần */}
                                 </option>
                             ))}
                         </select>
@@ -123,7 +108,7 @@ const FormUpdatePhieuDichVu = ({ show, handleClose, refreshData, phieuDichVu }) 
                             type="date"
                             value={ngayBatDau}
                             onChange={(e) => setNgayBatDau(e.target.value)}
-                            required
+                            required disabled
                         />
                     </div>
                     <div>
@@ -132,7 +117,7 @@ const FormUpdatePhieuDichVu = ({ show, handleClose, refreshData, phieuDichVu }) 
                             type="date"
                             value={ngayKetThuc}
                             onChange={(e) => setNgayKetThuc(e.target.value)}
-                            required
+                            required disabled
                         />
                     </div>
                     <div>
@@ -154,22 +139,12 @@ const FormUpdatePhieuDichVu = ({ show, handleClose, refreshData, phieuDichVu }) 
                         />
                     </div>
                     <div>
-                        <label>Thành Tiền:</label>
-                        <input
-                            type="number"
-                            value={thanhTien}
-                            onChange={(e) => setThanhTien(e.target.value)}
-                            
-                        />
-                    </div>
-                    <div>
                         <label>Trạng Thái:</label>
                         <select
-                            value={trangThai}
-                            onChange={(e) => setTrangThai(e.target.value)}
+                            value={trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}
+                            onChange={(e) => setTrangThai(e.target.value === 'Hoạt động')}
                             required
                         >
-                            <option value="">Chọn trạng thái</option>
                             <option value="Hoạt động">Hoạt động</option>
                             <option value="Ngừng hoạt động">Ngừng hoạt động</option>
                         </select>
@@ -182,4 +157,4 @@ const FormUpdatePhieuDichVu = ({ show, handleClose, refreshData, phieuDichVu }) 
     );
 };
 
-export default FormUpdatePhieuDichVu;
+export default FormUpdateDichVuSuDung;

@@ -14,5 +14,4 @@ public interface PhongService {
     Boolean updateStatus(Integer id);
     Page<Phong> searchPhong(String keyword, Pageable pageable);
 
-
 }

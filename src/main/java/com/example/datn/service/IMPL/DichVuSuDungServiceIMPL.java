@@ -2,8 +2,8 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.DichVuSuDungRequest;
 import com.example.datn.model.DichVuSuDung;
-import com.example.datn.repository.PhieuDichVuRepository;
-import com.example.datn.service.PhieuDichVuService;
+import com.example.datn.repository.DichVuSuDungRepository;
+import com.example.datn.service.DichVuSuDungService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 @Service
 
-public class PhieuDichVuServiceIMPL implements PhieuDichVuService {
+public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
     @Autowired
-    PhieuDichVuRepository phieuDichVuRepository;
+    DichVuSuDungRepository phieuDichVuRepository;
     @Override
     public List<DichVuSuDung> getAll() {
         return phieuDichVuRepository.findAll();
@@ -23,13 +23,12 @@ public class PhieuDichVuServiceIMPL implements PhieuDichVuService {
     public DichVuSuDung addPhieuDichVu(DichVuSuDungRequest dichVuSuDungRequest) {
         DichVuSuDung dichVuSuDung = new DichVuSuDung();
         dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
-        dichVuSuDung.setThongTinDatPhong(dichVuSuDungRequest.getThongTinDatPhong());
+        dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
         dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
         // Ngày bắt đầu và kết thúc tự động
         dichVuSuDung.setNgayBatDau(LocalDateTime.now());
         dichVuSuDung.setNgayKetThuc(LocalDateTime.now().plusDays(1)); // Ví dụ cộng 1 ngày
         dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
-        dichVuSuDung.setThanhTien(dichVuSuDungRequest.getThanhTien());
         dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
         return phieuDichVuRepository.save(dichVuSuDung);
     }
@@ -47,12 +46,11 @@ public class PhieuDichVuServiceIMPL implements PhieuDichVuService {
 
         if (dichVuSuDung != null) {
             dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
-            dichVuSuDung.setThongTinDatPhong(dichVuSuDungRequest.getThongTinDatPhong());
+            dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
             dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
             // Thiết lập ngày kết thúc từ yêu cầu
             dichVuSuDung.setNgayKetThuc(dichVuSuDungRequest.getNgayKetThuc());
             dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
-            dichVuSuDung.setThanhTien(dichVuSuDungRequest.getThanhTien());
             dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
 
             return phieuDichVuRepository.save(dichVuSuDung);

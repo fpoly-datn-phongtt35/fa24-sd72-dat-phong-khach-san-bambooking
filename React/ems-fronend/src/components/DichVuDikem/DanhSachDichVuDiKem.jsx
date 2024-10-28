@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayDanhSachDichVuDiKem, XoaDichVuDiKem } from '../../services/DichVuDiKemService'; 
+import { LayDanhSachDichVuDiKem, XoaDichVuDiKem } from '../../services/DichVuDiKemService';
 import FormAddDichVuDiKem from './FormAddDichVuDiKem';
 import FormUpdateDichVuDiKem from './FormUpdateDichVuDiKem';
 import DetailDichVuDiKem from './DetailDichVuDiKem';
@@ -10,22 +10,38 @@ const DanhSachDichVuDiKem = () => {
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [currentDichVuDiKem, setCurrentDichVuDiKem] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
-    const [searchKeyword, setSearchKeyword] = useState(''); // Tìm kiếm
+    const [searchKeyword, setSearchKeyword] = useState('');
     const [filterStatus, setFilterStatus] = useState(''); // Lọc trạng thái
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const itemsPerPage = 5;
 
     const loadDichVuDiKem = () => {
         LayDanhSachDichVuDiKem()
             .then(response => {
-                const filteredData = response.data.filter(dvDiKem => {
-                    const matchesStatus = filterStatus ? dvDiKem.trangThai === filterStatus : true;
-                    const matchesKeyword = searchKeyword
-                        ? (dvDiKem.dichVu?.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) || 
-                           dvDiKem.loaiPhong?.tenLoaiPhong.toLowerCase().includes(searchKeyword.toLowerCase()))
-                        : true;
+                if (response && response.data) {
+                    const filteredData = response.data.filter(dvDiKem => {
+                        const matchesKeyword = searchKeyword
+                            ? (dvDiKem.dichVu?.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+                                dvDiKem.loaiPhong?.tenLoaiPhong.toLowerCase().includes(searchKeyword.toLowerCase()))
+                            : true;
 
-                    return matchesStatus && matchesKeyword;
-                });
-                setDichVuDiKemList(filteredData);
+                        const matchesStatus = filterStatus
+                            ? (filterStatus === 'Hoạt động' ? dvDiKem.trangThai : !dvDiKem.trangThai) // Kiểm tra trạng thái tương ứng
+                            : true;
+
+                        return matchesKeyword && matchesStatus;
+                    });
+
+                    // Phân trang dữ liệu
+                    const startIndex = currentPage * itemsPerPage;
+                    const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+                    setDichVuDiKemList(paginatedData);
+                    setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
+                } else {
+                    setDichVuDiKemList([]);
+                    setTotalPages(0);
+                }
             })
             .catch(error => {
                 console.error("Lỗi khi tải danh sách dịch vụ đi kèm:", error);
@@ -34,7 +50,7 @@ const DanhSachDichVuDiKem = () => {
 
     useEffect(() => {
         loadDichVuDiKem();
-    }, [searchKeyword, filterStatus]);
+    }, [searchKeyword, filterStatus, currentPage]);
 
     const openForm = () => setShowForm(true);
     const closeForm = () => setShowForm(false);
@@ -48,6 +64,18 @@ const DanhSachDichVuDiKem = () => {
             XoaDichVuDiKem(id)
                 .then(() => loadDichVuDiKem())
                 .catch(error => console.error("Lỗi khi xóa dịch vụ đi kèm:", error));
+        }
+    };
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
         }
     };
 
@@ -66,15 +94,14 @@ const DanhSachDichVuDiKem = () => {
                     <option value="Hoạt động">Hoạt động</option>
                     <option value="Ngừng hoạt động">Ngừng hoạt động</option>
                 </select>
-                {/* <button onClick={loadDichVuDiKem}>Lọc</button> */}
-            </div> <br />
+            </div><br />
 
             <button onClick={openForm}>Thêm Dịch Vụ Đi Kèm</button>
             <table className='table'>
                 <thead>
                     <tr>
-                        <th>ID Dịch Vụ</th>
-                        <th>ID Loại Phòng</th>
+                        <th>Tên Dịch Vụ</th>
+                        <th>Tên Loại Phòng</th>
                         <th>Trạng Thái</th>
                         <th>Hành Động</th>
                     </tr>
@@ -84,7 +111,7 @@ const DanhSachDichVuDiKem = () => {
                         <tr key={dvDiKem.id}>
                             <td>{dvDiKem.dichVu?.tenDichVu}</td>
                             <td>{dvDiKem.loaiPhong?.tenLoaiPhong}</td>
-                            <td>{dvDiKem.trangThai}</td>
+                            <td>{dvDiKem.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</td>
                             <td>
                                 <button onClick={() => openUpdateForm(dvDiKem)}>Sửa</button>
                                 <button onClick={() => handleDelete(dvDiKem.id)}>Xóa</button>
@@ -94,6 +121,13 @@ const DanhSachDichVuDiKem = () => {
                     ))}
                 </tbody>
             </table>
+
+            {/* Phân trang */}
+            <div className="pagination">
+                <button onClick={handlePreviousPage} disabled={currentPage === 0}>Trang trước</button>
+                <span>Trang {currentPage + 1} / {totalPages}</span>
+                <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>Trang sau</button>
+            </div>
 
             {showForm && <FormAddDichVuDiKem show={showForm} handleClose={closeForm} refreshData={loadDichVuDiKem} />}
             {showUpdateForm && <FormUpdateDichVuDiKem show={showUpdateForm} handleClose={closeUpdateForm} refreshData={loadDichVuDiKem} dichVuDiKem={currentDichVuDiKem} />}

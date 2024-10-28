@@ -29,5 +29,6 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
 
 
 
-
+    //
+    Phong findById(int id);
 }
