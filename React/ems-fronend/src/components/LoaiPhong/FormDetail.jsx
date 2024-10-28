@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { updateLoaiPhong, deleteLoaiPhong, DanhSachTienNghiPhong } from '../../services/LoaiPhongService';
 import { deleteTienNghiPhong, listTienNghi, addTienNghiPhong } from '../../services/TienNghiService'; // Thêm import cho hàm lấy danh sách tiện ích
+import { ThemDichVuDiKem } from '../../services/DichVuDiKemService';
 
 const FormDetail = ({ show, handleClose, data }) => {
     const [formData, setFormData] = useState({

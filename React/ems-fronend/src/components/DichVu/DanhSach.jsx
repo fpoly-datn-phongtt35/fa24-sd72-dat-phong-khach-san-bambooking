@@ -24,7 +24,7 @@ const DanhSach = () => {
                     const matchesStatus = filterStatus !== ''
                         ? dv.trangThai === (filterStatus === 'true')
                         : true;
-                    
+
                     const matchesKeyword = searchKeyword
                         ? dv.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) ||
                         dv.moTa.toLowerCase().includes(searchKeyword.toLowerCase())
@@ -119,6 +119,7 @@ const DanhSach = () => {
                         <th>Tên Dịch Vụ</th>
                         <th>Giá</th>
                         <th>Mô Tả</th>
+                        <th>Hình ảnh</th>
                         <th>Trạng Thái</th>
                         <th>Hành Động</th>
                     </tr>
@@ -129,6 +130,10 @@ const DanhSach = () => {
                             <td>{dv.tenDichVu}</td>
                             <td>{dv.donGia}</td>
                             <td>{dv.moTa}</td>
+                            <td>
+                                <img src={dv.hinhAnh} alt={dv.tenDichVu} style={{ width: '200px', height: 'auto' }} />
+                            </td>
+
                             {/* Hiển thị trạng thái dưới dạng chuỗi dựa trên giá trị boolean */}
                             <td>{dv.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</td>
                             <td>

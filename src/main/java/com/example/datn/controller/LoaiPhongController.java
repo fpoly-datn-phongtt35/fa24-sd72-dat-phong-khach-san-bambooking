@@ -2,11 +2,13 @@ package com.example.datn.controller;
 
 
 
+import com.example.datn.dto.request.DichVuDikemRequest;
 import com.example.datn.dto.request.LoaiPhongRequest;
 import com.example.datn.dto.request.TienIchPhongRequest;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.dto.response.TienIchPhongResponse;
 import com.example.datn.model.LoaiPhong;
+import com.example.datn.service.IMPL.DichVuDiKemServiceIMPL;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,8 @@ import java.util.List;
 public class LoaiPhongController {
     @Autowired
     LoaiPhongServiceIMPL phongServiceIMPL;
+    @Autowired
+    DichVuDiKemServiceIMPL dichVuDiKemServiceIMPL;
 
     @GetMapping("")
     public ResponseEntity<?> home(){
@@ -41,6 +45,10 @@ public class LoaiPhongController {
         return ResponseEntity.status(HttpStatus.CREATED).body(phongServiceIMPL.add(loaiPhongPhongRequest));
     }
 
+    @PostMapping("/add-dich-vi-di-kem")
+    public ResponseEntity<?> createDichVuDikem(@RequestBody DichVuDikemRequest dichVuDikemRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(dichVuDiKemServiceIMPL.addDichVuDiKem(dichVuDikemRequest));
+    }
     //    @GetMapping("/detail")
 //    public String detail(@RequestParam("id") int id,Model model){
 //        model.addAttribute("listTienNghi",tienNghiServiceIMPL.getAll());
