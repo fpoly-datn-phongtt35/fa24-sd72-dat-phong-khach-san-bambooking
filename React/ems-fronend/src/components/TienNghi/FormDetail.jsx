@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { updateTienNghiPhong, DSTienIch, DSLoaiPhong, deleteTienNghiPhong } from '../../services/TienNghiService';
+import { updateTienIchPhong, DSTienIch, DSLoaiPhong, deleteTienNghiPhong } from '../../services/TienIchPhongService';
 
 const FormDetail = ({ show, handleClose, data }) => {
     const [formData, setFormData] = useState({
@@ -80,7 +80,7 @@ const FormDetail = ({ show, handleClose, data }) => {
     // Xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
-        updateTienNghiPhong(formData)
+        updateTienIchPhong(formData)
             .then(response => {
                 console.log("Cập nhật thành công:", response.data);
                 console.log("formData.tienIch", formData.tienIch);

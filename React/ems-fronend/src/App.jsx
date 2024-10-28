@@ -1,13 +1,13 @@
 import './App.css';
 import Header from './components/Header';
 import SlideBar from './components/Slidebar';
-import TienNghi from './components/TienNghi';
+
 import NhanVienComponent from './components/nhanvien/NhanVienComponent';
 import ListTaiKhoan from './components/taikhoan/ListTaiKhoan';
 import ListVaiTro from './components/vaitro/ListVaiTro';
 import TaiKhoanComponent from './components/taikhoan/TaiKhoanComponent';
 import DatPhong from './components/DatPhong/DatPhong';
-import DanhSach from './components/DichVu/DanhSach';
+import DanhSach from './components/DichVu/DanhSach';    
 import DanhSachDichVuDiKem from './components/DichVuDikem/DanhSachDichVuDiKem';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
@@ -102,7 +102,6 @@ function App() {
             <Route path="/add-nhanvien" element={<RequireAuth><NhanVienComponent /></RequireAuth>} />
             <Route path="/add-taikhoan" element={<RequireAuth><TaiKhoanComponent /></RequireAuth>} />
             <Route path="/update-nhan-vien/:id" element={<RequireAuth><NhanVienComponent /></RequireAuth>} />
-            <Route path="/TienNghi" element={<RequireAuth><TienNghi /></RequireAuth>} />
             <Route path="/DatPhong" element={<RequireAuth><DatPhong /></RequireAuth>} />
             <Route path="/TienIch" element={<RequireAuth><TienIch /></RequireAuth>} />
             <Route path="/phong" element={<RequireAuth><ListPhong /></RequireAuth>} />
@@ -111,10 +110,10 @@ function App() {
             <Route path="/hinh-anh" element={<RequireAuth><ListImage /></RequireAuth>} />
             <Route path="/add-hinh-anh" element={<RequireAuth><HinhAnh /></RequireAuth>} />
             <Route path="/TrangChu" element={<RequireAuth><ViewPhong /></RequireAuth>} />
-            {/* Route cho RoomDetail, nhận diện phòng cụ thể */}
-            <Route path="/room-detail/:roomId" element={<RequireAuth><RoomDetail /></RequireAuth>} />
+           
             {/* Route chính, điều hướng đến ViewPhong */}
             <Route path="/" element={<RequireAuth><ViewPhong /></RequireAuth>} />
+
 
             {/* Redirect các đường dẫn không xác định */}
             <Route path="*" element={isAuthenticated ? <Navigate to="/NhanVien" replace /> : <Navigate to="/login" replace />} />

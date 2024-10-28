@@ -3,15 +3,15 @@ const api = "http://localhost:8080/loai-phong/index";
 const apiadd = "http://localhost:8080/loai-phong/add";
 const apiUD = "http://localhost:8080/loai-phong/update";
 const apiDE = "http://localhost:8080/loai-phong/delete";
-const apiTNP = "http://localhost:8080/tien-ich-phong/findByIDLoaiPhong";
-
+const apiTi = "http://localhost:8080/tien-ich-phong/home";
+const apiFilter = "http://localhost:8080/loai-phong/filter";
 
 // export const listTienNghi = () => axios.get(api);
 
-export const listLoaiPhong= (pageable) => {
+export const listLoaiPhong = (pageable) => {
     return axios.get(api, {
-        params: { 
-            page: pageable.page, 
+        params: {
+            page: pageable.page,
             size: pageable.size
         }
     });
@@ -19,7 +19,7 @@ export const listLoaiPhong= (pageable) => {
 
 
 // Service call trong frontend
-export const DanhSachTienNghiPhong = (idLoaiPhong, pageable) => {
+export const DanhSachTienIchPhong = (idLoaiPhong, pageable) => {
     return axios.get(`http://localhost:8080/tien-ich-phong/findByIDLoaiPhong/${idLoaiPhong}`, {
         params: {
             page: pageable.page,
@@ -42,3 +42,42 @@ export const updateLoaiPhong = (loaiPhongRequest) => {
 export const deleteLoaiPhong = (id) => {
     return axios.delete(`${apiDE}/${id}`);
 };
+
+export const TienIchPhongByIDLoaiPhong = (idLoaiPhong, pageable) => {
+    return axios.get(`${apiTi}/${idLoaiPhong}`, {
+        params: {
+            page: pageable.page,
+            size: pageable.size,
+        }
+    });
+};
+
+export const filterLoaiPhong = (tenLoaiPhong, dienTichMin, dienTichMax, soKhach, donGiaMin,
+    donGiaMax, donGiaPhuThuMin, donGiaPhuThuMax, pageable) => {
+    // Tạo đối tượng params với các giá trị tìm kiếm và phân trang
+    const params = {
+        tenLoaiPhong,
+        dienTichMin,
+        dienTichMax,
+        soKhach,
+        donGiaMin,
+        donGiaMax,
+        donGiaPhuThuMin,
+        donGiaPhuThuMax,
+        page: pageable.page,
+        size: pageable.size,
+    };
+
+    // Loại bỏ các thuộc tính có giá trị null, undefined hoặc rỗng
+    Object.keys(params).forEach(key => {
+        if (params[key] === '' || params[key] === undefined || params[key] === null) {
+            delete params[key];  // Dùng 'delete' để xóa các thuộc tính không cần thiết
+        }
+    });
+
+    // Gọi API filter với các params hợp lệ
+    return axios.get(apiFilter, { params });
+};
+
+
+

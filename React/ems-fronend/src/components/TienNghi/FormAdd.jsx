@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { addTienNghiPhong , DSTienIch, DSLoaiPhong } from '../../services/TienNghiService';
+import { addTienIchPhong , DSTienIch, DSLoaiPhong } from '../../services/TienIchPhongService';
 
 const FormAdd = ({ show, handleClose }) => {
     const [formData, setFormData] = useState({
@@ -62,7 +62,7 @@ const FormAdd = ({ show, handleClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         // Gọi API thêm mới đặt phòng với đối tượng khách hàng và nhân viên
-        addTienNghiPhong(formData)
+        addTienIchPhong(formData)
             .then(response => {
                 console.log("Thêm mới thành công:", response.data);
                 handleClose(); // Đóng modal sau khi thêm thành công

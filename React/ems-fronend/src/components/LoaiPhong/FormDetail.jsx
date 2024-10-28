@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { updateLoaiPhong, deleteLoaiPhong, DanhSachTienNghiPhong } from '../../services/LoaiPhongService';
-import { deleteTienNghiPhong, listTienNghi, addTienNghiPhong } from '../../services/TienNghiService'; // Thêm import cho hàm lấy danh sách tiện ích
-import { ThemDichVuDiKem } from '../../services/DichVuDiKemService';
+import { updateLoaiPhong, deleteLoaiPhong, DanhSachTienIchPhong } from '../../services/LoaiPhongService';
+import { deleteTienNghiPhong, listTienIchPhong, addTienIchPhong } from '../../services/TienIchPhongService'; // Thêm import cho hàm lấy danh sách tiện ích
+
 
 const FormDetail = ({ show, handleClose, data }) => {
     const [formData, setFormData] = useState({
         id: data?.id || '',
         tenLoaiPhong: data?.tenLoaiPhong || '',
         dienTich: data?.dienTich || '',
-        sucChuaLon: data?.sucChuaLon || '',
-        sucChuaNho: data?.sucChuaNho || '',
+        soKhachToiDa: data?.soKhachToiDa || '',
+        donGia: data?.donGia || '',
         moTa: data?.moTa || '',
-        trangThai: data?.trangThai || '',
+        donGiaPhuThu: data?.donGiaPhuThu || '',
     });
 
     const [currentPage, setCurrentPage] = useState(0);
@@ -26,7 +26,7 @@ const FormDetail = ({ show, handleClose, data }) => {
     // Lấy danh sách tiện ích phòng theo idLoaiPhong và cập nhật khi trang thay đổi
     useEffect(() => {
         if (formData.id) {
-            DanhSachTienNghiPhong(formData.id, { page: currentPage, size: itemsPerPage })
+            DanhSachTienIchPhong(formData.id, { page: currentPage, size: itemsPerPage })
                 .then(response => {
                     setListTienIchPhong(response.data.content); // Hiển thị dữ liệu tiện ích phòng
                     setTotalPages(response.data.totalPages); // Lấy tổng số trang
@@ -35,11 +35,11 @@ const FormDetail = ({ show, handleClose, data }) => {
                     console.error("Lỗi khi lấy danh sách tiện ích:", error);
                 });
         }
-    }, [formData.id, currentPage]);
+    }, [formData.id, currentPage,totalPages,ListTienIchPhong]);
 
     // Lấy danh sách tất cả tiện ích
     useEffect(() => {
-        listTienNghi()
+        listTienIchPhong()
             .then(response => {
                 setAllTienIch(response.data); // Giả sử response.data chứa danh sách tiện ích
             })
@@ -87,7 +87,7 @@ const FormDetail = ({ show, handleClose, data }) => {
                 .then(response => {
                     console.log("Xóa tiện ích thành công:", response.data);
                     // Cập nhật lại danh sách sau khi xóa
-                    DanhSachTienNghiPhong(formData.id, { page: currentPage, size: itemsPerPage })
+                    DanhSachTienIchPhong(formData.id, { page: currentPage, size: itemsPerPage })
                         .then(response => {
                             setListTienIchPhong(response.data.content); // Cập nhật danh sách tiện ích
                         })
@@ -121,11 +121,11 @@ const FormDetail = ({ show, handleClose, data }) => {
 
         console.log("Request gửi đi:", tienNghiPhongRequest); // Gỡ lỗi để kiểm tra request
 
-        addTienNghiPhong(tienNghiPhongRequest)
+        addTienIchPhong(tienNghiPhongRequest)
             .then(response => {
                 console.log("Thêm tiện ích thành công:", response.data);
                 // Cập nhật lại danh sách tiện ích sau khi thêm
-                DanhSachTienNghiPhong(formData.id, { page: currentPage, size: itemsPerPage })
+                DanhSachTienIchPhong(formData.id, { page: currentPage, size: itemsPerPage })
                     .then(response => {
                         setListTienIchPhong(response.data.content);
                     })
@@ -151,7 +151,7 @@ const FormDetail = ({ show, handleClose, data }) => {
                     </div>
                     <div className="modal-body">
                         <form onSubmit={handleSubmit}>
-                            <div className="row">
+                        <div className="row">
                                 <div className="col-md-6">
                                     <div className="mb-3">
                                         <label htmlFor="id" className="form-label">ID</label>
@@ -166,22 +166,22 @@ const FormDetail = ({ show, handleClose, data }) => {
                                         <input type="text" className="form-control" id="dienTich" name="dienTich" value={formData.dienTich} onChange={handleInputChange} required />
                                     </div>
                                     <div className="mb-3">
-                                        <label htmlFor="sucChuaLon" className="form-label">Sức chứa lớn</label>
-                                        <input type="text" className="form-control" id="sucChuaLon" name="sucChuaLon" value={formData.sucChuaLon} onChange={handleInputChange} required />
+                                        <label htmlFor="soKhachToiDa" className="form-label">Số khách tối đa</label>
+                                        <input type="text" className="form-control" id="soKhachToiDa" name="soKhachToiDa" value={formData.soKhachToiDa} onChange={handleInputChange} required />
                                     </div>
                                 </div>
                                 <div className="col-md-6">
                                     <div className="mb-3">
-                                        <label htmlFor="sucChuaNho" className="form-label">Sức chứa nhỏ</label>
-                                        <input type="text" className="form-control" id="sucChuaNho" name="sucChuaNho" value={formData.sucChuaNho} onChange={handleInputChange} required />
+                                        <label htmlFor="donGia" className="form-label">Đơn giá</label>
+                                        <input type="text" className="form-control" id="donGia" name="donGia" value={formData.donGia} onChange={handleInputChange} required />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label htmlFor="donGiaPhuThu" className="form-label">Đơn giá phụ thu</label>
+                                        <input type="text" className="form-control" id="donGiaPhuThu" name="donGiaPhuThu" value={formData.donGiaPhuThu} onChange={handleInputChange} required />
                                     </div>
                                     <div className="mb-3">
                                         <label htmlFor="moTa" className="form-label">Mô tả</label>
                                         <input type="text" className="form-control" id="moTa" name="moTa" value={formData.moTa} onChange={handleInputChange} required />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="trangThai" className="form-label">Trạng thái</label>
-                                        <input type="text" className="form-control" id="trangThai" name="trangThai" value={formData.trangThai} onChange={handleInputChange} required />
                                     </div>
                                     <br />
                                     <button type="submit" className="btn btn-primary">Lưu thay đổi</button>
@@ -199,7 +199,7 @@ const FormDetail = ({ show, handleClose, data }) => {
                                     <li key={ti.id} className="amenity-item">
                                         {/* Icon or Image */}
                                         <span className="icon">
-                                            <img src={`../../../../public/images/${ti.hinhAnh}`} width="24" alt="Icon tiện ích" />
+                                            <img src={ti.hinhAnh} width="24" alt="Icon tiện ích" />
                                         </span>
 
                                         {/* Amenity Name */}

@@ -11,15 +11,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class TienIchPhongServiceIMPL implements TienIchPhongService {
     @Autowired
-    TienIchPhongRepository tienIchRepository;
+    TienIchPhongRepository tienIchPhongRepository;
     @Override
     public Page<TienIchPhongResponse> getPage( Pageable pageable) {
-        return tienIchRepository.TienIchPhong(pageable);
+        return tienIchPhongRepository.TienIchPhong(pageable);
     }
 
 
@@ -32,7 +34,7 @@ public class TienIchPhongServiceIMPL implements TienIchPhongService {
         TienIchPhong tienIchPhong = new TienIchPhong();
         tienIchPhong.setTienIch(tienIchPhongRequest.getTienIch());
         tienIchPhong.setLoaiPhong(tienIchPhongRequest.getLoaiPhong());
-        return tienIchRepository.save(tienIchPhong);
+        return tienIchPhongRepository.save(tienIchPhong);
     }
 
     @Override
@@ -42,22 +44,27 @@ public class TienIchPhongServiceIMPL implements TienIchPhongService {
 
     @Override
     public void delete(Integer id) {
-        tienIchRepository.deleteById(id);
+        tienIchPhongRepository.deleteById(id);
     }
 
     @Override
     public TienIchPhong update(TienIchPhongRequest tienIchPhongRequest) {
-        Optional<TienIchPhong> tienIchPhong = tienIchRepository.findById(tienIchPhongRequest.getId());
+        Optional<TienIchPhong> tienIchPhong = tienIchPhongRepository.findById(tienIchPhongRequest.getId());
 //        TienIchPhong tienIchPhong = new TienIchPhong();
         tienIchPhong.get().setId(tienIchPhongRequest.getId());
         tienIchPhong.get().setTienIch(tienIchPhongRequest.getTienIch());
         tienIchPhong.get().setLoaiPhong(tienIchPhongRequest.getLoaiPhong());
-        return tienIchRepository.save(tienIchPhong.get());
+        return tienIchPhongRepository.save(tienIchPhong.get());
     }
 
     @Override
     public Page<TienIchPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
-        return tienIchRepository.findByIDLoaiPhong(idLoaiPhong,pageable);
+        return tienIchPhongRepository.findByIDLoaiPhong(idLoaiPhong,pageable);
+    }
+
+    @Override
+    public Page<Object> ListTienIchFindByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
+        return tienIchPhongRepository.ListTienIchFindByIDLoaiPhong(idLoaiPhong,pageable);
     }
 
 //    @Override
