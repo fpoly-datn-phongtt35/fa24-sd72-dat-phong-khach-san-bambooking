@@ -2,54 +2,54 @@ import React, { useState, useEffect } from 'react';
 import { updateTienIch, deleteTienIch } from '../../services/TienIchService';
 
 const FormDetail = ({ show, handleClose, data }) => {
-    const [formData, setFormData] = useState({
-        id: data?.id || '',
-        tenTienIch: data?.tenTienIch || '',
-        hinhAnh: data?.hinhAnh || '',
-    });
+    // const [formData, setFormData] = useState({
+    //     id: data?.id || '',
+    //     tenTienIch: data?.tenTienIch || '',
+    //     hinhAnh: data?.hinhAnh || '',
+    // });
     const [imagePreview, setImagePreview] = useState(''); // State để lưu URL hình ảnh đã chọn
-
+    const [tenTienIch, setTenTienIch] = useState('');
+    const [idTienIch, setIdTienIch] = useState('');
+    const [file, setFile] = useState('');
     // Cập nhật formData và imagePreview khi prop data thay đổi
     useEffect(() => {
         if (data) {
-            setFormData({
-                id: data.id,
-                tenTienIch: data.tenTienIch || '', 
-                hinhAnh: data.hinhAnh || '',
-            });
-            setImagePreview(`../../../../public/images/${data.hinhAnh}`); // Cập nhật hình ảnh
+            // setFormData({
+            //     id: data.id,
+            //     tenTienIch: data.tenTienIch || '', 
+            //     hinhAnh: data.hinhAnh || '',
+            // });
+            setFile(data.hinhAnh );
+            setImagePreview(data.hinhAnh); // Cập nhật hình ảnh
+            setIdTienIch(data.id);
+            setTenTienIch(data.tenTienIch);
         }
-    }, [data]);
+    }, []);
 
     // Xử lý thay đổi input
     const handleInputChange = (e) => {
-        const { name, value, files } = e.target;
+        setFile(e.target.files[0]);
+    };
 
-        if (name === 'hinhAnh' && files && files.length > 0) {
-            // Nếu người dùng chọn file, chỉ lấy tên file
-            setFormData({
-                ...formData,
-                hinhAnh: files[0].name // Lấy tên file
-            });
-
-            // Sử dụng FileReader để tạo URL tạm thời cho hình ảnh
-            const file = files[0];
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result); // Cập nhật state với URL hình ảnh
-            };
-            reader.readAsDataURL(file); // Đọc file dưới dạng URL
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value
-            });
-        }
+    const handleTenTienIchChange = (e) => {
+        setTenTienIch(e.target.value);
+        
     };
 
     // Xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
+        const formData = new FormData();
+        formData.append('id', idTienIch);
+        formData.append('tenTienIch', tenTienIch);
+        if (file) {
+            formData.append('file', file);
+        }else{
+            setFile(data?.hinhAnh);
+            formData.append('file', file);
+        }
+        console.log("Form data:", formData.get("id"), formData.get("file"), formData.get("tenTienIch")); // Kiểm tra dữ liệu
+    
         updateTienIch(formData)
             .then(response => {
                 console.log("Cập nhật thành công:", response.data);
@@ -86,18 +86,18 @@ const FormDetail = ({ show, handleClose, data }) => {
                         <form onSubmit={handleSubmit}>
                             <div className="mb-3">
                                 <label htmlFor="id" className="form-label">ID</label>
-                                <input type="text" className="form-control" id="id" name="id" value={formData.id} onChange={handleInputChange} required />
+                                <input type="text" className="form-control" id="id" name="id" value={idTienIch} readOnly />
                             </div>
                             {/* Tên tiện ích */}
                             <div className="mb-3">
                                 <label htmlFor="tenTienIch" className="form-label">Tên tiện ích</label>
-                                <input type="text" className="form-control" id="tenTienIch" name="tenTienIch" value={formData.tenTienIch} onChange={handleInputChange} required />
+                                <input type="text" className="form-control" id="tenTienIch" name="tenTienIch" value={tenTienIch} onChange={handleTenTienIchChange} required />
                             </div>
 
                             {/* Hình ảnh (chỉ lấy tên file) */}
                             <div className="mb-3">
                                 <label htmlFor="hinhAnh" className="form-label">Hình ảnh</label>
-                                <input type="file" className="form-control" id="hinhAnh" name="hinhAnh" onChange={handleInputChange} />
+                                <input type="file" className="form-control" id="file" name="file" onChange={handleInputChange} />
                             </div>
 
                             {/* Hiển thị hình ảnh đã chọn */}

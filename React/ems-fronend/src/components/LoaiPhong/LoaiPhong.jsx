@@ -1,29 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import { listLoaiPhong } from '../../services/LoaiPhongService';
+import { listLoaiPhong, filterLoaiPhong } from '../../services/LoaiPhongService';
 import FormAdd from './FormAdd';
 import FormDetail from './FormDetail';
 
 const LoaiPhong = () => {
-    const [data, setData] = useState([]); // Dữ liệu tiện ích
-    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
-    const [totalPages, setTotalPages] = useState(0); // Tổng số trang
+    const [data, setData] = useState([]);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
     const itemsPerPage = 7;
-    const [selectedData, setSelectedData] = useState(null); // Lưu tiện ích được chọn
+    const [selectedData, setSelectedData] = useState(null);
+    const [searchTerm, setSearchTerm] = useState({
+        tenLoaiPhong: '',
+        dienTichMin: '',
+        dienTichMax: '',
+        soKhach: '',
+        donGiaMin: '',
+        donGiaMax: '',
+        donGiaPhuThuMin: '',
+        donGiaPhuThuMax: ''
+    });
 
-    // Hàm lấy dữ liệu tiện ích
     const getAllSanPham = () => {
-        listLoaiPhong({ page: currentPage, size: itemsPerPage }, "")
+        const apicall = filterLoaiPhong(searchTerm.tenLoaiPhong,    
+                                        searchTerm.dienTichMin,
+                                        searchTerm.dienTichMax,
+                                        searchTerm.soKhach,
+                                        searchTerm.donGiaMin,
+                                        searchTerm.donGiaMax,
+                                        searchTerm.donGiaPhuThuMin,
+                                        searchTerm.donGiaPhuThuMax, { page: currentPage, size: itemsPerPage });
+        apicall
             .then((response) => {
-                setData(response.data.content);
-                setTotalPages(response.data.totalPages);
-            }).catch((error) => {
+                setData(response.data.content || []);
+                setTotalPages(response.data.totalPages || 0);
+            })
+            .catch((error) => {
                 console.log(error);
             });
     };
 
     useEffect(() => {
         getAllSanPham();
-    }, [data]);
+    }, [currentPage, searchTerm,data]);
 
     const handleNextPage = () => {
         if (currentPage < totalPages - 1) {
@@ -37,43 +55,62 @@ const LoaiPhong = () => {
         }
     };
 
-    // State quản lý form thêm và chi tiết
-    const [showAddForm, setShowAddForm] = useState(false); // Quản lý trạng thái hiển thị form thêm
-    const [showDetailForm, setShowDetailForm] = useState(false); // Quản lý trạng thái hiển thị form chi tiết
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [showDetailForm, setShowDetailForm] = useState(false);
 
     const handleOpenFormAdd = () => {
-        setShowAddForm(true); // Mở form thêm
+        setShowAddForm(true);
     };
 
     const handleCloseFormAdd = () => {
-        setShowAddForm(false); // Đóng form thêm
+        setShowAddForm(false);
     };
 
-   const handleOpenFormDetail = (id) => {
-    const selectedItem = data.find(item => item.id === id);
-    setSelectedData(selectedItem);
-    setShowDetailForm(true);
-};
-
+    const handleOpenFormDetail = (id) => {
+        const selectedItem = data.find(item => item.id === id);
+        setSelectedData(selectedItem);
+        setShowDetailForm(true);
+    };
 
     const handleCloseFormDetail = () => {
-        setShowDetailForm(false); // Đóng form chi tiết
-        setSelectedData(null); // Xóa dữ liệu đã chọn
+        setShowDetailForm(false);
+        setSelectedData(null);
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setSearchTerm(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+        setCurrentPage(0);
     };
 
     return (
         <div className="container">
-            <div >
-            <table className="table">
+            <div>
+                <br></br>
+                <input type="text" className="form-control" id="tenLoaiPhong" name="tenLoaiPhong" value={searchTerm.tenLoaiPhong || ''} onChange={handleInputChange} placeholder="Tên loại phòng" />
+                <input type="text" className="form-control" id="dienTichMin" name="dienTichMin" value={searchTerm.dienTichMin || ''} onChange={handleInputChange} placeholder="Diện tích min" />
+                <input type="text" className="form-control" id="dienTichMax" name="dienTichMax" value={searchTerm.dienTichMax || ''} onChange={handleInputChange} placeholder="Diện tích max" />
+                <input type="text" className="form-control" id="soKhach" name="soKhach" value={searchTerm.soKhach || ''} onChange={handleInputChange} placeholder="Số khách" />
+                <input type="text" className="form-control" id="donGiaMin" name="donGiaMin" value={searchTerm.donGiaMin || ''} onChange={handleInputChange} placeholder="Đơn giá min" />
+                <input type="text" className="form-control" id="donGiaMax" name="donGiaMax" value={searchTerm.donGiaMax || ''} onChange={handleInputChange} placeholder="Đơn giá max" />
+                <input type="text" className="form-control" id="donGiaPhuThuMin" name="donGiaPhuThuMin" value={searchTerm.donGiaPhuThuMin || ''} onChange={handleInputChange} placeholder="Đơn giá phụ thu min" />
+                <input type="text" className="form-control" id="donGiaPhuThuMax" name="donGiaPhuThuMax" value={searchTerm.donGiaPhuThuMax || ''} onChange={handleInputChange} placeholder="Đơn giá phụ thu max" />
+                <br></br>
+            </div>
+            <div>
+                <table className="table">
                     <thead>
                         <tr>
                             <th className="col">ID</th>
                             <th className="col">Tên loại phòng</th>
                             <th className="col">Diện tích</th>
-                            <th className="col">Sức chứa lớn</th>
-                            <th className="col">Sức chứa nhỏ</th>
+                            <th className="col">Số khách tối đa</th>
+                            <th className="col">Đơn giá</th>
+                            <th className="col">Đơn giá phụ thu</th>
                             <th className="col">Mô tả</th>
-                            <th className="col">Trạng thái</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -83,31 +120,28 @@ const LoaiPhong = () => {
                                     <td>{ti.id}</td>
                                     <td>{ti.tenLoaiPhong}</td>
                                     <td>{ti.dienTich}</td>
-                                    <td>{ti.sucChuaLon}</td>
-                                    <td>{ti.sucChuaNho}</td>
+                                    <td>{ti.soKhachToiDa}</td>
+                                    <td>{ti.donGia}</td>
+                                    <td>{ti.donGiaPhuThu}</td>
                                     <td>{ti.moTa}</td>
-                                    <td>{ti.trangThai}</td>
                                 </tr>
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="3">Không có dữ liệu tìm kiếm</td>
+                                <td colSpan="7">Không có dữ liệu tìm kiếm</td>
                             </tr>
                         )}
                     </tbody>
-
-
-
                 </table>
             </div>
 
             <div className="pagination">
-                <button className="btn btn-success" onClick={handlePreviousPage} >
+                <button className="btn btn-success" onClick={handlePreviousPage}>
                     Trang trước
                 </button>
 
                 <span>Trang hiện tại: {currentPage + 1} / {totalPages}</span>
-                <button className="btn btn-success" onClick={handleNextPage} >
+                <button className="btn btn-success" onClick={handleNextPage}>
                     Trang sau
                 </button>
             </div>
@@ -118,14 +152,11 @@ const LoaiPhong = () => {
                     Thêm mới
                 </button>
 
-                {/* Hiển thị FormAdd khi showAddForm là true */}
                 {showAddForm && <FormAdd show={showAddForm} handleClose={handleCloseFormAdd} />}
-
-                {/* Hiển thị FormDetail khi showDetailForm là true */}
                 {showDetailForm && <FormDetail show={showDetailForm} handleClose={handleCloseFormDetail} data={selectedData} />}
             </div>
         </div>
-    )
+    );
 }
 
 export default LoaiPhong;

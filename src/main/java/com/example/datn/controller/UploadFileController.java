@@ -28,7 +28,6 @@ public class UploadFileController {
     @GetMapping("")
     public ResponseEntity<?> getImages(Pageable pageable) {
         Page<HinhAnh> imagesPage = uploadImageFile.getAllImages(pageable);
-
         Page<HinhAnhResponse> responsePage = imagesPage.map(image -> {
             HinhAnhResponse response = new HinhAnhResponse();
             response.setId(image.getId());

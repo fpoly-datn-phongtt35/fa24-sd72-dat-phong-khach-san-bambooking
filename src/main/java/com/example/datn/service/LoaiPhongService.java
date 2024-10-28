@@ -26,7 +26,15 @@ public interface LoaiPhongService {
 
     LoaiPhong update(LoaiPhongRequest loaiPhongRequest);
 
-    Page<LoaiPhong> search ( String tenLoaiPhong, Pageable pageable);
+    Page<LoaiPhong> filter ( String tenLoaiPhong,
+                            Integer dienTichMin,
+                            Integer dienTichMax,
+                            Integer soKhach,
+                            Double donGiaMin,
+                            Double donGiaMax,
+                            Double donGiaPhuThuMin,
+                            Double donGiaPhuThuMax,
+                            Pageable pageable);
 
     Page<LoaiPhongResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable);
 }

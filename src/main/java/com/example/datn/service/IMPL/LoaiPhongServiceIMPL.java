@@ -7,6 +7,7 @@ import com.example.datn.service.LoaiPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,14 +29,11 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.findAll();
     }
 
-
     @Override
     public Page<LoaiPhongResponse> getPage(Pageable pageable) {
 
         return loaiPhongRepository.LoaiPhong(pageable);
     }
-
-
 
 
     @Override
@@ -75,8 +73,17 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     @Override
-    public  Page<LoaiPhong> search(String tenTienIch,Pageable pageable) {
-        return loaiPhongRepository.search(tenTienIch,pageable);
+    public  Page<LoaiPhong> filter( String tenLoaiPhong,
+                                    Integer dienTichMin,
+                                    Integer dienTichMax,
+                                    Integer soKhach,
+                                    Double donGiaMin,
+                                    Double donGiaMax,
+                                    Double donGiaPhuThuMin,
+                                   Double donGiaPhuThuMax,
+                                   Pageable pageable) {
+        return loaiPhongRepository.filter(tenLoaiPhong,dienTichMin,dienTichMax,soKhach,donGiaMin,
+                                            donGiaMax,donGiaPhuThuMin,donGiaPhuThuMax,pageable);
     }
 
     @Override
