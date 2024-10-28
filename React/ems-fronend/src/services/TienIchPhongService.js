@@ -8,12 +8,12 @@ const apiDE = "http://localhost:8080/tien-ich-phong/delete";
 
 // export const listTienNghi = () => axios.get(api);
 
-export const listTienNghi = () => {
+export const listTienIchPhong = () => {
     return axios.get(api);
 };
 
-export const addTienNghiPhong = (tienNghiPhongRequest) => {
-    return axios.post(apiadd, tienNghiPhongRequest);
+export const addTienIchPhong = (tienIchPhongRequest) => {
+    return axios.post(apiadd, tienIchPhongRequest);
 };
 
 export const DSTienIch = () => {
@@ -25,8 +25,8 @@ export const DSLoaiPhong = () => {
     return axios.get(apiLP);
 };
 
-export const updateTienNghiPhong = (tienNghiPhongRequest) => {
-    return axios.post(apiUD, tienNghiPhongRequest);
+export const updateTienIchPhong = (tienIchPhongRequest) => {
+    return axios.post(apiUD, tienIchPhongRequest);
 };
 
 // Thay đổi hàm delete để truyền vào id và sử dụng phương thức DELETE

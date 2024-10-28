@@ -25,9 +25,24 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
     Page<LoaiPhongResponse> LoaiPhong(Pageable pageable);
 
     @Query("SELECT lp FROM LoaiPhong lp " +
-            "WHERE lp.tenLoaiPhong LIKE %:tenLoaiPhong% "
+            "WHERE (:tenLoaiPhong IS NULL OR lp.tenLoaiPhong LIKE %:tenLoaiPhong%)\n" +
+            "    AND (:dienTichMin IS NULL OR lp.dienTich >= :dienTichMin)\n" +
+            "    AND (:dienTichMax IS NULL OR lp.dienTich <= :dienTichMax )\n" +
+            "    AND (:soKhach IS NULL OR lp.soKhachToiDa >= :soKhach)\n" +
+            "    AND (:donGiaMin IS NULL OR lp.donGia >= :donGiaMin)\n" +
+            "    AND (:donGiaMax IS NULL OR lp.donGia <= :donGiaMax)\n" +
+            "    AND (:donGiaPhuThuMin IS NULL OR lp.donGiaPhuThu >=:donGiaPhuThuMin)\n" +
+            "    AND (:donGiaPhuThuMax IS NULL OR lp.donGiaPhuThu <= :donGiaPhuThuMax)"
     )
-    Page<LoaiPhong> search(@Param("tenLoaiPhong") String keyword, Pageable pageable);
+    Page<LoaiPhong> filter (@Param("tenLoaiPhong") String tenLoaiPhong,
+                           @Param("dienTichMin") Integer dienTichMin,
+                           @Param("dienTichMax") Integer dienTichMax,
+                           @Param("soKhach") Integer soKhach,
+                           @Param("donGiaMin") Double donGiaMin,
+                           @Param("donGiaMax") Double donGiaMax,
+                           @Param("donGiaPhuThuMin") Double donGiaPhuThuMin,
+                           @Param("donGiaPhuThuMax") Double donGiaPhuThuMax,
+                           Pageable pageable);
 
     @Query("SELECT new com.example.datn.dto.response.LoaiPhongResponse(lp.id, lp.tenLoaiPhong, lp.dienTich," +
             " lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu,lp.moTa) FROM LoaiPhong lp " +

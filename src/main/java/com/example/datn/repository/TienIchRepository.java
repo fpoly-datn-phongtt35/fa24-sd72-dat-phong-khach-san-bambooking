@@ -23,4 +23,6 @@ public interface TienIchRepository extends JpaRepository<TienIch,Integer> {
     )
     Page<TienIch> search(@Param("tenTienIch") String keyword,Pageable pageable);
 
+
+
 }

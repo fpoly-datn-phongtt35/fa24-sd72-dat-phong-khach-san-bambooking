@@ -7,6 +7,9 @@ import com.example.datn.model.TienIchPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+import java.util.Objects;
+
 public interface TienIchPhongService {
     Page<TienIchPhongResponse> getPage( Pageable pageable);
 
@@ -19,4 +22,6 @@ public interface TienIchPhongService {
     TienIchPhong update(TienIchPhongRequest tienIchPhongRequest);
 
     Page<TienIchPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong,Pageable pageable);
+
+    Page<Object> ListTienIchFindByIDLoaiPhong (Integer idLoaiPhong,Pageable pageable);
 }

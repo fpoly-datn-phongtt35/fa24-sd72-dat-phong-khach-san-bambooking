@@ -7,6 +7,7 @@ import com.example.datn.dto.request.TienIchPhongRequest;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.dto.response.TienIchPhongResponse;
 import com.example.datn.model.LoaiPhong;
+import com.example.datn.model.TienIch;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -57,6 +58,21 @@ public class LoaiPhongController {
     public ResponseEntity<?> update(@RequestBody LoaiPhongRequest loaiPhong){
         phongServiceIMPL.update(loaiPhong);
         return ResponseEntity.status(HttpStatus.CREATED).body(phongServiceIMPL.update(loaiPhong));
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<?> search(@RequestParam(value="tenLoaiPhong", required = false) String tenLoaiPhong,
+                                    @RequestParam(value="dienTichMin", required = false) Integer dienTichMin,
+                                    @RequestParam(value="dienTichMax", required = false) Integer dienTichMax,
+                                    @RequestParam(value="soKhach", required = false) Integer soKhach,
+                                    @RequestParam(value="donGiaMin", required = false) Double donGiaMin,
+                                    @RequestParam(value="donGiaMax", required = false) Double donGiaMax,
+                                    @RequestParam(value="donGiaPhuThuMin", required = false) Double donGiaPhuThuMin,
+                                    @RequestParam(value="donGiaPhuThuMax", required = false) Double donGiaPhuThuMax,
+                                    Pageable pageable) {
+        Page<LoaiPhong> lp = phongServiceIMPL.filter(tenLoaiPhong,dienTichMin,dienTichMax,soKhach,donGiaMin,
+                                                     donGiaMax,donGiaPhuThuMin,donGiaPhuThuMax,pageable);
+        return ResponseEntity.ok(lp);
     }
 
 }
