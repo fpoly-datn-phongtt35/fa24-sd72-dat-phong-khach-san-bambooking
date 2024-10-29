@@ -71,4 +71,14 @@ public class TTDPController {
         return ResponseEntity.ok(ttdps);
     }
 
+    @GetMapping("/tim-kiem")
+    public Page<TTDPResponse> timKiemThongTinDatPhong(
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) String key,
+            @RequestParam(required = false) String trangThai,
+            Pageable pageable) {
+        return thongTinDatPhongServiceIMPL.findByDateRangeAndKey(startDate, endDate, key, trangThai, pageable);
+    }
+
 }

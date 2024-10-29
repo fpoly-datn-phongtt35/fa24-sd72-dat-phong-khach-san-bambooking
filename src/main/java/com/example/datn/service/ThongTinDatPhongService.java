@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -18,5 +19,7 @@ public interface ThongTinDatPhongService {
 
     Page<TTDPResponse> HienThiQuanLy(String trangThai, Pageable pageable);
     List<ThongTinDatPhong> findByMaDatPhong(String maDatPhong);
+
+    Page<TTDPResponse> findByDateRangeAndKey(LocalDate startDate,LocalDate endDate,String key,String trangThai,Pageable pageable);
 
 }

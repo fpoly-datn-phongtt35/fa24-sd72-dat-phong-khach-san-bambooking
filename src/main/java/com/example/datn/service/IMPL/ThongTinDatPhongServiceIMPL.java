@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -63,6 +64,12 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Override
     public List<ThongTinDatPhong>  findByMaDatPhong(String maDatPhong) {
         return thongTinDatPhongRepository.findByMaDatPhong(maDatPhong);
+    }
+
+    @Override
+    public Page<TTDPResponse> findByDateRangeAndKey(LocalDate startDate, LocalDate endDate, String key,
+                                                        String trangThai, Pageable pageable) {
+        return thongTinDatPhongRepository.findByDateRangeAndKey(startDate,endDate,key,trangThai,pageable);
     }
 
 }

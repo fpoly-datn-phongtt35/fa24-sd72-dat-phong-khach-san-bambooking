@@ -1,21 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import './QuanLyDatPhong.scss';
-import { HienThiQuanLy } from '../../services/TTDP';
+import { HienThiQuanLy, findTTDPS } from '../../services/TTDP';
 import { useNavigate } from 'react-router-dom';
 
 function QuanLyDatPhong() {
-    const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
+    const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
     const [currentStatus, setCurrentStatus] = useState('Chưa xếp');
-    const hienThiQuanLy = (trangThai, page = 0) => {
-        HienThiQuanLy(trangThai, { page: page, size: 5 })
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [searchKey, setSearchKey] = useState('');
+
+    const fetchThongTinDatPhong = (trangThai, page = 0) => {
+        findTTDPS(startDate, endDate, searchKey, trangThai, { page, size: 5 })
             .then(response => {
                 setThongTinDatPhong(response.data.content);
                 setTotalPages(response.data.totalPages);
                 setCurrentPage(page);
                 setCurrentStatus(trangThai);
+                console.log(response.data);
             })
             .catch(error => {
                 console.log(error);
@@ -36,23 +41,22 @@ function QuanLyDatPhong() {
     };
 
     useEffect(() => {
-        hienThiQuanLy(currentStatus, currentPage);
-    }, [currentPage, currentStatus]);
+        fetchThongTinDatPhong(currentStatus, currentPage);
+    }, [currentPage, currentStatus, startDate, endDate, searchKey]);
 
     const handleStatusChange = (trangThai) => {
-        setCurrentPage(0); // Đặt lại trang về 0
-        hienThiQuanLy(trangThai, 0); // Gọi lại API với trang đầu tiên và trạng thái mới
+        setCurrentPage(0);
+        fetchThongTinDatPhong(trangThai, 0);
     };
 
-    // Hàm điều hướng đến trang chi tiết đặt phòng
     const handleDatPhongClick = (maDatPhong) => {
         navigate('/thong-tin-dat-phong', { state: { maDatPhong } });
     };
 
-    // Hàm điều hướng đến trang chi tiết TTDP
     const handleTTDPClick = (maTTDP) => {
         navigate(`/chi-tiet-ttdp/${maTTDP}`);
     };
+
     const goToPreviousPage = () => {
         if (currentPage > 0) {
             setCurrentPage(prevPage => prevPage - 1);
@@ -64,6 +68,7 @@ function QuanLyDatPhong() {
             setCurrentPage(prevPage => prevPage + 1);
         }
     };
+
     return (
         <div className="reservation">
             <nav>
@@ -76,9 +81,25 @@ function QuanLyDatPhong() {
             </nav>
 
             <div className="filters">
-                <input type="text" placeholder="Search..." className="search-bar" />
-                <input type="date" placeholder="Start Date" />
-                <input type="date" placeholder="End Date" />
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    className="search-bar"
+                    value={searchKey}
+                    onChange={(e) => setSearchKey(e.target.value)}
+                />
+                <input
+                    type="date"
+                    placeholder="Start Date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                />
+                <input
+                    type="date"
+                    placeholder="End Date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                />
             </div>
 
             <div className="reservation-list">
@@ -105,11 +126,9 @@ function QuanLyDatPhong() {
                             thongTinDatPhong.map((ttdp) => (
                                 <tr key={ttdp.id}>
                                     <td><input type="checkbox" /></td>
-                                    {/* Gọi hàm điều hướng khi click vào mã đặt phòng */}
                                     <td onClick={() => handleDatPhongClick(ttdp.maDatPhong)} style={{ cursor: 'pointer', color: 'blue' }}>
                                         {ttdp.maDatPhong}
                                     </td>
-                                    {/* Gọi hàm điều hướng khi click vào mã TTDP */}
                                     <td onClick={() => handleTTDPClick(ttdp.maTTDP)} style={{ cursor: 'pointer', color: 'blue' }}>
                                         {ttdp.maTTDP}
                                     </td>

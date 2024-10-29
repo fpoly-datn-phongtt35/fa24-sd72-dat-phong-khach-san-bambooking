@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -29,6 +30,27 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
             "SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.maDatPhong = :maDatPhong"
     )
     List<ThongTinDatPhong> findByMaDatPhong(@Param("maDatPhong") String maDatPhong);
+
+    @Query("SELECT new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong," +
+            " CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong.tenLoaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
+            " ttdp.giaDat) " +
+            "FROM ThongTinDatPhong ttdp " +
+            "JOIN ttdp.loaiPhong lp " +
+            "JOIN ttdp.datPhong dp " +
+            "WHERE (:startDate IS NULL OR ttdp.ngayNhanPhong >= :startDate) " +
+            "AND (:endDate IS NULL OR ttdp.ngayTraPhong <= :endDate) " +
+            "AND (:trangThai IS NULL OR ttdp.trangThai LIKE %:trangThai%) " +
+            "AND (:key IS NULL OR (ttdp.maThongTinDatPhong LIKE %:key% " +
+            "OR lp.tenLoaiPhong LIKE %:key% " +
+            "OR dp.maDatPhong LIKE %:key%))")
+    Page<TTDPResponse> findByDateRangeAndKey(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("key") String key,
+            @Param("trangThai") String trangThai,
+            Pageable pageable);
+
+
 
 }
 
