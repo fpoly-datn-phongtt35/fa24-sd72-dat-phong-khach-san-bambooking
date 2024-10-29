@@ -17,8 +17,12 @@ public interface DatPhongService {
     DatPhongResponse addDatPhong(DatPhongRequest datPhongRequest);
     DatPhongResponse detailDatPhong(Integer id);
     Page<DatPhongResponse> LocTheoTrangThai(List<String> trangThai,Pageable pageable);
-    Page<DatPhongResponse> searchDatPhong(@Param("keyword") String keyword,@Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,Pageable pageable);
+    Page<DatPhongResponse> searchDatPhong(String keyword,LocalDateTime startDate,
+            LocalDateTime endDate,Pageable pageable);
     DatPhong updateDatPhong(DatPhongRequest datPhongRequest);
+
+    DatPhong findByMaDatPhong(String maDatPhong);
+
+    Double sumTotalAmountByIDDatPhong(Integer idDP);
 
 }

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation,useNavigate  } from 'react-router-dom';
 import './TaoDatPhong.scss';
-import { ThemKhachHangDatPhong, ThemMoiDatPhong } from '../../services/DatPhong';
+import { ThemKhachHangDatPhong, ThemMoiDatPhong ,CapNhatDatPhong} from '../../services/DatPhong';
 import { addThongTinDatPhong } from '../../services/TTDP';
 const TaoDatPhong = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const { startDate, endDate, adults } = location.state || {};
     const [selectedRooms, setSelectedRooms] = useState(location.state?.selectedRooms || []);
     const [formData, setFormData] = useState({
@@ -62,7 +63,7 @@ const TaoDatPhong = () => {
             // Tạo khách hàng
             const khachHangResponse = await ThemKhachHangDatPhong(khachHangRequest);
             console.log(khachHangResponse.data);
-    
+            
             if (khachHangResponse != null) {
                 // Gán id của khách hàng vào datPhongRequest
                 datPhongRequest.khachHang = khachHangResponse.data;
@@ -75,16 +76,15 @@ const TaoDatPhong = () => {
                 console.log( dp );
 
                 
-                // Tạo danh sách `thongTinDatPhongRequestList` với `datPhong` đã được lưu
                 const thongTinDatPhongRequestList = selectedRooms.map(room => ({
                     datPhong: dp,  // Gán đối tượng `datPhong` đã được lưu
                     idLoaiPhong: room.id,
-                    maThongTinDatPhong: 'TTDP' + Date.now() + Math.random().toString(36).substr(2, 9),
+                    maThongTinDatPhong: '',
                     ngayNhanPhong: room.startDate,
                     ngayTraPhong: room.endDate,
                     soNguoi: room.adults,
                     giaDat: room.donGia,
-                    trangThai: 'Đang xử lý'
+                    trangThai: 'Chưa xếp'
                 }));
     
                 // Lưu từng `ThongTinDatPhong` trong danh sách
@@ -92,8 +92,8 @@ const TaoDatPhong = () => {
                     const thongTinDatPhongResponse = await addThongTinDatPhong(thongTinDatPhong);
                     console.log(thongTinDatPhongResponse);
                 }
-    
                 alert('Đặt phòng thành công');
+                navigate('/quan-ly-dat-phong');
             } else {
                 throw new Error('Không thể lấy id khách hàng');
             }

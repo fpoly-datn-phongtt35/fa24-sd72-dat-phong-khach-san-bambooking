@@ -1,6 +1,7 @@
 package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.TTDPRequest;
+import com.example.datn.dto.response.TTDPResponse;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.repository.ThongTinDatPhongRepository;
@@ -26,7 +27,6 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Override
     public ThongTinDatPhong add(TTDPRequest request) {
         ThongTinDatPhong ttdp = new ThongTinDatPhong();
-        System.out.println("id lp" + request.getIdLoaiPhong());
         LoaiPhong lp = loaiPhongServiceIMPL.findByID(request.getIdLoaiPhong());
         UniqueDatPhongCode code = new UniqueDatPhongCode();
         ttdp.setDatPhong(request.getDatPhong());
@@ -46,13 +46,23 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     }
 
     @Override
-    public Page<ThongTinDatPhong> getByIDDP(Integer iddp, Pageable pageable) {
-        return thongTinDatPhongRepository.findByDatPhongId(iddp,pageable);
+    public List<ThongTinDatPhong> getByIDDP(Integer iddp) {
+        return thongTinDatPhongRepository.findByDatPhongId(iddp);
     }
 
     @Override
     public ThongTinDatPhong update(TTDPRequest request) {
         return null;
+    }
+
+    @Override
+    public Page<TTDPResponse> HienThiQuanLy(String trangThai, Pageable pageable) {
+        return thongTinDatPhongRepository.HienThiQuanLy(trangThai,pageable);
+    }
+
+    @Override
+    public List<ThongTinDatPhong>  findByMaDatPhong(String maDatPhong) {
+        return thongTinDatPhongRepository.findByMaDatPhong(maDatPhong);
     }
 
 }

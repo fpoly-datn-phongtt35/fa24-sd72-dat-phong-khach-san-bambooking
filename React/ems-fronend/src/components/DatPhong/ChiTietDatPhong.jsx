@@ -1,91 +1,165 @@
 import React, { useEffect, useState } from 'react';
 import './ChiTietDatPhong.scss';
 import { useLocation } from 'react-router-dom';
-import { getThongTinDatPhong } from '../../services/TTDP';
-import { Tabs } from 'antd';  // Import Tabs từ Ant Design
-
-const { TabPane } = Tabs;
-
+import { findTTDPByMaDatPhong } from '../../services/TTDP';
+import { findDatPhongByMaDatPhong } from '../../services/DatPhong';
 const ChiTietDatPhong = () => {
-    const [thongTinDatPhong, setThongTinDatPhong] = useState([]); // Chuyển sang mảng để chứa danh sách
-    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
-    const [totalPages, setTotalPages] = useState(0); // Tổng số trang
+    const [datPhong, setDatPhong] = useState();
+    const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
     const location = useLocation();
-    const { id } = location.state || {};
-
-    // Hàm gọi API để lấy chi tiết đặt phòng
-    const getDetailDatPhong = (id) => {
-        getThongTinDatPhong(id, { page: currentPage, size: 5 }) // Gọi API với id và pagination
+    const { maDatPhong } = location.state || {};
+    const getDetailDatPhong = (maDatPhong) => {
+        findDatPhongByMaDatPhong(maDatPhong) // Gọi API với id và pagination
             .then((response) => {
-                setThongTinDatPhong(response.data.content); // Cập nhật danh sách đặt phòng
-                setTotalPages(response.data.totalPages); // Cập nhật tổng số trang
+                console.log(response.data)
+                setDatPhong(response.data); // Cập nhật danh sách đặt phòng
+
             })
             .catch((error) => {
                 console.log(error);
             });
+        findTTDPByMaDatPhong(maDatPhong)
+            .then((response) => {
+                setThongTinDatPhong(response.data);
+                console.log(response.data);
+            })
+            .catch((error) =>{
+                console.log(error)
+            });
     };
 
     useEffect(() => {
-        if (id) {
-            getDetailDatPhong(id); // Chỉ gọi nếu id tồn tại
+        if (maDatPhong) {
+            getDetailDatPhong(maDatPhong);
         }
-    }, [id, currentPage]); // Gọi lại API khi trang thay đổi
-
-    // Hàm tính số ngày ở
-    const tinhSoNgayO = (ngayNhanPhong, ngayTraPhong) => {
-        const nhanPhong = new Date(ngayNhanPhong);
-        const traPhong = new Date(ngayTraPhong);
-        const diffTime = Math.abs(traPhong - nhanPhong);
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Số ngày ở
+    }, [maDatPhong]);
+    const calculateDays = (start, end) => {
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const diffTime = Math.abs(endDate - startDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays === 0 ? 1 : diffDays;
     };
 
-    // Tạo Tabs để hiển thị mỗi phòng dưới dạng Tab
+    const calculateTotalPrice = (donGia, start, end) => {
+        const days = calculateDays(start, end);
+        return donGia * days;
+    };
+    const calculateTotalGuests = () => {
+        return thongTinDatPhong.reduce((total, ttdp) => total + ttdp.soNguoi, 0);
+    };
+    const calculateTotalDays = () => {
+        if (thongTinDatPhong.length === 0) return 0;
+    
+        const dates = thongTinDatPhong.map(ttdp => ({
+            start: new Date(ttdp.ngayNhanPhong),
+            end: new Date(ttdp.ngayTraPhong),
+        }));
+    
+        const minDate = new Date(Math.min(...dates.map(d => d.start)));
+        const maxDate = new Date(Math.max(...dates.map(d => d.end)));
+    
+        const diffTime = Math.abs(maxDate - minDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+        return diffDays === 0 ? 1 : diffDays;
+    };
+    
     return (
-        <div className="room-booking-info">
-            {thongTinDatPhong.length > 0 ? (
-                <Tabs defaultActiveKey="1">
-                    {thongTinDatPhong.map((item) => {
-                        const soNgayO = tinhSoNgayO(item.ngayNhanPhong, item.ngayTraPhong); // Tính số ngày ở
-                        const thanhTien = soNgayO * item.giaDat; // Tính thành tiền
+        <div className="booking-info-container">
+            {/* Các box chính nằm trên cùng một dòng */}
+            <div className="flex-row">
+                <div className="box booker-info">
+                    <h3>Thông tin người đặt</h3>
+                    <div className="info-item">
+                        <label>Tên khách đặt</label>
+                        <span>{datPhong?.khachHang?.ho + ' ' + datPhong?.khachHang?.ten || "N/A"}</span>
+                    </div>
+                    <div className="info-item">
+                        <label>Địa chỉ Email</label>
+                        <span>{datPhong?.khachHang?.email || "N/A"}</span>
+                    </div>
+                    <div className="info-item">
+                        <label>Số điện thoại</label>
+                        <span>{datPhong?.khachHang?.sdt || "N/A"}</span>
+                    </div>
+                </div>
 
-                        return (
-                            <TabPane tab={`${item.maThongTinDatPhong}`} key={item.maThongTinDatPhong}>
-                                <div className="booking-form-details">
-                                    <form className="booking-form">
-                                        <div className="form-group">
-                                            <label htmlFor="ngayNhanPhong">Ngày Nhận Phòng:</label>
-                                            <input type="datetime" id="ngayNhanPhong" value={item.ngayNhanPhong} readOnly />
-                                        </div>
-                                        <div className="form-group">
-                                            <label htmlFor="ngayTraPhong">Ngày Trả Phòng:</label>
-                                            <input type="datetime" id="ngayTraPhong" value={item.ngayTraPhong} readOnly />
-                                        </div>
-                                        <div className="form-group">
-                                            <label htmlFor="giaDat">Giá Đặt:</label>
-                                            <input type="text" id="giaDat" value={`${item.giaDat}`} readOnly />
-                                        </div>
-                                        <div className="form-group">
-                                            <label htmlFor="soNguoi">Số Người:</label>
-                                            <input type="text" id="soNguoi" value={item.soNguoi} readOnly />
-                                        </div>
-                                        <div className="form-group">
-                                            <label htmlFor="thanhTien">Thành Tiền:</label>
-                                            <input type="text" id="thanhTien" value={thanhTien} readOnly />
-                                        </div>
-                                        <div className="form-group">
-                                            <label htmlFor="trangThai">Trạng Thái:</label>
-                                            <input type="text" id="trangThai" value={item.trangThai} readOnly />
-                                        </div>
-                                    </form>
-                                </div>
-                            </TabPane>
-                        );
-                    })}
-                </Tabs>
-            ) : (
-                <p>Loading...</p>
-            )}
+                <div className="box booking-info">
+                    <h3>Thông tin đặt phòng</h3>
+                    <div className="info-item">
+                        <label>Ngày đặt</label>
+                        <span>{datPhong?.ngayDat}</span>
+                    </div>
+                    <div className="info-item">
+                        <label>Số ngày</label>
+                        <span>{calculateTotalDays()}</span>
+                    </div>
+                    <div className="info-item">
+                        <label>Số phòng</label>
+                        <span>{thongTinDatPhong.length}</span>
+                    </div>
+                    <div className="info-item">
+                        <label>Số người</label>
+                        <span>{calculateTotalGuests()}</span>
+                    </div>
+                    <div className="info-item">
+                        <label>Tổng tiền</label>
+                        <span className="highlight">{datPhong?.tongTien}</span>
+                    </div>
+                </div>
+
+                <div className="box booker-comment">
+                    <h3>Ghi chú</h3>
+                    <input type="text-area" placeholder="Nhập ghi chú ở đây..." />
+                </div>
+            </div>
+
+            {/* Danh sách phòng nằm ở dòng dưới */}
+            <div className="box booker-rooms">
+                <h3>Danh sách phòng</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Thông tin đặt phòng</th>
+                            <th>Tên khách hàng</th>
+                            <th>Số người</th>
+                            <th>Loại phòng</th>
+                            <th>Ngày nhận phòng</th>
+                            <th>Ngày trả phòng</th>
+                            <th>Tiền phòng</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {thongTinDatPhong.length > 0 ? (
+                            thongTinDatPhong.map((ttdp) => (
+                                <tr key={ttdp.id}>
+                                    <td><input type="checkbox" /></td>
+                                    <td>{ttdp.maThongTinDatPhong}</td>
+                                    <td>{ttdp?.datPhong?.khachHang?.ho + ' ' +ttdp?.datPhong?.khachHang?.ten}</td>
+                                    <td>{ttdp.soNguoi}</td>
+                                    <td>{ttdp?.loaiPhong?.tenLoaiPhong}</td>
+                                    <td>{ttdp.ngayNhanPhong}</td>
+                                    <td>{ttdp.ngayTraPhong}</td>
+                                    <td>{calculateTotalPrice(ttdp.giaDat, ttdp.ngayNhanPhong, ttdp.ngayTraPhong).toLocaleString()}</td>
+                                    <td>
+                                        <button>Edit</button>
+                                        <button>Delete</button>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="10">Không có dữ liệu</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
+
     );
 };
 

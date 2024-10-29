@@ -4,9 +4,11 @@ import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.model.DatPhong;
 import com.example.datn.model.NhanVien;
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.repository.KhachHangRepository;
 import com.example.datn.repository.NhanVienRepository;
+import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.service.DatPhongService;
 import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ import java.util.List;
 public class DatPhongServiceIMPL implements DatPhongService {
     @Autowired
     DatPhongRepository datPhongRepository;
+
+    @Autowired
+    ThongTinDatPhongRepository thongTinDatPhongRepository;
 
     @Override
     public Page<DatPhongResponse> getByTrangThai(String tt, Pageable pageable) {
@@ -43,14 +48,14 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setMaDatPhong(codeDP);
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setGhiChu("Test");
-        datPhong.setTongTien(0.0);
-        datPhong.setDatCoc(0.0);
+        datPhong.setTongTien(datPhongRequest.getTongTien());
+        datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(LocalDate.now());
         datPhong.setTrangThai("Pending");
         DatPhong dp = datPhongRepository.save(datPhong);
         datPhongResponse.setId(dp.getId());
         datPhongResponse.setMaDatPhong(dp.getMaDatPhong());
-        datPhongResponse.setTenKhachHang(dp.getKhachHang().getTen());
+        datPhongResponse.setKhachHang(dp.getKhachHang());
         datPhongResponse.setTongTien(dp.getTongTien());
         datPhongResponse.setNgayDat(dp.getNgayDat());
         datPhongResponse.setDatCoc(dp.getDatCoc());
@@ -91,5 +96,30 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         return datPhongRepository.save(datPhong);
+    }
+
+    @Override
+    public DatPhong findByMaDatPhong(String maDatPhong) {
+        return datPhongRepository.findByMaDatPhong(maDatPhong);
+    }
+
+    @Override
+    public Double sumTotalAmountByIDDatPhong(Integer idDP) {
+        Double tongTien = 0.0;
+        List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByDatPhongId(idDP);
+        for (ThongTinDatPhong ttdp : ttdps) {
+            LocalDate ngayNhanPhong = ttdp.getNgayNhanPhong();
+            LocalDate ngayTraPhong = ttdp.getNgayTraPhong();
+            Double giaDat = ttdp.getGiaDat();
+
+            if (ngayNhanPhong != null && ngayTraPhong != null && giaDat != null) {
+                long days = java.time.temporal.ChronoUnit.DAYS.between(ngayNhanPhong, ngayTraPhong);
+                if (days == 0) {
+                    days = 1;
+                }
+                tongTien += days * giaDat; // Cộng dồn vào tổng tiền
+            }
+        }
+        return tongTien;
     }
 }

@@ -3,6 +3,7 @@ package com.example.datn.controller;
 import com.example.datn.dto.request.TTDPRequest;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
+import com.example.datn.dto.response.TTDPResponse;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @CrossOrigin("*")
 @RestController
@@ -32,9 +34,13 @@ public class TTDPController {
         return thongTinDatPhongServiceIMPL.getAll(pageable);
     }
 
-    @GetMapping("hien-thi")
-    public Page<ThongTinDatPhong> getByIDDP(@RequestParam(value = "idDP") Integer idDP,Pageable pageable){
-        return thongTinDatPhongServiceIMPL.getByIDDP(idDP,pageable);
+    @GetMapping("/hien-thi-quan-ly")
+    public ResponseEntity<?> hienThiQuanLy(@RequestParam("trangThai") String trangThai, Pageable pageable) {
+        return ResponseEntity.ok(thongTinDatPhongServiceIMPL.HienThiQuanLy(trangThai, pageable));
+    }
+    @GetMapping("hien-thi-by-iddp")
+    public List<ThongTinDatPhong> getByIDDP(@RequestParam(value = "idDP") Integer idDP){
+        return thongTinDatPhongServiceIMPL.getByIDDP(idDP);
     }
     @PostMapping("them-moi")
     public ResponseEntity<ThongTinDatPhong> createDatPhong(@RequestBody TTDPRequest request) {
@@ -57,6 +63,12 @@ public class TTDPController {
         LocalDateTime ngayTraPhongEnd = ngayTraPhong.atTime(23, 59, 59);
         Page<LoaiPhongKhaDungResponse> p = loaiPhongServiceIMPL.LoaiPhongKhaDung(ngayNhanPhongStart,ngayTraPhongEnd,pageable);
         return ResponseEntity.ok(p);
+    }
+
+    @GetMapping("chi-tiet-dat-phong")
+    public ResponseEntity<?> chiTietDatPhong(@RequestParam String maDatPhong){
+        List<ThongTinDatPhong> ttdps = thongTinDatPhongServiceIMPL.findByMaDatPhong(maDatPhong);
+        return ResponseEntity.ok(ttdps);
     }
 
 }
