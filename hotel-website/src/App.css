@@ -1,20 +1,35 @@
 /* App.css */
 .hotel-website {
   display: flex;
+  flex-direction: column; /* Navbar trên cùng, nội dung bên dưới */
   height: 100vh;
-  overflow: hidden;
 }
 
-.hotel-website .main-content {
+.main-content {
   display: flex;
-  width: 100%;
-  margin-top: 65px; /* Để tránh navbar đè lên nội dung */
+  flex: 1; /* Chiếm toàn bộ chiều cao còn lại */
+  overflow: hidden; /* Ngăn nội dung bị tràn ra */
 }
 
-.hotel-website .content-area {
-  margin-left: 260px;
-  padding: 25px;
-  flex-grow: 1;
-  background-color: #ecf0f1;
-  min-height: calc(100vh - 65px); /* Đảm bảo chiều cao đầy đủ */
+.content-area {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto; /* Cuộn nội dung nếu vượt quá chiều cao */
+  background-color: #f8f8f8;
+  position: relative; /* Để không bị che khuất */
+}
+
+/* Đảm bảo tính responsive cho màn hình nhỏ */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none; /* Ẩn sidebar trên màn hình nhỏ */
+  }
+
+  .main-content {
+    flex-direction: column;
+  }
+
+  .content-area {
+    padding: 10px;
+  }
 }

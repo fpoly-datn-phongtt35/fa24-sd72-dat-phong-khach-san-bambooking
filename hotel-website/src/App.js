@@ -7,7 +7,8 @@ import Sidebar from './components/Sidebar';
 import Home from './pages/Home';
 import Rooms from './pages/Rooms';
 import Bookings from './pages/Bookings';
-
+import Login from './components/Login';
+import Register from './components/Register';
 function App() {
   return (
     <div className="app-container">
@@ -19,6 +20,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/rooms" element={<Rooms />} />
             <Route path="/bookings" element={<Bookings />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
           </Routes>
         </div>
       </div>

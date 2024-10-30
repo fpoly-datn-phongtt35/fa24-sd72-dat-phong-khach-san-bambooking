@@ -5,6 +5,7 @@ import com.example.datn.dto.request.KhachHangRequest;
 import com.example.datn.dto.response.KhachHangResponse;
 import com.example.datn.mapper.KhachHangMapper;
 import com.example.datn.model.KhachHang;
+import com.example.datn.model.KhachHangRegister;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.KhachHangRepository;
 import com.example.datn.repository.TaiKhoanRepository;
@@ -28,7 +29,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class KhachHangServiceIMPL implements KhachHangService {
     KhachHangRepository khachHangRepository;
-    TaiKhoanRepository taiKhoanRepository;
     KhachHangMapper khachHangMapper;
     @Autowired
     JavaMailSender mailSender;
@@ -40,21 +40,47 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
     @Override
     public KhachHang createKhachHang(KhachHangRequest request) {
-        TaiKhoan taiKhoan = new TaiKhoan();
-        taiKhoan.setTenDangNhap(request.getEmail());
-
+        // Tạo mật khẩu ngẫu nhiên
         String generatedPassword = PasswordGenerator.generateRandomPassword();
-        taiKhoan.setMatKhau(generatedPassword);
-        taiKhoan.setTrangThai(true);
-        TaiKhoan saveTaiKhoan = taiKhoanRepository.save(taiKhoan);
 
+        // Tạo đối tượng KhachHang và gán thông tin
         KhachHang khachHang = khachHangMapper.toKhachHang(request);
-        khachHang.setTaiKhoan(saveTaiKhoan);
+        khachHang.setEmail(request.getEmail());
+        khachHang.setMatKhau(generatedPassword); // Lưu mật khẩu vào bảng KhachHang
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
-        khachHang.setTrangThai("active");
-        return khachHangRepository.save(khachHang);
+        khachHang.setTrangThai(false); // Tài khoản chưa kích hoạt
+
+        // Lưu khách hàng vào cơ sở dữ liệu
+        KhachHang savedKhachHang = khachHangRepository.save(khachHang);
+
+        // Gửi mật khẩu qua email
+        sendPasswordEmail(request.getEmail(), generatedPassword);
+
+        return savedKhachHang;
     }
+
+    @Override
+    public KhachHang createKhachHangRegister(KhachHangRegister request) {
+        String generatedPassword = PasswordGenerator.generateRandomPassword();
+
+        // Tạo đối tượng KhachHang và gán thông tin
+        KhachHang khachHang = new KhachHang();
+        khachHang.setEmail(request.getEmail());
+        khachHang.setMatKhau(generatedPassword); // Lưu mật khẩu vào DB
+        khachHang.setNgayTao(LocalDateTime.now());
+        khachHang.setNgaySua(LocalDateTime.now());
+        khachHang.setTrangThai(true);
+
+        // Lưu vào DB
+        KhachHang savedKhachHang = khachHangRepository.save(khachHang);
+
+        // Gửi mật khẩu qua email
+        sendPasswordEmail(request.getEmail(), generatedPassword);
+
+        return savedKhachHang;
+    }
+
 
     @Override
     public KhachHangResponse getOneKhachHang(Integer id) {
@@ -74,16 +100,11 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setDiaChi(request.getDiaChi());
         khachHang.setSdt(request.getSdt());
         khachHang.setEmail(request.getEmail());
-        khachHang.setTrangThai(request.getTrangThai());
+        khachHang.setTrangThai(request.isTrangThai());
         khachHang.setNgaySua(LocalDateTime.now());
 
         KhachHang updateKH = khachHangRepository.save(khachHang);
 
-        TaiKhoan taiKhoan = updateKH.getTaiKhoan();
-        if (taiKhoan != null) {
-            taiKhoan.setTenDangNhap(request.getEmail());
-            taiKhoanRepository.save(taiKhoan);
-        }
         return khachHangMapper.toKhachHangResponse(updateKH);
     }
 
@@ -98,15 +119,6 @@ public class KhachHangServiceIMPL implements KhachHangService {
     @Override
     public Page<KhachHang> searchKhachHang(String keyword, Pageable pageable) {
         return khachHangRepository.search(keyword, pageable);
-    }
-
-    @Override
-    public KhachHang findByEmail(String email) {
-        KhachHang khachHang = khachHangRepository.findByEmail(email);
-        if (khachHang == null) {
-            throw new RuntimeException("Không tìm thấy khách hàng với email: " + email);
-        }
-        return khachHang;
     }
 
     @Override
@@ -137,5 +149,12 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
         return password.toString();
     }
+
+    @Override
+    public boolean checkLogin(String email, String matKhau) {
+        Optional<KhachHang> khachHang = khachHangRepository.findByEmail(email);
+        return khachHang.isPresent() && khachHang.get().getMatKhau().equals(matKhau);
+    }
+
 
 }

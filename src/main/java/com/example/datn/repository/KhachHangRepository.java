@@ -11,16 +11,18 @@ import java.util.Optional;
 
 public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
     @Query("""
-            SELECT kh
-            FROM KhachHang kh
-            where kh.ho like %:keyword%
-            or  kh.ten like %:keyword%
-            or kh.sdt like %:keyword%
-            or kh.email like %:keyword%
-            or kh.trangThai like %:keyword%
-            or kh.gioiTinh like %:keyword%
-            or kh.diaChi like %:keyword%
-            """)
+        SELECT kh
+        FROM KhachHang kh
+        WHERE kh.ho LIKE %:keyword%
+        OR kh.ten LIKE %:keyword%
+        OR kh.sdt LIKE %:keyword%
+        OR kh.email LIKE %:keyword%
+        OR (CAST(:keyword AS string) = 'true' AND kh.trangThai = true)
+        OR (CAST(:keyword AS string) = 'false' AND kh.trangThai = false)
+        OR kh.gioiTinh LIKE %:keyword%
+        OR kh.diaChi LIKE %:keyword%
+       """)
     Page<KhachHang> search(@Param("keyword") String keyword, Pageable pageable);
-    KhachHang findByEmail(String email);
+
+    Optional<KhachHang> findByEmail(String email);
 }

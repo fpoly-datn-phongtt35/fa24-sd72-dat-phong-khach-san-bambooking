@@ -1,9 +1,12 @@
+// index.js
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client'; // Đúng cách import cho React 18+
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
+root.render(
   <React.StrictMode>
     <BrowserRouter>
       <App />

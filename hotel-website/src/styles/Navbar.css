@@ -1,14 +1,14 @@
-/* Navbar.css */
+/* Reset và thiết lập cơ bản */
 * {
   margin: 0;
   padding: 0;
-  box-sizing: border-box; /* Đảm bảo tất cả phần tử không vượt kích thước bố cục */
+  box-sizing: border-box;
 }
 
 .navbar {
   background-color: #34495e;
   color: white;
-  padding: 10px 20px; /* Giảm padding để tránh tràn */
+  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -16,35 +16,92 @@
   width: 100%;
   top: 0;
   z-index: 1000;
-  overflow: hidden; /* Ngăn nội dung bên trong tràn ra */
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Đổ bóng cho navbar */
 }
 
+/* Logo */
 .navbar-logo a {
   color: white;
   font-size: 26px;
   text-decoration: none;
   font-weight: bold;
-  white-space: nowrap; /* Ngăn logo bị xuống dòng */
+  white-space: nowrap;
+  transition: color 0.3s ease;
 }
 
+.navbar-logo a:hover {
+  color: #1abc9c; /* Màu xanh nhạt khi di chuột */
+}
+
+/* Liên kết trong navbar */
 .navbar-links {
   list-style: none;
   display: flex;
   gap: 20px;
-  margin-right: 10px; /* Khoảng cách từ danh sách liên kết đến rìa phải */
+  margin-right: 10px;
+  align-items: center;
 }
 
 .navbar-links li {
-  display: inline;
+  display: inline-block;
 }
 
 .navbar-links a {
   color: white;
   text-decoration: none;
   font-size: 16px;
-  white-space: nowrap; /* Ngăn chữ Login bị xuống dòng */
+  white-space: nowrap;
+  transition: color 0.3s ease;
 }
 
 .navbar-links a:hover {
-  text-decoration: underline;
+  color: #1abc9c; /* Đổi màu khi di chuột */
+}
+
+/* Nút đăng nhập, đăng ký, và đăng xuất */
+.login-button, .sign-button, .logout-button {
+  background-color: #1abc9c;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin-left: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.login-button:hover, .sign-button:hover, .logout-button:hover {
+  background-color: #16a085;
+  transform: scale(1.05); /* Hiệu ứng phóng to nhẹ khi di chuột */
+}
+
+.logout-button:hover {
+  background-color: #e74c3c; /* Màu đỏ cho nút Đăng Xuất */
+}
+
+/* Responsive thiết kế cho màn hình nhỏ */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .navbar-links li {
+    width: 100%;
+    text-align: left;
+  }
+
+  .login-button, .sign-button, .logout-button {
+    width: 100%; /* Nút full-width trên màn hình nhỏ */
+    text-align: center;
+  }
 }
