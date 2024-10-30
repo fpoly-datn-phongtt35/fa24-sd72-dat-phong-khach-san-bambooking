@@ -54,4 +54,8 @@ public class NhanVien {
 
     @Column(name = "trang_thai")
     private Boolean trangThai;
+
+    public String getHoTen() {
+        return ho + " " + ten;
+    }
 }

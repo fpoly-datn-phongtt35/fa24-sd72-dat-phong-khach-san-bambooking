@@ -5,16 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ThongTinHoaDonResponse {
     Integer id;
-    String maHoaDon;
-    LocalDate ngayTraPhong;
+    Integer idTraPhong;
+    Integer idHoaDon;
     Double tienDichVu;
     Double tienPhong;
     Double tienPhuThu;

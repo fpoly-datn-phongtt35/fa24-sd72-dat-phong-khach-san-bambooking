@@ -32,4 +32,7 @@ public class HoaDon {
     private LocalDate ngayTao;
     @Column(name = "trang_thai")
     private String trangThai;
+    public String getHoTenNhanVien() {
+        return nhanVien != null ? nhanVien.getHoTen() : "Chưa có thông tin nhân viên";
+    }
 }

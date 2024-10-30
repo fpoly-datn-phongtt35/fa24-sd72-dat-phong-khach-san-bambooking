@@ -67,23 +67,14 @@ public class HoaDonServiceIMPL implements HoaDonService {
             maHoaDon = generateMaaHoaDon();
         } while (isMaHoaDonExists(maHoaDon));
 
-        // Tìm kiếm nhân viên và đặt phòng
-        NhanVien nhanVien = nhanVienRepository.findById(2)
+        NhanVien nhanVien = nhanVienRepository.findById(request.getIdNhanVien())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên"));
-
-        DatPhong datPhong = datPhongRepository.findById(1)
+        DatPhong datPhong = datPhongRepository.findById(request.getIdDatPhong())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin đặt phòng"));
 
-        // Tạo hóa đơn
-        request.setNhanVien(nhanVien);
-        request.setDatPhong(datPhong);
-        request.setTongTien(0.0);
-        request.setNgayTao(LocalDate.now());
-
-        HoaDon hoaDon = hoaDonMapper.toHoaDon(request);
-        HoaDon savedHoaDon = hoaDonRepository.save(hoaDon);
-
-        return hoaDonMapper.toHoaDonResponse(savedHoaDon); // Trả về phản hồi
+        HoaDon hoaDon = HoaDonMapper.toHoaDon(request, nhanVien, datPhong);
+        hoaDon.setMaHoaDon(maHoaDon);
+        return hoaDonMapper.toHoaDonResponse(hoaDonRepository.save(hoaDon));
     }
 
 

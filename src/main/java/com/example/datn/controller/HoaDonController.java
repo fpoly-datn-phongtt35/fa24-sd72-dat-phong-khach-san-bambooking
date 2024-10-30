@@ -2,7 +2,6 @@ package com.example.datn.controller;
 
 import com.example.datn.dto.request.HoaDonRequest;
 import com.example.datn.dto.response.HoaDonResponse;
-import com.example.datn.model.HoaDon;
 import com.example.datn.service.HoaDonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +30,7 @@ public class HoaDonController {
 
     @PostMapping
     public ResponseEntity<?> createHoaDon(@RequestBody HoaDonRequest request) {
-        try {
-            HoaDonResponse hoaDon = hoaDonService.createHoaDon(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(hoaDon);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Không tạo được hóa đơn: " + e.getMessage());
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(hoaDonService.createHoaDon(request));
     }
 
 
