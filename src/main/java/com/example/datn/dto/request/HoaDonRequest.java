@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class HoaDonRequest {
     String maHoaDon;
-    Integer idNhanVien;
+    String tenDangNhap;
     Integer idDatPhong;
     Double tongTien;
 

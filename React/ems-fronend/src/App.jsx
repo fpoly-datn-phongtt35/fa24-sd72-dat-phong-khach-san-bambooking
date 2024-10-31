@@ -26,6 +26,8 @@ import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
 import LoaiPhong from './components/LoaiPhong/LoaiPhong';
 import TaoDatPhong from './components/DatPhong/TaoDatPhong.jsx';
 import GiaoDienTaoDP from './components/DatPhong/GiaoDienTaoDP.jsx'
+import ListHoaDon from './components/HoaDon/ListHoaDon.jsx';
+import HoaDonComponent from './components/HoaDon/HoaDonComponent.jsx';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
@@ -286,6 +288,22 @@ function App() {
               element={
                 <RequireAuth>
                   <ViewPhong />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/hoa-don"
+              element={
+                <RequireAuth>
+                  <ListHoaDon />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/add-hoa-don"
+              element={
+                <RequireAuth>
+                  <HoaDonComponent />
                 </RequireAuth>
               }
             />

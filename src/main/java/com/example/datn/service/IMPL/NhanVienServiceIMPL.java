@@ -65,6 +65,4 @@ public class NhanVienServiceIMPL implements NhanVienService{
     public NhanVien getNhanVienById(Integer id) {
         return nhanVienRepository.findById(id).orElse(null);
     }
-
-
 }

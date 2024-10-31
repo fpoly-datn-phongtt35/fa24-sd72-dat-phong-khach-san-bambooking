@@ -8,7 +8,6 @@ import com.example.datn.model.HoaDon;
 import com.example.datn.model.NhanVien;
 import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.repository.HoaDonRepository;
-import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.service.HoaDonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,14 +17,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.time.LocalDate;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 public class HoaDonServiceIMPL implements HoaDonService {
     HoaDonRepository hoaDonRepository;
-    NhanVienRepository nhanVienRepository;
     DatPhongRepository datPhongRepository;
     HoaDonMapper hoaDonMapper;
 
@@ -34,12 +31,12 @@ public class HoaDonServiceIMPL implements HoaDonService {
     private final SecureRandom random = new SecureRandom();
 
     @Override
-    public Page<HoaDonResponse> getHoaDonByTrangThai(String trangThai, Pageable pageable) {
+    public Page<HoaDonResponse> getHoaDonByTrangThai(String trangThai, String keyword, Pageable pageable) {
         Page<HoaDon> hoaDons;
         if (trangThai == null || trangThai.isEmpty()) {
             hoaDons = hoaDonRepository.findAll(pageable);
         } else {
-            hoaDons = hoaDonRepository.findByTrangThai(trangThai, pageable);
+            hoaDons = hoaDonRepository.findByTrangThai(trangThai, keyword, pageable);
         }
         return hoaDons.map(hoaDonMapper::toHoaDonResponse);
     }
@@ -67,8 +64,7 @@ public class HoaDonServiceIMPL implements HoaDonService {
             maHoaDon = generateMaaHoaDon();
         } while (isMaHoaDonExists(maHoaDon));
 
-        NhanVien nhanVien = nhanVienRepository.findById(request.getIdNhanVien())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên"));
+        NhanVien nhanVien = hoaDonRepository.searchTenDangNhap(request.getTenDangNhap());
         DatPhong datPhong = datPhongRepository.findById(request.getIdDatPhong())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin đặt phòng"));
 
@@ -82,9 +78,8 @@ public class HoaDonServiceIMPL implements HoaDonService {
     public void changeStatusHoaDon(Integer idHoaDon) {
 
     }
-
     @Override
-    public Page<HoaDonResponse> searchHoaDon(String keyword, Pageable pageable) {
-        return null;
+    public NhanVien searchNhanVienByTenDangNhap(String tenDangNhap) {
+        return hoaDonRepository.searchTenDangNhap(tenDangNhap);
     }
 }

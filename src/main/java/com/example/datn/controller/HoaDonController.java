@@ -23,8 +23,9 @@ public class HoaDonController {
     @GetMapping
     public ResponseEntity<?> getAllHoaDon(
             @RequestParam(value = "trangThai", required = false) String trangThai,
+            @RequestParam(value = "keyword", required = false) String keyword,
             Pageable pageable) {
-        Page<HoaDonResponse> hoaDonResponses = hoaDonService.getHoaDonByTrangThai(trangThai, pageable);
+        Page<HoaDonResponse> hoaDonResponses = hoaDonService.getHoaDonByTrangThai(trangThai, keyword, pageable);
         return ResponseEntity.ok(hoaDonResponses);
     }
 
@@ -33,5 +34,13 @@ public class HoaDonController {
         return ResponseEntity.status(HttpStatus.CREATED).body(hoaDonService.createHoaDon(request));
     }
 
+//    @GetMapping("/search")
+//    public ResponseEntity<?> getTenDangNhap(@RequestParam(value = "tenDangNhap") String tenDangNhap) {
+//        try {
+//            return ResponseEntity.ok(hoaDonService.searchNhanVienByTenDangNhap(tenDangNhap));
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().body("K lấy được tên đăng nhập");
+//        }
+//    }
 
 }

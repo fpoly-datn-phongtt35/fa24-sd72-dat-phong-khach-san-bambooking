@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import '../assets/Header.css'; // Import CSS
+import '../assets/Header.css';
 
-const HeaderComponents = ({ isAuthenticated, onLogout }) => {
+const Header = ({ isAuthenticated, onLogout }) => {
     const [showUserInfo, setShowUserInfo] = useState(false);
     const [userInfo, setUserInfo] = useState(null);
 
@@ -28,6 +28,8 @@ const HeaderComponents = ({ isAuthenticated, onLogout }) => {
         if (onLogout) {
             onLogout(); // Gọi hàm onLogout được truyền từ props
         }
+        localStorage.removeItem('user'); // Xóa thông tin user khỏi localStorage khi đăng xuất
+        setUserInfo(null); // Xóa user info khỏi state
     };
 
     return (
@@ -42,7 +44,7 @@ const HeaderComponents = ({ isAuthenticated, onLogout }) => {
                 <li className="navbar-item">
                     <Link className="navbar-link" to="/NhanVien">Nhân viên</Link>
                 </li>
-                {isAuthenticated && (
+                {isAuthenticated && userInfo && (
                     <li className="navbar-item">
                         {/* Avatar hình tròn */}
                         <div className="user-avatar" onClick={toggleUserInfo}>
@@ -54,7 +56,7 @@ const HeaderComponents = ({ isAuthenticated, onLogout }) => {
                         </div>
 
                         {/* Dropdown thông tin tài khoản */}
-                        {showUserInfo && userInfo && (
+                        {showUserInfo && (
                             <div className="user-info-dropdown">
                                 <p>Tài khoản: {userInfo.tenDangNhap}</p>
                                 <p>Trạng thái: {userInfo.trangThai}</p>
@@ -70,4 +72,4 @@ const HeaderComponents = ({ isAuthenticated, onLogout }) => {
     );
 };
 
-export default HeaderComponents;
+export default Header
