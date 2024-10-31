@@ -18,8 +18,8 @@ const BookingForm = () => {
     const [selectedRooms, setSelectedRooms] = useState([]); // Mảng chứa các phòng đã chọn
     const navigate = useNavigate();
 
-    const LoaiPhongKhaDung = (ngayNhanPhong, ngayTraPhong) => {
-        getLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, { page: currentPage })
+    const LoaiPhongKhaDung = (ngayNhanPhong, ngayTraPhong,soNguoi) => {
+        getLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong,soNguoi, { page: currentPage })
             .then((response) => {
                 setLoaiPhongKhaDung(response.data.content);
                 setTotalPages(response.data.totalPages);
@@ -31,7 +31,7 @@ const BookingForm = () => {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        LoaiPhongKhaDung(startDate, endDate);
+        LoaiPhongKhaDung(startDate, endDate,adults);
     };
 
     const handleNextPage = () => {

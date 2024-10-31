@@ -82,8 +82,8 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     @Override
-    public Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable) {
-        return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,pageable);
+    public Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,Integer soNguoi, Pageable pageable) {
+        return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,pageable);
     }
 
     @Override

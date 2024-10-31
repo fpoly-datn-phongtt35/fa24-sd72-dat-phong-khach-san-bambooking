@@ -47,11 +47,12 @@ export const HienThiQuanLy = (trangThai, pageable) => {
 export const addThongTinDatPhong = (TTDPRequest) => {
     return axios.post(apiAdd, TTDPRequest);
 };
-export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,pageable) => {
+export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,soNguoi,pageable) => {
     return axios.get(apiLoaiPhongKhaDung, {
         params: {
             ngayNhanPhong: ngayNhanPhong,
             ngayTraPhong: ngayTraPhong,
+            soNguoi:soNguoi,
             page: pageable.page, 
             size: pageable.size
         }

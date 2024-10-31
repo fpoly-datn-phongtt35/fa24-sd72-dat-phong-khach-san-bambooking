@@ -1,5 +1,6 @@
 package com.example.datn.dto.response;
 
+import com.example.datn.model.LoaiPhong;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ public class TTDPResponse {
     String maTTDP;
     String tenKhachHang;
     Integer soNguoi;
-    String tenLoaiPhong;
+    LoaiPhong loaiPhong;
     LocalDate ngayNhanPhong;
     LocalDate ngayTraPhong;
     Double donGia;

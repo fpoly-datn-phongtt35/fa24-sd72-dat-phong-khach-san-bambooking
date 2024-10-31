@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './QuanLyDatPhong.scss';
 import { HienThiQuanLy, findTTDPS } from '../../services/TTDP';
 import { useNavigate } from 'react-router-dom';
+import XepPhong from './XepPhong'; // Import XepPhong modal
 
 function QuanLyDatPhong() {
     const navigate = useNavigate();
@@ -12,7 +13,8 @@ function QuanLyDatPhong() {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [searchKey, setSearchKey] = useState('');
-
+    const [showXepPhongModal, setShowXepPhongModal] = useState(false); // Trạng thái hiển thị của Modal
+    const [loaiPhong,setLoaiPhong] = useState(null);
     const fetchThongTinDatPhong = (trangThai, page = 0) => {
         findTTDPS(startDate, endDate, searchKey, trangThai, { page, size: 5 })
             .then(response => {
@@ -69,6 +71,17 @@ function QuanLyDatPhong() {
         }
     };
 
+    // Hàm mở Modal XepPhong
+    const openXepPhongModal = (loaiPhong) => {
+        setLoaiPhong(loaiPhong);
+        setShowXepPhongModal(true);
+    };
+
+    // Hàm đóng Modal XepPhong
+    const closeXepPhongModal = () => {
+        setShowXepPhongModal(false);
+    };
+
     return (
         <div className="reservation">
             <nav>
@@ -103,7 +116,7 @@ function QuanLyDatPhong() {
             </div>
 
             <div className="reservation-list">
-                <button className="assign-button" disabled>
+                <button className="assign-button" onClick={openXepPhongModal}>
                     Assign
                 </button>
                 <table>
@@ -134,13 +147,12 @@ function QuanLyDatPhong() {
                                     </td>
                                     <td>{ttdp.tenKhachHang}</td>
                                     <td>{ttdp.soNguoi}</td>
-                                    <td>{ttdp.tenLoaiPhong}</td>
+                                    <td>{ttdp.loaiPhong.tenLoaiPhong}</td>
                                     <td>{ttdp.ngayNhanPhong}</td>
                                     <td>{ttdp.ngayTraPhong}</td>
                                     <td>{calculateTotalPrice(ttdp.donGia, ttdp.ngayNhanPhong, ttdp.ngayTraPhong).toLocaleString()}</td>
                                     <td>
-                                        <button>Edit</button>
-                                        <button>Delete</button>
+                                    <button onClick={() => openXepPhongModal(ttdp.loaiPhong)}>Assign</button>
                                     </td>
                                 </tr>
                             ))
@@ -161,6 +173,9 @@ function QuanLyDatPhong() {
                     </button>
                 </div>
             </div>
+
+            {/* Hiển thị Modal XepPhong */}
+            <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} loaiPhong={loaiPhong}/>
         </div>
     );
 }

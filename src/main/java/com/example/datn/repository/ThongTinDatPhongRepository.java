@@ -20,7 +20,7 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
 
     @Query(
             "select new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong, " +
-                    "CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong.tenLoaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong, " +
+                    "CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong, " +
                     "ttdp.giaDat) " +
                     "from ThongTinDatPhong ttdp " +
                     "where ttdp.trangThai = :trangThai")
@@ -32,7 +32,7 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     List<ThongTinDatPhong> findByMaDatPhong(@Param("maDatPhong") String maDatPhong);
 
     @Query("SELECT new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong," +
-            " CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong.tenLoaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
+            " CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
             " ttdp.giaDat) " +
             "FROM ThongTinDatPhong ttdp " +
             "JOIN ttdp.loaiPhong lp " +
@@ -41,7 +41,7 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
             "AND (:endDate IS NULL OR ttdp.ngayTraPhong <= :endDate) " +
             "AND (:trangThai IS NULL OR ttdp.trangThai LIKE %:trangThai%) " +
             "AND (:key IS NULL OR (ttdp.maThongTinDatPhong LIKE %:key% " +
-            "OR lp.tenLoaiPhong LIKE %:key% " +
+                "OR lp.tenLoaiPhong LIKE %:key% " +
             "OR dp.maDatPhong LIKE %:key%))")
     Page<TTDPResponse> findByDateRangeAndKey(
             @Param("startDate") LocalDate startDate,
