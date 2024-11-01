@@ -1,115 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './NavPhong.scss';
-import ThemKhachHangMoi from './ThemKhachHangMoi';
-import { listKhachHang } from '../../services/KhachHangService';
-import { ThemMoiDatPhong } from '../../services/DatPhong';
-import { useNavigate } from 'react-router-dom';
 const NavPhong = () => {
-    const navigate = useNavigate();
-    const [showModal, setShowModal] = useState(false);
-    const [khachHangList, setKhachHangList] = useState([]);
-    const [currentPage, setCurrentPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [selectedKhachHang, setSelectedKhachHang] = useState(null);
-    const [datPhongSelected, setDatPhongSelected] = useState(null); // Quản lý trạng thái của đặt phòng đã chọn
-    
-    // State cho đặt phòng
-    const [datPhong, setDatPhong] = useState({
-        khachHang: null,
-        maDatPhong: '',
-        ngayDat: '',
-        ghiChu: '',
-        trangThai: '',
-    });
-
-    const itemsPerPage = 5;
-
-    const getAllKhachHang = () => {
-        listKhachHang({ page: currentPage, size: itemsPerPage }, searchQuery)
-            .then((response) => {
-                setKhachHangList(response.data.content);
-                setTotalPages(response.data.totalPages);
-            }).catch((error) => {
-                console.log(error);
-            });
-    };
-
-    useEffect(() => {
-        const storedDatPhong = localStorage.getItem('datPhong');
-        if (storedDatPhong) {
-            setDatPhongSelected(JSON.parse(storedDatPhong)); // Chuyển đổi từ chuỗi JSON thành đối tượng
-            localStorage.removeItem('datPhong');
-        }else {
-            setDatPhongSelected(null); // Đặt lại trạng thái về null
-            localStorage.removeItem('datPhong'); // Xóa localStorage để tránh lỗi
-        }
-
-        getAllKhachHang();
-    }, [currentPage, searchQuery]);
-    
-
-    const handleOpenModal = () => {
-        setShowModal(true);
-    };
-
-    const handleCloseModal = () => {
-        setShowModal(false);
-    };
-
-    const handlePreviousPage = () => {
-        if (currentPage > 0) {
-            setCurrentPage(prevPage => prevPage - 1);
-        }
-    };
-
-    const handleNextPage = () => {
-        if (currentPage < totalPages - 1) {
-            setCurrentPage(prevPage => prevPage + 1);
-        }
-    };
-
-    const handleSearchInput = (e) => {
-        setSearchQuery(e.target.value);
-        setCurrentPage(0); // Reset lại trang khi tìm kiếm
-    };
-
-    const handleSelectChange = (e) => {
-        const selectedId = e.target.value;
-        const selected = khachHangList.find(khachHang => khachHang.id === parseInt(selectedId)); // Tìm khách hàng theo ID
-        setDatPhong(prevState => ({
-            ...prevState,
-            khachHang: selected
-        }));
-        setSelectedKhachHang(selected); // Lưu toàn bộ thông tin khách hàng
-    };
-
-    const handleTaoDatPhong = (e) => {
-        e.preventDefault();
-    
-        // Tạo payload cho việc đặt phòng
-        const payload = {
-            khachHang: datPhong.khachHang,
-            ghiChu: datPhong.ghiChu || 'Không có ghi chú',
-        };
-    
-        ThemMoiDatPhong(payload)
-            .then(response => {
-                alert('Đặt phòng thành công!');
-                console.log(response.data);
-                setDatPhongSelected(response.data); // Lưu thông tin đặt phòng đã tạo
-                // Chuyển đổi đối tượng thành chuỗi JSON trước khi lưu vào localStorage
-                localStorage.setItem('datPhong', JSON.stringify(response.data)); 
-    
-                console.log(response.data);
-            })
-            .catch(error => {
-                console.error(error);
-                alert('Đặt phòng thất bại, vui lòng thử lại.');
-            });
-    };
-    
-
     return (
         <div className="vertical-bar">
             <div className="filter-section">
@@ -125,15 +16,6 @@ const NavPhong = () => {
                     <input type="checkbox" value="Confirmed" />
                 </label>
             </div>
-
-            {/* Modal Thêm khách hàng mới */}
-            {showModal && (
-                <div className="modal-backdrop-x">
-                    <div className="modal-body">
-                        <ThemKhachHangMoi handleCloseModal={handleCloseModal} />
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

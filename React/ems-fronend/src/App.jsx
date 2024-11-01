@@ -122,15 +122,6 @@ function App() {
               }
             />
             <Route
-              path="/DatPhong"
-              element={
-                <RequireAuth>
-                  <DatPhong />
-                </RequireAuth>
-              }
-            />
-
-            <Route
               path="/LoaiPhong"
               element={
                 <RequireAuth>

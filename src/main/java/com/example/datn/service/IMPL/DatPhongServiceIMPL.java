@@ -117,7 +117,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
                 if (days == 0) {
                     days = 1;
                 }
-                tongTien += days * giaDat; // Cộng dồn vào tổng tiền
+                tongTien += days * giaDat;
             }
         }
         return tongTien;

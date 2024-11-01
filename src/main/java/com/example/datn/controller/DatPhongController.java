@@ -49,11 +49,10 @@ public class DatPhongController {
         return ResponseEntity.status(HttpStatus.OK).body(datPhongServiceIMPL.detailDatPhong(idDP));
     }
 
-        @PutMapping("cap-nhat")
-        public ResponseEntity<?> updateDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
-            datPhongRequest.setTongTien(datPhongServiceIMPL.sumTotalAmountByIDDatPhong(datPhongRequest.getId()));
+    @PutMapping("cap-nhat")
+    public ResponseEntity<?> updateDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
             return ResponseEntity.status(HttpStatus.OK).body(datPhongServiceIMPL.updateDatPhong(datPhongRequest));
-        }
+    }
 
     @GetMapping("bo-loc")
     public ResponseEntity<?> HienThiTheoLoc(
