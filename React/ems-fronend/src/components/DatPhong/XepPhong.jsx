@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './XepPhong.scss'; // Đảm bảo bạn đã cài đặt SCSS và cấu hình Webpack nếu cần
 import { getPhongKhaDung } from '../../services/PhongService';
-
-function XepPhong({ show, handleClose, loaiPhong }) {
+import { addXepPhong } from '../../services/XepPhongService';
+function XepPhong({ show, handleClose, ttdp }) {
     const [listPhong, setListPhong] = useState([]);
     const [selectedPhong, setSelectedPhong] = useState('');
 
@@ -18,27 +18,46 @@ function XepPhong({ show, handleClose, loaiPhong }) {
             });
     };
 
-    // Gọi API khi `show` là true và `loaiPhong` có giá trị
-    useEffect(() => {
-        if (show && loaiPhong) {
-            phongKhaDung(loaiPhong.id); // Gọi API với `idLoaiPhong`
-        }
-    }, [show, loaiPhong]);
 
+    useEffect(() => {
+        if (show && ttdp) {
+            phongKhaDung(ttdp.loaiPhong.id); // Gọi API với `idLoaiPhong`
+        }
+    }, [show, ttdp]);
+
+    const handleSave = () => {
+        // Chuẩn bị dữ liệu để thêm xếp phòng
+        const xepPhongRequest = {
+            phong: { id: selectedPhong },  // ID của phòng được chọn
+            thongTinDatPhong: { id: ttdp.id },  // ID của thông tin đặt phòng
+            ngayNhanPhong: '', // Ngày nhận phòng từ thông tin đặt phòng
+            ngayTraPhong: '',   // Ngày trả phòng từ thông tin đặt phòng
+            trangThai: true                      // Trang thái có thể là true để đánh dấu phòng đã được xếp
+        };
+        console.log(xepPhongRequest);
+        // Gọi API để thêm xếp phòng
+        addXepPhong(xepPhongRequest)
+            .then(() => {
+                alert('Xếp phòng thành công!');
+                handleClose();
+            })
+            .catch((error) => {
+                console.error("Lỗi khi xếp phòng:", error);
+                alert('Xếp phòng thất bại!');
+            });
+    };
     if (!show) return null;
 
+    
     return (
         <div className="modal-overlay">
             <div className={`modal-container ${show ? 'show' : ''}`}>
                 <div className="modal-header">
-                    <h2>Assign Room</h2>
+                    <h2>Xếp phòng {ttdp.maTTDP}</h2>
                     <button className="close-button" onClick={handleClose}>✕</button>
                 </div>
                 <div className="modal-body">
-                    <p>Loại phòng: {loaiPhong.tenLoaiPhong}</p>
-                    
-                    {/* Dropdown (Select) cho phòng khả dụng */}
-                    <label htmlFor="phongSelect">Chọn phòng khả dụng:</label>
+                    <label htmlFor="phongSelect">Chọn phòng khả dụng: {ttdp.loaiPhong.tenLoaiPhong}</label>
                     <select
                         id="phongSelect"
                         value={selectedPhong}
@@ -46,7 +65,7 @@ function XepPhong({ show, handleClose, loaiPhong }) {
                     >
                         <option value="">Chọn phòng</option>
                         {listPhong.map((phong) => (
-                            <option key={phong.id} value={phong.id}>
+                            <option key={phong.id} value={phong.id}>   
                                 {phong.maPhong} - {phong.tenPhong}
                             </option>
                         ))}
@@ -54,7 +73,7 @@ function XepPhong({ show, handleClose, loaiPhong }) {
                 </div>
                 <div className="modal-footer">
                     <button className="footer-button cancel-button" onClick={handleClose}>Cancel</button>
-                    <button className="footer-button save-button">Save</button>
+                    <button className="footer-button save-button" onClick={handleSave}>Save</button>
                 </div>
             </div>
         </div>

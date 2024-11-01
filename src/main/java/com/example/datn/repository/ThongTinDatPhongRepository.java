@@ -50,7 +50,8 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
             @Param("trangThai") String trangThai,
             Pageable pageable);
 
-
+    @Query("SELECT t FROM ThongTinDatPhong t WHERE t.id = :id")
+    ThongTinDatPhong getTTDPById(@Param("id") Integer id);
 
 }
 

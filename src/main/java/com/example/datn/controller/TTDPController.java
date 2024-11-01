@@ -44,10 +44,7 @@ public class TTDPController {
     }
     @PostMapping("them-moi")
     public ResponseEntity<ThongTinDatPhong> createDatPhong(@RequestBody TTDPRequest request) {
-        System.out.println("sádsdsd");
         ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.add(request);
-        System.out.println(ttdp.getLoaiPhong());
-
         if (ttdp != null) {
             return ResponseEntity.status(HttpStatus.CREATED).body(ttdp);
         } else {

@@ -5,6 +5,7 @@ import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.repository.LoaiPhongRepository;
 import com.example.datn.service.LoaiPhongService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -88,12 +89,8 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
     @Override
     public LoaiPhong findByID(Integer idLoaiPhong) {
-        LoaiPhong lp = new LoaiPhong();
-        for(LoaiPhong l: loaiPhongRepository.findAll()){
-            if(l.getId()==idLoaiPhong){
-                lp = l;
-            }
-        }
-        return lp;
+        return loaiPhongRepository.findById(idLoaiPhong)
+                .orElseThrow(() -> new EntityNotFoundException("LoaiPhong with ID " + idLoaiPhong + " not found"));
     }
+
 }

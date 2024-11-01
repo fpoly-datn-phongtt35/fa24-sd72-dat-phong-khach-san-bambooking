@@ -33,20 +33,21 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
 
     @Query("SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
             "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p), " +
-            "SUM(CASE WHEN xp.id IS NULL OR (xp.ngayTraPhong <= :ngayNhanPhong OR xp.ngayNhanPhong >= :ngayTraPhong) THEN 1 ELSE 0 END) AS soPhongTrong) " +
+            "SUM(CASE WHEN xp.id IS NULL OR (xp.ngayTraPhong < :ngayNhanPhong OR xp.ngayNhanPhong > :ngayTraPhong) THEN 1 ELSE 0 END) AS soPhongTrong) " +
             "FROM LoaiPhong lp " +
             "JOIN Phong p ON p.loaiPhong.id = lp.id " +
             "LEFT JOIN XepPhong xp ON p.id = xp.phong.id " +
             "WHERE p.trangThai = true " +
             "AND lp.soKhachToiDa >= :soNguoi " +
-            "AND p.tinhTrang = 'empty' " + // Điều kiện kiểm tra tình trạng là 'Trống'
+            "AND p.tinhTrang = 'available' " +
             "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa " +
-            "HAVING SUM(CASE WHEN xp.id IS NULL OR (xp.ngayTraPhong <= :ngayNhanPhong OR xp.ngayNhanPhong >= :ngayTraPhong) THEN 1 ELSE 0 END) > 0")
+            "HAVING SUM(CASE WHEN xp.id IS NULL OR (xp.ngayTraPhong < :ngayNhanPhong OR xp.ngayNhanPhong > :ngayTraPhong) THEN 1 ELSE 0 END) > 0")
     Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(
             @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
             @Param("soNguoi") Integer soNguoi,
             Pageable pageable);
+
 
 
 

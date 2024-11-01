@@ -86,7 +86,7 @@ const TaoDatPhong = () => {
                     giaDat: room.donGia,
                     trangThai: 'Chưa xếp'
                 }));
-    
+                console.log(thongTinDatPhongRequestList);
                 // Lưu từng `ThongTinDatPhong` trong danh sách
                 for (const thongTinDatPhong of thongTinDatPhongRequestList) {
                     const thongTinDatPhongResponse = await addThongTinDatPhong(thongTinDatPhong);

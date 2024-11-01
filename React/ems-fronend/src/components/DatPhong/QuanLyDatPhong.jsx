@@ -15,6 +15,7 @@ function QuanLyDatPhong() {
     const [searchKey, setSearchKey] = useState('');
     const [showXepPhongModal, setShowXepPhongModal] = useState(false); // Trạng thái hiển thị của Modal
     const [loaiPhong,setLoaiPhong] = useState(null);
+    const [ttdp,setTTDP] = useState(null);
     const fetchThongTinDatPhong = (trangThai, page = 0) => {
         findTTDPS(startDate, endDate, searchKey, trangThai, { page, size: 5 })
             .then(response => {
@@ -72,8 +73,8 @@ function QuanLyDatPhong() {
     };
 
     // Hàm mở Modal XepPhong
-    const openXepPhongModal = (loaiPhong) => {
-        setLoaiPhong(loaiPhong);
+    const openXepPhongModal = (thongTinDatPhong) => {
+        setTTDP(thongTinDatPhong);
         setShowXepPhongModal(true);
     };
 
@@ -152,7 +153,7 @@ function QuanLyDatPhong() {
                                     <td>{ttdp.ngayTraPhong}</td>
                                     <td>{calculateTotalPrice(ttdp.donGia, ttdp.ngayNhanPhong, ttdp.ngayTraPhong).toLocaleString()}</td>
                                     <td>
-                                    <button onClick={() => openXepPhongModal(ttdp.loaiPhong)}>Assign</button>
+                                    <button onClick={() => openXepPhongModal(ttdp)}>Assign</button>
                                     </td>
                                 </tr>
                             ))
@@ -175,7 +176,7 @@ function QuanLyDatPhong() {
             </div>
 
             {/* Hiển thị Modal XepPhong */}
-            <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} loaiPhong={loaiPhong}/>
+            <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} ttdp={ttdp}/>
         </div>
     );
 }
