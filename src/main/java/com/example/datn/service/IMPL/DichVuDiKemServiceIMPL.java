@@ -1,10 +1,13 @@
 package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.DichVuDikemRequest;
+import com.example.datn.dto.response.DichVuDiKemResponse;
 import com.example.datn.model.DichVuDiKem;
 import com.example.datn.repository.DichVuDiKemRepository;
 import com.example.datn.service.DichVuDiKemService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -73,7 +76,9 @@ public class DichVuDiKemServiceIMPL implements DichVuDiKemService {
     }
 
     @Override
-    public List<DichVuDiKem> findByAll(String key) {
-        return null;
+    public Page<DichVuDiKemResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
+        return dichVuDiKemRepository.findByIDLoaiPhong(idLoaiPhong,pageable);
     }
+
+
 }

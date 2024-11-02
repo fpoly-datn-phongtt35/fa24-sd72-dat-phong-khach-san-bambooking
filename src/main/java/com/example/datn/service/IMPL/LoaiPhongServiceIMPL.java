@@ -1,7 +1,10 @@
 package com.example.datn.service.IMPL;
+import com.example.datn.dto.request.DichVuDikemRequest;
 import com.example.datn.dto.request.LoaiPhongRequest;
 import com.example.datn.dto.response.LoaiPhongResponse;
+import com.example.datn.model.DichVuDiKem;
 import com.example.datn.model.LoaiPhong;
+import com.example.datn.repository.DichVuDiKemRepository;
 import com.example.datn.repository.LoaiPhongRepository;
 import com.example.datn.service.LoaiPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,8 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
     @Autowired
     LoaiPhongRepository loaiPhongRepository;
-
+    @Autowired
+    DichVuDiKemRepository dichVuDiKemRepository;
     @Override
     public List<LoaiPhong> getAllLoaiPhong() {
         return loaiPhongRepository.findAll();
@@ -89,6 +93,15 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     @Override
     public Page<LoaiPhongResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable) {
         return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,pageable);
+    }
+
+    @Override
+    public DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest) {
+        DichVuDiKem dichVuDiKem = new DichVuDiKem();
+        dichVuDiKem.setDichVu(dichVuDikemRequest.getDichVu());
+        dichVuDiKem.setLoaiPhong(dichVuDikemRequest.getLoaiPhong());
+        dichVuDiKem.setTrangThai(dichVuDikemRequest.getTrangThai());
+        return dichVuDiKemRepository.save(dichVuDiKem);
     }
 
 

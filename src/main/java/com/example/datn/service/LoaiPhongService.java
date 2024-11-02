@@ -1,8 +1,10 @@
 package com.example.datn.service;
+import com.example.datn.dto.request.DichVuDikemRequest;
 import com.example.datn.dto.request.LoaiPhongRequest;
 import com.example.datn.dto.request.TienIchRequest;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.dto.response.TienIchResponse;
+import com.example.datn.model.DichVuDiKem;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.TienIch;
 import org.springframework.data.domain.Page;
@@ -37,4 +39,6 @@ public interface LoaiPhongService {
                             Pageable pageable);
 
     Page<LoaiPhongResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable);
+
+    DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest);
 }
