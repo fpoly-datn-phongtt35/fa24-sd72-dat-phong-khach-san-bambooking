@@ -157,5 +157,16 @@ public class KhachHangServiceIMPL implements KhachHangService {
         return khachHang.isPresent() && khachHang.get().getMatKhau().equals(matKhau);
     }
 
-
+    @Override
+    public KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request) {
+        KhachHang khachHang = new KhachHang();
+        khachHang.setTen(request.getTen());
+        khachHang.setHo(request.getHo());
+        khachHang.setSdt(request.getSdt());
+        khachHang.setEmail(request.getEmail());
+        khachHang.setNgayTao(LocalDateTime.now());
+        khachHang.setNgaySua(LocalDateTime.now());
+        khachHang.setTrangThai(false);
+        return khachHangRepository.save(khachHang);
+    }
 }

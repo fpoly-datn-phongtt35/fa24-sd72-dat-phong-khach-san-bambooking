@@ -52,8 +52,8 @@ function XepPhong({ show, handleClose, ttdp }) {
 
     
     return (
-        <div className="modal-overlay">
-            <div className={`modal-container ${show ? 'show' : ''}`}>
+        <div className="xp-modal-overlay">
+            <div className={`xp-modal-container ${show ? 'show' : ''}`}>
                 <div className="modal-header">
                     <h2>Xếp phòng {ttdp.maTTDP}</h2>
                     <button className="close-button" onClick={handleClose}>✕</button>
