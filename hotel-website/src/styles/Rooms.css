@@ -1,0 +1,42 @@
+.rooms-page {
+  padding: 20px;
+}
+
+.room-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.room-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px;
+  width: calc(33.33% - 20px); /* Để vừa 3 thẻ trong 1 hàng */
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.room-card:hover {
+  transform: translateY(-5px);
+}
+
+.room-image {
+  width: 100%; /* Đảm bảo hình ảnh chiếm toàn bộ chiều rộng của thẻ */
+  height: auto; /* Để tự động điều chỉnh chiều cao */
+  border-radius: 8px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}

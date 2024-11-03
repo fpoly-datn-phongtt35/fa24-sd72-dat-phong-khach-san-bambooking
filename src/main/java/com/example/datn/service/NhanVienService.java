@@ -1,5 +1,6 @@
 package com.example.datn.service;
 
+import com.example.datn.dto.request.NhanVienRequest;
 import com.example.datn.model.NhanVien;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,6 @@ public interface NhanVienService {
     Optional<NhanVien> findBySdt(String sdt);
 
     NhanVien getNhanVienById(Integer id);
+
+    NhanVien createNhanVien(NhanVienRequest request);
 }
