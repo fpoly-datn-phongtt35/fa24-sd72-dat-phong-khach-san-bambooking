@@ -22,7 +22,6 @@ export const updateStatus = (phongId) => {
 };
 
 export const getLoaiPhong = () => {
-    console.log(apiLoaiPhong);
     return axios.get(apiLoaiPhong);
 }
 export const getPhongKhaDung = (idLoaiPhong) => {

@@ -16,10 +16,12 @@ const ListPhong = () => {
         listPhong({ page: currentPage, size: itemPerPage }, searchQuery)
             .then((response) => {
                 setPhong(response.data.content);
+                console.log(response.data.content)
                 setTotalPages(response.data.totalPages);
             }).catch((error) => {
                 console.log(error);
             });
+            console.log(p)
     };
 
     useEffect(() => {
@@ -87,7 +89,6 @@ const ListPhong = () => {
                                 <th>Tên loại phòng</th>
                                 <th>Mã phòng</th>
                                 <th>Tên phòng</th>
-                                <th>Giá phòng</th>
                                 <th>Tình trạng</th>
                                 <th>Trạng thái</th>
                                 <th>Chức năng</th>
@@ -101,9 +102,8 @@ const ListPhong = () => {
                                         <td>{phong.loaiPhong?.tenLoaiPhong}</td>
                                         <td>{phong.maPhong}</td>
                                         <td>{phong.tenPhong}</td>
-                                        <td>{phong.giaPhong}</td>
                                         <td>{phong.tinhTrang}</td>
-                                        <td>{phong.trangThai}</td>
+                                        <td>{phong.trangThai ? "Hoạt động" : "Không hoạt động"}</td>
                                         <td>
                                             <button
                                                 className='btn btn-outline-warning'
