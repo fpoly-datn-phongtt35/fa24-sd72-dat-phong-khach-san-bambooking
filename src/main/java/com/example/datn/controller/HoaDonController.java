@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/hoa-don")
 public class HoaDonController {
     HoaDonService hoaDonService;
-
     @GetMapping
     public ResponseEntity<?> getAllHoaDon(
             @RequestParam(value = "trangThai", required = false) String trangThai,
