@@ -7,6 +7,7 @@ import com.example.datn.dto.request.TienIchPhongRequest;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.dto.response.TienIchPhongResponse;
 import com.example.datn.model.LoaiPhong;
+import com.example.datn.service.IMPL.DichVuDiKemServiceIMPL;
 import com.example.datn.model.TienIch;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,8 @@ import java.util.List;
 public class LoaiPhongController {
     @Autowired
     LoaiPhongServiceIMPL phongServiceIMPL;
+    @Autowired
+    DichVuDiKemServiceIMPL dichVuDiKemServiceIMPL;
 
     @GetMapping("")
     public ResponseEntity<?> home(){

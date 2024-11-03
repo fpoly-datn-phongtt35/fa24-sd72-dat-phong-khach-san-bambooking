@@ -90,7 +90,6 @@ function App() {
             <Route path="/update-khach-hang/:id" element={<RequireAuth><KhachHangComponent /></RequireAuth>} />
             <Route path="/khach-hang" element={<RequireAuth><ListKhachHang /></RequireAuth>} />
             <Route path="/NhanVien" element={<RequireAuth><ListNhanVien /></RequireAuth>} />
-            <Route path="/form-tao" element={<RequireAuth><FormAdd /></RequireAuth>} />
             <Route path="/TaiKhoan" element={<RequireAuth><ListTaiKhoan /></RequireAuth>} />
             <Route path="/VaiTro" element={<RequireAuth><ListVaiTro /></RequireAuth>} />
             <Route path="/add-nhanvien" element={<RequireAuth><NhanVienComponent /></RequireAuth>} />

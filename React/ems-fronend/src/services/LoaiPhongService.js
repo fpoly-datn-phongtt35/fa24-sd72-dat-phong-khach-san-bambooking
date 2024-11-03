@@ -6,6 +6,10 @@ const apiDE = "http://localhost:8080/loai-phong/delete";
 const apiTi = "http://localhost:8080/tien-ich-phong/home";
 const apiFilter = "http://localhost:8080/loai-phong/filter";
 
+const apiAdd = "http://localhost:8080/dich_vu_di_kem/add";
+export const ThemDichVuDiKem = (dvDiKem) => {
+    return axios.post(apiAdd, dvDiKem);
+};
 // export const listTienNghi = () => axios.get(api);
 
 export const listLoaiPhong = (pageable) => {
@@ -21,6 +25,15 @@ export const listLoaiPhong = (pageable) => {
 // Service call trong frontend
 export const DanhSachTienIchPhong = (idLoaiPhong, pageable) => {
     return axios.get(`http://localhost:8080/tien-ich-phong/findByIDLoaiPhong/${idLoaiPhong}`, {
+        params: {
+            page: pageable.page,
+            size: pageable.size,
+        }
+    });
+};
+// Service call trong frontend
+export const DanhSachDichVuDiKem = (idLoaiPhong, pageable) => {
+    return axios.get(`http://localhost:8080/dich_vu_di_kem/findByIDLoaiPhong/${idLoaiPhong}`, {
         params: {
             page: pageable.page,
             size: pageable.size,

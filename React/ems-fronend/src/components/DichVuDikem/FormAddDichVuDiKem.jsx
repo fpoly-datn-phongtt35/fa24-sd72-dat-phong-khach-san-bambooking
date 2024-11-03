@@ -5,7 +5,7 @@ const FormAddDichVuDiKem = ({ show, handleClose, refreshData }) => {
     const [formData, setFormData] = useState({
         dichVu: null,
         loaiPhong: null,
-        trangThai: true, 
+        trangThai: true,
     });
     const [dichVuList, setDichVuList] = useState([]);
     const [loaiPhongList, setLoaiPhongList] = useState([]);
@@ -55,11 +55,11 @@ const FormAddDichVuDiKem = ({ show, handleClose, refreshData }) => {
                 setFormData({
                     dichVu: null,
                     loaiPhong: null,
-                    trangThai: true, 
+                    trangThai: true,
                 });
 
-                refreshData(); 
-                handleClose(); 
+                refreshData();
+                handleClose();
             })
             .catch(error => {
                 console.error("Lỗi khi thêm dịch vụ đi kèm:", error);
@@ -113,7 +113,7 @@ const FormAddDichVuDiKem = ({ show, handleClose, refreshData }) => {
                                     className="form-select"
                                     id="trangThai"
                                     name="trangThai"
-                                    value={formData.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'} 
+                                    value={formData.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}
                                     onChange={(e) => setFormData({ ...formData, trangThai: e.target.value === 'Hoạt động' })}
                                 >
                                     <option value="Hoạt động">Hoạt động</option>
@@ -121,8 +121,8 @@ const FormAddDichVuDiKem = ({ show, handleClose, refreshData }) => {
                                 </select>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={handleClose}>Đóng</button>
                                 <button type="submit" className="btn btn-primary">Lưu</button>
+                                <button type="button" className="btn btn-secondary" onClick={handleClose}>Đóng</button>
                             </div>
                         </form>
                     </div>

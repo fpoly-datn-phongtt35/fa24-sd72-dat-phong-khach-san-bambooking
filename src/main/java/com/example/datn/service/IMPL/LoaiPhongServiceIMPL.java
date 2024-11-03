@@ -1,8 +1,11 @@
 package com.example.datn.service.IMPL;
+import com.example.datn.dto.request.DichVuDikemRequest;
 import com.example.datn.dto.request.LoaiPhongRequest;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
+import com.example.datn.model.DichVuDiKem;
 import com.example.datn.model.LoaiPhong;
+import com.example.datn.repository.DichVuDiKemRepository;
 import com.example.datn.repository.LoaiPhongRepository;
 import com.example.datn.service.LoaiPhongService;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,7 +25,8 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
     @Autowired
     LoaiPhongRepository loaiPhongRepository;
-
+    @Autowired
+    DichVuDiKemRepository dichVuDiKemRepository;
     @Override
     public List<LoaiPhong> getAllLoaiPhong() {
         return loaiPhongRepository.findAll();
@@ -99,5 +103,13 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.findById(idLoaiPhong)
                 .orElseThrow(() -> new EntityNotFoundException("LoaiPhong with ID " + idLoaiPhong + " not found"));
     }
+    public DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest) {
+        DichVuDiKem dichVuDiKem = new DichVuDiKem();
+        dichVuDiKem.setDichVu(dichVuDikemRequest.getDichVu());
+        dichVuDiKem.setLoaiPhong(dichVuDikemRequest.getLoaiPhong());
+        dichVuDiKem.setTrangThai(dichVuDikemRequest.getTrangThai());
+        return dichVuDiKemRepository.save(dichVuDiKem);
+    }
+
 
 }
