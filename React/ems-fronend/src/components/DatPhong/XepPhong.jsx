@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import './XepPhong.scss'; // Đảm bảo bạn đã cài đặt SCSS và cấu hình Webpack nếu cần
+import './XepPhong.scss';
+import { useNavigate} from 'react-router-dom';
 import { getPhongKhaDung } from '../../services/PhongService';
-import { addXepPhong } from '../../services/XepPhongService';
+import { addXepPhong} from '../../services/XepPhongService';
 function XepPhong({ show, handleClose, ttdp }) {
     const [listPhong, setListPhong] = useState([]);
     const [selectedPhong, setSelectedPhong] = useState('');
-
+    const navigate = useNavigate();
     // Hàm lấy danh sách phòng khả dụng
     const phongKhaDung = (idLoaiPhong) => {
         getPhongKhaDung(idLoaiPhong)
@@ -39,6 +40,7 @@ function XepPhong({ show, handleClose, ttdp }) {
         addXepPhong(xepPhongRequest)
             .then(() => {
                 alert('Xếp phòng thành công!');
+                navigate('/quan-ly-dat-phong');
                 handleClose();
             })
             .catch((error) => {

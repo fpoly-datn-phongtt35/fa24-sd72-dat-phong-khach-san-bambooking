@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import './ChiTietDatPhong.scss';
-import { useLocation } from 'react-router-dom';
+import { useLocation ,useNavigate} from 'react-router-dom';
 import { findTTDPByMaDatPhong } from '../../services/TTDP';
-import { findDatPhongByMaDatPhong } from '../../services/DatPhong';
+import { findDatPhongByMaDatPhong,CapNhatDatPhong } from '../../services/DatPhong';
 const ChiTietDatPhong = () => {
     const [datPhong, setDatPhong] = useState();
     const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
     const location = useLocation();
     const { maDatPhong } = location.state || {};
+    const navigate = useNavigate();
     const getDetailDatPhong = (maDatPhong) => {
-        findDatPhongByMaDatPhong(maDatPhong) // Gọi API với id và pagination
+        findDatPhongByMaDatPhong(maDatPhong)
             .then((response) => {
                 console.log(response.data)
-                setDatPhong(response.data); // Cập nhật danh sách đặt phòng
-
+                setDatPhong(response.data);
             })
             .catch((error) => {
                 console.log(error);
@@ -23,11 +23,21 @@ const ChiTietDatPhong = () => {
                 setThongTinDatPhong(response.data);
                 console.log(response.data);
             })
-            .catch((error) =>{
+            .catch((error) => {
                 console.log(error)
             });
     };
-
+    const updateDatPhong = () =>{
+        CapNhatDatPhong(datPhong)
+        .then((response) => {
+            console.log(response.data)
+            alert("Lưu thành công")
+        })
+        .catch((error) => {
+            console.log(error)
+        })
+        
+    }
     useEffect(() => {
         if (maDatPhong) {
             getDetailDatPhong(maDatPhong);
@@ -50,21 +60,21 @@ const ChiTietDatPhong = () => {
     };
     const calculateTotalDays = () => {
         if (thongTinDatPhong.length === 0) return 0;
-    
+
         const dates = thongTinDatPhong.map(ttdp => ({
             start: new Date(ttdp.ngayNhanPhong),
             end: new Date(ttdp.ngayTraPhong),
         }));
-    
+
         const minDate = new Date(Math.min(...dates.map(d => d.start)));
         const maxDate = new Date(Math.max(...dates.map(d => d.end)));
-    
+
         const diffTime = Math.abs(maxDate - minDate);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
         return diffDays === 0 ? 1 : diffDays;
     };
-    
+
     return (
         <div className="booking-info-container">
             {/* Các box chính nằm trên cùng một dòng */}
@@ -111,7 +121,7 @@ const ChiTietDatPhong = () => {
 
                 <div className="box booker-comment">
                     <h3>Ghi chú</h3>
-                    <input type="text-area" placeholder="Nhập ghi chú ở đây..." />
+                    <input type="text-area" value={datPhong?.ghiChu} placeholder="Nhập ghi chú ở đây..." />
                 </div>
             </div>
 
@@ -138,7 +148,7 @@ const ChiTietDatPhong = () => {
                                 <tr key={ttdp.id}>
                                     <td><input type="checkbox" /></td>
                                     <td>{ttdp.maThongTinDatPhong}</td>
-                                    <td>{ttdp?.datPhong?.khachHang?.ho + ' ' +ttdp?.datPhong?.khachHang?.ten}</td>
+                                    <td>{ttdp?.datPhong?.khachHang?.ho + ' ' + ttdp?.datPhong?.khachHang?.ten}</td>
                                     <td>{ttdp.soNguoi}</td>
                                     <td>{ttdp?.loaiPhong?.tenLoaiPhong}</td>
                                     <td>{ttdp.ngayNhanPhong}</td>
@@ -157,9 +167,12 @@ const ChiTietDatPhong = () => {
                         )}
                     </tbody>
                 </table>
+                <div className="button-container">
+                    <button className="button-save">Lưu</button>
+                    <button className="button-checkin">Checkin</button>
+                </div>
             </div>
         </div>
-
     );
 };
 

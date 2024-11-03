@@ -47,7 +47,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
         datPhong.setMaDatPhong(codeDP);
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
-        datPhong.setGhiChu("Test");
+        datPhong.setGhiChu("");
         datPhong.setTongTien(datPhongRequest.getTongTien());
         datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(LocalDate.now());

@@ -22,6 +22,7 @@ const BookingForm = () => {
         getLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong,soNguoi, { page: currentPage })
             .then((response) => {
                 setLoaiPhongKhaDung(response.data.content);
+                console.log(response.data.content);
                 setTotalPages(response.data.totalPages);
             })
             .catch((error) => {

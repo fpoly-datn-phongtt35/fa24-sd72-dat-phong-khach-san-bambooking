@@ -23,7 +23,8 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
                     "CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong, " +
                     "ttdp.giaDat) " +
                     "from ThongTinDatPhong ttdp " +
-                    "where ttdp.trangThai = :trangThai")
+                    "where ttdp.trangThai = :trangThai " +
+                    "order by ttdp.datPhong.ngayDat")
     Page<TTDPResponse> HienThiQuanLy(@Param("trangThai") String trangThai, Pageable pageable);
 
     @Query(

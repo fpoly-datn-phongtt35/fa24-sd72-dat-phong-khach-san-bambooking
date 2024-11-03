@@ -165,4 +165,42 @@
             }
         }
     }
+    .button-container {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        justify-content: flex-end;
+    }
+    
+    /* Style cho nút Lưu */
+    .button-save {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #4CAF50;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    .button-save:hover {
+        background-color: #45a049;
+    }
+    
+    /* Style cho nút Checkin */
+    .button-checkin {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        background-color: #2196F3;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    .button-checkin:hover {
+        background-color: #1976D2;
+    }   
 }

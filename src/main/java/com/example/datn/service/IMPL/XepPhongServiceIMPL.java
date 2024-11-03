@@ -39,4 +39,27 @@ public class XepPhongServiceIMPL implements XepPhongService {
         phongRepository.save(p);
         return xepPhongRepository.save(xp);
     }
+
+    @Override
+    public XepPhong updateXepPhong(XepPhongRequest xepPhongRequest) {
+        XepPhong xp = new XepPhong();
+        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
+        Phong p = phongRepository.getPhongById(xepPhongRequest.getPhong().getId());
+        xp.setId(xepPhongRequest.getId());
+        xp.setPhong(xepPhongRequest.getPhong());
+        xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
+        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
+        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
+        xp.setTrangThai(xepPhongRequest.getTrangThai());
+        ttdp.setTrangThai("Đã xếp");
+        thongTinDatPhongRepository.save(ttdp);
+        p.setTinhTrang("occupied");
+        phongRepository.save(p);
+        return xepPhongRepository.save(xp);
+    }
+
+    @Override
+    public XepPhong getByMaTTDP(String maTTDP) {
+        return xepPhongRepository.getByMaTTDP(maTTDP);
+    }
 }
