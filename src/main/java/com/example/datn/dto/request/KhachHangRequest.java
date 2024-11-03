@@ -22,6 +22,7 @@ public class KhachHangRequest {
     private String sdt;
     @NotBlank(message = "Email không được để trống")
     private String email;
-
-    private Boolean trangThai;
+    @NotBlank(message = "Mật khẩu không được để trống")
+    private String matKhau;
+    private boolean trangThai;
 }

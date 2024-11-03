@@ -1,0 +1,17 @@
+/* Bookings.css */
+.bookings-page {
+    padding: 20px;
+  }
+  
+  .booking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .booking-card {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  

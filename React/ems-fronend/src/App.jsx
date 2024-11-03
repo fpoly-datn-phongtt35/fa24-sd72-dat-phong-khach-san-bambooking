@@ -104,12 +104,12 @@ function App() {
             <Route path="/hinh-anh" element={<RequireAuth><ListImage /></RequireAuth>} />
             <Route path="/add-hinh-anh" element={<RequireAuth><HinhAnh /></RequireAuth>} />
             <Route path="/TrangChu" element={<RequireAuth><ViewPhong /></RequireAuth>} />
-            <Route path="/quan-ly-dat-phong" element={ <RequireAuth> <QuanLyDatPhong /> </RequireAuth> } />
-            <Route path="/giao-dien-tao-dp" element={ <RequireAuth> <GiaoDienTaoDP /> </RequireAuth> } />
-            <Route path="/tao-dat-phong" element={ <RequireAuth> <TaoDatPhong /> </RequireAuth> } />
-            <Route path="/thong-tin-dat-phong" element={ <RequireAuth> <ChiTietDatPhong /> </RequireAuth> } />
-            <Route path="/hoa-don" element={ <RequireAuth> <ListHoaDon /> </RequireAuth> } />
-            <Route path="/add-hoa-don" element={ <RequireAuth> <HoaDonComponent /> </RequireAuth> } />
+            <Route path="/quan-ly-dat-phong" element={<RequireAuth> <QuanLyDatPhong /> </RequireAuth>} />
+            <Route path="/giao-dien-tao-dp" element={<RequireAuth> <GiaoDienTaoDP /> </RequireAuth>} />
+            <Route path="/tao-dat-phong" element={<RequireAuth> <TaoDatPhong /> </RequireAuth>} />
+            <Route path="/thong-tin-dat-phong" element={<RequireAuth> <ChiTietDatPhong /> </RequireAuth>} />
+            <Route path="/hoa-don" element={<RequireAuth> <ListHoaDon /> </RequireAuth>} />
+            <Route path="/add-hoa-don" element={<RequireAuth> <HoaDonComponent /> </RequireAuth>} />
             {/* Route chính, điều hướng đến ViewPhong */}
             <Route path="/" element={<RequireAuth><ViewPhong /></RequireAuth>} />
             {/* Redirect các đường dẫn không xác định */}
@@ -120,5 +120,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
