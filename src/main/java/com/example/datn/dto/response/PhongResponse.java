@@ -17,7 +17,7 @@ public class PhongResponse {
     LoaiPhong loaiPhong;
     String maPhong;
     String tenPhong;
-    Double giaPhong;
+
     String tinhTrang;
     Boolean trangThai;
     String duongDanAnh;
