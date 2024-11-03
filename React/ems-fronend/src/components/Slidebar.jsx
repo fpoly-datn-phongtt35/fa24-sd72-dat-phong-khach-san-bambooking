@@ -56,7 +56,7 @@ function Sidebar({ isAuthenticated, onLogout }) {
               <Link className="nav-link" to="/hinh-anh">Hình ảnh</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/HoaDon">Hóa đơn</Link>
+              <Link className="nav-link" to="/hoa-don">Hóa đơn</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/NhanVien">Nhân viên</Link>

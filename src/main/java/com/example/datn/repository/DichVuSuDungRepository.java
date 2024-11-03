@@ -12,4 +12,5 @@ import java.util.List;
 public interface DichVuSuDungRepository extends JpaRepository<DichVuSuDung, Integer>{
     @Query("SELECT p FROM DichVuSuDung p WHERE p.dichVu.tenDichVu LIKE %:keyword%")
     List<DichVuSuDung> findByKeyword(@Param("keyword") String keyword);
+    List<DichVuSuDung> findByXepPhongId(Integer id);
 }

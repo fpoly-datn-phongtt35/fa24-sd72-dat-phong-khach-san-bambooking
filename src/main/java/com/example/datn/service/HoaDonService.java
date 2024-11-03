@@ -1,13 +1,17 @@
 package com.example.datn.service;
 
-import com.example.datn.model.HoaDon;
-
-import java.util.List;
+import com.example.datn.dto.request.HoaDonRequest;
+import com.example.datn.dto.response.HoaDonResponse;
+import com.example.datn.model.NhanVien;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface HoaDonService {
-    List<HoaDon> findAll();
-    void addHoaDon(HoaDon hoaDon);
-    HoaDon detailHoaDon(Integer id);
-    void updateHoaDon(HoaDon hoaDon);
-    void updateStatusHoaDon(Integer id);
+    Page<HoaDonResponse> getHoaDonByTrangThai(String trangThai, String keyword, Pageable pageable);
+
+    HoaDonResponse createHoaDon(HoaDonRequest request);
+
+    void changeStatusHoaDon(Integer idHoaDon);
+
+    NhanVien searchNhanVienByTenDangNhap(String tenDangNhap);
 }
