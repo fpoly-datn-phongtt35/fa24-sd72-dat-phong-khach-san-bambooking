@@ -2,61 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Form, Row, Col, Button, Dropdown, DropdownButton, Card } from 'react-bootstrap';
 import './BookingForm.scss'; // Import file CSS
-import { PhongKhaDung } from '../../services/DatPhong';
-import XacNhanDatPhong from './XacNhanDatPhong'; // Import the new modal component
-import { addThongTinDatPhong } from '../../services/TTDP';
+import ModalSelectedRoom from './ModalSelectedRoom'; // Import the new modal component
+import { addThongTinDatPhong, getLoaiPhongKhaDung } from '../../services/TTDP';
+import TaoDatPhong from './TaoDatPhong';
 const BookingForm = () => {
     const [datPhong, setDatPhong] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [adults, setAdults] = useState(2);
     const [children, setChildren] = useState(0);
-    const [phongKhaDung, setPhongKhaDung] = useState([]);
+    const [loaiPhongKhaDung, setLoaiPhongKhaDung] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(1);
     const [showModal, setShowModal] = useState(false); // State to handle modal visibility
     const [selectedRooms, setSelectedRooms] = useState([]); // Mảng chứa các phòng đã chọn
-    const [multipleBookings, setMultipleBookings] = useState(false); // State to manage multiple bookings
     const navigate = useNavigate();
-    const storedDatPhong = localStorage.getItem('datPhong');
-    const parsedDatPhong = storedDatPhong ? JSON.parse(storedDatPhong) : null;
-    const [ttdpList, setTTDPList] = useState([]);
 
-    const getPhongKhaDung = (ngayNhanPhong, ngayTraPhong, adults, children) => {
-        PhongKhaDung(ngayNhanPhong, ngayTraPhong, adults, children, { page: currentPage })
+    const LoaiPhongKhaDung = (ngayNhanPhong, ngayTraPhong,soNguoi) => {
+        getLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong,soNguoi, { page: currentPage })
             .then((response) => {
-                setPhongKhaDung(response.data.content);
+                setLoaiPhongKhaDung(response.data.content);
+                console.log(response.data.content);
                 setTotalPages(response.data.totalPages);
             })
             .catch((error) => {
                 console.error(error);
             });
     };
-    const addTTDP = async (ttdp) => {
-        try {
-            const response = await addThongTinDatPhong(ttdp); // Trả về Promise
-            console.log(response.data); // Log dữ liệu phản hồi từ API
-            return response;
-        } catch (error) {
-            console.error("Lỗi khi thêm thông tin đặt phòng:", error);
-            throw error; // Ném lỗi để xử lý sau này
-        }
-    };
-    
-
-    useEffect(() => {
-        const storedDatPhong = localStorage.getItem('datPhong');
-        if (storedDatPhong) {
-            setDatPhong(JSON.parse(storedDatPhong)); // Chuyển đổi từ chuỗi JSON sang đối tượng
-        } else {
-            console.log("Không tìm thấy dữ liệu đặt phòng trong localStorage");
-        }
-    }, []);
-
 
     const handleSearch = (e) => {
         e.preventDefault();
-        getPhongKhaDung(startDate, endDate, adults, children);
+        LoaiPhongKhaDung(startDate, endDate,adults);
     };
 
     const handleNextPage = () => {
@@ -71,44 +47,18 @@ const BookingForm = () => {
         }
     };
 
-    const handleCreateBooking = async (room) => {
-        const newTTDP = {
-            datPhong: parsedDatPhong,
-            phong: room,
-            maThongTinDatPhong: '',
-            ngayNhanPhong: startDate,
-            ngayTraPhong: endDate,
-            giaDat: room.giaPhong,
-            soNguoi: children + adults,
-            trangThai: 'Unconfirmed',
+    const handleAddSelectedRooms = (room) => {
+        const selectedRoomInfo = {
+            ...room,
+            adults: adults,
+            startDate: startDate,
+            endDate: endDate
         };
-        try {
-            const response = await addTTDP(newTTDP);
-
-            if (response.status === 200) { // Kiểm tra mã trạng thái HTTP
-                const createdTTDP = response.data; // Lấy dữ liệu từ phản hồi
-
-                console.log("TTDP created successfully:", createdTTDP);
-
-                // Sau khi nhận được phản hồi từ backend, ta cập nhật maThongTinDatPhong từ kết quả trả về
-                const updatedTTDP = {
-                    ...newTTDP, // Giữ nguyên các thông tin đã có
-                    maThongTinDatPhong: createdTTDP.maThongTinDatPhong, // Cập nhật maThongTinDatPhong từ backend
-                };
-                console.log(updatedTTDP);
-                setDatPhong(parsedDatPhong);
-                setTTDPList((prevList) => [...prevList, updatedTTDP]);
-                setSelectedRooms((prevRooms) => [...prevRooms, room]);
-                setShowModal(true); // Hiển thị modal
-                console.log("ttdp " + ttdpList.data);
-            } else {
-                console.error("Failed to create TTDP:", response);
-            }
-        } catch (error) {
-            console.error("Error while creating booking:", error);
-        }
-
+        setSelectedRooms((prevRooms) => [...prevRooms, selectedRoomInfo]);
+        setShowModal(true);
     };
+    
+    
 
 
     const handleOpenModal = () => {
@@ -116,138 +66,189 @@ const BookingForm = () => {
     };
 
     const handleCloseModal = () => {
-        setShowModal(false); // Hide modal
-    };
-
-    const handleConfirmBooking = () => {
         setShowModal(false);
     };
 
-    const handleAdditionalRoom = (e) => {
-        setMultipleBookings(e.target.checked); // Set multiple bookings state based on checkbox
+    const calculateDays = (start, end) => {
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const diffTime = Math.abs(endDate - startDate); // Khoảng cách thời gian bằng milliseconds
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Chuyển đổi sang số ngày
+        return diffDays === 0 ? 1 : diffDays; // Đảm bảo ít nhất là 1 ngày
     };
-
+    
+    // Hàm tính tổng tiền
+    const calculateTotalPrice = (donGia, start, end) => {
+        const days = calculateDays(start, end);
+        return donGia * days;
+    };
+    
+    const getTodayDate = () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để tránh vấn đề chênh lệch múi giờ
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0, nên cần +1
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+    const handleRemoveRoom = (roomIndex) => {
+        setSelectedRooms((prevRooms) =>
+            prevRooms.filter((_, index) => index !== roomIndex)
+        );
+    };
+    const handleCreateBooking = (room) => {
+        const selectedRoomInfo = {
+            ...room,
+            adults,
+            startDate,
+            endDate,
+        };
+        setSelectedRooms((prevRooms) => {
+            const updatedRooms = [...prevRooms, selectedRoomInfo];
+            // Điều hướng sang TaoDatPhong với toàn bộ danh sách phòng
+            navigate('/tao-dat-phong', { state: { selectedRooms: updatedRooms, startDate, endDate, adults } });
+            return updatedRooms;
+        });
+    };
+    const getMinMaxDates = () => {
+        if (selectedRooms.length === 0) return { minDate: '', maxDate: '' };
+    
+        const dates = selectedRooms.map(room => ({
+            start: new Date(room.startDate),
+            end: new Date(room.endDate)
+        }));
+    
+        const minDate = new Date(Math.min(...dates.map(date => date.start)));
+        const maxDate = new Date(Math.max(...dates.map(date => date.end)));
+    
+        return {
+            minDate: minDate.toISOString().split('T')[0], // Định dạng lại nếu cần
+            maxDate: maxDate.toISOString().split('T')[0]
+        };
+    };
+    
+    const { minDate, maxDate } = getMinMaxDates();
     
     return (
         <div className="booking-form-container">
-            <Form onSubmit={handleSearch}>
-                <Row className="align-items-end">
-                    <Col md={3}>
-                        <Form.Group controlId="formStartDate">
-                            <Form.Label>Ngày Check-in</Form.Label>
-                            <Form.Control
-                                type="datetime-local"
-                                value={startDate}
-                                onChange={(e) => setStartDate(e.target.value)}
-                                required
-                                className="form-control"
-                            />
-                        </Form.Group>
-                    </Col>
+            <form className="search-form" onSubmit={handleSearch}>
+                <div className="form-row">
+                    <div className="form-group">
+                        <label htmlFor="formStartDate">Ngày Check-in</label>
+                        <input
+                            type="date"
+                            id="formStartDate"
+                            value={startDate}
+                            onChange={(e) => {
+                                setStartDate(e.target.value);
+                                if (e.target.value > endDate) {
+                                    setEndDate(e.target.value); // Cập nhật ngày kết thúc nếu trước ngày bắt đầu
+                                }
+                            }}
+                            min={getTodayDate()} // Đảm bảo lấy đúng ngày hiện tại theo múi giờ người dùng
+                            required
+                            className="form-control"
+                        />
+                    </div>
 
-                    <Col md={3}>
-                        <Form.Group controlId="formEndDate">
-                            <Form.Label>Ngày Check-out</Form.Label>
-                            <Form.Control
-                                type="datetime-local"
-                                value={endDate}
-                                onChange={(e) => setEndDate(e.target.value)}
-                                required
-                                className="form-control"
-                            />
-                        </Form.Group>
-                    </Col>
+                    <div className="form-group">
+                        <label htmlFor="formEndDate">Ngày Check-out</label>
+                        <input
+                            type="date"
+                            id="formEndDate"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            min={startDate} // Ngày kết thúc không được trước ngày bắt đầu
+                            required
+                            className="form-control"
+                        />
+                    </div>
 
-                    <Col md={3}>
-                        <Form.Group controlId="formGuests">
-                            <Form.Label>Số Người</Form.Label>
-                            <DropdownButton
-                                title={`Người lớn: ${adults}, Trẻ em: ${children}`}
-                                variant="outline-secondary"
-                                className="w-100 dropdown-toggle"
-                            >
-                                <Dropdown.Item>
+
+                    <div className="form-group">
+                        <label htmlFor="formGuests">Số Người</label>
+                        <div className="dropdown">
+                            <button type="button" className="dropdown-toggle">
+                                Số người: {adults}
+                            </button>
+                            <div className="dropdown-menu">
+                                <div className="dropdown-item">
                                     <span>Người lớn:</span>
-                                    <div>
-                                        <Button
+                                    <div className="quantity-control">
+                                        <button
                                             className="round-button"
                                             onClick={() => setAdults(adults > 1 ? adults - 1 : 1)}
                                         >
                                             -
-                                        </Button>
-                                        {adults}
-                                        <Button
+                                        </button>
+                                        <span>{adults}</span>
+                                        <button
                                             className="round-button"
                                             onClick={() => setAdults(adults + 1)}
                                         >
                                             +
-                                        </Button>
+                                        </button>
                                     </div>
-                                </Dropdown.Item>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                <Dropdown.Item>
-                                    <span>Trẻ em:</span>
-                                    <div>
-                                        <Button
-                                            className="round-button"
-                                            onClick={() => setChildren(children > 0 ? children - 1 : 0)}
-                                        >
-                                            -
-                                        </Button>
-                                        {children}
-                                        <Button
-                                            className="round-button"
-                                            onClick={() => setChildren(children + 1)}
-                                        >
-                                            +
-                                        </Button>
-                                    </div>
-                                </Dropdown.Item>
-                            </DropdownButton>
-                        </Form.Group>
-                    </Col>
-
-                    <Col md={3} className="text-right">
-                        <Button type="submit" className="custom-search-btn">
+                    <div className="form-group action-buttons">
+                        <button type="submit" className="search-btn">
                             Tìm Kiếm
-                        </Button>
-                        <Button onClick={() => handleOpenModal()} className="custom-cart-btn">
+                        </button>
+                    </div>
+                    <div className="form-group action-buttons">
+                        <button type="button" className="cart-btn" onClick={handleOpenModal}>
                             Giỏ
-                        </Button>
+                        </button>
+                    </div>
+                </div>
+            </form>
 
-                    </Col>
-                </Row>
-            </Form>
 
             <div className="room-list">
-                {phongKhaDung.map((p) => (
-                    <Card className="room-card" key={p.id}>
-                        <Row className="align-items-center">
-                            <Col md={4}>
-                                {p.duongDanAnh ? (
-                                    <img
-                                        src={p.duongDanAnh}
-                                        alt={p.tenPhong}
-                                        className="room-image"
-                                    />
-                                ) : (
-                                    <div className="no-image">
-                                        <span>Không có hình ảnh</span>
-                                    </div>
-                                )}
-                            </Col>
-                            <Col md={5}>
-                                <h4 className="room-title">{p.tenLoaiPhong}</h4>
-                                <h5 className="room-code">{p.maPhong}</h5>
-                                <p className="room-name">{p.tenPhong}</p>
-                                <strong className="room-price">Giá: {p.giaPhong} VND</strong>
-                            </Col>
-                            <Col md={3} className="text-right">
-                                <Button variant="primary" className="mb-2 action-btn" onClick={() => handleCreateBooking(p)}>Đặt Phòng</Button>
-                                <Button variant="outline-secondary" className="action-btn">Xem Chi Tiết</Button>
-                            </Col>
-                        </Row>
-                    </Card>
+                {loaiPhongKhaDung.map((lp) => (
+                    <div key={lp.id} className="room-item">
+                        <div className="room-info">
+                            <h4 className="room-title">{lp.tenLoaiPhong}</h4>
+                            <div className="details">
+                                <div className="detail-item">
+                                    <span>Diện tích: </span>
+                                    <strong>{lp.dienTich} m²</strong>
+                                </div>
+                                <div className="detail-item">
+                                    <span>Sức chứa: </span>
+                                    <strong>{lp.soKhachToiDa} khách</strong>
+                                </div>
+                                <div className="detail-item">
+                                    <span>Số phòng thực tế: </span>
+                                    <strong>{lp.soLuongPhong}</strong>
+                                </div>
+                                <div className="detail-item">
+                                    <span>Số phòng khả dụng: </span>
+                                    <strong>{lp.soPhongKhaDung}</strong>
+                                </div>
+                                <div className="detail-item">
+                                    <span>Đơn giá: </span>
+                                    <strong>{lp.donGia.toLocaleString()} VND</strong>
+                                </div>
+                            </div>
+                            <p className="description">Mô tả: {lp.moTa}</p>
+                            <p className="total-price">
+                                Thành tiền: <strong>{calculateTotalPrice(lp.donGia, startDate, endDate).toLocaleString()} VND</strong>
+                            </p>
+                        </div>
+                        <div className="room-actions">
+                            <button className="secondary-btn" onClick={() => handleCreateBooking(lp)}>
+                                Đặt ngay
+                            </button>
+                            <button className="primary-btn" onClick={() => handleAddSelectedRooms(lp)}>
+                                Thêm vào giỏ
+                            </button>
+                        </div>
+                    </div>
                 ))}
             </div>
             <div className="pagination">
@@ -261,22 +262,17 @@ const BookingForm = () => {
                 </button>
             </div>
 
-            {/* Use the new XacNhanDatPhong component */}
-
             {showModal && (
                 <div className="XNDP-modal-backdrop-x">
                     <div className="XNDP-modal-body">
-                        <XacNhanDatPhong
+                        <ModalSelectedRoom
                             showModal={showModal}
                             handleCloseModal={handleCloseModal}
-                            handleConfirmBooking = {handleConfirmBooking}
                             selectedRooms={selectedRooms}
-                            startDate={startDate}
-                            endDate={endDate}
-                            children={children}
+                            startDate={minDate}
+                            endDate={maxDate}
                             adults={adults}
-                            datPhong={datPhong}
-                            ttdpList={ttdpList}
+                            handleRemoveRoom = {handleRemoveRoom}
                         />
                     </div>
                 </div>

@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 public class DatPhongResponse {
     private Integer id;
-    private String tenKhachHang;
+    private KhachHang khachHang;
     private String maDatPhong;
     private LocalDate ngayDat;
     private Double tongTien;

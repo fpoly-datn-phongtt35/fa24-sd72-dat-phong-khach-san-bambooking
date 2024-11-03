@@ -38,7 +38,7 @@ public class DatPhongController {
 
 
     @PostMapping("them-moi")
-    public ResponseEntity<?> createDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
+    public ResponseEntity<DatPhongResponse> createDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(datPhongServiceIMPL.addDatPhong(datPhongRequest));
     }
 
@@ -51,7 +51,7 @@ public class DatPhongController {
 
     @PutMapping("cap-nhat")
     public ResponseEntity<?> updateDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
-        return ResponseEntity.status(HttpStatus.OK).body(datPhongServiceIMPL.updateDatPhong(datPhongRequest));
+            return ResponseEntity.status(HttpStatus.OK).body(datPhongServiceIMPL.updateDatPhong(datPhongRequest));
     }
 
     @GetMapping("bo-loc")
@@ -70,5 +70,8 @@ public class DatPhongController {
         return ResponseEntity.ok(dp);
     }
 
-
+    @GetMapping("chi-tiet-dat-phong")
+    public ResponseEntity<?> ChiTietDatPhong(@RequestParam String maDatPhong){
+        return ResponseEntity.ok(datPhongServiceIMPL.findByMaDatPhong(maDatPhong));
+    }
 }

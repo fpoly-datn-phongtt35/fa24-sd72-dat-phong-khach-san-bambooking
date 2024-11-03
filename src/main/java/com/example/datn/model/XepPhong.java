@@ -18,7 +18,6 @@ public class XepPhong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     @JoinColumn(name = "id_phong")
     @ManyToOne
     private Phong phong;

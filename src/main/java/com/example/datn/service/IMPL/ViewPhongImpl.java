@@ -21,7 +21,7 @@ public class ViewPhongImpl implements ViewPhongService {
     PhongMapper phongMapper;
     @Override
     public List<PhongResponse> findRoomsByCriteria(String tinhTrang, String keyword) {
-        List<Phong> phongList = viewPhongRepository.findByCriteria(tinhTrang,keyword);
+        List<Phong> phongList = viewPhongRepository.findByCriteria(tinhTrang,   keyword);
 
         // Sử dụng phongMapper để ánh xạ từ Phong sang PhongResponse
         return phongList.stream()

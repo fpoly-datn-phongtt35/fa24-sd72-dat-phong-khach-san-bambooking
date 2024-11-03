@@ -1,15 +1,18 @@
 package com.example.datn.service.IMPL;
 import com.example.datn.dto.request.LoaiPhongRequest;
+import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.repository.LoaiPhongRepository;
 import com.example.datn.service.LoaiPhongService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -87,9 +90,14 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     @Override
-    public Page<LoaiPhongResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable) {
-        return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,pageable);
+    public Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,Integer soNguoi, Pageable pageable) {
+        return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,pageable);
     }
 
+    @Override
+    public LoaiPhong findByID(Integer idLoaiPhong) {
+        return loaiPhongRepository.findById(idLoaiPhong)
+                .orElseThrow(() -> new EntityNotFoundException("LoaiPhong with ID " + idLoaiPhong + " not found"));
+    }
 
 }

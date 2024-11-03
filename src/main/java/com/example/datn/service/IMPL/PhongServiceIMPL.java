@@ -15,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -79,6 +81,11 @@ public class PhongServiceIMPL implements PhongService {
     @Override
     public Page<Phong> searchPhong(String keyword, Pageable pageable) {
         return phongRepository.search(keyword, pageable);
+    }
+
+    @Override
+    public List<Phong> searchPhongKhaDung(Integer idLoaiPhong) {
+        return phongRepository.searchPhongKhaDung(idLoaiPhong);
     }
 
 

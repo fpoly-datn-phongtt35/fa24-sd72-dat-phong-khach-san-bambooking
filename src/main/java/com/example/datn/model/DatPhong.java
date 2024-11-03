@@ -15,21 +15,16 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "dat_phong")
 public class DatPhong {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     @ManyToOne
     @JoinColumn(name = "id_khach_hang")
     private KhachHang khachHang;
-
     @Column(name = "ma_dat_phong")
     private String maDatPhong;
-
     @Column(name = "ngay_dat")
     private LocalDate ngayDat;
-
     @Column(name = "tong_tien")
     private Double tongTien;
     @Column(name = "dat_coc")

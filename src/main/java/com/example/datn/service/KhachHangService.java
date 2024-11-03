@@ -1,5 +1,6 @@
 package com.example.datn.service;
 
+import com.example.datn.dto.request.KhachHangDatPhongRequest;
 import com.example.datn.dto.request.KhachHangRequest;
 import com.example.datn.dto.response.KhachHangResponse;
 import com.example.datn.model.KhachHang;
@@ -13,5 +14,7 @@ public interface KhachHangService {
     KhachHangResponse updateKhachHang(Integer id, KhachHangRequest request);
     void deleteKhachHang(Integer id);
     Page<KhachHang> searchKhachHang(String keyword, Pageable pageable);
+
+    KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request);
 
 }

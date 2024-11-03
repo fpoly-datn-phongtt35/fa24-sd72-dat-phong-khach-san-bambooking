@@ -43,7 +43,6 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
     public DichVuSuDung updatePhieuDichVu(DichVuSuDungRequest dichVuSuDungRequest) {
         // Tìm dịch vụ đi kèm bằng ID
         DichVuSuDung dichVuSuDung = phieuDichVuRepository.findById(dichVuSuDungRequest.getId()).orElse(null);
-
         if (dichVuSuDung != null) {
             dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
             dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
@@ -52,10 +51,8 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
             dichVuSuDung.setNgayKetThuc(dichVuSuDungRequest.getNgayKetThuc());
             dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
             dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
-
             return phieuDichVuRepository.save(dichVuSuDung);
         }
-
         return null;
     }
 

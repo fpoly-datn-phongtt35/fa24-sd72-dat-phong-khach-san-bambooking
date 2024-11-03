@@ -1,13 +1,11 @@
 import './App.css';
 import Header from './components/Header';
 import SlideBar from './components/Slidebar';
-
 import NhanVienComponent from './components/nhanvien/NhanVienComponent';
 import ListTaiKhoan from './components/taikhoan/ListTaiKhoan';
 import ListVaiTro from './components/vaitro/ListVaiTro';
 import TaiKhoanComponent from './components/taikhoan/TaiKhoanComponent';
-import DatPhong from './components/DatPhong/DatPhong';
-import DanhSach from './components/DichVu/DanhSach';    
+import DanhSach from './components/DichVu/DanhSach';
 import DanhSachDichVuDiKem from './components/DichVuDikem/DanhSachDichVuDiKem';
 import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
@@ -20,14 +18,13 @@ import { useState, useEffect } from 'react';
 import ListKhachHang from './components/KhachHang/ListKhachHang';
 import KhachHangComponent from './components/KhachHang/KhachHangComponent';
 import ListNhanVien from "./components/nhanvien/ListNhanVien.jsx";
-import ThongTinDatPhong from './components/DatPhong/ThongTinDatPhong';
+import ChiTietDatPhong from './components/DatPhong/ChiTietDatPhong.jsx';
 import ViewPhong from './components/TrangChu/ViewPhong';
-import RoomDetail from './components/TrangChu/RoomDetail.jsx';
 import DanhSachDichVuSuDung from './components/DichVuSuDung/DanhSachDichVuSuDung.jsx';
-import FormAddPage from './components/DatPhong/FormAddPage';
-import FormAdd from './components/DatPhong/FormAdd';
 import LoaiPhong from './components/LoaiPhong/LoaiPhong';
-
+import TaoDatPhong from './components/DatPhong/TaoDatPhong.jsx';
+import GiaoDienTaoDP from './components/DatPhong/GiaoDienTaoDP.jsx'
+import QuanLyDatPhong from './components/DatPhong/QuanLyDatPhong.jsx';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
@@ -84,13 +81,10 @@ function App() {
           <Routes>
             {/* Route công khai */}
             <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
-            
             {/* Các route được bảo vệ */}
-            <Route path="/thong-tin-dat-phong" element={<RequireAuth><ThongTinDatPhong /></RequireAuth>} />
             <Route path="/LoaiPhong" element={<RequireAuth><LoaiPhong /></RequireAuth>} />
             <Route path="/DichVuDikem" element={<RequireAuth><DanhSachDichVuDiKem /></RequireAuth>} />
             <Route path="/DichVu" element={<RequireAuth><DanhSach /></RequireAuth>} />
-            <Route path="/tao-dat-phong" element={<RequireAuth><FormAddPage /></RequireAuth>} />
             <Route path="/DichVuSuDung" element={<RequireAuth> <DanhSachDichVuSuDung /> </RequireAuth>} />
             <Route path="/add-khach-hang" element={<RequireAuth><KhachHangComponent /></RequireAuth>} />
             <Route path="/update-khach-hang/:id" element={<RequireAuth><KhachHangComponent /></RequireAuth>} />
@@ -102,7 +96,6 @@ function App() {
             <Route path="/add-nhanvien" element={<RequireAuth><NhanVienComponent /></RequireAuth>} />
             <Route path="/add-taikhoan" element={<RequireAuth><TaiKhoanComponent /></RequireAuth>} />
             <Route path="/update-nhan-vien/:id" element={<RequireAuth><NhanVienComponent /></RequireAuth>} />
-            <Route path="/DatPhong" element={<RequireAuth><DatPhong /></RequireAuth>} />
             <Route path="/TienIch" element={<RequireAuth><TienIch /></RequireAuth>} />
             <Route path="/phong" element={<RequireAuth><ListPhong /></RequireAuth>} />
             <Route path="/add-phong" element={<RequireAuth><Phong /></RequireAuth>} />
@@ -110,11 +103,12 @@ function App() {
             <Route path="/hinh-anh" element={<RequireAuth><ListImage /></RequireAuth>} />
             <Route path="/add-hinh-anh" element={<RequireAuth><HinhAnh /></RequireAuth>} />
             <Route path="/TrangChu" element={<RequireAuth><ViewPhong /></RequireAuth>} />
-           
+            <Route path="/quan-ly-dat-phong" element={ <RequireAuth> <QuanLyDatPhong /> </RequireAuth> } />
+            <Route path="/giao-dien-tao-dp" element={ <RequireAuth> <GiaoDienTaoDP /> </RequireAuth> } />
+            <Route path="/tao-dat-phong" element={ <RequireAuth> <TaoDatPhong /> </RequireAuth> } />
+            <Route path="/thong-tin-dat-phong" element={ <RequireAuth> <ChiTietDatPhong /> </RequireAuth> } />
             {/* Route chính, điều hướng đến ViewPhong */}
             <Route path="/" element={<RequireAuth><ViewPhong /></RequireAuth>} />
-
-
             {/* Redirect các đường dẫn không xác định */}
             <Route path="*" element={isAuthenticated ? <Navigate to="/NhanVien" replace /> : <Navigate to="/login" replace />} />
           </Routes>

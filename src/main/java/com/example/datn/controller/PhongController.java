@@ -1,6 +1,8 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.PhongRequest;
+import com.example.datn.model.LoaiPhong;
+import com.example.datn.service.IMPL.PhongServiceIMPL;
 import com.example.datn.service.PhongService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class PhongController {
 
     PhongService phongService;
+    PhongServiceIMPL phongServiceIMPL;
 
     @GetMapping("")
     public ResponseEntity<?> getAllPhong(Pageable pageable) {
@@ -48,5 +51,9 @@ public class PhongController {
     @GetMapping("/search")
     public ResponseEntity<?> searchPhong(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(phongService.searchPhong(keyword, pageable));
+    }
+    @GetMapping("/phong-kha-dung")
+    public ResponseEntity<?> searchPhongKhaDung(@RequestParam Integer idLoaiPhong) {
+        return ResponseEntity.status(HttpStatus.OK).body(phongServiceIMPL.searchPhongKhaDung(idLoaiPhong));
     }
 }
