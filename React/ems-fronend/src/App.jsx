@@ -26,7 +26,7 @@ import DanhSachPhieuDichVu from './components/PhieuDichVu/DanhSachPhieuDichVu';
 import FormAddPage from './components/DatPhong/FormAddPage';
 import FormAdd from './components/DatPhong/FormAdd';
 import LoaiPhong from './components/LoaiPhong/LoaiPhong';
-import RegisterForm from './components/SignUp/register.jsx';
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -89,15 +89,6 @@ function App() {
             {/* Route công khai */}
             <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
             {/* Các route được bảo vệ */}
-
-            <Route
-              path="/signup"
-              element={
-                <RequireAuth>
-                  <RegisterForm />
-                </RequireAuth>
-              }
-            />
 
             <Route
               path="/thong-tin-dat-phong"

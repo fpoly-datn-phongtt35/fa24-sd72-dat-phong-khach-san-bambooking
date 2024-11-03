@@ -1,0 +1,18 @@
+.footer {
+    background-color: #2c3e50; /* Màu nền cho footer */
+    color: white; /* Màu chữ */
+    padding: 20px; /* Khoảng cách bên trong */
+    text-align: center; /* Căn giữa nội dung */
+    position: relative; /* Để footer không bị tràn ra ngoài */
+  }
+  
+  .footer a {
+    color: #1abc9c; /* Màu chữ cho link */
+    text-decoration: none; /* Xóa gạch chân */
+    margin: 0 10px; /* Khoảng cách giữa các link */
+  }
+  
+  .footer a:hover {
+    text-decoration: underline; /* Hiệu ứng gạch chân khi hover */
+  }
+  

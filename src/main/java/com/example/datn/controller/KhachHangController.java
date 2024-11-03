@@ -31,6 +31,16 @@ public class KhachHangController {
     KhachHangRepository khachHangRepository;
 
     KhachHangService khachHangService;
+//    @PostMapping("/login")
+//    public ResponseEntity<String> login(@RequestBody KhachHangRegister request) {
+//        boolean isAuthenticated = khachHangService.checkLogin(request.getEmail(), request.getMatKhau());
+//
+//        if (isAuthenticated) {
+//            return ResponseEntity.ok("Đăng nhập thành công!");
+//        } else {
+//            return ResponseEntity.status(401).body("Email hoặc mật khẩu không chính xác.");
+//        }
+//    }
 
     @GetMapping("")
     public ResponseEntity<?> getAllKhachHang(Pageable pageable){
@@ -109,15 +119,6 @@ public class KhachHangController {
     }
 
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody KhachHangRegister request) {
-        boolean isAuthenticated = khachHangService.checkLogin(request.getEmail(), request.getMatKhau());
 
-        if (isAuthenticated) {
-            return ResponseEntity.ok("Đăng nhập thành công!");
-        } else {
-            return ResponseEntity.status(401).body("Email hoặc mật khẩu không chính xác.");
-        }
-    }
 
 }
