@@ -15,7 +15,7 @@ public class KhachHangMapper {
         khachHang.setDiaChi(request.getDiaChi());
         khachHang.setSdt(request.getSdt());
         khachHang.setEmail(request.getEmail());
-        khachHang.setTrangThai(request.getTrangThai());
+        khachHang.setTrangThai(request.isTrangThai());
         return khachHang;
     }
 
@@ -30,7 +30,7 @@ public class KhachHangMapper {
         response.setEmail(khachHang.getEmail());
         response.setNgayTao(khachHang.getNgayTao().toString());
         response.setNgaySua(khachHang.getNgaySua().toString());
-        response.setTrangThai(khachHang.getTrangThai());
+        response.setTrangThai(khachHang.isTrangThai());
         return response;
     }
 }

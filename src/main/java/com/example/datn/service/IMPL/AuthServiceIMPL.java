@@ -1,8 +1,8 @@
 package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.ThongTinNhanVienRequest;
-import com.example.datn.model.ThongTinNhanVien;
 import com.example.datn.model.TaiKhoan;
+import com.example.datn.model.ThongTinNhanVien;
 import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.repository.ThongTinNhanVienRepository;
 import com.example.datn.service.AuthService;
@@ -13,8 +13,7 @@ import java.util.Optional;
 @Service
 public class AuthServiceIMPL implements AuthService {
     @Autowired
-    private TaiKhoanRepository taiKhoanRepository;
-
+    TaiKhoanRepository taiKhoanRepository;
     @Autowired
     private ThongTinNhanVienRepository thongTinNhanVienRepository;
 

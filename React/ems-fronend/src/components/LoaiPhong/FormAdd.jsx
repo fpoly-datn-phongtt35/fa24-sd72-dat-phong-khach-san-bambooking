@@ -5,10 +5,10 @@ const FormAdd = ({ show, handleClose }) => {
     const [formData, setFormData] = useState({
         tenLoaiPhong: '', 
         dienTich: '',   
-        sucChuaLon: '',   
-        sucChuaNho: '',   
+        soKhachToiDa: '',   
+        donGia: '',   
         moTa: '',   
-        trangThai: '',   
+        donGiaPhuThu: '',   
     });
 
 
@@ -41,7 +41,7 @@ const FormAdd = ({ show, handleClose }) => {
             <div className="modal-dialog modal-lg" role="document">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title">Thêm tiện ích</h5>
+                        <h5 className="modal-title">Thêm loại phòng</h5>
                         <button type="button" className="btn-close" onClick={handleClose}></button>
                     </div>
                     <div className="modal-body">
@@ -58,23 +58,23 @@ const FormAdd = ({ show, handleClose }) => {
                             </div>
 
                             <div className="mb-3">
-                                <label htmlFor="sucChuaLon" className="form-label">Sức chứa lớn</label>
-                                <input type="text" className="form-control" id="sucChuaLon" name="sucChuaLon" value={formData.sucChuaLon} onChange={handleInputChange} required />
+                                <label htmlFor="soKhachToiDa" className="form-label">Số khách tối đa</label>
+                                <input type="text" className="form-control" id="soKhachToiDa" name="soKhachToiDa" value={formData.soKhachToiDa} onChange={handleInputChange} required />
                             </div>
 
                             <div className="mb-3">
-                                <label htmlFor="sucChuaNho" className="form-label">Sức chứa nhỏ</label>
-                                <input type="text" className="form-control" id="sucChuaNho" name="sucChuaNho" value={formData.sucChuaNho} onChange={handleInputChange} required />
+                                <label htmlFor="donGia" className="form-label">Đơn giá</label>
+                                <input type="text" className="form-control" id="donGia" name="donGia" value={formData.donGia} onChange={handleInputChange} required />
+                            </div>
+
+                            <div className="mb-3">
+                                <label htmlFor="donGiaPhuThu" className="form-label">Đơn giá phụ thu</label>
+                                <input type="text" className="form-control" id="donGiaPhuThu" name="donGiaPhuThu" value={formData.donGiaPhuThu} onChange={handleInputChange} required />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="moTa" className="form-label">Mô tả</label>
                                 <input type="text" className="form-control" id="moTa" name="moTa" value={formData.moTa} onChange={handleInputChange} required />
-                            </div>
-
-                            <div className="mb-3">
-                                <label htmlFor="trangThai" className="form-label">Trạng thái</label>
-                                <input type="text" className="form-control" id="trangThai" name="trangThai" value={formData.trangThai} onChange={handleInputChange} required />
                             </div>
 
                             <div className="modal-footer">

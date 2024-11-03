@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { listTienNghi } from '../../services/TienNghiService';
+import { listTienNghi } from '../../services/TienIchPhongService';
 import FormAdd from './FormAdd';
 import FormDetail from './FormDetail';
 

@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @CrossOrigin
 @RestController
@@ -27,27 +28,35 @@ public class TienIchPhongController {
 
     @Autowired
     TienIchRepository tienIchRepository;
-    @GetMapping("/home")
-    public ResponseEntity<?> DanhSachTienNghi(Pageable pageable){
+//    @GetMapping("/home")
+//    public ResponseEntity<?> DanhSachTienNghi(Pageable pageable){
+//
+//        Page<TienIchPhongResponse> ti = tienNghiServiceIMPL.getPage(pageable);
+//        return ResponseEntity.ok(ti);
+//    }
 
-        Page<TienIchPhongResponse> ti = tienNghiServiceIMPL.getPage(pageable);
+    @GetMapping("/home/{idLoaiPhong}")
+    public ResponseEntity<?> ListTienIchByIDLoaiPhong(@PathVariable int idLoaiPhong,Pageable pageable) {
+        Page<Object> ti =  tienNghiServiceIMPL.ListTienIchFindByIDLoaiPhong(idLoaiPhong,pageable);
         return ResponseEntity.ok(ti);
+
     }
 
+
     @GetMapping("/index")
-    public List<TienIch> ListTienNghi(Pageable pageable){
+    public List<TienIch> ListTienNghi(Pageable pageable) {
 
         return tienIchRepository.findAll();
 
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> add(@RequestBody TienIchPhongRequest tienIchPhongRequest){
+    public ResponseEntity<?> add(@RequestBody TienIchPhongRequest tienIchPhongRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tienNghiServiceIMPL.add(tienIchPhongRequest));
     }
 
 
-//    @GetMapping("/detail")
+    //    @GetMapping("/detail")
 //    public String detail(@RequestParam("id") int id,Model model){
 //        model.addAttribute("listTienNghi",tienNghiServiceIMPL.getAll());
 //        model.addAttribute("TienNghi",tienNghiServiceIMPL.detail(id));
@@ -64,7 +73,7 @@ public class TienIchPhongController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> update(@RequestBody TienIchPhongRequest tienIch){
+    public ResponseEntity<?> update(@RequestBody TienIchPhongRequest tienIch) {
         tienNghiServiceIMPL.update(tienIch);
         return ResponseEntity.status(HttpStatus.CREATED).body(tienNghiServiceIMPL.update(tienIch));
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DuLieu, XoaDichVu } from '../../services/DichVuService'; 
+import { DuLieu, XoaDichVu } from '../../services/DichVuService';
 import FormAdd from './FormAdd';
 import FormUpdate from './FormUpdate';
 import DetailDichVu from './DetailDichVu';
@@ -8,26 +8,36 @@ const DanhSach = () => {
     const [dichVuList, setDichVuList] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
-    const [currentDichVu, setCurrentDichVu] = useState(null); 
+    const [currentDichVu, setCurrentDichVu] = useState(null);
     const [showDetail, setShowDetail] = useState(false);
     const [searchKeyword, setSearchKeyword] = useState(''); // Tìm kiếm
     const [filterStatus, setFilterStatus] = useState(''); // Lọc trạng thái
+    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
+    const [totalPages, setTotalPages] = useState(0); // Tổng số trang
+    const itemsPerPage = 5; // Số lượng item trên mỗi trang
 
     const loadDichVu = () => {
         DuLieu()
             .then(response => {
                 const filteredData = response.data.filter(dv => {
-                    const matchesStatus = filterStatus 
-                        ? dv.trangThai.trim().toLowerCase() === filterStatus.trim().toLowerCase() 
+                    // Lọc theo trạng thái boolean
+                    const matchesStatus = filterStatus !== ''
+                        ? dv.trangThai === (filterStatus === 'true')
                         : true;
+
                     const matchesKeyword = searchKeyword
-                        ? dv.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) || 
-                          dv.moTa.toLowerCase().includes(searchKeyword.toLowerCase())
+                        ? dv.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+                        dv.moTa.toLowerCase().includes(searchKeyword.toLowerCase())
                         : true;
-    
+
                     return matchesStatus && matchesKeyword;
                 });
-                setDichVuList(filteredData);
+
+                // Phân trang dữ liệu
+                const startIndex = currentPage * itemsPerPage;
+                const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+                setDichVuList(paginatedData);
+                setTotalPages(Math.ceil(filteredData.length / itemsPerPage)); // Cập nhật tổng số trang
             })
             .catch(error => {
                 console.error("Lỗi khi tải danh sách dịch vụ:", error);
@@ -36,11 +46,11 @@ const DanhSach = () => {
 
     useEffect(() => {
         loadDichVu();
-    }, [searchKeyword, filterStatus]); // Tự động tải lại khi từ khóa hoặc trạng thái thay đổi
+    }, [searchKeyword, filterStatus, currentPage]); // Tự động tải lại khi từ khóa, trạng thái hoặc trang thay đổi
 
     const openForm = () => setShowForm(true);
     const closeForm = () => setShowForm(false);
-    
+
     const openUpdateForm = (dv) => {
         setCurrentDichVu(dv);
         setShowUpdateForm(true);
@@ -73,6 +83,18 @@ const DanhSach = () => {
         }
     };
 
+    const handleNextPage = () => {
+        if (currentPage < totalPages - 1) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePreviousPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
     return (
         <div>
             <div>
@@ -84,8 +106,8 @@ const DanhSach = () => {
                 />
                 <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
                     <option value="">Tất cả trạng thái</option>
-                    <option value="Hoạt động">Hoạt động</option>
-                    <option value="Ngừng hoạt động">Ngừng hoạt động</option>
+                    <option value="true">Hoạt động</option>
+                    <option value="false">Ngừng hoạt động</option>
                 </select>
                 <button onClick={loadDichVu}>Lọc</button>
             </div> <br />
@@ -97,6 +119,7 @@ const DanhSach = () => {
                         <th>Tên Dịch Vụ</th>
                         <th>Giá</th>
                         <th>Mô Tả</th>
+                        <th>Hình ảnh</th>
                         <th>Trạng Thái</th>
                         <th>Hành Động</th>
                     </tr>
@@ -107,7 +130,12 @@ const DanhSach = () => {
                             <td>{dv.tenDichVu}</td>
                             <td>{dv.donGia}</td>
                             <td>{dv.moTa}</td>
-                            <td>{dv.trangThai}</td>
+                            <td>
+                                <img src={dv.hinhAnh} alt={dv.tenDichVu} style={{ width: '200px', height: 'auto' }} />
+                            </td>
+
+                            {/* Hiển thị trạng thái dưới dạng chuỗi dựa trên giá trị boolean */}
+                            <td>{dv.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</td>
                             <td>
                                 <button onClick={() => openUpdateForm(dv)}>Sửa</button>
                                 <button onClick={() => handleDelete(dv.id)}>Xóa</button>
@@ -117,6 +145,13 @@ const DanhSach = () => {
                     ))}
                 </tbody>
             </table>
+
+            {/* Phân trang */}
+            <div className="pagination">
+                <button onClick={handlePreviousPage} disabled={currentPage === 0}>Trang trước</button>
+                <span>Trang {currentPage + 1} / {totalPages}</span>
+                <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>Trang sau</button>
+            </div>
 
             {showForm && <FormAdd show={showForm} handleClose={closeForm} refreshData={loadDichVu} />}
             {showUpdateForm && <FormUpdate show={showUpdateForm} handleClose={closeUpdateForm} refreshData={loadDichVu} dichVu={currentDichVu} />}

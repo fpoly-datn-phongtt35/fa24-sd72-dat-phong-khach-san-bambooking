@@ -8,8 +8,7 @@ const ThemKhachHangMoi = ({ handleCloseModal }) => {
         gioiTinh: '',
         diaChi: '',
         sdt: '',
-        email: '',
-        trangThai: 'active'
+        email: ''
     });
 
     const handleChange = (e) => {

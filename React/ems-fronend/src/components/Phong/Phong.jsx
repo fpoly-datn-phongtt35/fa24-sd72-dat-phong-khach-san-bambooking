@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { createPhong, getLoaiPhong, getOnePhong, updatePhong } from '../../services/PhongService';
-
+import { uploadImage } from '../../services/ImageService';
 const Phong = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-
+    const [file, setFile] = useState(null);
     const [maPhong, setMaPhong] = useState('');
     const [tenPhong, setTenPhong] = useState('');
-    const [giaPhong, setGiaPhong] = useState('');
     const [idLoaiPhong, setIdLoaiPhong] = useState('');
     const [lp, setLoaiPhong] = useState([]);
     const [tinhTrang, setTinhTrang] = useState('');
@@ -18,7 +17,7 @@ const Phong = () => {
 
     useEffect(() => {
         getLoaiPhong().then(response => {
-            console.log(response);
+
             setLoaiPhong(response.data); //Phân trang thì gọi getContent còn k thì response.data thôi. Mất mẹ 4h.
         }).catch((error) => {
             console.log("Có lỗi khi lấy loại phòng: " + error);
@@ -27,13 +26,13 @@ const Phong = () => {
 
         if (id) {
             getOnePhong(id).then((response) => {
-                const { maPhong, tenPhong, giaPhong, idLoaiPhong, tinhTrang, trangThai } = response.data;
+                const { maPhong, tenPhong, idLoaiPhong, tinhTrang, trangThai } = response.data;
                 setMaPhong(maPhong);
                 setTenPhong(tenPhong);
-                setGiaPhong(giaPhong);
                 setIdLoaiPhong(idLoaiPhong);
                 setTinhTrang(tinhTrang);
-                setTrangThai(trangThai === "Hoạt động");
+                // setTrangThai(trangThai === "Hoạt động");
+                setTrangThai(trangThai);
             }).catch((error) => {
                 console.log("Có lỗi khi lấy phòng: " + error)
             });
@@ -47,11 +46,18 @@ const Phong = () => {
         const phong = {
             maPhong,
             tenPhong,
-            giaPhong: parseFloat(giaPhong),
             idLoaiPhong,
             tinhTrang,
-            trangThai: trangThai ? "Hoạt động" : "Ngừng hoạt động"
+            trangThai: trangThai ? "true" : "false"
         };
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('tenAnh', tenPhong);
+        formData.append('idPhong', id);
+
+        // Gửi giá trị trạng thái dưới dạng boolean
+        formData.append('trangThai', trangThai);
 
         const handleError = (error) => {
             if (error.response && error.response.data) {
@@ -68,13 +74,35 @@ const Phong = () => {
                 console.log("Cập nhật phòng thành công: " + response.data.content)
                 navigate('/phong');
             }).catch(handleError);
+
+            uploadImage(formData)
+                .then((response) => {
+                    console.log('Upload thành công:', response.data);
+                })
+                .catch((error) => {
+                    console.error('Lỗi khi upload:', error);
+                });
         } else {
             createPhong(phong).then((response) => {
                 console.log("Thêm phòng thành công: " + response.data.content);
                 navigate('/phong')
             }).catch(handleError);
+
+            uploadImage(formData)
+                .then((response) => {
+                    console.log('Upload thành công:', response.data);
+                })
+                .catch((error) => {
+                    console.error('Lỗi khi upload:', error);
+                });
         };
+
+
     }
+
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
 
     return (
         <div className='container'>
@@ -108,18 +136,7 @@ const Phong = () => {
                                 />
                                 {errors.tenPhong && <div className='invalid-feedback'>{errors.tenPhong}</div>}
                             </div>
-                            <div className='form-group mb-3'>
-                                <label className='form-label'>Giá phòng: </label>
-                                <input
-                                    type="text"
-                                    placeholder='Nhập giá phòng'
-                                    value={giaPhong}
-                                    name='giaPhong'
-                                    className={`form-control ${errors.giaPhong ? 'is-invalid' : ''}`}
-                                    onChange={(e) => setGiaPhong(e.target.value)}
-                                />
-                                {errors.giaPhong && <div className='invalid-feedback'>{errors.giaPhong}</div>}
-                            </div>
+
                             <div className='form-group mb-3'>
                                 <label className='form-label'>Loại phòng</label>
                                 <select
@@ -183,6 +200,22 @@ const Phong = () => {
                                     </div>
                                 </div>
                             </div>
+                            <div>
+                                {id && (
+                                    <div className="form-group mb-3">
+                                        <label className='form-label'>Chọn Ảnh:</label>
+                                        <div className="mb-3">
+                                            <input
+                                                type="file"
+                                                className="form-control-file"
+                                                id="file"
+                                                onChange={handleFileChange}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
                             <button className='btn btn-success' onClick={saveOrUpdate}>{id ? "Cập nhật" : "Thêm"}</button>
                             <button className='btn btn-outline-primary' style={{ marginLeft: '10px' }} onClick={() => navigate('/phong')}>Quay lại</button>
                         </form>

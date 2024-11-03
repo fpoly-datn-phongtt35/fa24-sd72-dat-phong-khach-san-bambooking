@@ -2,14 +2,12 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.PhongRequest;
 import com.example.datn.dto.response.PhongResponse;
-import com.example.datn.dto.response.PhongResponseDat;
 import com.example.datn.mapper.PhongMapper;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.Phong;
 import com.example.datn.repository.LoaiPhongRepository;
 import com.example.datn.repository.PhongRepository;
 import com.example.datn.service.PhongService;
-import com.example.datn.utilities.DateTimeFormat;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,7 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -61,7 +59,6 @@ public class PhongServiceIMPL implements PhongService {
 
         phong.setMaPhong(request.getMaPhong());
         phong.setTenPhong(request.getTenPhong());
-        phong.setGiaPhong(request.getGiaPhong());
         phong.setTinhTrang(request.getTinhTrang());
         phong.setTrangThai(request.getTrangThai());
         phong = phongRepository.save(phong);
@@ -72,10 +69,10 @@ public class PhongServiceIMPL implements PhongService {
     public Boolean updateStatus(Integer id) {
         Phong phong = phongRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ID room not found: " + id));
-        if (phong.getTrangThai().equals("Hoạt động")){
-            phong.setTrangThai("Ngừng hoạt động");
+        if (phong.getTrangThai()){
+            phong.setTrangThai(false);
         }else {
-            phong.setTrangThai("Hoạt động");
+            phong.setTrangThai(true);
         }
         phongRepository.save(phong);
         return true;
@@ -87,8 +84,9 @@ public class PhongServiceIMPL implements PhongService {
     }
 
     @Override
-    public Page<PhongResponseDat> PhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
-                                               Integer sucChuaLon,Integer sucChuaNho,Pageable pageable) {
-        return phongRepository.PhongKhaDung(ngayNhanPhong,ngayTraPhong,sucChuaLon,sucChuaNho,pageable);
+    public List<Phong> searchPhongKhaDung(Integer idLoaiPhong) {
+        return phongRepository.searchPhongKhaDung(idLoaiPhong);
     }
+
+
 }

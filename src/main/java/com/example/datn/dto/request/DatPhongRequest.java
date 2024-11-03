@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,12 +20,10 @@ import java.time.LocalDateTime;
 public class DatPhongRequest {
     private Integer id;
     private KhachHang khachHang;
-
     private String maDatPhong;
-
-    private LocalDateTime ngayDat;
-
+    private LocalDate ngayDat;
+    private Double tongTien;
+    private Double datCoc;
     private String ghiChu;
-
-        private String trangThai;
+    private String trangThai;
 }

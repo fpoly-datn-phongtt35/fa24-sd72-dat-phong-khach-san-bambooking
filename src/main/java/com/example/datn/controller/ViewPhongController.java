@@ -20,14 +20,9 @@ public class ViewPhongController {
     @GetMapping("/view-phong")
     public ResponseEntity<?> searchPhong(
             @RequestParam(required = false) String tinhTrang,
-            @RequestParam(required = false) Double giaMin,
-            @RequestParam(required = false) Double giaMax,
             @RequestParam(required = false) String keyword) {
-        if (giaMin != null && giaMax != null && giaMax < giaMin) {
-            return ResponseEntity.badRequest().body("Giá tối đa phải lớn hơn hoặc bằng giá tối thiểu.");
-        }
 
-        List<?> rooms = viewPhongService.findRoomsByCriteria(tinhTrang, giaMin, giaMax, keyword);
+        List<?> rooms = viewPhongService.findRoomsByCriteria(tinhTrang, keyword);
         if (rooms.isEmpty()) {
             return ResponseEntity.ok("Không tìm thấy phòng nào phù hợp với tiêu chí.");
         }

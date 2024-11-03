@@ -26,13 +26,10 @@ public class PhongRequest {
     @Size(max = 255, message = "Tên phòng không được vượt quá 255 ký tự!")
     String tenPhong;
 
-    @NotNull(message = "Giá phòng không được để trống!")
-    @Positive(message = "Giá phòng phải lớn hơn 0!")
-    Double giaPhong;
 
     @NotBlank(message = "Tình trạng không được để trống!")
     String tinhTrang;
 
-    @NotBlank(message = "Vui lòng chọn trạng thái!")
-    String trangThai;
+//    @NotBlank(message = "Vui lòng chọn trạng thái!")
+    Boolean trangThai;
 }

@@ -1,0 +1,195 @@
+/* Biến màu sắc */
+$primary-color: #007bff;
+$background-color: #f4f4f4;
+$text-color: #333;
+$border-color: #ddd;
+$hover-bg-color: #e0e0e0;
+
+.reservation {
+    max-width: 1200px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+    h2 {
+        margin: 0 0 20px;
+    }
+
+    /* Điều hướng tab */
+    nav {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+
+        a {
+            text-decoration: none;
+            color: $text-color;
+            padding: 10px 15px;
+            border-radius: 5px;
+            background: $hover-bg-color;
+            transition: background 0.3s;
+
+            &.active,
+            &:hover {
+                background: $primary-color;
+                color: #fff;
+            }
+        }
+    }
+
+    /* Bộ lọc */
+    .filters {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+
+        .search-bar {
+            padding: 8px;
+            border: 1px solid $border-color;
+            border-radius: 5px;
+        }
+    }
+
+    /* Bảng danh sách đặt phòng */
+    .reservation-list {
+        .assign-button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: $primary-color;
+            color: #fff;
+            cursor: pointer;
+            margin-bottom: 10px;
+
+            &:disabled {
+                background-color: #ccc;
+                cursor: not-allowed;
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+            th,
+            td {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid $border-color;
+                font-size: 14px;
+            }
+
+            th {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                background-color: $background-color;
+                font-weight: bold;
+                color: $text-color;
+                text-align: left;
+            }
+
+            /* Đảm bảo thẳng hàng cho các cột */
+            th:first-child,
+            td:first-child {
+                width: 5%;
+                text-align: center;
+            }
+
+            th:nth-child(2),
+            td:nth-child(2) {
+                width: 10%;
+            }
+
+            th:nth-child(3),
+            td:nth-child(3) {
+                width: 10%;
+            }
+
+            th:nth-child(4),
+            td:nth-child(4) {
+                width: 15%;
+            }
+
+            th:nth-child(5),
+            td:nth-child(5),
+            th:nth-child(6),
+            td:nth-child(6) {
+                width: 10%;
+                text-align: center;
+            }
+
+            th:nth-child(7),
+            td:nth-child(7),
+            th:nth-child(8),
+            td:nth-child(8) {
+                width: 10%;
+                text-align: center;
+            }
+
+            th:nth-child(9),
+            td:nth-child(9) {
+                width: 10%;
+                text-align: right;
+            }
+
+            th:last-child,
+            td:last-child {
+                width: 10%;
+                text-align: center;
+            }
+
+            tbody {
+                tr {
+                    &:nth-child(even) {
+                        background-color: #f9f9f9;
+                    }
+                    
+                    &:hover {
+                        background-color: $hover-bg-color;
+                    }
+
+                    td {
+                        .highlight {
+                            color: $primary-color;
+                            font-weight: bold;
+                        }
+
+                        input[type="checkbox"] {
+                            cursor: pointer;
+                            accent-color: $primary-color;
+                        }
+
+                        button {
+                            padding: 6px 12px;
+                            border: none;
+                            border-radius: 4px;
+                            background-color: $primary-color;
+                            color: #fff;
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: background 0.3s;
+
+                            &:hover {
+                                background-color: darken($primary-color, 10%);
+                            }
+
+                            &:disabled {
+                                background-color: #ccc;
+                                cursor: not-allowed;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

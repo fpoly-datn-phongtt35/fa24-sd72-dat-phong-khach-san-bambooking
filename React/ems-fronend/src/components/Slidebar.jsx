@@ -18,7 +18,10 @@ function Sidebar({ isAuthenticated, onLogout }) {
               <Link className="nav-link" to="/TrangChu">Trang chủ</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/DatPhong">Đặt phòng</Link>
+              <Link className="nav-link" to="/giao-dien-tao-dp">Đặt phòng</Link>
+            </li>
+            <li className="nav-item">
+              <Link className="nav-link" to="/quan-ly-dat-phong">Quản lý đặt phòng</Link>
             </li>
 
             {/* Quản lý phòng với submenu */}
@@ -53,7 +56,7 @@ function Sidebar({ isAuthenticated, onLogout }) {
               <Link className="nav-link" to="/hinh-anh">Hình ảnh</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/HoaDon">Hóa đơn</Link>
+              <Link className="nav-link" to="/hoa-don">Hóa đơn</Link>
             </li>
             <li className="nav-item">
               <Link className="nav-link" to="/NhanVien">Nhân viên</Link>
@@ -65,7 +68,7 @@ function Sidebar({ isAuthenticated, onLogout }) {
               <Link className="nav-link" to="/VaiTro">Vai Trò</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/KhachHang">Khách hàng</Link>
+              <Link className="nav-link" to="/khach-hang">Khách hàng</Link>
             </li>
           </ul>
         </>

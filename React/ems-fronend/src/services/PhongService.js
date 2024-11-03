@@ -1,8 +1,8 @@
 import axios from 'axios'
 
 const apiPhong = 'http://localhost:8080/phong';
-const apiLoaiPhong = 'http://localhost:8080/loai_phong';
-
+const apiLoaiPhong = 'http://localhost:8080/loai-phong';
+const apiPhongKhaDung = 'http://localhost:8080/phong/phong-kha-dung';
 export const listPhong = (pageable, searchQuery = '') => {
     return axios.get(apiPhong + '/search', {
         params: {
@@ -22,6 +22,12 @@ export const updateStatus = (phongId) => {
 };
 
 export const getLoaiPhong = () => {
-    console.log(apiLoaiPhong);
     return axios.get(apiLoaiPhong);
 }
+export const getPhongKhaDung = (idLoaiPhong) => {
+    return axios.get(apiPhongKhaDung, {
+        params: {
+            idLoaiPhong: idLoaiPhong
+        }
+    });
+};

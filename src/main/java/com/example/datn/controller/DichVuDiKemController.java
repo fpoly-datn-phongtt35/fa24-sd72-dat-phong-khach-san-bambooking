@@ -1,10 +1,14 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.DichVuDikemRequest;
+import com.example.datn.dto.response.DichVuDiKemResponse;
+import com.example.datn.dto.response.TienIchPhongResponse;
 import com.example.datn.model.DichVu;
 import com.example.datn.model.DichVuDiKem;
 import com.example.datn.service.IMPL.DichVuDiKemServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -16,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/dich_vu_di_kem")
 public class DichVuDiKemController {
@@ -54,5 +58,11 @@ public class DichVuDiKemController {
     public String status(@PathVariable("id") Integer id) {
         dichVuDiKemServiceIMPL.updateStatus(id);
         return "redirect:/dich-vu-di-kem";
+    }
+
+    @GetMapping("/findByIDLoaiPhong/{idLoaiPhong}")
+    public ResponseEntity<?> findByIDLoaiPhong(@PathVariable int idLoaiPhong, Pageable pageable) {
+        Page<DichVuDiKemResponse> ti = dichVuDiKemServiceIMPL.findByIDLoaiPhong(idLoaiPhong, pageable);
+        return ResponseEntity.ok(ti);
     }
 }
