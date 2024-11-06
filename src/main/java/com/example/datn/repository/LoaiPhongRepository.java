@@ -47,26 +47,78 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
                            Pageable pageable);
 
     @Query("SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
-            "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS tongSoPhong, " +
-            "SUM(CASE WHEN (xp.id IS NULL OR (xp.ngayTraPhong <= :ngayNhanPhong OR xp.ngayNhanPhong >= :ngayTraPhong)) " +
-            "AND (tp.id IS NULL OR (tp.ngayTraPhong < CAST(:ngayNhanPhong AS DATE) " +
-            "OR tp.ngayNhanPhong > CAST(:ngayTraPhong AS DATE))) THEN 1 ELSE 0 END) AS soPhongTrong) " +
+            "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, 0L AS soPhongKhaDung) " + // Để mặc định COUNT(p) là Long
             "FROM LoaiPhong lp " +
             "JOIN Phong p ON p.loaiPhong.id = lp.id " +
-            "LEFT JOIN XepPhong xp ON p.id = xp.phong.id " +
-            "LEFT JOIN ThongTinDatPhong tp ON tp.loaiPhong.id = lp.id " +
+            "WHERE lp.soKhachToiDa >= :soNguoi " +
+            "AND p.trangThai = true " +
+            "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa")
+    Page<LoaiPhongKhaDungResponse> findLoaiPhongWithTongSoPhong(
+            @Param("soNguoi") Integer soNguoi,
+            Pageable pageable);
+
+    @Query("SELECT lp.id AS loaiPhongId, " +
+            "(COUNT(p) - " +
+            " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong) - " +
+            " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            " AND CAST(tp.ngayNhanPhong AS LocalDate) <= CAST(:ngayTraPhong AS LocalDate) " +
+            " AND CAST(tp.ngayTraPhong AS LocalDate) >= CAST(:ngayNhanPhong AS LocalDate))" +
+            ") AS soPhongTrong " +
+            "FROM LoaiPhong lp " +
+            "JOIN Phong p ON p.loaiPhong.id = lp.id " +
             "WHERE p.trangThai = true " +
-            "AND lp.soKhachToiDa >= :soNguoi " +
-            "AND p.tinhTrang = 'available' " +
-            "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa " +
-            "HAVING SUM(CASE WHEN (xp.id IS NULL OR (xp.ngayTraPhong <= :ngayNhanPhong OR xp.ngayNhanPhong >= :ngayTraPhong)) " +
-            "AND (tp.id IS NULL OR (tp.ngayTraPhong < CAST(:ngayNhanPhong AS DATE) " +
-            "OR tp.ngayNhanPhong > CAST(:ngayTraPhong AS DATE))) THEN 1 ELSE 0 END) > 0")
+            "GROUP BY lp.id")
+    List<Object[]> findSoPhongTrong(
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong);
+
+
+
+
+
+
+
+
+
+
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
+            "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
+            "(COUNT(p) - " +
+            " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong) - " +
+            " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            " AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            " AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate))" +
+            ") AS soPhongKhaDung) " +
+            "FROM LoaiPhong lp " +
+            "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+            "WHERE lp.soKhachToiDa >= :soNguoi " +
+            "AND p.trangThai = true " +
+            "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa",
+            countQuery = "SELECT COUNT(DISTINCT lp.id) FROM LoaiPhong lp " +
+                    "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+                    "WHERE lp.soKhachToiDa >= :soNguoi " +
+                    "AND p.trangThai = true")
     Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(
             @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
             @Param("soNguoi") Integer soNguoi,
             Pageable pageable);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

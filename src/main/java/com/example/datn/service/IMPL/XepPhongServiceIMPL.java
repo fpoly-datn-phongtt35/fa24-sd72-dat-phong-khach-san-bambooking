@@ -27,6 +27,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
         XepPhong xp = new XepPhong();
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
         Phong p = phongRepository.getPhongById(xepPhongRequest.getPhong().getId());
+
         xp.setPhong(xepPhongRequest.getPhong());
         xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
         xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
@@ -35,8 +36,6 @@ public class XepPhongServiceIMPL implements XepPhongService {
 
         ttdp.setTrangThai("Đã xếp");
         thongTinDatPhongRepository.save(ttdp);
-        p.setTinhTrang("occupied");
-        phongRepository.save(p);
         return xepPhongRepository.save(xp);
     }
 

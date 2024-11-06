@@ -8,8 +8,14 @@ function XepPhong({ show, handleClose, ttdp }) {
     const [selectedPhong, setSelectedPhong] = useState('');
     const navigate = useNavigate();
     // Hàm lấy danh sách phòng khả dụng
-    const phongKhaDung = (idLoaiPhong) => {
-        getPhongKhaDung(idLoaiPhong)
+    // Hàm chuyển đổi ngày sang định dạng LocalDateTime ISO
+    const formatToLocalDateTime = (dateString) => {
+        // Tạo một đối tượng Date từ chuỗi ngày
+        const date = new Date(dateString);
+        return date.toISOString().slice(0, 19); // Chỉ lấy định dạng yyyy-MM-ddTHH:mm:ss
+    };
+    const phongKhaDung = (idLoaiPhong,ngayNhanPhong,ngayTraPhong) => {
+        getPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong)
             .then((response) => {
                 console.log(response.data);
                 setListPhong(response.data);
@@ -22,7 +28,9 @@ function XepPhong({ show, handleClose, ttdp }) {
 
     useEffect(() => {
         if (show && ttdp) {
-            phongKhaDung(ttdp.loaiPhong.id); // Gọi API với `idLoaiPhong`
+            const formattedNgayNhanPhong = formatToLocalDateTime(ttdp.ngayNhanPhong);
+            const formattedNgayTraPhong = formatToLocalDateTime(ttdp.ngayTraPhong);
+            phongKhaDung(ttdp.loaiPhong.id, formattedNgayNhanPhong, formattedNgayTraPhong); // Gọi API với `idLoaiPhong`
         }
     }, [show, ttdp]);
 

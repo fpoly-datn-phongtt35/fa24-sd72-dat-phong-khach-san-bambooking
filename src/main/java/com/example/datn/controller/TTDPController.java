@@ -53,12 +53,12 @@ public class TTDPController {
     }
 
     @GetMapping("loai-phong-kha-dung")
-    public ResponseEntity<?> PhongKhaDung(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+    public ResponseEntity<?> loaiPhongKhaDung(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
                                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
                                           @RequestParam(required = false) Integer soNguoi,
                                           Pageable pageable){
-        LocalDateTime ngayNhanPhongStart = ngayNhanPhong.atStartOfDay();
-        LocalDateTime ngayTraPhongEnd = ngayTraPhong.atTime(23, 59, 59);
+        LocalDateTime ngayNhanPhongStart = (ngayNhanPhong != null) ? ngayNhanPhong.atStartOfDay() : LocalDate.now().atStartOfDay();
+        LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(23, 59, 59) : LocalDate.now().atTime(23, 59, 59);
         Page<LoaiPhongKhaDungResponse> p = loaiPhongServiceIMPL.LoaiPhongKhaDung(ngayNhanPhongStart,ngayTraPhongEnd,soNguoi,pageable);
         return ResponseEntity.ok(p);
     }
