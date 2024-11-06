@@ -78,5 +78,9 @@ public class TTDPController {
             Pageable pageable) {
         return thongTinDatPhongServiceIMPL.findByDateRangeAndKey(startDate, endDate, key, trangThai, pageable);
     }
+    @GetMapping("/huy-ttdp")
+    public ThongTinDatPhong huyTTDP(@RequestParam String maTTDP){
+        return thongTinDatPhongServiceIMPL.huyTTDP(maTTDP);
+    }
 
 }

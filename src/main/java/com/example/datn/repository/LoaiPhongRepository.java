@@ -86,7 +86,8 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
             "(COUNT(p) - " +
             " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
-            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong) - " +
+            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
+            " AND xp.trangThai = true) - " +
             " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
             " AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
             " AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate))" +
@@ -105,6 +106,7 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
             @Param("soNguoi") Integer soNguoi,
             Pageable pageable);
+
 
 
 
