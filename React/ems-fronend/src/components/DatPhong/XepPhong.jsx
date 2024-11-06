@@ -39,8 +39,8 @@ function XepPhong({ show, handleClose, ttdp }) {
         const xepPhongRequest = {
             phong: { id: selectedPhong },  // ID của phòng được chọn
             thongTinDatPhong: { id: ttdp.id },  // ID của thông tin đặt phòng
-            ngayNhanPhong: '', // Ngày nhận phòng từ thông tin đặt phòng
-            ngayTraPhong: '',   // Ngày trả phòng từ thông tin đặt phòng
+            ngayNhanPhong: formatToLocalDateTime(ttdp.ngayNhanPhong), // Ngày nhận phòng từ thông tin đặt phòng
+            ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong),   // Ngày trả phòng từ thông tin đặt phòng
             trangThai: true                      // Trang thái có thể là true để đánh dấu phòng đã được xếp
         };
         console.log(xepPhongRequest);
