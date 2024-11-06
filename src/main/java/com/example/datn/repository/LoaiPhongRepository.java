@@ -96,7 +96,15 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             "JOIN Phong p ON p.loaiPhong.id = lp.id " +
             "WHERE lp.soKhachToiDa >= :soNguoi " +
             "AND p.trangThai = true " +
-            "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa",
+            "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa " +
+            "HAVING (COUNT(p) - " +
+            " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
+            " AND xp.trangThai = true) - " +
+            " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            " AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            " AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate))" +
+            ") > 0",
             countQuery = "SELECT COUNT(DISTINCT lp.id) FROM LoaiPhong lp " +
                     "JOIN Phong p ON p.loaiPhong.id = lp.id " +
                     "WHERE lp.soKhachToiDa >= :soNguoi " +
@@ -106,6 +114,7 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
             @Param("soNguoi") Integer soNguoi,
             Pageable pageable);
+
 
 
 

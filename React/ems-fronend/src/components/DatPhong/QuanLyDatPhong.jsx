@@ -18,7 +18,7 @@ function QuanLyDatPhong() {
     const [loaiPhong, setLoaiPhong] = useState(null);
     const [ttdp, setTTDP] = useState(null);
     const [phongData, setPhongData] = useState({}); // State để lưu dữ liệu phòng đã xếp
-
+    const [selectedTTDPs, setSelectedTTDPs] = useState([]);
     const HuyThongTinDatPhong = (maTTDP) => {
         const confirmed = window.confirm("Bạn có chắc chắn muốn hủy thông tin đặt phòng này không?");
         if (confirmed) {
@@ -112,15 +112,29 @@ function QuanLyDatPhong() {
         }
     };
 
-    // Hàm mở Modal XepPhong
-    const openXepPhongModal = (thongTinDatPhong) => {
-        setTTDP(thongTinDatPhong);
-        setShowXepPhongModal(true);
-    };
-
     // Hàm đóng Modal XepPhong
     const closeXepPhongModal = () => {
         setShowXepPhongModal(false);
+    };
+    const openModal = () => {
+        setShowXepPhongModal(true); // Mở modal
+    };
+    // Hàm mở Modal XepPhong
+    const openXepPhongModal = (thongTinDatPhong) => {
+        setSelectedTTDPs([thongTinDatPhong]); // Gán thongTinDatPhong vào selectedTTDPs dưới dạng mảng chứa một phần tử
+        setShowXepPhongModal(true); // Mở modal
+    };
+    
+
+    
+    const handleCheckboxChange = (ttdp) => {
+        setSelectedTTDPs(prevSelected => {
+            if (prevSelected.includes(ttdp)) {
+                return prevSelected.filter(item => item !== ttdp);
+            } else {
+                return [...prevSelected, ttdp];
+            }
+        });
     };
     const handleCheckIn = (ttdp) => {
         console.log("Checkin for:", ttdp);
@@ -159,7 +173,7 @@ function QuanLyDatPhong() {
             </div>
 
             <div className="reservation-list">
-                <button className="assign-button" onClick={openXepPhongModal}>
+                <button className="assign-button" onClick={openModal}>
                     Assign
                 </button>
                 <table>
@@ -170,7 +184,7 @@ function QuanLyDatPhong() {
                             <th>Thông tin đặt phòng</th>
                             <th>Tên khách hàng</th>
                             <th>Số người</th>
-                            <th>{currentStatus === 'Đã xếp' ? 'Phòng' : 'Loại phòng'}</th>
+                            <th>{['Đã xếp', 'Đang ở', 'Đến hạn','Đã trả phòng'].includes(currentStatus) ? 'Phòng' : 'Loại phòng'}</th>
                             <th>Ngày nhận phòng</th>
                             <th>Ngày trả phòng</th>
                             <th>Tiền phòng</th>
@@ -181,7 +195,13 @@ function QuanLyDatPhong() {
                         {thongTinDatPhong.length > 0 ? (
                             thongTinDatPhong.map((ttdp) => (
                                 <tr key={ttdp.id}>
-                                    <td><input type="checkbox" /></td>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedTTDPs.includes(ttdp)}
+                                            onChange={() => handleCheckboxChange(ttdp)}
+                                        />
+                                    </td>
                                     <td onClick={() => handleDatPhongClick(ttdp.maDatPhong)} style={{ cursor: 'pointer', color: 'blue' }}>
                                         {ttdp.maDatPhong}
                                     </td>
@@ -233,7 +253,7 @@ function QuanLyDatPhong() {
             </div>
 
             {/* Hiển thị Modal XepPhong */}
-            <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} ttdp={ttdp} />
+            <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} selectedTTDPs={selectedTTDPs} />
         </div>
     );
 }
