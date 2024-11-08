@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin("*")
 @RequestMapping("xep-phong")
@@ -17,6 +19,10 @@ public class XepPhongController {
     @Autowired
     XepPhongServiceIMPL xepPhongServiceIMPL;
 
+    @GetMapping("")
+    public List<XepPhong> home(){
+        return xepPhongServiceIMPL.getAll();
+    }
     @PostMapping("add")
     public ResponseEntity<XepPhong> addXepPhong(@RequestBody XepPhongRequest xepPhongRequest){
         return ResponseEntity.status(HttpStatus.CREATED).body(xepPhongServiceIMPL.addXepPhong(xepPhongRequest));

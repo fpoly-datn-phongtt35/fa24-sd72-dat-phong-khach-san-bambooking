@@ -6,7 +6,7 @@ const apiAddDichVuSuDung = "http://localhost:8080/dich_vu_su_dung/add";
 const apiUpdateDichVuSuDung = "http://localhost:8080/dich_vu_su_dung/update";
 const apiDeleteDichVuSuDung = "http://localhost:8080/dich_vu_su_dung/delete";
 const apiDichVu = "http://localhost:8080/dich_vu";
-const apiXepPhong = "http://localhost:8080/xep_phong"; // Đường dẫn mới cho xếp phòng
+const apiXepPhong = "http://localhost:8080/xep-phong"; // Đường dẫn mới cho xếp phòng
 
 // Lấy danh sách dịch vụ sử dụng
 export const DuLieuDichVuSuDung = () => axios.get(apiDichVuSuDung);

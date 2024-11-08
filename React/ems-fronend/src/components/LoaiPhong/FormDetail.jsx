@@ -113,8 +113,8 @@ const FormDetail = ({ show, handleClose, data }) => {
         }
     };
 
-    const handleAddTienIch = () => {
-        if (!selectedTienIch || selectedTienIch === '') {
+    const handleAddTienIch = (selectedTienIchId) => {
+        if (!selectedTienIchId || selectedTienIchId === '') {
             alert("Vui lòng chọn tiện ích để thêm.");
             return;
         }
@@ -128,7 +128,7 @@ const FormDetail = ({ show, handleClose, data }) => {
         // Tạo đối tượng yêu cầu theo cấu trúc mới
         const tienNghiPhongRequest = {
             loaiPhong: { id: formData.id }, // Gửi đối tượng LoaiPhong với id
-            tienIch: { id: selectedTienIch } // Gửi đối tượng TienIch với id
+            tienIch: { id: selectedTienIchId } // Gửi đối tượng TienIch với id
         };
 
         console.log("Request gửi đi:", tienNghiPhongRequest); // Gỡ lỗi để kiểm tra request
@@ -227,11 +227,11 @@ const FormDetail = ({ show, handleClose, data }) => {
 
     return (
         <div className={`modal ${show ? 'show' : ''}`} style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
-            <div className="modal-dialog">
+            <div className="detail_lp_modal-dialog">
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title">Chi tiết loại phòng</h5>
-                        <button type="button" className="close-button" onClick={handleClose}>×</button>
+                        <button type="button" className="detail_lp_close-button" onClick={handleClose}>×</button>
                     </div>
                     <div className="modal-body">
                         <form onSubmit={handleSubmit}>
@@ -273,8 +273,8 @@ const FormDetail = ({ show, handleClose, data }) => {
                         </form>
                         <hr />
 
-                        <div className="form-container">
-                            <div className="service-container">
+                        <div className="detail_lp_form-container">
+                            <div className="detail_lp_service-container">
                                 <h4>Thêm dịch vụ đi kèm</h4>
                                 <div className="form-group">
                                     <label htmlFor="selectedDichVu">Chọn dịch vụ</label>
@@ -307,29 +307,19 @@ const FormDetail = ({ show, handleClose, data }) => {
                                 </ul>
                             </div>
 
-                            <div className="utility-container">
-                                <h4>Danh sách tiện ích phòng</h4>
-                                <ul className="list-group">
-                                    {ListTienIchPhong.length > 0 ? (
-                                        ListTienIchPhong.map(ti => (
-                                            <li key={ti.id} className="list-group-item">
-                                                <span className="icon">
-                                                    <img src={ti.hinhAnh} width="24" alt="Icon tiện ích" />
-                                                </span>
-                                                <span className="amenity-text">{ti.tenTienIch}</span>
-                                                <button type="button" className="delete-button" onClick={() => handleDeleteTienIchPhong(ti.id)}>Xóa tiện ích</button>
-                                            </li>
-                                        ))
-                                    ) : (
-                                        <li className="list-group-item">Không có tiện ích nào</li>
-                                    )}
-                                </ul>
+                            <div className="detail_lp_utility-container">
+                                <h4>Thêm tiện tích phòng</h4>
                                 <div className="form-group">
                                     <label htmlFor="selectTienIch">Chọn tiện ích</label>
                                     <select
                                         id="selectTienIch"
                                         value={selectedTienIch}
-                                        onChange={(e) => setSelectedTienIch(e.target.value)}
+                                        // onChange={(e) => setSelectedTienIch(e.target.value)}
+                                        onChange={(e) => {
+                                            const selectedValueTI = e.target.value;
+                                            setSelectedTienIch(selectedValueTI);
+                                            handleAddTienIch(selectedValueTI);
+                                        }}
                                     >
                                         <option value="">-- Chọn tiện ích --</option>
                                         {allTienIch.map(ti => (
@@ -337,7 +327,24 @@ const FormDetail = ({ show, handleClose, data }) => {
                                         ))}
                                     </select>
                                 </div>
-                                <button type="button" className="add-button" onClick={handleAddTienIch}>Thêm tiện ích</button>
+
+                                <h4>Danh sách tiện ích phòng</h4>
+                                <ul className="list-group">
+                                    {ListTienIchPhong.length > 0 ? (
+                                        ListTienIchPhong.map(ti => (
+                                            <li key={ti.id} className="list-group-item" onClick={() => handleDeleteTienIchPhong(ti.id)}>
+                                                <span className="icon">
+                                                    <img src={ti.hinhAnh} width="24" alt="Icon tiện ích" />
+                                                </span>
+                                                <span className="amenity-text">{ti.tenTienIch}</span>
+                                            </li>
+                                        ))
+                                    ) : (
+                                        <li className="list-group-item">Không có tiện ích nào</li>
+                                    )}
+                                </ul>
+
+                                {/* <button type="button" className="add-button" onClick={handleAddTienIch}>Thêm tiện ích</button> */}
                             </div>
                         </div>
 

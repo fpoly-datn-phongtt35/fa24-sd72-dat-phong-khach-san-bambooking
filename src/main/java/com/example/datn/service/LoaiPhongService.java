@@ -42,7 +42,5 @@ public interface LoaiPhongService {
 
     Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,Integer soNguoi, Pageable pageable);
     LoaiPhong findByID(Integer idLoaiPhong);
-    Page<LoaiPhongResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable);
 
-    DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest);
 }
