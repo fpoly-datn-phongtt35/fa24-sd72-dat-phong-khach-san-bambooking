@@ -19,10 +19,10 @@ function QuanLyDatPhong() {
     const [ttdp, setTTDP] = useState(null);
     const [phongData, setPhongData] = useState({}); // State để lưu dữ liệu phòng đã xếp
     const [selectedTTDPs, setSelectedTTDPs] = useState([]);
-    const HuyThongTinDatPhong = (maTTDP) => {
+    const HuyThongTinDatPhong = (maThongTinDatPhong) => {
         const confirmed = window.confirm("Bạn có chắc chắn muốn hủy thông tin đặt phòng này không?");
         if (confirmed) {
-            huyTTDP(maTTDP)
+            huyTTDP(maThongTinDatPhong)
                 .then(response => {
                     console.log(response.data);
                     Alert.success('Hủy thành công!');
@@ -34,13 +34,13 @@ function QuanLyDatPhong() {
         }
     }
 
-    const fetchPhongDaXep = (maTTDP) => {
-        phongDaXep(maTTDP)
+    const fetchPhongDaXep = (maThongTinDatPhong) => {
+        phongDaXep(maThongTinDatPhong)
             .then(response => {
                 console.log("Dữ liệu phòng đã xếp:", response.data); // Log dữ liệu phòng đã xếp
                 setPhongData(prevData => ({
                     ...prevData,
-                    [maTTDP]: response.data
+                    [maThongTinDatPhong]: response.data
                 }));
             })
             .catch(error => {
@@ -55,7 +55,7 @@ function QuanLyDatPhong() {
                 setCurrentPage(page);
                 setCurrentStatus(trangThai);
                 if (trangThai === 'Đã xếp') {
-                    response.data.content.forEach(ttdp => fetchPhongDaXep(ttdp.maTTDP));
+                    response.data.content.forEach(ttdp => fetchPhongDaXep(ttdp.maThongTinDatPhong));
                 }
                 console.log(response.data);
             })
@@ -90,12 +90,12 @@ function QuanLyDatPhong() {
         navigate('/thong-tin-dat-phong', { state: { maDatPhong } });
     };
 
-    const handleTTDPClick = (maTTDP) => {
-        navigate(`/chi-tiet-ttdp/${maTTDP}`);
+    const handleTTDPClick = (maThongTinDatPhong) => {
+        navigate(`/chi-tiet-ttdp/${maThongTinDatPhong}`);
     };
 
-    const handleHuyTTDPClick = (maTTDP, trangThai) => {
-        HuyThongTinDatPhong(maTTDP, () => {
+    const handleHuyTTDPClick = (maThongTinDatPhong, trangThai) => {
+        HuyThongTinDatPhong(maThongTinDatPhong, () => {
             handleStatusChange(trangThai); // Tải lại dữ liệu sau khi hủy thành công
         });
     };
@@ -124,8 +124,6 @@ function QuanLyDatPhong() {
         setSelectedTTDPs([thongTinDatPhong]); // Gán thongTinDatPhong vào selectedTTDPs dưới dạng mảng chứa một phần tử
         setShowXepPhongModal(true); // Mở modal
     };
-    
-
     
     const handleCheckboxChange = (ttdp) => {
         setSelectedTTDPs(prevSelected => {
@@ -205,14 +203,14 @@ function QuanLyDatPhong() {
                                     <td onClick={() => handleDatPhongClick(ttdp.maDatPhong)} style={{ cursor: 'pointer', color: 'blue' }}>
                                         {ttdp.maDatPhong}
                                     </td>
-                                    <td onClick={() => handleTTDPClick(ttdp.maTTDP)} style={{ cursor: 'pointer', color: 'blue' }}>
-                                        {ttdp.maTTDP}
+                                    <td onClick={() => handleTTDPClick(ttdp.maThongTinDatPhong)} style={{ cursor: 'pointer', color: 'blue' }}>
+                                        {ttdp.maThongTinDatPhong}
                                     </td>
                                     <td>{ttdp.tenKhachHang}</td>
                                     <td>{ttdp.soNguoi}</td>
                                     <td>
                                         {currentStatus === 'Đã xếp'
-                                            ? (phongData[ttdp.maTTDP]?.phong.tenPhong || "Đang tải...")
+                                            ? (phongData[ttdp.maThongTinDatPhong]?.phong.tenPhong || "Đang tải...")
                                             : ttdp.loaiPhong.tenLoaiPhong}
                                     </td>
                                     <td>{ttdp.ngayNhanPhong}</td>

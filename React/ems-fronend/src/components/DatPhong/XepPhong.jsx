@@ -8,7 +8,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
     const [listPhong, setListPhong] = useState({});
     const [selectedPhong, setSelectedPhong] = useState({});
     const navigate = useNavigate();
-
+    
     const formatToLocalDateTime = (dateString) => {
         const date = new Date(dateString);
         return date.toISOString().slice(0, 19);
@@ -86,7 +86,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
                 <div className="modal-body">
                     {selectedTTDPs.map((ttdp) => (
                         <div key={ttdp.id} className="ttdp-item">
-                            <h5>Đặt phòng: {ttdp.maTTDP} - {ttdp.tenKhachHang}</h5>
+                            <h5>Đặt phòng: {ttdp.maThongTinDatPhong}</h5>
                             <label>Chọn phòng khả dụng:</label>
                             <select
                                 id={`phongSelect-${ttdp.id}`}

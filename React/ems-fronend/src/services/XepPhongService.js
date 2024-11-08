@@ -4,10 +4,10 @@ const apiPDX = "http://localhost:8080/xep-phong/phong-da-xep"
 export const addXepPhong = (XepPhongRequest) => {
     return axios.post(apiAdd, XepPhongRequest);
 };
-export const phongDaXep = (maTTDP) => {
+export const phongDaXep = (maThongTinDatPhong) => {
     return axios.get(apiPDX, {
         params: {
-            maTTDP: maTTDP
+            maThongTinDatPhong: maThongTinDatPhong
             }
     });
 };
