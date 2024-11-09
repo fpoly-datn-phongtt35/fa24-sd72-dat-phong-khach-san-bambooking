@@ -34,7 +34,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
         xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
         xp.setTrangThai(xepPhongRequest.getTrangThai());
 
-        ttdp.setTrangThai("Đã xếp");
+        ttdp.setTrangThai("Da xep");
         thongTinDatPhongRepository.save(ttdp);
         return xepPhongRepository.save(xp);
     }
@@ -50,7 +50,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
         xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
         xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
         xp.setTrangThai(xepPhongRequest.getTrangThai());
-        ttdp.setTrangThai("Đã xếp");
+        ttdp.setTrangThai("Da xep");
         thongTinDatPhongRepository.save(ttdp);
         p.setTinhTrang("occupied");
         phongRepository.save(p);

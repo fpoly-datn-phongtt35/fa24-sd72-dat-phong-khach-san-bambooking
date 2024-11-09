@@ -59,10 +59,10 @@ export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,soNguoi,pageable)
         }
     });
 };
-export const huyTTDP = (maTTDP) => {
+export const huyTTDP = (maThongTinDatPhong) => {
     return axios.get(apiHuyTTDP, {
         params: {
-            maTTDP:maTTDP
+            maThongTinDatPhong:maThongTinDatPhong
         }
     });
 };

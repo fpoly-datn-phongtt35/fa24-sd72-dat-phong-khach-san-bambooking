@@ -87,8 +87,11 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     public ThongTinDatPhong huyTTDP(String maTTDP) {
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByMa(maTTDP);
         XepPhong xp = xepPhongRepository.getByMaTTDP(maTTDP);
-        ttdp.setTrangThai("Đã hủy");
-        xp.setTrangThai(false);
+        if(xp!=null){
+            xp.setTrangThai(false);
+            xepPhongRepository.save(xp);
+        }
+        ttdp.setTrangThai("Da huy");
         thongTinDatPhongRepository.save(ttdp);
         return ttdp;
     }

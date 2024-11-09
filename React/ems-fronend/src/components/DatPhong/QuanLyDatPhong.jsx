@@ -10,7 +10,7 @@ function QuanLyDatPhong() {
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
-    const [currentStatus, setCurrentStatus] = useState('Chưa xếp');
+    const [currentStatus, setCurrentStatus] = useState('Chua xep');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [searchKey, setSearchKey] = useState('');
@@ -25,11 +25,12 @@ function QuanLyDatPhong() {
             huyTTDP(maThongTinDatPhong)
                 .then(response => {
                     console.log(response.data);
-                    Alert.success('Hủy thành công!');
+                    alert('Hủy thành công!')
+                    fetchThongTinDatPhong(currentStatus,currentPage);
                 })
                 .catch(error => {
                     console.log(error);
-                    Alert.error('Hủy thất bại');
+                    alert('Hủy thất bại!')
                 });
         }
     }
@@ -54,7 +55,7 @@ function QuanLyDatPhong() {
                 setTotalPages(response.data.totalPages);
                 setCurrentPage(page);
                 setCurrentStatus(trangThai);
-                if (trangThai === 'Đã xếp') {
+                if (trangThai === 'Da xep') {
                     response.data.content.forEach(ttdp => fetchPhongDaXep(ttdp.maThongTinDatPhong));
                 }
                 console.log(response.data);
@@ -94,12 +95,11 @@ function QuanLyDatPhong() {
         navigate(`/chi-tiet-ttdp/${maThongTinDatPhong}`);
     };
 
-    const handleHuyTTDPClick = (maThongTinDatPhong, trangThai) => {
-        HuyThongTinDatPhong(maThongTinDatPhong, () => {
-            handleStatusChange(trangThai); // Tải lại dữ liệu sau khi hủy thành công
-        });
+    const handleHuyTTDPClick = (maThongTinDatPhong) => {
+        HuyThongTinDatPhong(maThongTinDatPhong)
     };
-
+    
+    
     const goToPreviousPage = () => {
         if (currentPage > 0) {
             setCurrentPage(prevPage => prevPage - 1);
@@ -140,12 +140,12 @@ function QuanLyDatPhong() {
     return (
         <div className="reservation">
             <nav>
-                <a onClick={() => handleStatusChange('Chưa xếp')}>Chưa xếp</a>
-                <a onClick={() => handleStatusChange('Đã xếp')}>Đã xếp</a>
-                <a onClick={() => handleStatusChange('Đang ở')}>Đang ở</a>
-                <a onClick={() => handleStatusChange('Đến hạn')}>Đến hạn</a>
-                <a onClick={() => handleStatusChange('Đã trả phòng')}>Đã trả phòng</a>
-                <a onClick={() => handleStatusChange('Đã hủy')}>Đã hủy</a>
+                <a onClick={() => handleStatusChange('Chua xep')}>Chưa xếp</a>
+                <a onClick={() => handleStatusChange('Da xep')}>Đã xếp</a>
+                <a onClick={() => handleStatusChange('Dang o')}>Đang ở</a>
+                <a onClick={() => handleStatusChange('Den han')}>Đến hạn</a>
+                <a onClick={() => handleStatusChange('Da tra phong')}>Đã trả phòng</a>
+                <a onClick={() => handleStatusChange('Da huy')}>Đã hủy</a>
             </nav>
 
             <div className="filters">
@@ -182,7 +182,7 @@ function QuanLyDatPhong() {
                             <th>Thông tin đặt phòng</th>
                             <th>Tên khách hàng</th>
                             <th>Số người</th>
-                            <th>{['Đã xếp', 'Đang ở', 'Đến hạn','Đã trả phòng'].includes(currentStatus) ? 'Phòng' : 'Loại phòng'}</th>
+                            <th>{['Da xep', 'Dang o', 'Den han','Da tra phong'].includes(currentStatus) ? 'Phòng' : 'Loại phòng'}</th>
                             <th>Ngày nhận phòng</th>
                             <th>Ngày trả phòng</th>
                             <th>Tiền phòng</th>
@@ -209,7 +209,7 @@ function QuanLyDatPhong() {
                                     <td>{ttdp.tenKhachHang}</td>
                                     <td>{ttdp.soNguoi}</td>
                                     <td>
-                                        {currentStatus === 'Đã xếp'
+                                        {currentStatus === 'Da xep'
                                             ? (phongData[ttdp.maThongTinDatPhong]?.phong.tenPhong || "Đang tải...")
                                             : ttdp.loaiPhong.tenLoaiPhong}
                                     </td>
@@ -217,15 +217,15 @@ function QuanLyDatPhong() {
                                     <td>{ttdp.ngayTraPhong}</td>
                                     <td>{calculateTotalPrice(ttdp.donGia, ttdp.ngayNhanPhong, ttdp.ngayTraPhong).toLocaleString()}</td>
                                     <td>
-                                        {currentStatus === 'Chưa xếp' ? (
+                                        {currentStatus === 'Chua xep' ? (
                                             <>
                                                 <button onClick={() => openXepPhongModal(ttdp)}>Assign</button>
-                                                <button onClick={() => handleHuyTTDPClick(ttdp.maTTDP, currentStatus)} style={{ marginLeft: '10px' }}>Hủy</button>
+                                                <button onClick={() => handleHuyTTDPClick(ttdp.maThongTinDatPhong, currentStatus)} style={{ marginLeft: '10px' }}>Hủy</button>
                                             </>
-                                        ) : currentStatus === 'Đã xếp' ? (
+                                        ) : currentStatus === 'Da xep' ? (
                                             <>
                                                 <button onClick={() => handleCheckIn(ttdp)}>Checkin</button>
-                                                <button onClick={() => handleHuyTTDPClick(ttdp.maTTDP, currentStatus)} style={{ marginLeft: '10px' }}>Hủy</button>
+                                                <button onClick={() => handleHuyTTDPClick(ttdp.maThongTinDatPhong, currentStatus)} style={{ marginLeft: '10px' }}>Hủy</button>
                                             </>
                                         ) : null}
                                     </td>

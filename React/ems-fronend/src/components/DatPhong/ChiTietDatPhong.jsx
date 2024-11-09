@@ -156,10 +156,6 @@ const ChiTietDatPhong = () => {
                         <span>{datPhong?.ngayDat}</span>
                     </div>
                     <div className="info-item">
-                        <label>Số ngày</label>
-                        <span>{calculateTotalDays()}</span>
-                    </div>
-                    <div className="info-item">
                         <label>Số phòng</label>
                         <span>{thongTinDatPhong.length}</span>
                     </div>
@@ -232,7 +228,7 @@ const ChiTietDatPhong = () => {
                 </table>
                 <div className="button-container">
                     <button className="button-save" onClick={() => CapNhatDatPhong(datPhong)}>Lưu</button>
-                    <button className="button-checkin">Checkin</button>
+                    <button className="button-checkin">Checkin</button> 
                     <button className="button-checkin" onClick={openModal}>Assign</button>
 
                 </div>

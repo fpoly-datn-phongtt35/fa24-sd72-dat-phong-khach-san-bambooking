@@ -90,7 +90,8 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             " AND xp.trangThai = true) - " +
             " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
             " AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
-            " AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate))" +
+            " AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
+            " AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o', 'Den han'))" +
             ") AS soPhongKhaDung) " +
             "FROM LoaiPhong lp " +
             "JOIN Phong p ON p.loaiPhong.id = lp.id " +
