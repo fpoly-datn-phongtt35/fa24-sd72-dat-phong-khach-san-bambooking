@@ -112,6 +112,10 @@
   right: 50%;
 }
 
+h1{
+text-align: center;
+}
+
 /* Cập nhật booking-details để phù hợp với ảnh */
 .booking-details {
   max-width: 1000px;
