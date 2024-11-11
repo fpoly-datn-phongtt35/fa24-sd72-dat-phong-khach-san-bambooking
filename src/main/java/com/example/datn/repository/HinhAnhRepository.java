@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface HinhAnhRepository extends JpaRepository<HinhAnh, Integer> {
     @Query("""
@@ -17,4 +19,10 @@ public interface HinhAnhRepository extends JpaRepository<HinhAnh, Integer> {
             or ha.tenAnh like %:keyword%
             """)
     Page<HinhAnh> search(@Param("keyword") String keyword, Pageable pageable);
+    @Query("""
+            select ha
+            from HinhAnh ha
+            where ha.phong.id = :keyword
+            """)
+    List<HinhAnh> searchByIDPhong(@Param("keyword") String keyword);
 }

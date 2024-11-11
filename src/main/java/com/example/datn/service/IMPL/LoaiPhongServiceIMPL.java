@@ -103,6 +103,9 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.findById(idLoaiPhong)
                 .orElseThrow(() -> new EntityNotFoundException("LoaiPhong with ID " + idLoaiPhong + " not found"));
     }
+
+
+
     public DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest) {
         DichVuDiKem dichVuDiKem = new DichVuDiKem();
         dichVuDiKem.setDichVu(dichVuDikemRequest.getDichVu());
