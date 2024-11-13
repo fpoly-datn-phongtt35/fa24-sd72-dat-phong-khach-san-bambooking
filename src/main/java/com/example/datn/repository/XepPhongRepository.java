@@ -10,4 +10,5 @@ public interface XepPhongRepository extends JpaRepository<XepPhong,Integer> {
     @Query("select xp from XepPhong xp join ThongTinDatPhong ttdp on xp.thongTinDatPhong.id = ttdp.id" +
             "  where xp.thongTinDatPhong.maThongTinDatPhong =:maTTDP")
     XepPhong getByMaTTDP(String maTTDP);
+
 }

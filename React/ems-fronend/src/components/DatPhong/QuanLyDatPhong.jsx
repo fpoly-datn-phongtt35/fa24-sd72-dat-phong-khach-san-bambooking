@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './QuanLyDatPhong.scss';
-import { HienThiQuanLy, findTTDPS } from '../../services/TTDP';
+import { HienThiQuanLy, findTTDPS, huyTTDP } from '../../services/TTDP';
 import { useNavigate } from 'react-router-dom';
 import XepPhong from './XepPhong'; // Import XepPhong modal
 import { phongDaXep } from '../../services/XepPhongService';
+import { Alert } from 'react-bootstrap';
 function QuanLyDatPhong() {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
-    const [currentStatus, setCurrentStatus] = useState('Chưa xếp');
+    const [currentStatus, setCurrentStatus] = useState('Chua xep');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [searchKey, setSearchKey] = useState('');
@@ -17,15 +18,30 @@ function QuanLyDatPhong() {
     const [loaiPhong, setLoaiPhong] = useState(null);
     const [ttdp, setTTDP] = useState(null);
     const [phongData, setPhongData] = useState({}); // State để lưu dữ liệu phòng đã xếp
+    const [selectedTTDPs, setSelectedTTDPs] = useState([]);
+    const HuyThongTinDatPhong = (maThongTinDatPhong) => {
+        const confirmed = window.confirm("Bạn có chắc chắn muốn hủy thông tin đặt phòng này không?");
+        if (confirmed) {
+            huyTTDP(maThongTinDatPhong)
+                .then(response => {
+                    console.log(response.data);
+                    alert('Hủy thành công!')
+                    fetchThongTinDatPhong(currentStatus,currentPage);
+                })
+                .catch(error => {
+                    console.log(error);
+                    alert('Hủy thất bại!')
+                });
+        }
+    }
 
-    // Hàm lấy thông tin phòng đã xếp cho từng `ThongTinDatPhong`
-    const fetchPhongDaXep = (maTTDP) => {
-        phongDaXep(maTTDP)
+    const fetchPhongDaXep = (maThongTinDatPhong) => {
+        phongDaXep(maThongTinDatPhong)
             .then(response => {
                 console.log("Dữ liệu phòng đã xếp:", response.data); // Log dữ liệu phòng đã xếp
                 setPhongData(prevData => ({
                     ...prevData,
-                    [maTTDP]: response.data
+                    [maThongTinDatPhong]: response.data
                 }));
             })
             .catch(error => {
@@ -39,8 +55,8 @@ function QuanLyDatPhong() {
                 setTotalPages(response.data.totalPages);
                 setCurrentPage(page);
                 setCurrentStatus(trangThai);
-                if (trangThai === 'Đã xếp') {
-                    response.data.content.forEach(ttdp => fetchPhongDaXep(ttdp.maTTDP));
+                if (trangThai === 'Da xep') {
+                    response.data.content.forEach(ttdp => fetchPhongDaXep(ttdp.maThongTinDatPhong));
                 }
                 console.log(response.data);
             })
@@ -75,10 +91,15 @@ function QuanLyDatPhong() {
         navigate('/thong-tin-dat-phong', { state: { maDatPhong } });
     };
 
-    const handleTTDPClick = (maTTDP) => {
-        navigate(`/chi-tiet-ttdp/${maTTDP}`);
+    const handleTTDPClick = (maThongTinDatPhong) => {
+        navigate(`/chi-tiet-ttdp/${maThongTinDatPhong}`);
     };
 
+    const handleHuyTTDPClick = (maThongTinDatPhong) => {
+        HuyThongTinDatPhong(maThongTinDatPhong)
+    };
+    
+    
     const goToPreviousPage = () => {
         if (currentPage > 0) {
             setCurrentPage(prevPage => prevPage - 1);
@@ -91,15 +112,27 @@ function QuanLyDatPhong() {
         }
     };
 
-    // Hàm mở Modal XepPhong
-    const openXepPhongModal = (thongTinDatPhong) => {
-        setTTDP(thongTinDatPhong);
-        setShowXepPhongModal(true);
-    };
-
     // Hàm đóng Modal XepPhong
     const closeXepPhongModal = () => {
         setShowXepPhongModal(false);
+    };
+    const openModal = () => {
+        setShowXepPhongModal(true); // Mở modal
+    };
+    // Hàm mở Modal XepPhong
+    const openXepPhongModal = (thongTinDatPhong) => {
+        setSelectedTTDPs([thongTinDatPhong]); // Gán thongTinDatPhong vào selectedTTDPs dưới dạng mảng chứa một phần tử
+        setShowXepPhongModal(true); // Mở modal
+    };
+    
+    const handleCheckboxChange = (ttdp) => {
+        setSelectedTTDPs(prevSelected => {
+            if (prevSelected.includes(ttdp)) {
+                return prevSelected.filter(item => item !== ttdp);
+            } else {
+                return [...prevSelected, ttdp];
+            }
+        });
     };
     const handleCheckIn = (ttdp) => {
         console.log("Checkin for:", ttdp);
@@ -107,12 +140,12 @@ function QuanLyDatPhong() {
     return (
         <div className="reservation">
             <nav>
-                <a onClick={() => handleStatusChange('Chưa xếp')}>Chưa xếp</a>
-                <a onClick={() => handleStatusChange('Đã xếp')}>Đã xếp</a>
-                <a onClick={() => handleStatusChange('Đang ở')}>Đang ở</a>
-                <a onClick={() => handleStatusChange('Đến hạn')}>Đến hạn</a>
-                <a onClick={() => handleStatusChange('Đã trả phòng')}>Đã trả phòng</a>
-                <a onClick={() => handleStatusChange('Đã hủy')}>Đã hủy</a>
+                <a onClick={() => handleStatusChange('Chua xep')}>Chưa xếp</a>
+                <a onClick={() => handleStatusChange('Da xep')}>Đã xếp</a>
+                <a onClick={() => handleStatusChange('Dang o')}>Đang ở</a>
+                <a onClick={() => handleStatusChange('Den han')}>Đến hạn</a>
+                <a onClick={() => handleStatusChange('Da tra phong')}>Đã trả phòng</a>
+                <a onClick={() => handleStatusChange('Da huy')}>Đã hủy</a>
             </nav>
 
             <div className="filters">
@@ -138,7 +171,7 @@ function QuanLyDatPhong() {
             </div>
 
             <div className="reservation-list">
-                <button className="assign-button" onClick={openXepPhongModal}>
+                <button className="assign-button" onClick={openModal}>
                     Assign
                 </button>
                 <table>
@@ -149,7 +182,7 @@ function QuanLyDatPhong() {
                             <th>Thông tin đặt phòng</th>
                             <th>Tên khách hàng</th>
                             <th>Số người</th>
-                            <th>{currentStatus === 'Đã xếp' ? 'Phòng' : 'Loại phòng'}</th>
+                            <th>{['Da xep', 'Dang o', 'Den han','Da tra phong'].includes(currentStatus) ? 'Phòng' : 'Loại phòng'}</th>
                             <th>Ngày nhận phòng</th>
                             <th>Ngày trả phòng</th>
                             <th>Tiền phòng</th>
@@ -160,28 +193,40 @@ function QuanLyDatPhong() {
                         {thongTinDatPhong.length > 0 ? (
                             thongTinDatPhong.map((ttdp) => (
                                 <tr key={ttdp.id}>
-                                    <td><input type="checkbox" /></td>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedTTDPs.includes(ttdp)}
+                                            onChange={() => handleCheckboxChange(ttdp)}
+                                        />
+                                    </td>
                                     <td onClick={() => handleDatPhongClick(ttdp.maDatPhong)} style={{ cursor: 'pointer', color: 'blue' }}>
                                         {ttdp.maDatPhong}
                                     </td>
-                                    <td onClick={() => handleTTDPClick(ttdp.maTTDP)} style={{ cursor: 'pointer', color: 'blue' }}>
-                                        {ttdp.maTTDP}
+                                    <td onClick={() => handleTTDPClick(ttdp.maThongTinDatPhong)} style={{ cursor: 'pointer', color: 'blue' }}>
+                                        {ttdp.maThongTinDatPhong}
                                     </td>
                                     <td>{ttdp.tenKhachHang}</td>
                                     <td>{ttdp.soNguoi}</td>
                                     <td>
-                                        {currentStatus === 'Đã xếp'
-                                            ? (phongData[ttdp.maTTDP]?.phong.tenPhong || "Đang tải...")
+                                        {currentStatus === 'Da xep'
+                                            ? (phongData[ttdp.maThongTinDatPhong]?.phong.tenPhong || "Đang tải...")
                                             : ttdp.loaiPhong.tenLoaiPhong}
                                     </td>
                                     <td>{ttdp.ngayNhanPhong}</td>
                                     <td>{ttdp.ngayTraPhong}</td>
                                     <td>{calculateTotalPrice(ttdp.donGia, ttdp.ngayNhanPhong, ttdp.ngayTraPhong).toLocaleString()}</td>
                                     <td>
-                                        {currentStatus === 'Chưa xếp' ? (
-                                            <button onClick={() => openXepPhongModal(ttdp)}>Assign</button>
-                                        ) : currentStatus === 'Đã xếp' ? (
-                                            <button onClick={() => handleCheckIn(ttdp)}>Checkin</button>
+                                        {currentStatus === 'Chua xep' ? (
+                                            <>
+                                                <button onClick={() => openXepPhongModal(ttdp)}>Assign</button>
+                                                <button onClick={() => handleHuyTTDPClick(ttdp.maThongTinDatPhong, currentStatus)} style={{ marginLeft: '10px' }}>Hủy</button>
+                                            </>
+                                        ) : currentStatus === 'Da xep' ? (
+                                            <>
+                                                <button onClick={() => handleCheckIn(ttdp)}>Checkin</button>
+                                                <button onClick={() => handleHuyTTDPClick(ttdp.maThongTinDatPhong, currentStatus)} style={{ marginLeft: '10px' }}>Hủy</button>
+                                            </>
                                         ) : null}
                                     </td>
                                 </tr>
@@ -206,7 +251,7 @@ function QuanLyDatPhong() {
             </div>
 
             {/* Hiển thị Modal XepPhong */}
-            <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} ttdp={ttdp} />
+            <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} selectedTTDPs={selectedTTDPs} />
         </div>
     );
 }

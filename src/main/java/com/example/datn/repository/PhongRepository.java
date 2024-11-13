@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -29,8 +30,25 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
     Page<Phong> search(@Param("keyword") String keyword, Pageable pageable);
 
 
-    @Query("SELECT p FROM Phong p WHERE p.loaiPhong.id = :idLoaiPhong AND p.trangThai = true AND p.tinhTrang = 'available'")
-    List<Phong> searchPhongKhaDung(@RequestParam("idLoaiPhong") Integer idLoaiPhong);
+    @Query("""
+    SELECT p 
+    FROM Phong p 
+    WHERE p.loaiPhong.id = :idLoaiPhong 
+      AND p.trangThai = true 
+      AND NOT EXISTS (
+          SELECT d 
+          FROM XepPhong d 
+          WHERE d.phong = p     
+            AND (d.ngayNhanPhong <= :ngayTraPhong AND d.ngayTraPhong >= :ngayNhanPhong)
+      )
+""")
+    List<Phong> searchPhongKhaDung(
+            @Param("idLoaiPhong") Integer idLoaiPhong,
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong
+    );
+
+
 
     @Query("SELECT p FROM Phong p WHERE p.id = :id")
     Phong getPhongById(@Param("id") Integer id);

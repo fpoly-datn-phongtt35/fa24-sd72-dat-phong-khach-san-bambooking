@@ -18,11 +18,11 @@ const BookingForm = () => {
     const [selectedRooms, setSelectedRooms] = useState([]); // Mảng chứa các phòng đã chọn
     const navigate = useNavigate();
 
-    const LoaiPhongKhaDung = (ngayNhanPhong, ngayTraPhong,soNguoi) => {
-        getLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong,soNguoi, { page: currentPage })
+    const LoaiPhongKhaDung = (ngayNhanPhong, ngayTraPhong, soNguoi) => {
+        getLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi, { page: currentPage })
             .then((response) => {
                 setLoaiPhongKhaDung(response.data.content);
-                console.log(response.data.content);
+                console.log(response.data);
                 setTotalPages(response.data.totalPages);
             })
             .catch((error) => {
@@ -32,20 +32,33 @@ const BookingForm = () => {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        LoaiPhongKhaDung(startDate, endDate,adults);
+        setCurrentPage(0);
+        LoaiPhongKhaDung(startDate, endDate, adults);
     };
 
     const handleNextPage = () => {
         if (currentPage < totalPages - 1) {
-            setCurrentPage((prevPage) => prevPage + 1);
+            setCurrentPage((prevPage) => {
+                const newPage = prevPage + 1;
+                return newPage;
+            });
+        }
+    };
+    
+    const handlePreviousPage = () => {
+        if (currentPage > 0) {
+            setCurrentPage((prevPage) => {
+                const newPage = prevPage - 1;
+                return newPage;
+            });
         }
     };
 
-    const handlePreviousPage = () => {
-        if (currentPage > 0) {
-            setCurrentPage((prevPage) => prevPage - 1);
+    useEffect(() => {
+        if (startDate && endDate) { 
+            LoaiPhongKhaDung(startDate, endDate, adults);
         }
-    };
+    }, [currentPage]);
 
     const handleAddSelectedRooms = (room) => {
         const selectedRoomInfo = {
@@ -252,15 +265,16 @@ const BookingForm = () => {
                 ))}
             </div>
             <div className="pagination">
-                <button onClick={handlePreviousPage} disabled={currentPage === 0}>
-                    Trang trước
-                </button>
+            <button onClick={handlePreviousPage} disabled={currentPage === 0}>
+                Trang trước
+            </button>
 
-                <span>Trang hiện tại: {currentPage + 1} / {totalPages}</span>
-                <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>
-                    Trang sau
-                </button>
-            </div>
+            <span>Trang hiện tại: {currentPage + 1} / {totalPages}</span>
+
+            <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>
+                Trang sau
+            </button>
+        </div>
 
             {showModal && (
                 <div className="XNDP-modal-backdrop-x">

@@ -22,8 +22,8 @@ public class XepPhongController {
         return ResponseEntity.status(HttpStatus.CREATED).body(xepPhongServiceIMPL.addXepPhong(xepPhongRequest));
     }
     @GetMapping("phong-da-xep")
-    public ResponseEntity<XepPhong> phongDaXep(@RequestParam("maTTDP") String maTTDP){
-        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.getByMaTTDP(maTTDP));
+    public ResponseEntity<XepPhong> phongDaXep(@RequestParam("maThongTinDatPhong") String maThongTinDatPhong){
+        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.getByMaTTDP(maThongTinDatPhong));
     }
 
 }

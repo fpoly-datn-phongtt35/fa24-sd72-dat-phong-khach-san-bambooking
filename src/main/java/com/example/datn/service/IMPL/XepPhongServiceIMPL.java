@@ -27,16 +27,15 @@ public class XepPhongServiceIMPL implements XepPhongService {
         XepPhong xp = new XepPhong();
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
         Phong p = phongRepository.getPhongById(xepPhongRequest.getPhong().getId());
+
         xp.setPhong(xepPhongRequest.getPhong());
         xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
         xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
         xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
         xp.setTrangThai(xepPhongRequest.getTrangThai());
 
-        ttdp.setTrangThai("Đã xếp");
+        ttdp.setTrangThai("Da xep");
         thongTinDatPhongRepository.save(ttdp);
-        p.setTinhTrang("occupied");
-        phongRepository.save(p);
         return xepPhongRepository.save(xp);
     }
 
@@ -51,7 +50,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
         xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
         xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
         xp.setTrangThai(xepPhongRequest.getTrangThai());
-        ttdp.setTrangThai("Đã xếp");
+        ttdp.setTrangThai("Da xep");
         thongTinDatPhongRepository.save(ttdp);
         p.setTinhTrang("occupied");
         phongRepository.save(p);

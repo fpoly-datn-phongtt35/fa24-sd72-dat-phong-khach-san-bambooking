@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/phong")
@@ -53,7 +55,8 @@ public class PhongController {
         return ResponseEntity.status(HttpStatus.OK).body(phongService.searchPhong(keyword, pageable));
     }
     @GetMapping("/phong-kha-dung")
-    public ResponseEntity<?> searchPhongKhaDung(@RequestParam Integer idLoaiPhong) {
-        return ResponseEntity.status(HttpStatus.OK).body(phongServiceIMPL.searchPhongKhaDung(idLoaiPhong));
+    public ResponseEntity<?> searchPhongKhaDung(@RequestParam Integer idLoaiPhong, @RequestParam LocalDateTime ngayNhanPhong,
+                                                @RequestParam LocalDateTime ngayTraPhong) {
+        return ResponseEntity.status(HttpStatus.OK).body(phongServiceIMPL.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong));
     }
 }
