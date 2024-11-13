@@ -16,13 +16,14 @@
     "bootstrap-icons": "^1.11.3",
     "cors": "^2.8.5",
     "ems-fronend": "file:",
+    "lucide-react": "^0.456.0",
     "node-sass": "^9.0.0",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.4",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.1",
-    "sweetalert2": "^11.14.5",
-    "react-toastify": "^10.0.6"
+    "react-toastify": "^10.0.6",
+    "sweetalert2": "^11.14.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
