@@ -44,5 +44,4 @@ public interface LoaiPhongService {
                                                     Integer soNguoi,Pageable pageable);
     LoaiPhong findByID(Integer idLoaiPhong);
 
-    DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest);
 }

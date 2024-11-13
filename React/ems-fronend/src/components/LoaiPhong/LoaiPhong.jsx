@@ -113,7 +113,7 @@ const LoaiPhong = () => {
                             <th className="col">Mô tả</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className='son'>
                         {Array.isArray(data) && data.length > 0 ? (
                             data.map(ti => (
                                 <tr key={ti.id} onClick={() => handleOpenFormDetail(ti.id)}>

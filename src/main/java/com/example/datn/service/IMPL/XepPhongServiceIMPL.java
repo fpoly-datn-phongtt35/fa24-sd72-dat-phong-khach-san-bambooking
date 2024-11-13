@@ -11,6 +11,8 @@ import com.example.datn.service.XepPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class XepPhongServiceIMPL implements XepPhongService {
     @Autowired
@@ -21,6 +23,11 @@ public class XepPhongServiceIMPL implements XepPhongService {
 
     @Autowired
     PhongRepository phongRepository;
+
+    @Override
+    public List<XepPhong> getAll() {
+        return xepPhongRepository.findAll();
+    }
 
     @Override
     public XepPhong addXepPhong(XepPhongRequest xepPhongRequest) {
