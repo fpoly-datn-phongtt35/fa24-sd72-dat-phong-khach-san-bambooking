@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Rooms.css'; // Nếu cần thêm CSS riêng cho Rooms
 
 const mockRooms = [
@@ -9,12 +10,17 @@ const mockRooms = [
 
 export default function Rooms() {
   const [rooms, setRooms] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Giả lập gọi API lấy danh sách phòng
     setRooms(mockRooms);
   }, []);
 
+  const handleBookNow = (room) => {
+    navigate('/booking', { state: { room } });
+  };
+  
   return (
     <div className="rooms-page">
       <h1>Available Rooms</h1>
@@ -25,7 +31,7 @@ export default function Rooms() {
             <h2>{room.name}</h2>
             <p>{room.description}</p>
             <p>Price: ${room.price} / night</p>
-            <button>Book Now</button>
+            <button onClick={() => handleBookNow(room)}>Book Now</button>
           </div>
         ))}
       </div>

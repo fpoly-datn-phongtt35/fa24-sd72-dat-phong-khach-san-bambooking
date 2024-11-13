@@ -3,15 +3,15 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Rooms from './pages/Rooms';
-import Bookings from './pages/Bookings';
-import Services from './pages/Services';
-import Customers from './pages/Customers';
-import Reports from './pages/Reports';
 import Profile from './components/Profile';
 import Register from './components/Register';
 import Login from './components/Login';
 import Footer from './components/Footer';
+import BookingPage from './pages/BookingPage';
+import PaymentPage from './pages/PaymentPage';
 import './App.css';
+import AboutPage from './pages/AboutPage';
+import HotelRules from './pages/HotelRules';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái đăng nhập
@@ -47,10 +47,11 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home user={user} />} /> {/* Truyền user vào Home */}
               <Route path="/rooms" element={<Rooms />} />
-              <Route path="/bookings" element={<Bookings />} />
-              <Route path="/services" element={<Services />} />
-              <Route path="/customers" element={<Customers />} />
-              <Route path="/reports" element={<Reports />} />
+              <Route path="/booking" element={<BookingPage />} />
+              <Route path="/payment" element={<PaymentPage />} />
+              <Route path="/contact" element={<PaymentPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/rules" element={<HotelRules />} />
               <Route
                 path="/register"
                 element={<Register handleRegister={handleLogin} />}
@@ -65,8 +66,9 @@ export default function App() {
                   <Profile />
                 } />
               <Route path="*" element={<h1>404 - Không tìm thấy trang</h1>} />
-              <Footer />
+              
             </Routes>
+            <Footer />
           </div>
         </div>
       </div>

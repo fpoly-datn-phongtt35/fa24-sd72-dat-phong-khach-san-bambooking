@@ -14,8 +14,9 @@
 //     email: "",
 //     ngayTao: "",
 //     ngaySua: "",
-//     trangThai: "active",
+//     trangThai: true, // Mặc định là true (active)
 //   });
+
 
 //   const [listVaiTro, setListVaiTro] = useState([]);
 //   const navigate = useNavigate();
@@ -52,8 +53,12 @@
 //   }, [id]);
 
 //   const handleInputChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prevData) => ({ ...prevData, [name]: value }));
+//     const { name, value, type } = e.target;
+//     const newValue = type === 'radio' && name === 'trangThai'
+//       ? value === 'true'
+//       : value;
+
+//     setFormData((prevData) => ({ ...prevData, [name]: newValue }));
 //   };
 
 //   const handleSelectChange = (e) => {
@@ -71,11 +76,11 @@
 
 //     try {
 //       if (id) {
-//         payload.ngaySua = new Date().toISOString().split("T")[0]; // Cập nhật ngày sửa
+//         payload.ngaySua = new Date().toISOString().split("T")[0];
 //         await updateNhanVien(id, payload);
 //         alert("Cập nhật nhân viên thành công!");
 //       } else {
-//         payload.ngayTao = new Date().toISOString().split("T")[0]; // Cập nhật ngày tạo
+//         payload.ngayTao = new Date().toISOString().split("T")[0];
 //         await createNhanVien(payload);
 //         alert("Thêm nhân viên thành công!");
 //       }
@@ -85,6 +90,7 @@
 //       alert("Có lỗi xảy ra khi lưu nhân viên.");
 //     }
 //   };
+
 
 //   return (
 //     <div className="container">
@@ -200,17 +206,6 @@
 //                 </div>
 
 //                 <div className="form-group mb-2">
-//                   <label>Ngày Tạo</label>
-//                   <input
-//                     type="date"
-//                     name="ngayTao"
-//                     value={formData.ngayTao || ""}
-//                     className="form-control"
-//                     onChange={handleInputChange}
-//                   />
-//                 </div>
-
-//                 <div className="form-group mb-2">
 //                   <label>Ngày Sửa</label>
 //                   <input
 //                     type="date"
@@ -229,9 +224,9 @@
 //                         className="form-check-input-sm"
 //                         type="radio"
 //                         name="trangThai"
-//                         value="active"
-//                         checked={formData.trangThai === "active"}
-//                         onChange={handleInputChange}
+//                         value={true}
+//                         checked={formData.trangThai === true}
+//                         onChange={() => setFormData({ ...formData, trangThai: true })}
 //                       />
 //                       <label className="form-check-label">Active</label>
 //                     </div>
@@ -240,14 +235,15 @@
 //                         className="form-check-input-sm"
 //                         type="radio"
 //                         name="trangThai"
-//                         value="inactive"
-//                         checked={formData.trangThai === "inactive"}
-//                         onChange={handleInputChange}
+//                         value={false}
+//                         checked={formData.trangThai === false}
+//                         onChange={() => setFormData({ ...formData, trangThai: false })}
 //                       />
 //                       <label className="form-check-label">Inactive</label>
 //                     </div>
 //                   </div>
 //                 </div>
+
 
 //                 <button className="btn btn-success" type="submit">
 //                   {id ? "Cập Nhật" : "Thêm"}
@@ -264,14 +260,17 @@
 // export default NhanVienComponent;
 
 
+
 import React, { useState, useEffect } from "react";
 import { createNhanVien, updateNhanVien, getNhanVienById } from "../../services/NhanVienService";
 import { getVaiTroList } from "../../services/VaiTroService";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const NhanVienComponent = () => {
   const [formData, setFormData] = useState({
-    vaiTro: "", // Lưu ID vai trò dưới dạng chuỗi
+    vaiTro: "",
     ho: "",
     ten: "",
     gioiTinh: "Nam",
@@ -280,18 +279,18 @@ const NhanVienComponent = () => {
     email: "",
     ngayTao: "",
     ngaySua: "",
-    trangThai: true, // Mặc định là true (active)
+    trangThai: true,
   });
 
-
   const [listVaiTro, setListVaiTro] = useState([]);
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const { id } = useParams();
 
   const formatDateString = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return !isNaN(date) ? date.toISOString().split("T")[0] : dateString;
+    return !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : "";
   };
 
   useEffect(() => {
@@ -305,13 +304,14 @@ const NhanVienComponent = () => {
           const nhanVien = nhanVienResponse.data;
           setFormData({
             ...nhanVien,
-            vaiTro: nhanVien.vaiTro?.id.toString() || "", // Chuyển ID thành chuỗi để khớp với <select>
+            vaiTro: nhanVien.vaiTro?.id.toString() || "",
             ngayTao: formatDateString(nhanVien.ngayTao),
             ngaySua: formatDateString(nhanVien.ngaySua),
           });
         }
       } catch (error) {
         console.error("Lỗi khi tải dữ liệu:", error);
+        toast.error("Có lỗi xảy ra khi tải dữ liệu");
       }
     };
 
@@ -319,52 +319,64 @@ const NhanVienComponent = () => {
   }, [id]);
 
   const handleInputChange = (e) => {
-    const { name, value, type } = e.target;
-    const newValue = type === 'radio' && name === 'trangThai'
-      ? value === 'true'
-      : value;
-
+    const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
     setFormData((prevData) => ({ ...prevData, [name]: newValue }));
   };
 
-  const handleSelectChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.vaiTro) newErrors.vaiTro = "Vui lòng chọn vai trò";
+    if (!formData.ho.trim()) newErrors.ho = "Họ không được để trống";
+    if (!formData.ten.trim()) newErrors.ten = "Tên không được để trống";
+    if (!formData.email.trim()) newErrors.email = "Email không được để trống";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email không hợp lệ";
+    if (!formData.sdt.trim()) newErrors.sdt = "Số điện thoại không được để trống";
+    else if (!/^\d{10}$/.test(formData.sdt)) newErrors.sdt = "Số điện thoại phải có 10 chữ số";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const saveNhanVien = async (e) => {
     e.preventDefault();
 
+    if (!validateForm()) {
+      toast.error("Vui lòng kiểm tra lại thông tin nhập");
+      return;
+    }
+
     const payload = {
       ...formData,
-      vaiTro: { id: parseInt(formData.vaiTro) }, // Chuyển thành số nguyên
+      vaiTro: { id: parseInt(formData.vaiTro) },
     };
 
     try {
+      const currentDate = new Date().toISOString().split("T")[0];
       if (id) {
-        payload.ngaySua = new Date().toISOString().split("T")[0];
+        payload.ngaySua = currentDate;
         await updateNhanVien(id, payload);
-        alert("Cập nhật nhân viên thành công!");
+        toast.success("Cập nhật nhân viên thành công!");
       } else {
-        payload.ngayTao = new Date().toISOString().split("T")[0];
+        payload.ngayTao = currentDate;
         await createNhanVien(payload);
-        alert("Thêm nhân viên thành công!");
+        toast.success("Thêm nhân viên thành công!");
       }
       navigate("/NhanVien");
     } catch (error) {
       console.error("Lỗi khi lưu nhân viên:", error);
-      alert("Có lỗi xảy ra khi lưu nhân viên.");
+      toast.error("Có lỗi xảy ra khi lưu nhân viên.");
     }
   };
 
-
   return (
     <div className="container">
+      <ToastContainer />
       <br />
       <div className="row">
         <div className="card">
-          <div className="text-center">
-            {id ? "Cập Nhật Nhân Viên" : "Thêm Nhân Viên"}
+          <div className="card-header text-center">
+            <h2>{id ? "Cập Nhật Nhân Viên" : "Thêm Nhân Viên"}</h2>
           </div>
           <div className="col-md-6 offset-md-3">
             <div className="card-body">
@@ -372,10 +384,10 @@ const NhanVienComponent = () => {
                 <div className="mb-3">
                   <label className="form-label">Vai Trò</label>
                   <select
-                    className="form-select"
+                    className={`form-select ${errors.vaiTro ? 'is-invalid' : ''}`}
                     name="vaiTro"
                     value={formData.vaiTro}
-                    onChange={handleSelectChange}
+                    onChange={handleInputChange}
                     required
                   >
                     <option value="">Chọn vai trò</option>
@@ -385,6 +397,7 @@ const NhanVienComponent = () => {
                       </option>
                     ))}
                   </select>
+                  {errors.vaiTro && <div className="invalid-feedback">{errors.vaiTro}</div>}
                 </div>
 
                 <div className="form-group mb-2">
@@ -393,9 +406,10 @@ const NhanVienComponent = () => {
                     type="text"
                     name="ho"
                     value={formData.ho}
-                    className="form-control"
+                    className={`form-control ${errors.ho ? 'is-invalid' : ''}`}
                     onChange={handleInputChange}
                   />
+                  {errors.ho && <div className="invalid-feedback">{errors.ho}</div>}
                 </div>
 
                 <div className="form-group mb-2">
@@ -404,9 +418,10 @@ const NhanVienComponent = () => {
                     type="text"
                     name="ten"
                     value={formData.ten}
-                    className="form-control"
+                    className={`form-control ${errors.ten ? 'is-invalid' : ''}`}
                     onChange={handleInputChange}
                   />
+                  {errors.ten && <div className="invalid-feedback">{errors.ten}</div>}
                 </div>
 
                 <div className="form-group mb-2">
@@ -454,9 +469,10 @@ const NhanVienComponent = () => {
                     type="text"
                     name="sdt"
                     value={formData.sdt}
-                    className="form-control"
+                    className={`form-control ${errors.sdt ? 'is-invalid' : ''}`}
                     onChange={handleInputChange}
                   />
+                  {errors.sdt && <div className="invalid-feedback">{errors.sdt}</div>}
                 </div>
 
                 <div className="form-group mb-2">
@@ -465,62 +481,28 @@ const NhanVienComponent = () => {
                     type="email"
                     name="email"
                     value={formData.email}
-                    className="form-control"
+                    className={`form-control ${errors.email ? 'is-invalid' : ''}`}
                     onChange={handleInputChange}
                     required
                   />
-                </div>
-
-                <div className="form-group mb-2">
-                  <label>Ngày Tạo</label>
-                  <input
-                    type="date"
-                    name="ngayTao"
-                    value={formData.ngayTao || ""}
-                    className="form-control"
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="form-group mb-2">
-                  <label>Ngày Sửa</label>
-                  <input
-                    type="date"
-                    name="ngaySua"
-                    value={formData.ngaySua || ""}
-                    className="form-control"
-                    onChange={handleInputChange}
-                  />
+                  {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                 </div>
 
                 <div className="form-group mb-2">
                   <label className="form-label">Trạng Thái</label>
-                  <div className="d-flex align-items-center">
-                    <div className="form-check me-3">
-                      <input
-                        className="form-check-input-sm"
-                        type="radio"
-                        name="trangThai"
-                        value={true}
-                        checked={formData.trangThai === true}
-                        onChange={() => setFormData({ ...formData, trangThai: true })}
-                      />
-                      <label className="form-check-label">Active</label>
-                    </div>
-                    <div className="form-check">
-                      <input
-                        className="form-check-input-sm"
-                        type="radio"
-                        name="trangThai"
-                        value={false}
-                        checked={formData.trangThai === false}
-                        onChange={() => setFormData({ ...formData, trangThai: false })}
-                      />
-                      <label className="form-check-label">Inactive</label>
-                    </div>
+                  <div className="form-check">
+                    <input
+                      className="form-check-input-sm"
+                      type="checkbox"
+                      name="trangThai"
+                      checked={formData.trangThai}
+                      onChange={handleInputChange}
+                    />
+                    <label className="form-check-label">
+                      {formData.trangThai ? "Active" : "Inactive"}
+                    </label>
                   </div>
                 </div>
-
 
                 <button className="btn btn-success" type="submit">
                   {id ? "Cập Nhật" : "Thêm"}
