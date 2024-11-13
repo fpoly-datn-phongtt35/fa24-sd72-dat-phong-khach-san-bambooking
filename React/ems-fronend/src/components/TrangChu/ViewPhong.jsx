@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useCallback } from 'react';
 import { searchRooms } from '../../services/ViewPhong';
 import { useNavigate } from 'react-router-dom';
+import { searchByIDPhong } from '../../services/ImageService';
 
 const ViewPhong = () => {
   const [rooms, setRooms] = useState([]);
@@ -8,17 +9,33 @@ const ViewPhong = () => {
   const [giaMin, setGiaMin] = useState(null);
   const [giaMax, setGiaMax] = useState(null);
   const [keyword, setKeyword] = useState('');
+  const [listImage, setlistImage] = useState('');
   const navigate = useNavigate();
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     const min = giaMin !== null ? Number(giaMin) : null;
     const max = giaMax !== null ? Number(giaMax) : null;
 
     searchRooms(tinhTrang, min, max, keyword)
-      .then(roomList => {
+      .then(async roomList => {
         if (Array.isArray(roomList)) {
           console.log('Dữ liệu phòng trả về:', roomList);
           setRooms(roomList);
+
+          // Sử dụng Promise.all để đợi tất cả các yêu cầu ảnh hoàn tất
+          const images = await Promise.all(
+            roomList.map(room => searchByIDPhong(room.id).then(response => ({ id: room.id, data: response.data })))
+          );
+
+          // Cập nhật listImage theo đúng định dạng { [room.id]: response.data }
+          const imageMap = images.reduce((acc, img) => {
+            acc[img.id] = img.data;
+            return acc;
+          }, {});
+
+          setlistImage(imageMap);
+          console.log(listImage)
+          console.log("Danh sách ảnh đã cập nhật:", imageMap);
         } else {
           console.error("Dữ liệu trả về không phải là mảng:", roomList);
           setRooms([]);
@@ -26,9 +43,9 @@ const ViewPhong = () => {
       })
       .catch(error => {
         console.error("Không thể tìm kiếm phòng:", error);
-        setRooms([]); // Xóa danh sách phòng khi có lỗi
+        setRooms([]);
       });
-  };
+  }, [tinhTrang, giaMin, giaMax, keyword]);
 
   useEffect(() => {
     handleSearch();
@@ -71,7 +88,7 @@ const ViewPhong = () => {
                 type='number'
                 className='form-control mx-2'
                 min='0'
-                value={giaMin !== null ? giaMin : ''} 
+                value={giaMin !== null ? giaMin : ''}
                 onChange={(e) => setGiaMin(e.target.value ? Number(e.target.value) : null)}
                 onBlur={handlePriceChange}
                 style={{ width: '70%' }}
@@ -134,13 +151,14 @@ const ViewPhong = () => {
           rooms.map(room => (
             <div key={room.id} className='card' style={{ width: '30%', margin: '10px' }}>
               <div className='card-body'>
-                {room.duongDanAnh ? (
+                {listImage[room.id] ? (
                   <img
-                    src={room.duongDanAnh}
-                    alt='Phòng'
-                    className='img-fluid'
-                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-                  />
+                  src={listImage[room.id]?.[0]?.duongDan} // Lấy ảnh đầu tiên trong mảng
+                  alt='Phòng'
+                  className='img-fluid'
+                  style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                />
+                
                 ) : (
                   <span>Không có hình ảnh</span>
                 )}
@@ -148,8 +166,8 @@ const ViewPhong = () => {
               <div className='card-footer'>
                 <p>Tên phòng: {room.tenPhong}</p>
                 <p>Tình trạng: {room.tinhTrang}</p>
-                <p>Giá: {room.giaPhong} VND</p>
-                <button 
+                <p>Giá: {room.loaiPhong.donGia} VND</p>
+                <button
                   className='btn btn-primary'
                   onClick={() => handleViewDetail(room.id)} // Gọi hàm để xử lý chi tiết
                 >

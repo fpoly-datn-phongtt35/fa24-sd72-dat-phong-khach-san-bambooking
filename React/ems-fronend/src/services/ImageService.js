@@ -2,6 +2,7 @@ import axios from "axios";
 
 const apiImage = 'http://localhost:8080/image';
 const apiPhong = 'http://localhost:8080/phong';
+const apiSearchdImg = 'http://localhost:8080/image/searchByIDPhong';
 
 export const listImage = (pageable, searchQuery = '') => {
     return axios.get(apiImage + '/search', {
@@ -9,6 +10,14 @@ export const listImage = (pageable, searchQuery = '') => {
             page: pageable.page,
             size: pageable.size,
             keyword: searchQuery
+        }
+    });
+};
+
+export const searchByIDPhong = (idPhong) => {
+    return axios.get(apiSearchdImg, {
+        params: {
+            keyword: idPhong
         }
     });
 };

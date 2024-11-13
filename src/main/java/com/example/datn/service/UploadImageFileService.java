@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface UploadImageFileService {
     Page<HinhAnh> getAllImages(Pageable pageable);
@@ -15,4 +16,6 @@ public interface UploadImageFileService {
     String getImageUrl(Integer id);
     boolean deleteImage(Integer id);
     Page<HinhAnh> searchHinhAnh(String keyword, Pageable pageable);
+
+    List<HinhAnh> searchHinhAnhByIDPhong(String keyword);
 }
