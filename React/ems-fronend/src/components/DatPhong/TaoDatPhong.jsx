@@ -84,7 +84,7 @@ const TaoDatPhong = () => {
                     ngayTraPhong: room.endDate,
                     soNguoi: room.adults,
                     giaDat: room.donGia,
-                    trangThai: 'Chưa xếp'
+                    trangThai: 'Chua xep'
                 }));
                 console.log(thongTinDatPhongRequestList);
                 // Lưu từng `ThongTinDatPhong` trong danh sách

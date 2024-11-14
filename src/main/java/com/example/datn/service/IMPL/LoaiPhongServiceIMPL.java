@@ -1,4 +1,5 @@
 package com.example.datn.service.IMPL;
+
 import com.example.datn.dto.request.DichVuDikemRequest;
 import com.example.datn.dto.request.LoaiPhongRequest;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
@@ -11,14 +12,17 @@ import com.example.datn.service.LoaiPhongService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LoaiPhongServiceIMPL implements LoaiPhongService {
@@ -27,6 +31,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     LoaiPhongRepository loaiPhongRepository;
     @Autowired
     DichVuDiKemRepository dichVuDiKemRepository;
+
     @Override
     public List<LoaiPhong> getAllLoaiPhong() {
         return loaiPhongRepository.findAll();
@@ -80,30 +85,34 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     @Override
-    public  Page<LoaiPhong> filter( String tenLoaiPhong,
-                                    Integer dienTichMin,
-                                    Integer dienTichMax,
-                                    Integer soKhach,
-                                    Double donGiaMin,
-                                    Double donGiaMax,
-                                    Double donGiaPhuThuMin,
-                                   Double donGiaPhuThuMax,
-                                   Pageable pageable) {
-        return loaiPhongRepository.filter(tenLoaiPhong,dienTichMin,dienTichMax,soKhach,donGiaMin,
-                                            donGiaMax,donGiaPhuThuMin,donGiaPhuThuMax,pageable);
+    public Page<LoaiPhong> filter(String tenLoaiPhong,
+                                  Integer dienTichMin,
+                                  Integer dienTichMax,
+                                  Integer soKhach,
+                                  Double donGiaMin,
+                                  Double donGiaMax,
+                                  Double donGiaPhuThuMin,
+                                  Double donGiaPhuThuMax,
+                                  Pageable pageable) {
+        return loaiPhongRepository.filter(tenLoaiPhong, dienTichMin, dienTichMax, soKhach, donGiaMin,
+                donGiaMax, donGiaPhuThuMin, donGiaPhuThuMax, pageable);
     }
 
     @Override
-    public Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,Integer soNguoi, Pageable pageable) {
-        return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,pageable);
+    public Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
+                                                           Integer soNguoi, Pageable pageable) {
+
+            Pageable pageable1 = PageRequest.of(pageable.getPageNumber(),3);
+            return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,pageable1);
+
     }
+
 
     @Override
     public LoaiPhong findByID(Integer idLoaiPhong) {
         return loaiPhongRepository.findById(idLoaiPhong)
                 .orElseThrow(() -> new EntityNotFoundException("LoaiPhong with ID " + idLoaiPhong + " not found"));
     }
-
 
 
     public DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest) {

@@ -4,11 +4,13 @@
     right: 0;
     width: 100%;
     height: 100%;
+    max-height: 100vh;
     background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: flex-end; // Hiển thị modal ở bên phải
     align-items: center;
     z-index: 1000;
+    
 }
 
 .xp-modal-container {
@@ -21,7 +23,8 @@
     position: relative;
     transform: translateX(100%); // Đưa modal ra ngoài màn hình bên phải
     transition: transform 0.3s ease; // Hiệu ứng trượt
-
+    overflow-y: scroll;
+    scrollbar-width: none;
     // Khi hiển thị modal, trượt vào từ phải
     &.show {
         transform: translateX(0);

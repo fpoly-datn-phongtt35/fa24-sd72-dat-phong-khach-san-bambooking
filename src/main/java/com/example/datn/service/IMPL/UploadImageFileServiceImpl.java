@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -120,6 +121,11 @@ public class UploadImageFileServiceImpl implements UploadImageFileService {
     @Override
     public Page<HinhAnh> searchHinhAnh(String keyword, Pageable pageable) {
         return hinhAnhRepository.search(keyword, pageable);
+    }
+
+    @Override
+    public List<HinhAnh> searchHinhAnhByIDPhong(String keyword) {
+        return hinhAnhRepository.searchByIDPhong(keyword);
     }
 
 

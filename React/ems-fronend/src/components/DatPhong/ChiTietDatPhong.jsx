@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import './ChiTietDatPhong.scss';
-import { useLocation ,useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { findTTDPByMaDatPhong } from '../../services/TTDP';
-import { findDatPhongByMaDatPhong,CapNhatDatPhong } from '../../services/DatPhong';
+import { findDatPhongByMaDatPhong, CapNhatDatPhong } from '../../services/DatPhong';
+import { addXepPhong, phongDaXep } from '../../services/XepPhongService';
+import XepPhong from './XepPhong';
 const ChiTietDatPhong = () => {
     const [datPhong, setDatPhong] = useState();
     const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
+    const [showXepPhongModal, setShowXepPhongModal] = useState(false);
+    const [selectedTTDPs, setSelectedTTDPs] = useState([]);
+    const [phongData, setPhongData] = useState({});
     const location = useLocation();
     const { maDatPhong } = location.state || {};
     const navigate = useNavigate();
+
     const getDetailDatPhong = (maDatPhong) => {
         findDatPhongByMaDatPhong(maDatPhong)
             .then((response) => {
@@ -27,22 +33,57 @@ const ChiTietDatPhong = () => {
                 console.log(error)
             });
     };
-    const updateDatPhong = () =>{
+    const fetchPhongDaXep = (maThongTinDatPhong) => {
+        if (!maThongTinDatPhong) {
+            console.error("maThongTinDatPhong is undefined or null");
+            return;
+        }
+    
+        phongDaXep(maThongTinDatPhong)
+            .then(response => {
+                console.log("Dữ liệu phòng đã xếp:", response.data); // Kiểm tra dữ liệu trả về từ API
+                setPhongData(prevData => ({
+                    ...prevData,
+                    [maThongTinDatPhong]: response.data
+                }));
+            })
+            .catch(error => {
+                console.log("Lỗi khi lấy phòng đã xếp:", error);
+            });
+    };
+    
+
+    
+
+    const openXepPhongModal = (ttdp) => {
+        setSelectedTTDPs([ttdp]);
+        setShowXepPhongModal(true);
+    };
+
+    const closeXepPhongModal = () => setShowXepPhongModal(false);
+
+    const updateDatPhong = () => {
         CapNhatDatPhong(datPhong)
-        .then((response) => {
-            console.log(response.data)
-            alert("Lưu thành công")
-        })
-        .catch((error) => {
-            console.log(error)
-        })
-        
+            .then((response) => {
+                console.log(response.data)
+                alert("Lưu thành công")
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+
     }
+    useEffect(() => {
+        if (thongTinDatPhong.length > 0) {
+            thongTinDatPhong.forEach(ttdp => fetchPhongDaXep(ttdp.maThongTinDatPhong));
+        }
+    }, [thongTinDatPhong]);
     useEffect(() => {
         if (maDatPhong) {
             getDetailDatPhong(maDatPhong);
         }
     }, [maDatPhong]);
+    
     const calculateDays = (start, end) => {
         const startDate = new Date(start);
         const endDate = new Date(end);
@@ -74,6 +115,19 @@ const ChiTietDatPhong = () => {
 
         return diffDays === 0 ? 1 : diffDays;
     };
+    const handleCheckboxChange = (ttdp) => {
+        setSelectedTTDPs(prevSelected => {
+            if (prevSelected.includes(ttdp)) {
+                return prevSelected.filter(item => item !== ttdp);
+            } else {
+                return [...prevSelected, ttdp];
+            }
+        });
+    };
+    const openModal = () => {
+        setShowXepPhongModal(true); // Mở modal
+        console.log(selectedTTDPs);
+    };
 
     return (
         <div className="booking-info-container">
@@ -102,10 +156,6 @@ const ChiTietDatPhong = () => {
                         <span>{datPhong?.ngayDat}</span>
                     </div>
                     <div className="info-item">
-                        <label>Số ngày</label>
-                        <span>{calculateTotalDays()}</span>
-                    </div>
-                    <div className="info-item">
                         <label>Số phòng</label>
                         <span>{thongTinDatPhong.length}</span>
                     </div>
@@ -127,7 +177,7 @@ const ChiTietDatPhong = () => {
 
             {/* Danh sách phòng nằm ở dòng dưới */}
             <div className="box booker-rooms">
-                <h3>Danh sách phòng</h3>
+                <h3>Danh sách đặt phòng</h3>
                 <table>
                     <thead>
                         <tr>
@@ -146,32 +196,44 @@ const ChiTietDatPhong = () => {
                         {thongTinDatPhong.length > 0 ? (
                             thongTinDatPhong.map((ttdp) => (
                                 <tr key={ttdp.id}>
-                                    <td><input type="checkbox" /></td>
+                                    <td>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedTTDPs.includes(ttdp)}
+                                            onChange={() => handleCheckboxChange(ttdp)}
+                                        />
+                                    </td>
                                     <td>{ttdp.maThongTinDatPhong}</td>
                                     <td>{ttdp?.datPhong?.khachHang?.ho + ' ' + ttdp?.datPhong?.khachHang?.ten}</td>
                                     <td>{ttdp.soNguoi}</td>
-                                    <td>{ttdp?.loaiPhong?.tenLoaiPhong}</td>
+
+                                    <td>
+                                        {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong || ttdp.loaiPhong.tenLoaiPhong}
+                                    </td>
+
+
                                     <td>{ttdp.ngayNhanPhong}</td>
                                     <td>{ttdp.ngayTraPhong}</td>
                                     <td>{calculateTotalPrice(ttdp.giaDat, ttdp.ngayNhanPhong, ttdp.ngayTraPhong).toLocaleString()}</td>
                                     <td>
-                                        <button>Edit</button>
-                                        <button>Delete</button>
+                                        <button onClick={() => openXepPhongModal(ttdp)}>Assign</button>
                                     </td>
                                 </tr>
                             ))
                         ) : (
-                            <tr>
-                                <td colSpan="10">Không có dữ liệu</td>
-                            </tr>
+                            <tr><td colSpan="10">Không có dữ liệu</td></tr>
                         )}
                     </tbody>
+
                 </table>
                 <div className="button-container">
-                    <button className="button-save">Lưu</button>
-                    <button className="button-checkin">Checkin</button>
+                    <button className="button-save" onClick={() => CapNhatDatPhong(datPhong)}>Lưu</button>
+                    <button className="button-checkin">Checkin</button> 
+                    <button className="button-checkin" onClick={openModal}>Assign</button>
+
                 </div>
             </div>
+            <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} selectedTTDPs={selectedTTDPs} />
         </div>
     );
 };

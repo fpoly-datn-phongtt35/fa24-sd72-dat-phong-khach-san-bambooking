@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -84,8 +85,8 @@ public class PhongServiceIMPL implements PhongService {
     }
 
     @Override
-    public List<Phong> searchPhongKhaDung(Integer idLoaiPhong) {
-        return phongRepository.searchPhongKhaDung(idLoaiPhong);
+    public List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDateTime ngayNhanPhong,LocalDateTime ngayTraPhong) {
+        return phongRepository.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong);
     }
 
 

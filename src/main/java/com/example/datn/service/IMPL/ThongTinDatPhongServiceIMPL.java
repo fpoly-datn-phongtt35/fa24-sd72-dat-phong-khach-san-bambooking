@@ -3,8 +3,11 @@ package com.example.datn.service.IMPL;
 import com.example.datn.dto.request.TTDPRequest;
 import com.example.datn.dto.response.TTDPResponse;
 import com.example.datn.model.LoaiPhong;
+import com.example.datn.model.Phong;
 import com.example.datn.model.ThongTinDatPhong;
+import com.example.datn.model.XepPhong;
 import com.example.datn.repository.ThongTinDatPhongRepository;
+import com.example.datn.repository.XepPhongRepository;
 import com.example.datn.service.ThongTinDatPhongService;
 import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
     @Autowired
     LoaiPhongServiceIMPL loaiPhongServiceIMPL;
+
+    @Autowired
+    XepPhongRepository xepPhongRepository;
 
     @Override
     public List<ThongTinDatPhong> getAll() {
@@ -75,6 +81,19 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     public Page<TTDPResponse> findByDateRangeAndKey(LocalDate startDate, LocalDate endDate, String key,
                                                         String trangThai, Pageable pageable) {
         return thongTinDatPhongRepository.findByDateRangeAndKey(startDate,endDate,key,trangThai,pageable);
+    }
+
+    @Override
+    public ThongTinDatPhong huyTTDP(String maTTDP) {
+        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByMa(maTTDP);
+        XepPhong xp = xepPhongRepository.getByMaTTDP(maTTDP);
+        if(xp!=null){
+            xp.setTrangThai(false);
+            xepPhongRepository.save(xp);
+        }
+        ttdp.setTrangThai("Da huy");
+        thongTinDatPhongRepository.save(ttdp);
+        return ttdp;
     }
 
 }

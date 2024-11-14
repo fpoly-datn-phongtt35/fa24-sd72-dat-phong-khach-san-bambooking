@@ -40,7 +40,8 @@ public interface LoaiPhongService {
                             Double donGiaPhuThuMax,
                             Pageable pageable);
 
-    Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,Integer soNguoi, Pageable pageable);
+    Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
+                                                    Integer soNguoi,Pageable pageable);
     LoaiPhong findByID(Integer idLoaiPhong);
 
 }
