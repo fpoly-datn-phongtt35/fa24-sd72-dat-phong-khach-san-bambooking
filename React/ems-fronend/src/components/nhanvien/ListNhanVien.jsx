@@ -103,9 +103,13 @@ const ListNhanVien = () => {
                     <td>{nv.email}</td>
                     <td>{formatDateString(nv.ngayTao)}</td>
                     <td>{formatDateString(nv.ngaySua)}</td>
-                    <td>{nv.trangThai}</td>
+                    {/* Sửa phần trạng thái */}
+                    <td>{nv.trangThai ? 'Active' : 'Inactive'}</td>
                     <td>
-                      <button className="btn btn-warning" onClick={() => navigate(`/update-nhan-vien/${nv.id}`)}>
+                      <button
+                        className="btn btn-warning"
+                        onClick={() => navigate(`/update-nhan-vien/${nv.id}`)}
+                      >
                         Update
                       </button>
                       <button
@@ -125,6 +129,7 @@ const ListNhanVien = () => {
                 </tr>
               )}
             </tbody>
+
           </table>
 
           <div className="d-flex justify-content-center my-3">

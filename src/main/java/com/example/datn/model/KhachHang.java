@@ -28,7 +28,7 @@ public class KhachHang {
     private String diaChi;
     @Column(name = "sdt")
     private String sdt;
-    @Column(name = "email")
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
     @Column(name = "mat_khau")
     private String matKhau;
@@ -38,5 +38,11 @@ public class KhachHang {
     private LocalDateTime ngaySua;
 
     @Column(name = "trang_thai")
-    private Boolean trangThai;
+    private boolean trangThai;
+
+    public KhachHang(String email, String matKhau, boolean trangThai) {
+        this.email = email;
+        this.matKhau = matKhau;
+        this.trangThai = trangThai;
+    }
 }

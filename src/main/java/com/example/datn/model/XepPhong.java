@@ -1,34 +1,32 @@
 package com.example.datn.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
 @Entity
 @Table(name = "xep_phong")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class XepPhong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    Integer id;
+    @ManyToOne
     @JoinColumn(name = "id_phong")
+    Phong phong;
     @ManyToOne
-    private Phong phong;
-
     @JoinColumn(name = "id_thong_tin_dat_phong")
-    @ManyToOne
-    private ThongTinDatPhong thongTinDatPhong;
+    ThongTinDatPhong thongTinDatPhong;
     @Column(name = "ngay_nhan_phong")
-    private LocalDateTime ngayNhanPhong;
+    LocalDateTime ngayNhanPhong;
     @Column(name = "ngay_tra_phong")
-    private LocalDateTime ngayTraPhong;
+    LocalDateTime ngayTraPhong;
     @Column(name = "trang_thai")
-    private Boolean trangThai;
+    Boolean trangThai;
 }
