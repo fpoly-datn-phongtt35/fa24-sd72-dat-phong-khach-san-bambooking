@@ -1,30 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listHoaDon } from '../../services/HoaDonService'; // Chỉ cần dùng listHoaDon để lấy danh sách hóa đơn
-import FormDetail from './FormDetailHD';
-import FormAddHoaDon from './FormAddHoaDon';
+import { listThongTinHoaDon } from '../../services/ThongTinHoaDonService'; // Chỉ cần dùng listThongTinHoaDon để lấy danh sách thông tin hóa đơn
+import FormDetail from './FormDetailThongTinHD';
+// import FormAddThongTinHoaDon from './FormAddThongTinHoaDon';
 
-const ListHoaDon = () => {
+const ListThongTinHoaDon = () => {
     const navigate = useNavigate();
-    const [hoaDon, setHoaDon] = useState([]);
+    const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [trangThai, setTrangThai] = useState("");
     const [keyword, setKeyword] = useState("");
-    const [selectedHoaDon, setSelectedHoaDon] = useState(null);
+    const [selectedThongTin, setSelectedThongTin] = useState(null);
     const [showDetailForm, setShowDetailForm] = useState(false);
-    const [showAddForm, setShowAddForm] = useState(false);  // State to control Add form visibility
+    const [showAddForm, setShowAddForm] = useState(false);
     const itemsPerPage = 5;
 
-    const getAllHoaDon = () => {
+    const getAllThongTinHoaDon = () => {
         const pageable = {
             page: currentPage,
             size: itemsPerPage
         };
 
-        listHoaDon(pageable, trangThai, keyword)
+        listThongTinHoaDon(pageable, keyword)
             .then((response) => {
-                setHoaDon(response.data.content);
+                setThongTinHoaDon(response.data.content);
                 setTotalPages(response.data.totalPages);
             }).catch((error) => {
                 console.log(error);
@@ -32,13 +31,13 @@ const ListHoaDon = () => {
     };
 
     useEffect(() => {
-        getAllHoaDon();
-    }, [currentPage, trangThai, keyword]);
+        getAllThongTinHoaDon();
+    }, [currentPage, keyword]);
 
     const handleSearch = (e) => {
         setKeyword(e.target.value.trim());
         setCurrentPage(0);
-        getAllHoaDon();
+        getAllThongTinHoaDon();
     };
 
     const handlePreviousPage = () => {
@@ -53,28 +52,23 @@ const ListHoaDon = () => {
         }
     };
 
-    const handleTrangThaiChange = (event) => {
-        setTrangThai(event.target.value);
-        setCurrentPage(0);
-    };
-
-    const handleOpenFormDetail = (hoaDonId) => {
-        const selectedInvoice = hoaDon.find(item => item.id === hoaDonId);
-        setSelectedHoaDon(selectedInvoice);
+    const handleOpenFormDetail = (thongTinId) => {
+        const selectedItem = thongTinHoaDon.find(item => item.id === thongTinId);
+        setSelectedThongTin(selectedItem);
         setShowDetailForm(true);
     };
 
     const handleCloseFormDetail = () => {
         setShowDetailForm(false);
-        setSelectedHoaDon(null);
+        setSelectedThongTin(null);
     };
 
     const handleOpenAddForm = () => {
-        setShowAddForm(true);  // Open the Add form modal
+        setShowAddForm(true);
     };
     
     const handleCloseAddForm = () => {
-        setShowAddForm(false);  // Close the Add form modal
+        setShowAddForm(false);
     };
 
     return (
@@ -91,39 +85,33 @@ const ListHoaDon = () => {
                             <input
                                 type="text"
                                 className='form-control form-control-lg fs-6'
-                                placeholder='Tìm kiếm hóa đơn...'
+                                placeholder='Tìm kiếm thông tin hóa đơn...'
                                 value={keyword}
                                 onChange={handleSearch}
                             />
                         </div>
                     </div>
 
-                    {/* Table for displaying invoices */}
+                    {/* Table for displaying invoice details */}
                     <table className='table table-hover'>
                         <thead>
                             <tr>
-                                <th>Mã hóa đơn</th>
-                                <th>Tên nhân viên</th>
-                                <th>Mã đặt phòng</th>
-                                <th>Ngày tạo</th>
-                                <th>Tổng tiền</th>
-                                <th>Trạng thái</th>
-                                <th>Thao tác</th>
+                                <th>ID Trả Phòng</th>
+                                <th>ID Hóa Đơn</th>
+                                <th>Tiền Dịch Vụ</th>
+                                <th>Tiền Phòng</th>
+                                <th>Tiền Phụ Thu</th>
                             </tr>
                         </thead>
                         <tbody>
                             {
-                                hoaDon.map(item =>
+                                thongTinHoaDon.map(item =>
                                     <tr key={item.id} onClick={() => handleOpenFormDetail(item.id)}>
-                                        <td>{item.maHoaDon}</td>
-                                        <td>{item.hoTenNhanVien}</td>
-                                        <td>{item.maDatPhong}</td>
-                                        <td>{item.ngayTao}</td>
-                                        <td>{item.tongTien}</td>
-                                        <td>{item.trangThai}</td>
-                                        <td>
-                                            <button className="btn btn-info btn-sm">Chi tiết</button>
-                                        </td>
+                                        <td>{item.idTraPhong}</td>
+                                        <td>{item.idHoaDon}</td>
+                                        <td>{item.tienDichVu}</td>
+                                        <td>{item.tienPhong}</td>
+                                        <td>{item.tienPhuThu}</td>
                                     </tr>
                                 )
                             }
@@ -154,16 +142,16 @@ const ListHoaDon = () => {
             </div>
 
             {/* Modal for viewing details */}
-            {showDetailForm && selectedHoaDon && (
+            {showDetailForm && selectedThongTin && (
                 <FormDetail
-                    hoaDon={selectedHoaDon}
+                    thongTinHoaDon={selectedThongTin}
                     handleClose={handleCloseFormDetail}
                 />
             )}
 
-            {/* Modal for adding Hoa Don */}
+            {/* Modal for adding Thong Tin Hoa Don */}
             {showAddForm && (
-                <FormAddHoaDon
+                <FormAddThongTinHoaDon
                     handleClose={handleCloseAddForm}
                 />
             )}
@@ -171,5 +159,4 @@ const ListHoaDon = () => {
     );
 };
 
-export default ListHoaDon;
-
+export default ListThongTinHoaDon;

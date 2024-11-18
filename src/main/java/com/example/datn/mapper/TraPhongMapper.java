@@ -14,7 +14,7 @@ public class TraPhongMapper {
         TraPhong traPhong = new TraPhong();
         traPhong.setXepPhong(xepPhong);
         traPhong.setNgayTraThucTe(LocalDate.now());
-        traPhong.setTrangThai(request.getTrangThai());
+        traPhong.setTrangThai(true);
         return traPhong;
     }
 

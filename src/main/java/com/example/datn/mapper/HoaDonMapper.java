@@ -7,7 +7,7 @@ import com.example.datn.model.HoaDon;
 import com.example.datn.model.NhanVien;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 public class HoaDonMapper {
@@ -17,7 +17,7 @@ public class HoaDonMapper {
         hoaDon.setNhanVien(nhanVien);
         hoaDon.setDatPhong(datPhong);
         hoaDon.setTongTien(0.0);
-        hoaDon.setNgayTao(LocalDate.now());
+        hoaDon.setNgayTao(LocalDateTime.now());
         hoaDon.setTrangThai("Chưa thanh toán");
         return hoaDon;
     }
@@ -25,9 +25,8 @@ public class HoaDonMapper {
     public HoaDonResponse toHoaDonResponse(HoaDon hoaDon) {
         HoaDonResponse response = new HoaDonResponse();
         response.setId(hoaDon.getId());
-        response.setIdHoaDon(hoaDon.getId());
         response.setMaHoaDon(hoaDon.getMaHoaDon());
-        response.setHoTenNhanVien(hoaDon.getHoTenNhanVien());
+        response.setTenDangNhap(hoaDon.getTenDangNhap());
         response.setMaDatPhong(hoaDon.getDatPhong() != null ? hoaDon.getDatPhong().getMaDatPhong() : "Không có thông tin");
         response.setTongTien(hoaDon.getTongTien());
         response.setNgayTao(hoaDon.getNgayTao());

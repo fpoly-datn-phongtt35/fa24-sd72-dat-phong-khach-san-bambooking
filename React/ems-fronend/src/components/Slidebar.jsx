@@ -55,9 +55,22 @@ function Sidebar({ isAuthenticated, onLogout }) {
             <li className="nav-item">
               <Link className="nav-link" to="/hinh-anh">Hình ảnh</Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/hoa-don">Hóa đơn</Link>
+
+            <li
+              className={`nav-item has-submenu quan-ly-phong ${activeSubmenu === 2 ? 'active' : ''}`}
+              onClick={() => toggleSubmenu(2)}
+            >
+              <div className="nav-link">Hóa đơn</div>
+              <ul className={`submenu ${activeSubmenu === 2 ? 'open' : ''}`}>
+              <li className="nav-item">
+                  <Link className="nav-link" to="/tao-hoa-don">Tạo hóa đơn</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/hoa-don">Quản lý hóa đơn</Link>
+                </li>
+              </ul>
             </li>
+
             <li className="nav-item">
               <Link className="nav-link" to="/NhanVien">Nhân viên</Link>
             </li>
