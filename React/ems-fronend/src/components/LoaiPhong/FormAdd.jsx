@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { addLoaiPhong} from '../../services/LoaiPhongService';
+import Swal from 'sweetalert2';
+
 
 const FormAdd = ({ show, handleClose }) => {
     const [formData, setFormData] = useState({
@@ -25,16 +27,41 @@ const FormAdd = ({ show, handleClose }) => {
     // Hàm xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Gọi API thêm mới tiện ích với formData, trong đó hinhAnh chỉ là tên file
-        addLoaiPhong(formData)
-            .then(response => {
-                console.log("Thêm mới thành công:", response.data);
-                handleClose(); // Đóng modal sau khi thêm thành công
-            })
-            .catch(error => {
-                console.error("Lỗi khi thêm mới:", error);
-            });
+    
+        Swal.fire({
+            title: 'Xác nhận thêm mới',
+            text: 'Bạn có chắc chắn muốn thêm loại phòng mới?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Gọi API thêm mới tiện ích với formData
+                addLoaiPhong(formData)
+                    .then(response => {
+                        console.log("Thêm mới thành công:", response.data);
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: 'Loại phòng mới đã được thêm.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        handleClose(); // Đóng modal sau khi thêm thành công
+                    })
+                    .catch(error => {
+                        console.error("Lỗi khi thêm mới:", error);
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể thêm loại phòng. Vui lòng thử lại sau!',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+            }
+        });
     };
+    
 
     return (
         <div className={`modal fade ${show ? 'show d-block' : ''}`} tabIndex={-1} role="dialog" style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>

@@ -4,6 +4,7 @@ import { deleteTienNghiPhong, listTienIchPhong, addTienIchPhong } from '../../se
 import { DanhSachDichVu, XoaDichVuDiKem } from '../../services/DichVuDiKemService';
 import { ThemDichVuDiKem, DanhSachDichVuDiKem } from '../../services/LoaiPhongService';
 import './Detail.css';
+import Swal from 'sweetalert2';
 
 const FormDetail = ({ show, handleClose, data }) => {
     const [formData, setFormData] = useState({
@@ -82,60 +83,121 @@ const FormDetail = ({ show, handleClose, data }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        updateLoaiPhong(formData)
-            .then(response => {
-                console.log("Cập nhật thành công:", response.data);
-                handleClose();
-            })
-            .catch(error => {
-                console.error("Lỗi khi cập nhật:", error);
-            });
+
+        Swal.fire({
+            title: 'Bạn có chắc chắn?',
+            text: 'Thông tin loại phòng sẽ được cập nhật!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Cập nhật',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                updateLoaiPhong(formData)
+                    .then(response => {
+                        console.log("Cập nhật thành công:", response.data);
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: 'Thông tin loại phòng đã được cập nhật.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        handleClose(); // Đóng form sau khi cập nhật
+                    })
+                    .catch(error => {
+                        console.error("Lỗi khi cập nhật:", error);
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể cập nhật loại phòng, vui lòng thử lại.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+            }
+        });
     };
+
 
 
     const handleDeleteTienIchPhong = (id) => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa tiện ích phòng này không?")) {
-            deleteTienNghiPhong(id)
-                .then(response => {
-                    console.log("Xóa tiện ích thành công:", response.data);
-                    // Cập nhật lại danh sách sau khi xóa
-                    DanhSachTienIchPhong(formData.id, { page: currentPage, size: itemsPerPage })
-                        .then(response => {
-                            setListTienIchPhong(response.data.content); // Cập nhật danh sách tiện ích
-                        })
-                        .catch(error => {
-                            console.error("Lỗi khi cập nhật danh sách tiện ích:", error);
+        Swal.fire({
+            title: 'Bạn có chắc chắn?',
+            text: 'Tiện ích phòng này sẽ bị xóa và không thể khôi phục!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteTienNghiPhong(id)
+                    .then(response => {
+                        console.log("Xóa tiện ích thành công:", response.data);
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: 'Tiện ích phòng đã được xóa.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
                         });
-                })
-                .catch(error => {
-                    console.error("Lỗi khi xóa tiện ích:", error);
-                });
-        }
+                        // Cập nhật lại danh sách sau khi xóa
+                        DanhSachTienIchPhong(formData.id, { page: currentPage, size: itemsPerPage })
+                            .then(response => {
+                                setListTienIchPhong(response.data.content); // Cập nhật danh sách tiện ích
+                            })
+                            .catch(error => {
+                                console.error("Lỗi khi cập nhật danh sách tiện ích:", error);
+                            });
+                    })
+                    .catch(error => {
+                        console.error("Lỗi khi xóa tiện ích:", error);
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể xóa tiện ích, vui lòng thử lại.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+            }
+        });
     };
+
 
     const handleAddTienIch = (selectedTienIchId) => {
         if (!selectedTienIchId || selectedTienIchId === '') {
-            alert("Vui lòng chọn tiện ích để thêm.");
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Vui lòng chọn tiện ích để thêm.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
             return;
         }
 
-        // Kiểm tra xem formData.id có hợp lệ không
         if (!formData.id || formData.id === '') {
-            alert("Không tìm thấy loại phòng. Vui lòng thử lại.");
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Không tìm thấy loại phòng. Vui lòng thử lại.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
             return;
         }
 
-        // Tạo đối tượng yêu cầu theo cấu trúc mới
         const tienNghiPhongRequest = {
-            loaiPhong: { id: formData.id }, // Gửi đối tượng LoaiPhong với id
-            tienIch: { id: selectedTienIchId } // Gửi đối tượng TienIch với id
+            loaiPhong: { id: formData.id },
+            tienIch: { id: selectedTienIchId }
         };
 
-        console.log("Request gửi đi:", tienNghiPhongRequest); // Gỡ lỗi để kiểm tra request
+        console.log("Request gửi đi:", tienNghiPhongRequest);
 
         addTienIchPhong(tienNghiPhongRequest)
             .then(response => {
                 console.log("Thêm tiện ích thành công:", response.data);
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Tiện ích phòng đã được thêm thành công.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
                 // Cập nhật lại danh sách tiện ích sau khi thêm
                 DanhSachTienIchPhong(formData.id, { page: currentPage, size: itemsPerPage })
                     .then(response => {
@@ -147,35 +209,54 @@ const FormDetail = ({ show, handleClose, data }) => {
             })
             .catch(error => {
                 console.error("Lỗi khi thêm tiện ích:", error);
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Không thể thêm tiện ích, vui lòng thử lại.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             });
     };
 
+
     const handleAddDichVuDiKem = (selectedDichVuId) => {
-        // Kiểm tra xem có chọn dịch vụ hay không
         if (!selectedDichVuId || selectedDichVuId === '') {
-            alert("Vui lòng chọn dịch vụ để thêm.");
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Vui lòng chọn dịch vụ để thêm.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
             return;
         }
 
-        // Kiểm tra xem formData.id có hợp lệ không
         if (!formData.id || formData.id === '') {
-            alert("Không tìm thấy loại phòng. Vui lòng thử lại.");
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Không tìm thấy loại phòng. Vui lòng thử lại.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
             return;
         }
 
-        // Tạo đối tượng yêu cầu theo cấu trúc mới
         const dichVuDiKemRequest = {
-            loaiPhong: { id: formData.id }, // Gửi đối tượng LoaiPhong với id
-            dichVu: { id: selectedDichVuId }, // Gửi đối tượng DichVu với id
+            loaiPhong: { id: formData.id },
+            dichVu: { id: selectedDichVuId },
             trangThai: true
         };
 
-        console.log("Request gửi đi:", dichVuDiKemRequest); // Gỡ lỗi để kiểm tra request
+        console.log("Request gửi đi:", dichVuDiKemRequest);
 
         ThemDichVuDiKem(dichVuDiKemRequest)
             .then(response => {
                 console.log("Thêm dịch vụ thành công:", response.data);
-                // Cập nhật lại danh sách dịch vụ đi kèm sau khi thêm
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Dịch vụ đi kèm đã được thêm thành công.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
                 DanhSachDichVuDiKem(formData.id, { page: currentPage, size: itemsPerPage })
                     .then(response => {
                         setListDichVuDiKem(response.data.content);
@@ -187,29 +268,57 @@ const FormDetail = ({ show, handleClose, data }) => {
             })
             .catch(error => {
                 console.error("Lỗi khi thêm dịch vụ:", error);
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Không thể thêm dịch vụ, vui lòng thử lại.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             });
     };
+
     //xóa dvdk
     const handleDeleteDichVuDiKem = (id) => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa dịch vụ đi kèm này không?")) {
-            XoaDichVuDiKem(id)
-                .then(response => {
-                    console.log("Xóa dịch vụ đi kèm thành công:", response.data);
-                    // Cập nhật lại danh sách dịch vụ đi kèm sau khi xóa
-                    DanhSachDichVuDiKem(formData.id, { page: currentPage, size: itemsPerPage })
-                        .then(response => {
-                            setListDichVuDiKem(response.data.content); // Cập nhật danh sách dịch vụ đi kèm
-                            setTotalPages(response.data.totalPages);
-                        })
-                        .catch(error => {
-                            console.error("Lỗi khi cập nhật danh sách dịch vụ đi kèm:", error);
+        Swal.fire({
+            title: 'Bạn có chắc chắn?',
+            text: 'Dịch vụ đi kèm này sẽ bị xóa và không thể khôi phục!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                XoaDichVuDiKem(id)
+                    .then(response => {
+                        console.log("Xóa dịch vụ đi kèm thành công:", response.data);
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: 'Dịch vụ đi kèm đã được xóa.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
                         });
-                })
-                .catch(error => {
-                    console.error("Lỗi khi xóa dịch vụ đi kèm:", error);
-                });
-        }
+                        DanhSachDichVuDiKem(formData.id, { page: currentPage, size: itemsPerPage })
+                            .then(response => {
+                                setListDichVuDiKem(response.data.content);
+                                setTotalPages(response.data.totalPages);
+                            })
+                            .catch(error => {
+                                console.error("Lỗi khi cập nhật danh sách dịch vụ đi kèm:", error);
+                            });
+                    })
+                    .catch(error => {
+                        console.error("Lỗi khi xóa dịch vụ đi kèm:", error);
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể xóa dịch vụ, vui lòng thử lại.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+            }
+        });
     };
+
 
     // Lấy danh sách dịch vụ đi kèm theo idLoaiPhong
     useEffect(() => {

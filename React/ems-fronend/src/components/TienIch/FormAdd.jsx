@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { addTienIch } from '../../services/TienIchService';
+import Swal from 'sweetalert2';
 
 
 const FormAdd = ({ show, handleClose }) => {
@@ -23,18 +24,35 @@ const FormAdd = ({ show, handleClose }) => {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('tenTienIch', tenTienIch);
+    
         // Gọi API thêm mới tiện ích với formData, trong đó hinhAnh chỉ là tên file
         addTienIch(formData)
             .then(response => {
                 console.log("Thêm mới thành công:", response.data);
-                // setTenTienIch('');
-                // setFile(null);
-                handleClose(); // Đóng modal sau khi thêm thành công
+    
+                // Hiển thị thông báo thành công
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: 'Tiện ích đã được thêm mới thành công!',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    handleClose(); // Đóng modal sau khi thêm thành công
+                });
             })
             .catch(error => {
                 console.error("Lỗi khi thêm mới:", error);
+    
+                // Hiển thị thông báo lỗi
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Thất bại',
+                    text: 'Đã xảy ra lỗi khi thêm mới tiện ích. Vui lòng thử lại!',
+                    confirmButtonText: 'OK'
+                });
             });
     };
+    
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);

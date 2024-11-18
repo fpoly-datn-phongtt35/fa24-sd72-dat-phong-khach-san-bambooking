@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { searchNhanVien, deleteNhanVien } from "../../services/NhanVienService";
+import Swal from 'sweetalert2';
+
 
 const ListNhanVien = () => {
   const [nhanVien, setNhanVien] = useState([]);
@@ -36,16 +38,40 @@ const ListNhanVien = () => {
   };
 
   const handleDeleteNhanVien = async (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa nhân viên này?")) {
-      try {
-        await deleteNhanVien(id);
-        setNhanVien((prev) => prev.filter((emp) => emp.id !== id));
-        console.log("Xóa nhân viên thành công!");
-      } catch (error) {
-        console.error("Lỗi khi xóa nhân viên: ", error.message);
-      }
-    }
-  };
+    Swal.fire({
+        title: 'Xác nhận xóa',
+        text: "Bạn có chắc chắn muốn xóa nhân viên này?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await deleteNhanVien(id);
+                setNhanVien((prev) => prev.filter((emp) => emp.id !== id));
+                console.log("Xóa nhân viên thành công!");
+                Swal.fire({
+                    title: 'Đã xóa!',
+                    text: 'Nhân viên đã được xóa thành công.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            } catch (error) {
+                console.error("Lỗi khi xóa nhân viên: ", error.message);
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Không thể xóa nhân viên. Vui lòng thử lại.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        }
+    });
+};
+
 
   const handleSearchInput = (e) => {
     setSearchQuery(e.target.value);

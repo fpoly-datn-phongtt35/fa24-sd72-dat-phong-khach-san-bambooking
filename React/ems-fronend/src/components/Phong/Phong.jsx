@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { createPhong, getLoaiPhong, getOnePhong, updatePhong } from '../../services/PhongService';
 import { uploadImage, searchByIDPhong } from '../../services/ImageService';
+import Swal from 'sweetalert2';
+
+
 const Phong = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -49,7 +52,7 @@ const Phong = () => {
 
     const saveOrUpdate = (e) => {
         e.preventDefault();
-
+    
         const phong = {
             maPhong,
             tenPhong,
@@ -57,57 +60,78 @@ const Phong = () => {
             tinhTrang: id ? tinhTrang : "Trống",
             trangThai: trangThai ? "true" : "false"
         };
-
+    
         const formData = new FormData();
         formData.append('file', file);
         formData.append('tenAnh', tenPhong);
         formData.append('idPhong', id);
         formData.append('tinhTrang', id ? tinhTrang : 'Trống');
         formData.append('trangThai', id ? trangThai : 'true');
-        // Gửi giá trị trạng thái dưới dạng boolean
-
-
+    
         const handleError = (error) => {
             if (error.response && error.response.data) {
                 setErrors(error.response.data);
-                console.log("Lỗi từ API:", error.response.data); // Log dữ liệu lỗi
+                console.error("Lỗi từ API:", error.response.data); // Log dữ liệu lỗi
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Không thể hoàn thành thao tác. Vui lòng kiểm tra lại!',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             } else {
-                console.log(error);
+                console.error(error);
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Đã xảy ra lỗi không xác định.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             }
         };
-
-
-        if (id) {
-            updatePhong(id, phong).then((response) => {
-                console.log("Cập nhật phòng thành công: " + response.data.content)
-                uploadImage(formData)
-                    .then((response) => {
-                        console.log('Upload thành công:', response.data);
-                    })
-                    .catch((error) => {
-                        console.error('Lỗi khi upload:', error);
-                    });
-                navigate('/phong');
-            }).catch(handleError);
-
-
-        } else {
-            createPhong(phong).then((response) => {
-                console.log("Thêm phòng thành công: " + response.data.content);
-                navigate('/phong')
-            }).catch(handleError);
-
-            // uploadImage(formData)
-            //     .then((response) => {
-            //         console.log('Upload thành công:', response.data);
-            //     })
-            //     .catch((error) => {
-            //         console.error('Lỗi khi upload:', error);
-            //     });
-        };
-
-
-    }
+    
+        Swal.fire({
+            title: id ? 'Xác nhận cập nhật' : 'Xác nhận thêm mới',
+            text: id ? 'Bạn có chắc chắn muốn cập nhật thông tin phòng?' : 'Bạn có chắc chắn muốn thêm phòng mới?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: id ? 'Cập nhật' : 'Thêm mới',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (id) {
+                    // Cập nhật phòng
+                    updatePhong(id, phong).then((response) => {
+                        console.log("Cập nhật phòng thành công:", response.data.content);
+                        uploadImage(formData)
+                            .then((response) => {
+                                console.log('Upload thành công:', response.data);
+                            })
+                            .catch((error) => {
+                                console.error('Lỗi khi upload:', error);
+                            });
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: 'Thông tin phòng đã được cập nhật.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => navigate('/phong'));
+                    }).catch(handleError);
+                } else {
+                    // Thêm mới phòng
+                    createPhong(phong).then((response) => {
+                        console.log("Thêm phòng thành công:", response.data.content);
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: 'Phòng mới đã được thêm.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => navigate('/phong'));
+                    }).catch(handleError);
+                }
+            }
+        });
+    };
+    
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);

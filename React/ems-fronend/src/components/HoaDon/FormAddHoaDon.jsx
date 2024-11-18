@@ -127,7 +127,7 @@ const FormAddHoaDon = ({ handleClose }) => {
                                         className="form-select"
                                         id="nhanVien"
                                         name="nhanVien"
-                                        value={newHoaDon.nhanVien?.id}  // Chỉ cần lưu trữ id của nhân viên
+                                        value={newHoaDon.nhanVien?.id} 
                                         onChange={handleNhanVienChange}
                                         required
                                     >

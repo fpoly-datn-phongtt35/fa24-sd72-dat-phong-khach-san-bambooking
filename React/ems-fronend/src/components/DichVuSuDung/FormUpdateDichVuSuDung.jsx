@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CapNhatDichVuSuDung, DanhSachDichVu, DanhSachXepPhong } from '../../services/DichVuSuDungService';
+import Swal from 'sweetalert2';
 
 const FormUpdateDichVuSuDung = ({ show, handleClose, refreshData, dichVuSuDung }) => {
     const [dichVu, setDichVu] = useState('');
@@ -38,8 +39,8 @@ const FormUpdateDichVuSuDung = ({ show, handleClose, refreshData, dichVuSuDung }
 
     const handleUpdate = (e) => {
         e.preventDefault();
-
-        // Creating update object
+    
+        // Tạo đối tượng cập nhật
         const updatedDichVuSuDung = {
             id: dichVuSuDung.id,
             dichVu: { id: dichVu },
@@ -47,23 +48,41 @@ const FormUpdateDichVuSuDung = ({ show, handleClose, refreshData, dichVuSuDung }
             ngayBatDau: `${ngayBatDau}T00:00:00`,
             ngayKetThuc: `${ngayKetThuc}T00:00:00`,
             giaSuDung,
-            trangThai, // Gửi giá trị boolean
+            trangThai, // Giá trị boolean
             soLuongSuDung,
         };
-
+    
         console.log('Dữ liệu gửi đi:', updatedDichVuSuDung);
-
-        // Calling the update service
+    
+        // Gọi service cập nhật
         CapNhatDichVuSuDung(updatedDichVuSuDung)
             .then(response => {
                 console.log("Cập nhật thành công:", response.data);
-                refreshData();
-                handleClose();
+    
+                // Hiển thị thông báo thành công
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Phiếu dịch vụ đã được cập nhật thành công.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+    
+                refreshData(); // Làm mới danh sách
+                handleClose(); // Đóng modal
             })
             .catch(error => {
                 console.error("Lỗi khi cập nhật phiếu dịch vụ:", error);
+    
+                // Hiển thị thông báo lỗi
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Không thể cập nhật phiếu dịch vụ, vui lòng thử lại.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             });
     };
+    
 
     if (!show) return null;
 

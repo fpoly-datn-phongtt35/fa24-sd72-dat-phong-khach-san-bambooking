@@ -267,6 +267,8 @@ import { getVaiTroList } from "../../services/VaiTroService";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Swal from 'sweetalert2';
+
 
 const NhanVienComponent = () => {
   const [formData, setFormData] = useState({
@@ -342,32 +344,53 @@ const NhanVienComponent = () => {
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error("Vui lòng kiểm tra lại thông tin nhập");
-      return;
+        Swal.fire({
+            title: 'Lỗi!',
+            text: 'Vui lòng kiểm tra lại thông tin nhập.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+        });
+        return;
     }
 
     const payload = {
-      ...formData,
-      vaiTro: { id: parseInt(formData.vaiTro) },
+        ...formData,
+        vaiTro: { id: parseInt(formData.vaiTro) },
     };
 
     try {
-      const currentDate = new Date().toISOString().split("T")[0];
-      if (id) {
-        payload.ngaySua = currentDate;
-        await updateNhanVien(id, payload);
-        toast.success("Cập nhật nhân viên thành công!");
-      } else {
-        payload.ngayTao = currentDate;
-        await createNhanVien(payload);
-        toast.success("Thêm nhân viên thành công!");
-      }
-      navigate("/NhanVien");
+        const currentDate = new Date().toISOString().split("T")[0];
+        if (id) {
+            payload.ngaySua = currentDate;
+            await updateNhanVien(id, payload);
+            Swal.fire({
+                title: 'Thành công!',
+                text: 'Cập nhật nhân viên thành công!',
+                icon: 'success',
+                confirmButtonText: 'OK',
+            });
+        } else {
+            payload.ngayTao = currentDate;
+            await createNhanVien(payload);
+            Swal.fire({
+                title: 'Thành công!',
+                text: 'Thêm nhân viên thành công!',
+                icon: 'success',
+                confirmButtonText: 'OK',
+            });
+        }
+        navigate("/NhanVien");
     } catch (error) {
-      console.error("Lỗi khi lưu nhân viên:", error);
-      toast.error("Có lỗi xảy ra khi lưu nhân viên.");
+        console.error("Lỗi khi lưu nhân viên:", error);
+        Swal.fire({
+            title: 'Lỗi!',
+            text: 'Có lỗi xảy ra khi lưu nhân viên. Vui lòng thử lại.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+        });
     }
-  };
+};
+
 
   return (
     <div className="container">
