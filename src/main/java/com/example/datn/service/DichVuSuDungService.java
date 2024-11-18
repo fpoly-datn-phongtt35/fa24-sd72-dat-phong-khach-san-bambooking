@@ -12,4 +12,8 @@ public interface DichVuSuDungService {
     DichVuSuDung updatePhieuDichVu(DichVuSuDungRequest dichVuSuDungRequest);
     void deletePhieuDichVu(Integer id);
     void updateStatus(Integer id);
+
+    List<DichVuSuDung> getByIDXepPhong(int idXepPhong);
+
+    DichVuSuDung addPhieuDichVu2(DichVuSuDungRequest dichVuSuDungRequest);
 }

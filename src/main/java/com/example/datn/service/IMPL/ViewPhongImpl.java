@@ -3,7 +3,9 @@ package com.example.datn.service.IMPL;
 import com.example.datn.dto.response.PhongResponse;
 import com.example.datn.mapper.PhongMapper;
 import com.example.datn.model.Phong;
+import com.example.datn.model.XepPhong;
 import com.example.datn.repository.ViewPhongRepository;
+import com.example.datn.repository.XepPhongRepository;
 import com.example.datn.service.ViewPhongService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ViewPhongImpl implements ViewPhongService {
     ViewPhongRepository viewPhongRepository;
+
+    XepPhongRepository xepPhongRepository;
     PhongMapper phongMapper;
     @Override
     public List<PhongResponse> findRoomsByCriteria(String tinhTrang, String keyword) {
@@ -27,6 +31,11 @@ public class ViewPhongImpl implements ViewPhongService {
         return phongList.stream()
                 .map(phongMapper::toPhongResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public XepPhong RoomDetail(int idPhong) {
+        return xepPhongRepository.getByIDPhong(idPhong) ;
     }
 
 
