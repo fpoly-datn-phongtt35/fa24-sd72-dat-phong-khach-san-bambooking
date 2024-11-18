@@ -11,6 +11,8 @@ import com.example.datn.service.XepPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -34,13 +36,11 @@ public class XepPhongServiceIMPL implements XepPhongService {
         XepPhong xp = new XepPhong();
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
         Phong p = phongRepository.getPhongById(xepPhongRequest.getPhong().getId());
-
         xp.setPhong(xepPhongRequest.getPhong());
         xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
         xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
-        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
+        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong().withHour(12).withMinute(0).withSecond(0).withNano(0));
         xp.setTrangThai(xepPhongRequest.getTrangThai());
-
         ttdp.setTrangThai("Da xep");
         thongTinDatPhongRepository.save(ttdp);
         return xepPhongRepository.save(xp);
@@ -67,5 +67,19 @@ public class XepPhongServiceIMPL implements XepPhongService {
     @Override
     public XepPhong getByMaTTDP(String maTTDP) {
         return xepPhongRepository.getByMaTTDP(maTTDP);
+    }
+
+    @Override
+    public XepPhong checkIn(String maTTDP) {
+        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByMa(maTTDP);
+        ttdp.setTrangThai("Dang o");
+        thongTinDatPhongRepository.save(ttdp);
+        XepPhong xp = xepPhongRepository.getByMaTTDP(maTTDP);
+        xp.setNgayNhanPhong(LocalDateTime.now());
+        xepPhongRepository.save(xp);
+        Phong p = xp.getPhong();
+        p.setTinhTrang("occupied");
+        phongRepository.save(p);
+        return xp;
     }
 }

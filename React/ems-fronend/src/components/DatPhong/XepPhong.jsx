@@ -48,7 +48,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
         const requests = selectedTTDPs.map((ttdp) => {
             const xepPhongRequest = {
                 phong: { id: selectedPhong[ttdp.id] },
-                thongTinDatPhong: { id: ttdp.id },
+                thongTinDatPhong: { id: ttdp.id },  
                 ngayNhanPhong: formatToLocalDateTime(ttdp.ngayNhanPhong),
                 ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong),
                 trangThai: true,

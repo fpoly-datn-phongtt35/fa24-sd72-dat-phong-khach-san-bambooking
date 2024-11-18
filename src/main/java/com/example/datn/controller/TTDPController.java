@@ -76,6 +76,7 @@ public class TTDPController {
             @RequestParam(required = false) String key,
             @RequestParam(required = false) String trangThai,
             Pageable pageable) {
+        thongTinDatPhongServiceIMPL.kiemTraDenHan(thongTinDatPhongServiceIMPL.getAll());
         return thongTinDatPhongServiceIMPL.findByDateRangeAndKey(startDate, endDate, key, trangThai, pageable);
     }
     @GetMapping("/huy-ttdp")
