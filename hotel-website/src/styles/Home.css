@@ -4,61 +4,215 @@
   font-family: Arial, sans-serif;
 }
 
-.home-page h1 {
-  font-size: 2.5em;
-  color: #2c3e50;
+h2 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-style: italic;
   margin-bottom: 20px;
+  color: #333;
 }
 
-.home-page p {
-  font-size: 1.2em;
+p {
+  font-size: 1.2rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  max-width: 940px;
   color: #555;
-  margin-bottom: 40px;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.explore-button {
-  padding: 10px 20px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+.text-styling {
+  font-family: 'Arial', sans-serif;
+  color: #555;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-.explore-button:hover {
-  background-color: #2980b9;
-  transform: scale(1.05);
+.container {
+  max-width: 90%;
+  margin: 0 auto;
+  padding: 20px;
 }
 
 .slideshow-container {
-  max-width: 600px;
+  max-width: 1100px;
+  width: 100%;
   margin: 20px auto 50px;
   position: relative;
   text-align: center;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.247);
 }
 
 .slideshow-image {
   width: 100%;
-  height: auto;
+  height: 500px;
   border-radius: 10px;
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 1s ease-in-out;
+}
+
+.slide-show span {
+  display: block;
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+  color: #5c5a5a;
+  margin-bottom: 8px;
+  font-size: 24px;
+}
+
+.slide-show span:first-child {
+  font-size: 15px;
+  color: #333;
+  letter-spacing: 2px;
+}
+
+.slide-show span:nth-child(2) {
+  font-size: 25px;
+  color: #666;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.slide-show hr {
+  width: 200px;
+  margin: 10px auto;
+  border-top: 2px solid #ccc;
+}
+
+.services-and-image {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+}
+
+.image-column {
+  width: 45%;
+  margin-left: 150px;
+}
+
+.image-frame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.large-image {
+  width: 100%;
+  height: auto;
+  margin-bottom: 5px;
+}
+
+.small-images-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.small-image {
+  width: 49%;
+  margin: 2px 3px;
+  height: auto;
+}
+
+.services-column {
+  margin-right: 35px;
+  width: 40%;
+  text-align: left;
+}
+
+.services-column span {
+  display: block;
+  text-align: left;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  margin-bottom: 12px;
+  font-size: 26px;
+}
+
+.services-column span:first-child {
+  font-size: 15px;
+  color: #1d1d1d;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.services-column span:nth-child(2) {
+  font-size: 25px;
+  color: #555;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.services-column hr {
+  width: 250px;
+  margin: 5px 2px 20px 2px;
+  border-top: 2px solid #ccc;
+}
+
+.services-column ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.services-column ul li {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 10px;
+  line-height: 1.5;
+  padding: 8px 12px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.services-column ul li::before {
+  content: "✔️";
+  font-size: 20px;
+  color: white;
+  margin-right: 10px;
+}
+
+.services-column ul li:hover {
+  background-color: #f1f1f1;
 }
 
 @media (max-width: 768px) {
-  .home-page {
-    padding: 30px;
+  .services-and-image {
+    flex-direction: column;
+    align-items: center;
   }
 
-  .slideshow-container {
-    max-width: 100%;
+  .image-column,
+  .services-column {
+    width: 100%;
   }
 
-  .explore-button {
-    padding: 8px 16px;
-    font-size: 1em;
+  .small-images-row {
+    flex-direction: column;
+  }
+
+  .small-image {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .services-and-image {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .services {
+    width: 100%;
+  }
+
+  .service-background,
+  .small-images img {
+    width: 100%;
+    height: auto;
   }
 }
