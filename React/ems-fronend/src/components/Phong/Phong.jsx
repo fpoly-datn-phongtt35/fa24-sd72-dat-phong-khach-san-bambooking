@@ -54,7 +54,7 @@ const Phong = () => {
             maPhong,
             tenPhong,
             idLoaiPhong,
-            tinhTrang: id ? tinhTrang : "Trống",
+            tinhTrang: id ? tinhTrang : "Available",
             trangThai: trangThai ? "true" : "false"
         };
 
@@ -62,7 +62,7 @@ const Phong = () => {
         formData.append('file', file);
         formData.append('tenAnh', tenPhong);
         formData.append('idPhong', id);
-        formData.append('tinhTrang', id ? tinhTrang : 'Trống');
+        formData.append('tinhTrang', id ? tinhTrang : 'Available');
         formData.append('trangThai', id ? trangThai : 'true');
         // Gửi giá trị trạng thái dưới dạng boolean
 
@@ -123,7 +123,6 @@ const Phong = () => {
 
     return (
         <div className='container'>
-            <br /><br />
             <div className='row'>
                 {/* Phần hiển thị ảnh */}
                 <div className='col-md-6'>

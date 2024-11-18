@@ -74,4 +74,23 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
             phieuDichVuRepository.save(dichVuSuDung);
         }
     }
+
+    @Override
+    public List<DichVuSuDung> getByIDXepPhong(int idXepPhong) {
+        return phieuDichVuRepository.findByXepPhongId(idXepPhong);
+    }
+
+    @Override
+    public DichVuSuDung addPhieuDichVu2(DichVuSuDungRequest dichVuSuDungRequest) {
+        DichVuSuDung dichVuSuDung = new DichVuSuDung();
+        dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
+        dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
+        dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
+        // Ngày bắt đầu và kết thúc tự động
+        dichVuSuDung.setNgayBatDau(LocalDateTime.now());
+        dichVuSuDung.setNgayKetThuc(dichVuSuDungRequest.getNgayKetThuc()); // Ví dụ cộng 1 ngày
+        dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
+        dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
+        return phieuDichVuRepository.save(dichVuSuDung);
+    }
 }

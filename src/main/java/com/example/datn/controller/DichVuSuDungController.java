@@ -1,6 +1,7 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.DichVuSuDungRequest;
+import com.example.datn.model.DichVu;
 import com.example.datn.model.DichVuSuDung;
 
 import com.example.datn.service.IMPL.DichVuServiceIMPL;
@@ -46,6 +47,16 @@ public class DichVuSuDungController {
     public String delete(@PathVariable("id") Integer id) {
         dichVuSuDungServiceIMPL.deletePhieuDichVu(id);
         return "redirect:/dich_vu_su_dung";
+    }
+
+    @GetMapping("/searchByIDXepPhong/{idXepPhong}")
+    public ResponseEntity<?> searchByIDXepPhong(@PathVariable Integer idXepPhong){
+        return ResponseEntity.ok(dichVuSuDungServiceIMPL.getByIDXepPhong(idXepPhong));
+    }
+
+    @PostMapping("/addDVSD")
+    public ResponseEntity<?> addDVSD(@RequestBody DichVuSuDungRequest dichVuSuDungRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(dichVuSuDungServiceIMPL.addPhieuDichVu2(dichVuSuDungRequest));
     }
 
 }
