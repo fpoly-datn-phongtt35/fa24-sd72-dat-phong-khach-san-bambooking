@@ -28,7 +28,7 @@ public class HoaDonController {
         return ResponseEntity.ok(hoaDonResponses);
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<?> createHoaDon(@RequestBody HoaDonRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(hoaDonService.createHoaDon(request));
     }

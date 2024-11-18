@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { deleteImage, listImage } from '../../services/ImageService';
+import Swal from 'sweetalert2';
+
 
 const ListImage = () => {
   const [images, setImages] = useState([]);
@@ -44,17 +46,42 @@ const ListImage = () => {
   };
 
   const handleRemove = (id) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa ảnh này không?")) {
-      deleteImage(id)
-        .then((response) => {
-          console.log("Xóa ảnh thành công!", response.data);
-          getAllImages();
-        })
-        .catch((error) => {
-          console.log("Lỗi khi xóa: " + error);
-        });
-    }
-  };
+    Swal.fire({
+        title: 'Xác nhận xóa',
+        text: "Bạn có chắc chắn muốn xóa ảnh này không?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteImage(id)
+                .then((response) => {
+                    console.log("Xóa ảnh thành công!", response.data);
+                    Swal.fire({
+                        title: 'Đã xóa!',
+                        text: 'Ảnh đã được xóa thành công.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        getAllImages(); // Cập nhật danh sách ảnh sau khi xóa
+                    });
+                })
+                .catch((error) => {
+                    console.log("Lỗi khi xóa: " + error);
+                    Swal.fire({
+                        title: 'Lỗi!',
+                        text: 'Không thể xóa ảnh. Vui lòng thử lại.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                });
+        }
+    });
+};
+
 
   const handleSearchInput = (e) => {
     setSearchQuery(e.target.value);

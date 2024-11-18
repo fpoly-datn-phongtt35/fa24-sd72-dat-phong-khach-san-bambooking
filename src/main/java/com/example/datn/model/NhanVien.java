@@ -35,6 +35,13 @@ public class NhanVien {
     @Column(name = "ten")
     private String ten;
 
+    @Transient // Đảm bảo trường này không được ánh xạ trực tiếp với cơ sở dữ liệu
+    private String hoTenNhanVien;
+
+    public String getHoTenNhanVien() {
+        return ho + " " + ten;
+    }
+
     @Column(name = "gioi_tinh")
     private String gioiTinh;
 

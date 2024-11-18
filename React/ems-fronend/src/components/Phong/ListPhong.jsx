@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { listPhong, updateStatus } from '../../services/PhongService';
+import Swal from 'sweetalert2';
+
 
 const ListPhong = () => {
 
@@ -49,12 +51,38 @@ const ListPhong = () => {
     }
 
     const handleUpdateStatus = (phongId) => {
-        updateStatus(phongId).then(() => {
-            getAllPhong();
-        }).catch((error) => {
-            console.log("Cập nhật trạng thái phòng thất bại: " + error);
+        Swal.fire({
+            title: 'Xác nhận cập nhật trạng thái',
+            text: 'Bạn có chắc chắn muốn thay đổi trạng thái của phòng này?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                updateStatus(phongId)
+                    .then(() => {
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: 'Trạng thái phòng đã được cập nhật.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        getAllPhong(); // Làm mới danh sách phòng sau khi cập nhật
+                    })
+                    .catch((error) => {
+                        console.error("Cập nhật trạng thái phòng thất bại:", error);
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể cập nhật trạng thái phòng. Vui lòng thử lại sau!',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+            }
         });
     };
+    
 
     const handleSearchInput = (e) => {
         setSearchQuery(e.target.value);

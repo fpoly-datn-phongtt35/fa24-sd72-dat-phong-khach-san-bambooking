@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createKhachHang, getOneKhachHang, updateKhachHang } from '../../services/KhachHangService';
+import Swal from 'sweetalert2';
+
 
 const KhachHangComponent = () => {
     const { id } = useParams();
@@ -34,7 +36,7 @@ const KhachHangComponent = () => {
 
     const saveOrUpdate = (e) => {
         e.preventDefault();
-
+    
         const khachHang = {
             ho,
             ten,
@@ -44,28 +46,57 @@ const KhachHangComponent = () => {
             email,
             trangThai: trangThai ? "Hoạt động" : "Ngừng hoạt động"
         };
-
+    
         const handleError = (error) => {
             if (error.response && error.response.data) {
                 setErrors(error.response.data);
                 console.log("Lỗi từ API:", error.response.data);
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Có lỗi xảy ra khi lưu thông tin khách hàng.',
+                    icon: 'error',
+                    confirmButtonText: 'Đóng'
+                });
             } else {
                 console.log(error);
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Có lỗi xảy ra khi lưu thông tin khách hàng.',
+                    icon: 'error',
+                    confirmButtonText: 'Đóng'
+                });
             }
         };
-
+    
         if (id) {
-            updateKhachHang(id, khachHang).then(response => {
-                console.log("Cập nhật khách hàng thành công: " + response.data.content);
-                navigate('/khach-hang');
-            }).catch(handleError);
+            updateKhachHang(id, khachHang)
+                .then(response => {
+                    console.log("Cập nhật khách hàng thành công: " + response.data.content);
+                    Swal.fire({
+                        title: 'Cập nhật thành công!',
+                        text: 'Thông tin khách hàng đã được cập nhật.',
+                        icon: 'success',
+                        confirmButtonText: 'Đóng'
+                    });
+                    navigate('/khach-hang');
+                })
+                .catch(handleError);
         } else {
-            createKhachHang(khachHang).then(response => {
-                console.log("Thêm khách hàng thành công: " + response.data.content);
-                navigate('/khach-hang');
-            }).catch(handleError);
+            createKhachHang(khachHang)
+                .then(response => {
+                    console.log("Thêm khách hàng thành công: " + response.data.content);
+                    Swal.fire({
+                        title: 'Thêm thành công!',
+                        text: 'Khách hàng mới đã được thêm.',
+                        icon: 'success',
+                        confirmButtonText: 'Đóng'
+                    });
+                    navigate('/khach-hang');
+                })
+                .catch(handleError);
         }
     };
+    
 
     return (
         <div className='container'>

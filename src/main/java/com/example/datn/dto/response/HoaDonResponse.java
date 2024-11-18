@@ -11,7 +11,6 @@ import java.time.LocalDate;
 @Data
 public class HoaDonResponse {
     Integer id;
-    Integer idHoaDon;
     String maHoaDon;
     String hoTenNhanVien;
     String maDatPhong;
