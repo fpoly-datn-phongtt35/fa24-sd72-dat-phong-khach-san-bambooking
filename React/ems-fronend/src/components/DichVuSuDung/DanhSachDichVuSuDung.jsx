@@ -3,6 +3,7 @@ import { DuLieuDichVuSuDung, XoaDichVuSuDung } from '../../services/DichVuSuDung
 import FormAddDichVuSuDung from './FormAddDichVuSuDung';
 import FormUpdateDichVuSuDung from './FormUpdateDichVuSuDung';
 import DetailDichVuSuDung from './DetailDichVuSuDung';
+import Swal from 'sweetalert2';
 
 const DanhSachDichVuSuDung = () => {
     const [dichVuSuDungList, setDichVuSuDungList] = useState([]);
@@ -56,12 +57,44 @@ const DanhSachDichVuSuDung = () => {
     const closeDetail = () => { setShowDetail(false); setCurrentDichVuSuDung(null); };
 
     const handleDelete = (id) => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa dịch vụ sử dụng này?")) {
-            XoaDichVuSuDung(id)
-                .then(() => loadDichVuSuDung())
-                .catch(error => console.error("Lỗi khi xóa dịch vụ sử dụng:", error));
-        }
+        // Hiển thị hộp thoại xác nhận bằng SweetAlert2
+        Swal.fire({
+            title: 'Bạn có chắc chắn?',
+            text: 'Hành động này sẽ xóa dịch vụ sử dụng vĩnh viễn!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Nếu người dùng xác nhận
+                XoaDichVuSuDung(id)
+                    .then(() => {
+                        // Hiển thị thông báo thành công
+                        Swal.fire({
+                            title: 'Đã xóa!',
+                            text: 'Dịch vụ sử dụng đã được xóa thành công.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        loadDichVuSuDung(); // Tải lại danh sách dịch vụ sử dụng
+                    })
+                    .catch(error => {
+                        console.error("Lỗi khi xóa dịch vụ sử dụng:", error);
+                        // Hiển thị thông báo lỗi
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể xóa dịch vụ sử dụng, vui lòng thử lại.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+            }
+        });
     };
+    
 
     const handleNextPage = () => {
         if (currentPage < totalPages - 1) {

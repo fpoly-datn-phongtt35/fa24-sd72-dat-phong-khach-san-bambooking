@@ -32,4 +32,8 @@ public class XepPhongController {
         return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.getByMaTTDP(maThongTinDatPhong));
     }
 
+    @GetMapping("check-in")
+    public ResponseEntity<XepPhong> checkIn(@RequestParam("maThongTinDatPhong") String maThongTinDatPhong){
+        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.checkIn(maThongTinDatPhong));
+    }
 }

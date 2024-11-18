@@ -96,4 +96,17 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         return ttdp;
     }
 
+    @Override
+    public void kiemTraDenHan(List<ThongTinDatPhong> ttdps) {
+        LocalDate ngayHienTai = LocalDate.now();
+        for (ThongTinDatPhong ttdp : ttdps) {
+            if (ttdp.getTrangThai().equals("Dang o")) {
+                if (ttdp.getNgayTraPhong().isEqual(ngayHienTai)) {
+                    ttdp.setTrangThai("Den han");
+                    thongTinDatPhongRepository.save(ttdp);
+                }
+            }
+        }
+    }
+
 }

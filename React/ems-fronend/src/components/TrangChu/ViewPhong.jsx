@@ -1,7 +1,8 @@
-import React, { useState, useEffect , useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { searchRooms } from '../../services/ViewPhong';
 import { useNavigate } from 'react-router-dom';
 import { searchByIDPhong } from '../../services/ImageService';
+import { getRoomDetail } from '../../services/ViewPhong';
 
 const ViewPhong = () => {
   const [rooms, setRooms] = useState([]);
@@ -10,6 +11,7 @@ const ViewPhong = () => {
   const [giaMax, setGiaMax] = useState(null);
   const [keyword, setKeyword] = useState('');
   const [listImage, setlistImage] = useState('');
+
   const navigate = useNavigate();
 
   const handleSearch = useCallback(() => {
@@ -19,7 +21,6 @@ const ViewPhong = () => {
     searchRooms(tinhTrang, min, max, keyword)
       .then(async roomList => {
         if (Array.isArray(roomList)) {
-          console.log('Dữ liệu phòng trả về:', roomList);
           setRooms(roomList);
 
           // Sử dụng Promise.all để đợi tất cả các yêu cầu ảnh hoàn tất
@@ -34,8 +35,6 @@ const ViewPhong = () => {
           }, {});
 
           setlistImage(imageMap);
-          console.log(listImage)
-          console.log("Danh sách ảnh đã cập nhật:", imageMap);
         } else {
           console.error("Dữ liệu trả về không phải là mảng:", roomList);
           setRooms([]);
@@ -63,8 +62,27 @@ const ViewPhong = () => {
 
   // Hàm để điều hướng đến trang chi tiết
   const handleViewDetail = (roomId) => {
-    navigate(`/room-detail/${roomId}`);
+    getRoomDetail(roomId)
+      .then((response) => {
+        if (!response) {
+          throw new Error("Không có thông tin chi tiết phòng.");
+        } else {
+          const ngayNhanPhong = new Date(response.thongTinDatPhong.ngayNhanPhong); // Ngày nhận phòng
+          const ngayHienTai = new Date(); // Ngày hiện tại
+
+          // So sánh timestamp
+          if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
+            alert(`Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`);
+          } else {
+            navigate(`/api/RoomDetail/${roomId}`); // Điều hướng đến trang chi tiết
+          }
+        }
+      })
+      .catch(() => {
+        alert("Chưa có xếp phòng, không thể xem chi tiết.");
+      });
   };
+
 
   return (
     <div className='container d-flex'>
@@ -124,23 +142,23 @@ const ViewPhong = () => {
                 <input
                   type='radio'
                   name='tinhTrang'
-                  value='Trống'
+                  value='Available'
                   className='form-check-input'
-                  checked={tinhTrang === 'Trống'}
+                  checked={tinhTrang === 'Available'}
                   onChange={handleStatusChange}
                 />
-                <label className='form-check-label'>Trống</label>
+                <label className='form-check-label'>Available</label>
               </div>
               <div className='form-check'>
                 <input
                   type='radio'
                   name='tinhTrang'
-                  value='Đang sử dụng'
+                  value='Occupied'
                   className='form-check-input'
-                  checked={tinhTrang === 'Đang sử dụng'}
+                  checked={tinhTrang === 'Occupied'}
                   onChange={handleStatusChange}
                 />
-                <label className='form-check-label'>Đang sử dụng</label>
+                <label className='form-check-label'>Occupied</label>
               </div>
             </div>
           </div>
@@ -153,12 +171,12 @@ const ViewPhong = () => {
               <div className='card-body'>
                 {listImage[room.id] ? (
                   <img
-                  src={listImage[room.id]?.[0]?.duongDan} // Lấy ảnh đầu tiên trong mảng
-                  alt='Phòng'
-                  className='img-fluid'
-                  style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-                />
-                
+                    src={listImage[room.id]?.[0]?.duongDan} // Lấy ảnh đầu tiên trong mảng
+                    alt='Phòng'
+                    className='img-fluid'
+                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                  />
+
                 ) : (
                   <span>Không có hình ảnh</span>
                 )}

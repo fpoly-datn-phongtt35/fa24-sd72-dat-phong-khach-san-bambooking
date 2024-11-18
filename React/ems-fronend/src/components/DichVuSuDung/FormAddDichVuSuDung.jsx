@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ThemDichVuSuDung, DanhSachDichVu, DanhSachXepPhong } from '../../services/DichVuSuDungService';
+import Swal from 'sweetalert2';
 
 const FormAddDichVuSuDung = ({ show, handleClose, refreshData }) => {
     const [formData, setFormData] = useState({
@@ -68,9 +69,19 @@ const FormAddDichVuSuDung = ({ show, handleClose, refreshData }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        
         ThemDichVuSuDung(formData)
             .then(response => {
                 console.log("Phiếu dịch vụ đã được thêm thành công:", response.data);
+                // Hiển thị thông báo thành công
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Phiếu dịch vụ đã được thêm thành công.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+    
+                // Reset form và đóng modal
                 setFormData({
                     dichVu: null,
                     xepPhong: null,
@@ -78,16 +89,25 @@ const FormAddDichVuSuDung = ({ show, handleClose, refreshData }) => {
                     ngayBatDau: '',
                     ngayKetThuc: '',
                     giaSuDung: 0,
-                    trangThai: true, // Reset to boolean
+                    trangThai: true, // Reset về boolean
                 });
-
-                refreshData();
-                handleClose();
+    
+                refreshData(); // Làm mới danh sách
+                handleClose(); // Đóng modal
             })
             .catch(error => {
                 console.error("Lỗi khi thêm phiếu dịch vụ:", error);
+    
+                // Hiển thị thông báo lỗi
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Không thể thêm phiếu dịch vụ, vui lòng thử lại.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             });
     };
+    
 
     if (!show) return null;
 

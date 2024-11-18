@@ -3,6 +3,7 @@ import { LayDanhSachDichVuDiKem, XoaDichVuDiKem } from '../../services/DichVuDiK
 import FormAddDichVuDiKem from './FormAddDichVuDiKem';
 import FormUpdateDichVuDiKem from './FormUpdateDichVuDiKem';
 import DetailDichVuDiKem from './DetailDichVuDiKem';
+import Swal from 'sweetalert2';
 
 const DanhSachDichVuDiKem = () => {
     const [dichVuDiKemList, setDichVuDiKemList] = useState([]);
@@ -60,12 +61,38 @@ const DanhSachDichVuDiKem = () => {
     const closeDetail = () => { setShowDetail(false); setCurrentDichVuDiKem(null); };
 
     const handleDelete = (id) => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa dịch vụ đi kèm này?")) {
-            XoaDichVuDiKem(id)
-                .then(() => loadDichVuDiKem())
-                .catch(error => console.error("Lỗi khi xóa dịch vụ đi kèm:", error));
-        }
+        Swal.fire({
+            title: 'Bạn có chắc chắn?',
+            text: "Thao tác này sẽ xóa dịch vụ đi kèm và không thể hoàn tác!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                XoaDichVuDiKem(id)
+                    .then(() => {
+                        Swal.fire(
+                            'Đã xóa!',
+                            'Dịch vụ đi kèm đã được xóa thành công.',
+                            'success'
+                        );
+                        loadDichVuDiKem();
+                    })
+                    .catch(error => {
+                        Swal.fire(
+                            'Lỗi!',
+                            'Đã xảy ra lỗi khi xóa dịch vụ đi kèm. Vui lòng thử lại.',
+                            'error'
+                        );
+                        console.error("Lỗi khi xóa dịch vụ đi kèm:", error);
+                    });
+            }
+        });
     };
+    
 
     const handleNextPage = () => {
         if (currentPage < totalPages - 1) {

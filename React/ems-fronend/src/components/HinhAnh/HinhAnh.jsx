@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getPhong, uploadImage } from '../../services/ImageService';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+
 
 const HinhAnh = ({ setImages }) => {
     const [file, setFile] = useState(null);
@@ -31,10 +33,10 @@ const HinhAnh = ({ setImages }) => {
 
     const saveOrUpdate = (e) => {
         e.preventDefault();
-
-        // Kiểm tra giá trị trangThai
+    
+        // Kiểm tra giá trị `trangThai`
         console.log('Giá trị trangThai trước khi gửi:', trangThai);
-
+    
         const formData = new FormData();
         formData.append('file', file);
         formData.append('tenAnh', tenAnh);
@@ -42,21 +44,39 @@ const HinhAnh = ({ setImages }) => {
         
         // Gửi giá trị trạng thái dưới dạng boolean
         formData.append('trangThai', trangThai);
-
+    
         uploadImage(formData)
             .then((response) => {
                 console.log('Upload thành công:', response.data);
-                // Reset các trường sau khi upload thành công
-                setTenAnh('');
-                setFile(null);
-                setIdPhong('');
-                setTrangThai(true);
-                navigate('/hinh-anh');
+    
+                // Hiển thị thông báo thành công
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Hình ảnh đã được tải lên thành công.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Reset các trường sau khi upload thành công
+                    setTenAnh('');
+                    setFile(null);
+                    setIdPhong('');
+                    setTrangThai(true);
+                    navigate('/hinh-anh');
+                });
             })
             .catch((error) => {
                 console.error('Lỗi khi upload:', error);
+    
+                // Hiển thị thông báo lỗi
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Đã xảy ra lỗi khi tải lên hình ảnh. Vui lòng thử lại.',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             });
     };
+    
 
     return (
         <div className="container">

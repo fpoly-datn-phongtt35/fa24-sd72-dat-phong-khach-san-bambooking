@@ -3,8 +3,9 @@ import './QuanLyDatPhong.scss';
 import { HienThiQuanLy, findTTDPS, huyTTDP } from '../../services/TTDP';
 import { useNavigate } from 'react-router-dom';
 import XepPhong from './XepPhong'; // Import XepPhong modal
-import { phongDaXep } from '../../services/XepPhongService';
+import { phongDaXep ,checkIn} from '../../services/XepPhongService';
 import { Alert } from 'react-bootstrap';
+import { checkOut } from '../../services/TraPhong';
 function QuanLyDatPhong() {
     const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(0);
@@ -55,7 +56,7 @@ function QuanLyDatPhong() {
                 setTotalPages(response.data.totalPages);
                 setCurrentPage(page);
                 setCurrentStatus(trangThai);
-                if (trangThai === 'Da xep') {
+                if (trangThai != 'Chua xep') {
                     response.data.content.forEach(ttdp => fetchPhongDaXep(ttdp.maThongTinDatPhong));
                 }
                 console.log(response.data);
@@ -99,7 +100,6 @@ function QuanLyDatPhong() {
         HuyThongTinDatPhong(maThongTinDatPhong)
     };
     
-    
     const goToPreviousPage = () => {
         if (currentPage > 0) {
             setCurrentPage(prevPage => prevPage - 1);
@@ -134,8 +134,15 @@ function QuanLyDatPhong() {
             }
         });
     };
-    const handleCheckIn = (ttdp) => {
-        console.log("Checkin for:", ttdp);
+    const handleCheckIn = (maThongTinDatPhong) => {
+        console.log("Checkin for:", maThongTinDatPhong);
+        checkIn(maThongTinDatPhong);
+        fetchThongTinDatPhong(currentStatus,currentPage);
+    };
+    const handleCheckOut = (maThongTinDatPhong) => {
+        console.log("Checkout for:", maThongTinDatPhong);
+        checkOut(maThongTinDatPhong);
+        fetchThongTinDatPhong(currentStatus,currentPage);
     };
     return (
         <div className="reservation">
@@ -209,7 +216,7 @@ function QuanLyDatPhong() {
                                     <td>{ttdp.tenKhachHang}</td>
                                     <td>{ttdp.soNguoi}</td>
                                     <td>
-                                        {currentStatus === 'Da xep'
+                                        {['Da xep', 'Dang o', 'Den han','Da tra phong'].includes(currentStatus)
                                             ? (phongData[ttdp.maThongTinDatPhong]?.phong.tenPhong || "Đang tải...")
                                             : ttdp.loaiPhong.tenLoaiPhong}
                                     </td>
@@ -224,10 +231,19 @@ function QuanLyDatPhong() {
                                             </>
                                         ) : currentStatus === 'Da xep' ? (
                                             <>
-                                                <button onClick={() => handleCheckIn(ttdp)}>Checkin</button>
+                                                <button onClick={() => handleCheckIn(ttdp.maThongTinDatPhong)}>Checkin</button>
                                                 <button onClick={() => handleHuyTTDPClick(ttdp.maThongTinDatPhong, currentStatus)} style={{ marginLeft: '10px' }}>Hủy</button>
                                             </>
-                                        ) : null}
+                                        ) : currentStatus === 'Dang o' ? (
+                                            <>
+                                                <button onClick={() => handleCheckOut(ttdp.maThongTinDatPhong)}>Checkout</button>
+                                            </>
+                                        ) : currentStatus === 'Den han' ? (
+                                            <>
+                                                <button onClick={() => handleCheckOut(ttdp.maThongTinDatPhong)}>Checkout</button>
+                                            </>
+                                        ) : null
+                                        }
                                     </td>
                                 </tr>
                             ))

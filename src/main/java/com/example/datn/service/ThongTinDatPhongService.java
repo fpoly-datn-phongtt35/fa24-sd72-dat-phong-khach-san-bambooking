@@ -23,4 +23,6 @@ public interface ThongTinDatPhongService {
 
     Page<TTDPResponse> findByDateRangeAndKey(LocalDate startDate,LocalDate endDate,String key,String trangThai,Pageable pageable);
     ThongTinDatPhong huyTTDP(String maTTDP);
+
+    void kiemTraDenHan(List<ThongTinDatPhong> ttdps);
 }

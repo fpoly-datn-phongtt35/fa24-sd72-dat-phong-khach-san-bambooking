@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { updateTienIch, deleteTienIch } from '../../services/TienIchService';
+import Swal from 'sweetalert2';
+
 
 const FormDetail = ({ show, handleClose, data }) => {
     // const [formData, setFormData] = useState({
@@ -19,7 +21,7 @@ const FormDetail = ({ show, handleClose, data }) => {
             //     tenTienIch: data.tenTienIch || '', 
             //     hinhAnh: data.hinhAnh || '',
             // });
-            setFile(data.hinhAnh );
+            setFile(data.hinhAnh);
             setImagePreview(data.hinhAnh); // Cập nhật hình ảnh
             setIdTienIch(data.id);
             setTenTienIch(data.tenTienIch);
@@ -33,46 +35,88 @@ const FormDetail = ({ show, handleClose, data }) => {
 
     const handleTenTienIchChange = (e) => {
         setTenTienIch(e.target.value);
-        
+
     };
 
     // Xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
+
         const formData = new FormData();
         formData.append('id', idTienIch);
         formData.append('tenTienIch', tenTienIch);
+
         if (file) {
             formData.append('file', file);
-        }else{
-            setFile(data?.hinhAnh);
-            formData.append('file', file);
+        } else {
+            formData.append('file', data?.hinhAnh);
         }
+
         console.log("Form data:", formData.get("id"), formData.get("file"), formData.get("tenTienIch")); // Kiểm tra dữ liệu
-    
+
         updateTienIch(formData)
             .then(response => {
                 console.log("Cập nhật thành công:", response.data);
-                handleClose();
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Cập nhật tiện ích thành công.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    handleClose(); // Đóng modal sau khi hiển thị thông báo
+                });
             })
             .catch(error => {
                 console.error("Lỗi khi cập nhật:", error);
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: 'Không thể cập nhật tiện ích. Vui lòng thử lại sau!',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
             });
     };
 
+
+    // Xử lý xóa tiện ích
     // Xử lý xóa tiện ích
     const handleDelete = () => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa tiện ích này không?")) {
-            deleteTienIch(formData.id)
-                .then(response => {
-                    console.log("Xóa thành công:", response.data);
-                    handleClose();
-                })
-                .catch(error => {
-                    console.error("Lỗi khi xóa:", error);
-                });
-        }
+        // Hiển thị hộp thoại xác nhận với SweetAlert2
+        Swal.fire({
+            title: 'Xác nhận xóa',
+            text: 'Bạn có chắc chắn muốn xóa tiện ích này?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Đồng ý',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Thực hiện gọi API xóa
+                deleteTienIch(idTienIch)
+                    .then(response => {
+                        console.log("Xóa thành công:", response.data);
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: 'Tiện ích đã được xóa thành công.',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                        handleClose(); // Đóng modal sau khi xóa
+                    })
+                    .catch(error => {
+                        console.error("Lỗi khi xóa:", error);
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể xóa tiện ích. Vui lòng thử lại sau!',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+            }
+        });
     };
+
+
 
     return (
         <div className={`modal fade ${show ? 'show d-block' : ''}`} tabIndex={-1} role="dialog" style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>

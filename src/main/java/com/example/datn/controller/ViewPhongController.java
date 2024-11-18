@@ -29,4 +29,9 @@ public class ViewPhongController {
 
         return ResponseEntity.ok(rooms);
     }
+
+    @GetMapping("/RoomDetail/{id}")
+    public ResponseEntity<?> Detail(@PathVariable Integer id){
+        return ResponseEntity.ok(viewPhongService.RoomDetail(id));
+    }
 }

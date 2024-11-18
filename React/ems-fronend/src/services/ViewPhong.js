@@ -2,8 +2,10 @@ import axios from "axios";
 
 // Đường dẫn API
 const apiViewPhong = 'http://localhost:8080/api/view-phong'; // Đường dẫn API cho phòng
-const apiPhieuDichVu = "http://localhost:8080/phieu_dich_vu"; // Đường dẫn API cho phiếu dịch vụ
+const apiPhieuDichVu = "http://localhost:8080/dich_vu_su_dung/searchByIDXepPhong"; // Đường dẫn API cho phiếu dịch vụ
 const apiTTDP = "http://localhost:8080/ttdp/all"; // Đường dẫn API cho thông tin đặt phòng
+const apiRoomDetail = 'http://localhost:8080/api/RoomDetail';
+const apiADDPhieuDichVu = "http://localhost:8080/dich_vu_su_dung/addDVSD";
 
 // Hàm tìm kiếm phòng
 export const searchRooms = async (tinhTrang, giaMin, giaMax, keyword) => {
@@ -23,10 +25,10 @@ export const searchRooms = async (tinhTrang, giaMin, giaMax, keyword) => {
     }
 };
 
-// Hàm lấy thông tin chi tiết phòng theo ID
+// Hàm lấy xếp phòng theo ID phòng
 export const getRoomDetail = async (roomId) => {
     try {
-        const response = await axios.get(`${apiViewPhong}/detail/${roomId}`);
+        const response = await axios.get(`${apiRoomDetail}/${roomId}`);
         return response.data; // Trả về thông tin chi tiết của phòng
     } catch (error) {
         console.error("Lỗi khi lấy chi tiết phòng:", error.response || error); // In ra thông tin lỗi chi tiết
@@ -34,10 +36,10 @@ export const getRoomDetail = async (roomId) => {
     }
 };
 
-// Hàm lấy phiếu dịch vụ theo ID phòng
-export const getServiceBillsByRoomId = async (roomId) => {
+// Hàm lấy phiếu dịch vụ theo ID xếp phòng
+export const getDichVuSuDungByIDXepPhong = async (idXepPhong) => {
     try {
-        const response = await axios.get(`${apiPhieuDichVu}/service-bills/${roomId}`);
+        const response = await axios.get(`${apiPhieuDichVu}/${idXepPhong}`);
         return response.data; // Trả về danh sách phiếu dịch vụ
     } catch (error) {
         console.error("Lỗi khi lấy phiếu dịch vụ:", error.response || error); // In ra thông tin lỗi chi tiết
@@ -53,5 +55,15 @@ export const getTTDP = async () => {
     } catch (error) {
         console.error("Lỗi khi lấy thông tin đặt phòng:", error.response || error); // In ra thông tin lỗi chi tiết
         throw error; // Ném lỗi để xử lý ở nơi gọi hàm
+    }
+};
+
+export const AddDichVuSuDung =  (dichVuSuDung) => {
+    try {
+        const response = axios.post(apiADDPhieuDichVu, dichVuSuDung);
+        return response.data; // Trả về dữ liệu phản hồi từ server
+    } catch (error) {
+        console.error("Lỗi khi thêm dịch vụ sử dụng:", error.response?.data || error.message);
+        throw error; // Ném lỗi để xử lý tiếp ở nơi gọi hàm
     }
 };

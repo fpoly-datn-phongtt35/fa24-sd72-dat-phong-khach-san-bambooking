@@ -229,7 +229,7 @@ const BookingForm = () => {
                             <div className="details">
                                 <div className="detail-item">
                                     <span>Diện tích: </span>
-                                    <strong>{lp.dienTich} m²</strong>
+                                    <strong>{lp.dienTich} m²</strong>   
                                 </div>
                                 <div className="detail-item">
                                     <span>Sức chứa: </span>
