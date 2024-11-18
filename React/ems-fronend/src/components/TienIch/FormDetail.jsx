@@ -21,7 +21,7 @@ const FormDetail = ({ show, handleClose, data }) => {
             //     tenTienIch: data.tenTienIch || '', 
             //     hinhAnh: data.hinhAnh || '',
             // });
-            setFile(data.hinhAnh );
+            setFile(data.hinhAnh);
             setImagePreview(data.hinhAnh); // Cập nhật hình ảnh
             setIdTienIch(data.id);
             setTenTienIch(data.tenTienIch);
@@ -35,29 +35,29 @@ const FormDetail = ({ show, handleClose, data }) => {
 
     const handleTenTienIchChange = (e) => {
         setTenTienIch(e.target.value);
-        
+
     };
 
     // Xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
-    
+
         const formData = new FormData();
         formData.append('id', idTienIch);
         formData.append('tenTienIch', tenTienIch);
-    
+
         if (file) {
             formData.append('file', file);
         } else {
             formData.append('file', data?.hinhAnh);
         }
-    
+
         console.log("Form data:", formData.get("id"), formData.get("file"), formData.get("tenTienIch")); // Kiểm tra dữ liệu
-    
+
         updateTienIch(formData)
             .then(response => {
                 console.log("Cập nhật thành công:", response.data);
-                    Swal.fire({
+                Swal.fire({
                     title: 'Thành công!',
                     text: 'Cập nhật tiện ích thành công.',
                     icon: 'success',
@@ -68,7 +68,7 @@ const FormDetail = ({ show, handleClose, data }) => {
             })
             .catch(error => {
                 console.error("Lỗi khi cập nhật:", error);
-                    Swal.fire({
+                Swal.fire({
                     title: 'Lỗi!',
                     text: 'Không thể cập nhật tiện ích. Vui lòng thử lại sau!',
                     icon: 'error',
@@ -76,8 +76,9 @@ const FormDetail = ({ show, handleClose, data }) => {
                 });
             });
     };
-    
 
+
+    // Xử lý xóa tiện ích
     // Xử lý xóa tiện ích
     const handleDelete = () => {
         // Hiển thị hộp thoại xác nhận với SweetAlert2
@@ -91,7 +92,7 @@ const FormDetail = ({ show, handleClose, data }) => {
         }).then((result) => {
             if (result.isConfirmed) {
                 // Thực hiện gọi API xóa
-                deleteTienIch(formData.id)
+                deleteTienIch(idTienIch)
                     .then(response => {
                         console.log("Xóa thành công:", response.data);
                         Swal.fire({
@@ -114,7 +115,8 @@ const FormDetail = ({ show, handleClose, data }) => {
             }
         });
     };
-    
+
+
 
     return (
         <div className={`modal fade ${show ? 'show d-block' : ''}`} tabIndex={-1} role="dialog" style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
