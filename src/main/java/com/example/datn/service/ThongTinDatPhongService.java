@@ -25,4 +25,5 @@ public interface ThongTinDatPhongService {
     ThongTinDatPhong huyTTDP(String maTTDP);
 
     void kiemTraDenHan(List<ThongTinDatPhong> ttdps);
+    ThongTinDatPhong getByMaTTDP(String maTTDP);
 }

@@ -49,6 +49,7 @@ public class TraPhongServiceImpl implements TraPhongService {
         ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
         Phong p = xepPhong.getPhong();
         thongTinDatPhong.setTrangThai("Da tra phong");
+        xepPhong.setTrangThai(false);
         traPhong.setXepPhong(xepPhong);
         traPhong.setNgayTraThucTe(LocalDate.now());
         traPhong.setTrangThai(true);

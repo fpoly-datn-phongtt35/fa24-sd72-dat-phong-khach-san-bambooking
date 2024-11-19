@@ -84,4 +84,9 @@ public class TTDPController {
         return thongTinDatPhongServiceIMPL.huyTTDP(maThongTinDatPhong);
     }
 
+    @GetMapping("detail-ttdp")
+    public ResponseEntity<?> chiTietTTDP(@RequestParam String maTTDP){
+        ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.getByMaTTDP(maTTDP);
+        return ResponseEntity.ok(ttdp);
+    }
 }

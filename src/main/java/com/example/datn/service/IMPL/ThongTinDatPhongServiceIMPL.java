@@ -109,4 +109,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         }
     }
 
+    @Override
+    public ThongTinDatPhong getByMaTTDP(String maTTDP) {
+        return thongTinDatPhongRepository.getTTDPByMa(maTTDP);
+    }
+
 }

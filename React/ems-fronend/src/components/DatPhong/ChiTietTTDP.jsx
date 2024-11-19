@@ -1,36 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import './ChiTietDatPhong.scss';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { findTTDPByMaDatPhong } from '../../services/TTDP';
-import { findDatPhongByMaDatPhong, CapNhatDatPhong } from '../../services/DatPhong';
+import { getTTDPByMaTTDP } from '../../services/TTDP';
 import { phongDaXep } from '../../services/XepPhongService';
 import XepPhong from './XepPhong';
-const ChiTietDatPhong = () => {
-    const [datPhong, setDatPhong] = useState();
-    const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
+const ChiTietTTDP = () => {
+    const [thongTinDatPhong, setThongTinDatPhong] = useState(null);
     const [showXepPhongModal, setShowXepPhongModal] = useState(false);
     const [selectedTTDPs, setSelectedTTDPs] = useState([]);
     const [phongData, setPhongData] = useState({});
     const location = useLocation();
-    const { maDatPhong } = location.state || {};
+    const { maThongTinDatPhong } = location.state || {};
     const navigate = useNavigate();
 
-    const getDetailDatPhong = (maDatPhong) => {
-        findDatPhongByMaDatPhong(maDatPhong)
+    const getDetailTTDP = (maThongTinDatPhong) => {
+        getTTDPByMaTTDP(maThongTinDatPhong)
             .then((response) => {
                 console.log(response.data)
-                setDatPhong(response.data);
+                setThongTinDatPhong(response.data);
             })
             .catch((error) => {
                 console.log(error);
-            });
-        findTTDPByMaDatPhong(maDatPhong)
-            .then((response) => {
-                setThongTinDatPhong(response.data);
-                console.log(response.data);
-            })
-            .catch((error) => {
-                console.log(error)
             });
     };
     const fetchPhongDaXep = (maThongTinDatPhong) => {
@@ -62,27 +52,13 @@ const ChiTietDatPhong = () => {
 
     const closeXepPhongModal = () => setShowXepPhongModal(false);
 
-    const updateDatPhong = () => {
-        CapNhatDatPhong(datPhong)
-            .then((response) => {
-                console.log(response.data)
-                alert("Lưu thành công")
-            })
-            .catch((error) => {
-                console.log(error)
-            })
-
-    }
     useEffect(() => {
-        if (thongTinDatPhong.length > 0) {
-            thongTinDatPhong.forEach(ttdp => fetchPhongDaXep(ttdp.maThongTinDatPhong));
+        if (maThongTinDatPhong) {
+            getDetailTTDP(maThongTinDatPhong);
+            fetchPhongDaXep(maThongTinDatPhong);
         }
-    }, [thongTinDatPhong]);
-    useEffect(() => {
-        if (maDatPhong) {
-            getDetailDatPhong(maDatPhong);
-        }
-    }, [maDatPhong]);
+    }, [maThongTinDatPhong]);
+    
     
     const calculateDays = (start, end) => {
         const startDate = new Date(start);
@@ -95,9 +71,6 @@ const ChiTietDatPhong = () => {
     const calculateTotalPrice = (donGia, start, end) => {
         const days = calculateDays(start, end);
         return donGia * days;
-    };
-    const calculateTotalGuests = () => {
-        return thongTinDatPhong.reduce((total, ttdp) => total + ttdp.soNguoi, 0);
     };
     const calculateTotalDays = () => {
         if (thongTinDatPhong.length === 0) return 0;
@@ -131,53 +104,40 @@ const ChiTietDatPhong = () => {
 
     return (
         <div className="booking-info-container">
-            {/* Các box chính nằm trên cùng một dòng */}
             <div className="flex-row">
-                <div className="box booker-info">
-                    <h3>Thông tin người đặt</h3>
-                    <div className="info-item">
-                        <label>Tên khách đặt</label>
-                        <span>{datPhong?.khachHang?.ho + ' ' + datPhong?.khachHang?.ten || "N/A"}</span>
-                    </div>
-                    <div className="info-item">
-                        <label>Địa chỉ Email</label>
-                        <span>{datPhong?.khachHang?.email || "N/A"}</span>
-                    </div>
-                    <div className="info-item">
-                        <label>Số điện thoại</label>
-                        <span>{datPhong?.khachHang?.sdt || "N/A"}</span>
-                    </div>
-                </div>
 
                 <div className="box booking-info">
                     <h3>Thông tin đặt phòng</h3>
                     <div className="info-item">
-                        <label>Ngày đặt</label>
-                        <span>{datPhong?.ngayDat}</span>
+                        <label>Mã thông tin đặt phòng</label>
+                        <span>{thongTinDatPhong?.maThongTinDatPhong}</span>
                     </div>
                     <div className="info-item">
-                        <label>Số phòng</label>
-                        <span>{thongTinDatPhong.length}</span>
+                        <label>Ngày nhận phòng</label>
+                        <span>{thongTinDatPhong?.ngayNhanPhong}</span>
+                    </div>
+                    <div className="info-item">
+                        <label>Ngày trả phòng</label>
+                        <span>{thongTinDatPhong?.ngayTraPhong}</span>
+                    </div>
+                    <div className="info-item">
+                        <label>Số ngày</label>
+                        <span>{calculateDays(thongTinDatPhong?.ngayNhanPhong,thongTinDatPhong?.ngayTraPhong)}</span>
                     </div>
                     <div className="info-item">
                         <label>Số người</label>
-                        <span>{calculateTotalGuests()}</span>
+                        <span>{thongTinDatPhong?.soNguoi}</span>
                     </div>
                     <div className="info-item">
-                        <label>Tổng tiền</label>
-                        <span className="highlight">{datPhong?.tongTien}</span>
+                        <label>Tiền phòng</label>
+                        <span className="highlight">{calculateTotalPrice(thongTinDatPhong?.giaDat,thongTinDatPhong?.ngayNhanPhong,thongTinDatPhong?.ngayTraPhong)}</span>
                     </div>
-                </div>
-
-                <div className="box booker-comment">
-                    <h3>Ghi chú</h3>
-                    <input type="text-area" value={datPhong?.ghiChu} placeholder="Nhập ghi chú ở đây..." />
                 </div>
             </div>
 
             {/* Danh sách phòng nằm ở dòng dưới */}
             <div className="box booker-rooms">
-                <h3>Danh sách đặt phòng</h3>
+                {/* <h3>Danh sách đặt phòng</h3>
                 <table>
                     <thead>
                         <tr>
@@ -231,11 +191,11 @@ const ChiTietDatPhong = () => {
                     <button className="button-checkin">Checkin</button> 
                     <button className="button-checkin" onClick={openModal}>Assign</button>
 
-                </div>
+                </div> */}
             </div>
             <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} selectedTTDPs={selectedTTDPs} />
         </div>
     );
 };
 
-export default ChiTietDatPhong;
+export default ChiTietTTDP;

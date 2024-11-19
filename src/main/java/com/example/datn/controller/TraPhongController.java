@@ -2,6 +2,7 @@ package com.example.datn.controller;
 
 import com.example.datn.dto.request.TraPhongRequest;
 import com.example.datn.model.TraPhong;
+import com.example.datn.model.XepPhong;
 import com.example.datn.service.TraPhongService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +29,7 @@ public class TraPhongController {
     }
 
     @GetMapping("check-out")
-    public ResponseEntity<TraPhong> checkOut(@RequestParam String maThongTinDatPhong){
-        return ResponseEntity.ok(traPhongService.checkOut(maThongTinDatPhong));
+    public ResponseEntity<TraPhong> checkOut(@RequestParam("maThongTinDatPhong") String maThongTinDatPhong){
+        return ResponseEntity.status(HttpStatus.OK).body(traPhongService.checkOut(maThongTinDatPhong));
     }
 }

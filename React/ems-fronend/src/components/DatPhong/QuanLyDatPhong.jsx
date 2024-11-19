@@ -93,7 +93,7 @@ function QuanLyDatPhong() {
     };
 
     const handleTTDPClick = (maThongTinDatPhong) => {
-        navigate(`/chi-tiet-ttdp/${maThongTinDatPhong}`);
+        navigate('/chi-tiet-ttdp', { state: { maThongTinDatPhong } });
     };
 
     const handleHuyTTDPClick = (maThongTinDatPhong) => {

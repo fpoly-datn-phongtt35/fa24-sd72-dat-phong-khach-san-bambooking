@@ -29,6 +29,7 @@ import ListHoaDon from './components/HoaDon/ListHoaDon.jsx';
 import HoaDonComponent from './components/HoaDon/HoaDonComponent.jsx';
 import RoomDetail from './components/TrangChu/RoomDetail.jsx';
 import ListThongTinHoaDon from './components/HoaDon/ListThongTinHoaDon.jsx';
+import ChiTietTTDP from './components/DatPhong/ChiTietTTDP.jsx';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
@@ -114,6 +115,7 @@ function App() {
             <Route path="/thong-tin-hoa-don" element={<RequireAuth> <ListThongTinHoaDon /> </RequireAuth>} />
             <Route path="/add-hoa-don" element={<RequireAuth> <HoaDonComponent /> </RequireAuth>} />
             <Route path="/api/RoomDetail/:roomId" element={<RequireAuth> <RoomDetail /> </RequireAuth>} />
+            <Route path="/chi-tiet-ttdp" element={<RequireAuth> <ChiTietTTDP /></RequireAuth>} />
             {/* Route chính, điều hướng đến ViewPhong */}
             <Route path="/" element={<RequireAuth><ViewPhong /></RequireAuth>} />
             {/* Redirect các đường dẫn không xác định */}
