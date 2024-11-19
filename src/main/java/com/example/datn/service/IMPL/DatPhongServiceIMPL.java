@@ -121,4 +121,9 @@ public class DatPhongServiceIMPL implements DatPhongService {
         }
         return tongTien;
     }
+
+    @Override
+    public Page<DatPhongResponse> findAll(String keyword, Pageable pageable) {
+        return datPhongRepository.findAll(keyword, pageable);
+    }
 }

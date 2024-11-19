@@ -23,6 +23,11 @@ public class ThongTinHoaDonController {
         return ResponseEntity.ok(thongTinHoaDonService.getAllThongTinHoaDon(pageable));
     }
 
+    @GetMapping("/{idHoaDon}")
+    public ResponseEntity<?> findThongTinHoaDonByHoaDonId(@PathVariable("idHoaDon") Integer idHoaDon){
+        return ResponseEntity.status(HttpStatus.OK).body(thongTinHoaDonService.getThongTinHoaDonByHoaDonId(idHoaDon));
+    }
+
     @PostMapping
     public ResponseEntity<?> createThongTinHoaDon(@RequestBody ThongTinHoaDonRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(thongTinHoaDonService.createThongTinHoaDon(request));

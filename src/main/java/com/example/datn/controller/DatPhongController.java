@@ -12,8 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/dat-phong")
@@ -25,14 +27,14 @@ public class DatPhongController {
     PhongServiceIMPL phongServiceIMPL;
 
     @GetMapping("hien-thi")
-    public ResponseEntity<?> HienThiDatPhong(@RequestParam() String trangThai,Pageable pageable) {
+    public ResponseEntity<?> HienThiDatPhong(@RequestParam() String trangThai, Pageable pageable) {
         Page<DatPhongResponse> dp = datPhongServiceIMPL.getByTrangThai(trangThai, pageable);
         System.out.println(trangThai);
         return ResponseEntity.ok(dp);
     }
 
     @GetMapping()
-    public List<DatPhong> test(){
+    public List<DatPhong> test() {
         return datPhongServiceIMPL.getAll();
     }
 
@@ -51,27 +53,35 @@ public class DatPhongController {
 
     @PutMapping("cap-nhat")
     public ResponseEntity<?> updateDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
-            return ResponseEntity.status(HttpStatus.OK).body(datPhongServiceIMPL.updateDatPhong(datPhongRequest));
+        return ResponseEntity.status(HttpStatus.OK).body(datPhongServiceIMPL.updateDatPhong(datPhongRequest));
     }
 
     @GetMapping("bo-loc")
     public ResponseEntity<?> HienThiTheoLoc(
             @RequestParam() List<String> trangThai,
-            Pageable pageable){
-        Page<DatPhongResponse> dp = datPhongServiceIMPL.LocTheoTrangThai(trangThai,pageable);
+            Pageable pageable) {
+        Page<DatPhongResponse> dp = datPhongServiceIMPL.LocTheoTrangThai(trangThai, pageable);
         return ResponseEntity.ok(dp);
     }
 
     @GetMapping("tim-kiem")
     public ResponseEntity<?> HienThiTimKiem(
             @RequestParam() String keyword, @RequestParam() LocalDateTime start, @RequestParam() LocalDateTime end,
-            Pageable pageable){
-        Page<DatPhongResponse> dp = datPhongServiceIMPL.searchDatPhong(keyword,start,end,pageable);
+            Pageable pageable) {
+        Page<DatPhongResponse> dp = datPhongServiceIMPL.searchDatPhong(keyword, start, end, pageable);
         return ResponseEntity.ok(dp);
     }
 
     @GetMapping("chi-tiet-dat-phong")
-    public ResponseEntity<?> ChiTietDatPhong(@RequestParam String maDatPhong){
+    public ResponseEntity<?> ChiTietDatPhong(@RequestParam String maDatPhong) {
         return ResponseEntity.ok(datPhongServiceIMPL.findByMaDatPhong(maDatPhong));
+    }
+
+    @GetMapping("/findAll")
+    public ResponseEntity<?> findAllDatPhong(
+            @RequestParam(value = "keyword", required = false) String keyword,
+            Pageable pageable) {
+        Page<DatPhongResponse> responses = datPhongServiceIMPL.findAll(keyword, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 }
