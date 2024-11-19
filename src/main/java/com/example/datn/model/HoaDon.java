@@ -33,11 +33,11 @@ public class HoaDon {
     private LocalDateTime ngayTao;
     @Column(name = "trang_thai")
     private String trangThai;
-//    public String getHoTenNhanVien() {
-//        return nhanVien != null ? nhanVien.getHoTen() : "Chưa có thông tin nhân viên";
-//}
-
     public String getTenDangNhap() {
+        if (nhanVien == null) {
+            return "Nhân viên không hợp lệ";
+        }
         return nhanVien.getTaiKhoan() != null ? nhanVien.getTaiKhoan().getTenDangNhap() : "Chưa có thông tin nhân viên";
     }
+
 }

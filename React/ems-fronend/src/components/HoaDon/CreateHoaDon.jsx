@@ -1,39 +1,48 @@
 import React, { useEffect, useState } from 'react';
-import { taoHoaDon } from '../../services/HoaDonService';
+import { taoHoaDon, taoThongTinHoaDon, listThongTinHoaDonByIdHoaDon } from '../../services/HoaDonService';
 import SelectDatPhongModal from '../HoaDon/SelectDatPhongModal';
-import { Tab, Tabs } from 'react-bootstrap';
+import { Tabs, Tab } from 'react-bootstrap';
+import TraPhongModal from '../HoaDon/TraPhongModal';
 
 const CreateHoaDon = () => {
     const [tenDangNhap, setTenDangNhap] = useState('');
+    const [hoaDonList, setHoaDonList] = useState([]);
     const [selectedDatPhong, setSelectedDatPhong] = useState(null);
     const [showModal, setShowModal] = useState(false);
-    const [hoaDonList, setHoaDonList] = useState([]);
+    const [selectedTraPhong, setSelectedTraPhong] = useState(null);
+    const [showTraPhongModal, setShowTraPhongModal] = useState(false);
 
+    const [thongTinHoaDonMap, setThongTinHoaDonMap] = useState({});
+
+    // Lấy thông tin người dùng và danh sách hóa đơn từ localStorage
     useEffect(() => {
-        // Lấy tên đăng nhập từ localStorage
         const user = JSON.parse(localStorage.getItem('user'));
         if (user && user.tenDangNhap) {
             setTenDangNhap(user.tenDangNhap);
         }
 
-        // Lấy danh sách hóa đơn từ localStorage
         const savedHoaDonList = JSON.parse(localStorage.getItem('hoaDonList')) || [];
         setHoaDonList(savedHoaDonList);
     }, []);
 
-    const openModal = () => {
-        setShowModal(true);
-    };
-
-    const closeModal = () => {
-        setShowModal(false);
-    };
+    // Mở modal chọn phòng
+    const openModal = () => setShowModal(true);
+    const closeModal = () => setShowModal(false);
 
     const handleSelectDatPhong = (maPhong) => {
         setSelectedDatPhong(maPhong);
         closeModal();
     };
 
+    const openTraPhongModal = () => setShowTraPhongModal(true);
+    const closeTraPhongModal = () => setShowTraPhongModal(false);
+
+    const handleSelectTraPhong = (id) => {
+        setSelectedTraPhong(id);
+        closeTraPhongModal();
+    };
+
+    // Tạo hóa đơn
     const handleCreateHoaDon = async () => {
         if (!selectedDatPhong) {
             alert('Vui lòng chọn phòng.');
@@ -49,13 +58,70 @@ const CreateHoaDon = () => {
             const result = await taoHoaDon(hoaDon);
 
             const updatedHoaDonList = [...hoaDonList, result];
-            setHoaDonList(updatedHoaDonList); // Thêm hóa đơn mới vào danh sách
-            localStorage.setItem('hoaDonList', JSON.stringify(updatedHoaDonList)); // Lưu danh sách vào localStorage
-            setSelectedDatPhong(null); // Reset chọn phòng
+            setHoaDonList(updatedHoaDonList);
+            localStorage.setItem('hoaDonList', JSON.stringify(updatedHoaDonList));
+            setSelectedDatPhong(null);
             alert('Hóa đơn đã được tạo thành công!');
         } catch (error) {
             alert('Lỗi khi tạo hóa đơn.');
             console.error('Lỗi tạo hóa đơn:', error);
+        }
+    };
+
+    // Lấy thông tin hóa đơn theo idHoaDon
+    const findThongTinHoaDonByIdHoaDon = (idHoaDon) => {
+        listThongTinHoaDonByIdHoaDon(idHoaDon)
+            .then((response) => {
+                setThongTinHoaDonMap((prevState) => ({
+                    ...prevState,
+                    [idHoaDon]: response.data, // Lưu thông tin hóa đơn theo idHoaDon
+                }));
+            })
+            .catch((error) => {
+                console.error('Lỗi khi lấy thông tin hóa đơn:', error);
+            });
+    };
+
+    useEffect(() => {
+        if (hoaDonList.length > 0) {
+            hoaDonList.forEach(hoaDon => {
+                findThongTinHoaDonByIdHoaDon(hoaDon.id);
+            });
+        }
+    }, [hoaDonList]);
+
+    // Tạo thông tin hóa đơn
+    const handleCreateThongTinHoaDon = async (idHoaDon) => {
+        if (!selectedTraPhong) {
+            alert('Vui lòng chọn trả phòng');
+            return;
+        }
+
+        try {
+            const thongTinHoaDon = {
+                idTraPhong: selectedTraPhong,
+                idHoaDon: idHoaDon,
+            };
+
+            const result = await taoThongTinHoaDon(thongTinHoaDon);
+
+            // Cập nhật lại thông tin hóa đơn cho idHoaDon
+            setThongTinHoaDonMap((prevState) => ({
+                ...prevState,
+                [idHoaDon]: [...(prevState[idHoaDon] || []), result.data],
+            }));
+
+            const updatedHoaDonList = hoaDonList.map((hoaDon) =>
+                hoaDon.id === idHoaDon ? { ...hoaDon, idTraPhong: selectedTraPhong } : hoaDon
+            );
+            setHoaDonList(updatedHoaDonList);
+            localStorage.setItem('hoaDonList', JSON.stringify(updatedHoaDonList));
+
+            setSelectedTraPhong(null);
+            alert('Thông tin hóa đơn đã được tạo thành công!');
+        } catch (error) {
+            alert('Lỗi khi tạo thông tin hóa đơn.');
+            console.error('Lỗi tạo thông tin hóa đơn:', error.response ? error.response.data : error.message);
         }
     };
 
@@ -86,20 +152,80 @@ const CreateHoaDon = () => {
                         </button>
                     </div>
 
-                    {/* Hiển thị tab hóa đơn */}
                     {hoaDonList.length > 0 && (
                         <div className="mt-3">
-                            <Tabs defaultActiveKey={hoaDonList[0]?.id} id="hoa-don-tabs" className="mb-3">
+                            <Tabs id="hoa-don-tabs" className="mb-3">
                                 {hoaDonList.map((hoaDon) => (
-                                    <Tab eventKey={hoaDon.id} title={`${hoaDon.maHoaDon}`} key={hoaDon.id}>
-                                        <div>
+                                    <Tab eventKey={hoaDon.id.toString()} title={`${hoaDon.maHoaDon}`} key={hoaDon.id}>
+                                        <div className="d-flex align-items-center">
+                                            <div className="me-auto">
+                                                <h5 className="ms-3">Trả phòng</h5>
+                                            </div>
+                                            <button className="btn btn-outline-primary me-2" onClick={openTraPhongModal}>
+                                                Chọn
+                                            </button>
+                                            <div className="mb-3 mt-3 me-4 ml-3">
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    id="traPhong"
+                                                    value={selectedTraPhong ? `ID: ${selectedTraPhong}` : ''}
+                                                    readOnly
+                                                />
+                                            </div>
+                                            <button
+                                                className="btn btn-outline-secondary"
+                                                style={{ width: '120px' }}
+                                                onClick={() => handleCreateThongTinHoaDon(hoaDon.id)}
+                                            >
+                                                Tạo TTHD
+                                            </button>
+                                        </div>
+
+                                        <div className="container mt-3">
+                                            <table className="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>ID trả phòng</th>
+                                                        <th>ID hóa đơn</th>
+                                                        <th>Tiền phòng</th>
+                                                        <th>Tiền dịch vụ</th>
+                                                        <th>Tiền phụ thu</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {thongTinHoaDonMap[hoaDon.id]?.length ? (
+                                                        thongTinHoaDonMap[hoaDon.id].map((item) => (
+                                                            <tr key={item.id}>
+                                                                <td>{item.id}</td>
+                                                                <td>{item.idTraPhong}</td>
+                                                                <td>{item.idHoaDon}</td>
+                                                                <td>{item.tienPhong}</td>
+                                                                <td>{item.tienDichVu}</td>
+                                                                <td>{item.tienPhuThu}</td>
+                                                            </tr>
+                                                        ))
+                                                    ) : (
+                                                        <tr>
+                                                            <td colSpan="6" className="text-center">
+                                                                <span className="text-muted">Không có thông tin hóa đơn</span> {/* Dòng span bạn muốn thêm */}
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <hr />
+
+                                        <div className="mt-3">
                                             <p><strong>ID hóa đơn:</strong> {hoaDon.id}</p>
                                             <p><strong>Mã hóa đơn:</strong> {hoaDon.maHoaDon}</p>
                                             <p><strong>Tên nhân viên:</strong> {hoaDon.tenDangNhap}</p>
                                             <p><strong>Mã đặt phòng:</strong> {hoaDon.maDatPhong}</p>
                                             <p><strong>Tổng tiền:</strong> {hoaDon.tongTien}</p>
                                             <p><strong>Trạng thái:</strong> {hoaDon.trangThai}</p>
-                                            <p><strong>Ngày tạo:</strong> {new Date(hoaDon.ngayTao).toLocaleString()}</p>
                                         </div>
                                     </Tab>
                                 ))}
@@ -109,12 +235,9 @@ const CreateHoaDon = () => {
                 </div>
             </div>
 
-            {/* Hiển thị modal */}
-            <SelectDatPhongModal
-                show={showModal}
-                onClose={closeModal}
-                onSelect={handleSelectDatPhong}
-            />
+            <SelectDatPhongModal show={showModal} onClose={closeModal} onSelect={handleSelectDatPhong} />
+
+            <TraPhongModal show={showTraPhongModal} onClose={closeTraPhongModal} onSelect={handleSelectTraPhong} />
         </div>
     );
 };

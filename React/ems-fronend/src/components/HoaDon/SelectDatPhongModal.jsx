@@ -42,7 +42,7 @@ const SelectDatPhongModal = ({
 
     const handleSearchChange = (e) => {
         setKeyword(e.target.value);
-        setCurrentPage(0); // Reset về trang 1 khi tìm kiếm
+        setCurrentPage(0);
     };
 
     return (

@@ -5,7 +5,10 @@ import com.example.datn.dto.response.ThongTinHoaDonResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ThongTinHoaDonService {
     Page<ThongTinHoaDonResponse> getAllThongTinHoaDon(Pageable pageable);
+    List<ThongTinHoaDonResponse> getThongTinHoaDonByHoaDonId(Integer idHoaDon);
     ThongTinHoaDonResponse createThongTinHoaDon(ThongTinHoaDonRequest request);
 }
