@@ -77,7 +77,7 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
 
     @Override
     public List<DichVuSuDung> getByIDXepPhong(int idXepPhong) {
-        return phieuDichVuRepository.findByXepPhongId(idXepPhong);
+        return phieuDichVuRepository.getByIDXepPhong(idXepPhong);
     }
 
     @Override
