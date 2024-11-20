@@ -7,13 +7,14 @@ import com.example.datn.model.XepPhong;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 public class TraPhongMapper {
     public TraPhong toTraPhong(TraPhongRequest request, XepPhong xepPhong) {
         TraPhong traPhong = new TraPhong();
         traPhong.setXepPhong(xepPhong);
-        traPhong.setNgayTraThucTe(LocalDate.now());
+        traPhong.setNgayTraThucTe(LocalDateTime.now());
         traPhong.setTrangThai(true);
         return traPhong;
     }

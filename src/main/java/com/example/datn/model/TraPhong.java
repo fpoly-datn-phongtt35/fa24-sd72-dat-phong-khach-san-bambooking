@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -21,7 +22,7 @@ public class TraPhong {
     @ManyToOne
     XepPhong xepPhong;
     @Column(name = "ngay_tra_thuc_te")
-    LocalDate ngayTraThucTe;
+    LocalDateTime ngayTraThucTe;
     @Column(name = "trang_thai")
     Boolean trangThai;
 }

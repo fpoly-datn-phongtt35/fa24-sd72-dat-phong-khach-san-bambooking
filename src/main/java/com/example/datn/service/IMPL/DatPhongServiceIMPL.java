@@ -101,7 +101,6 @@ public class DatPhongServiceIMPL implements DatPhongService {
     public DatPhong findByMaDatPhong(String maDatPhong) {
         return datPhongRepository.findByMaDatPhong(maDatPhong);
     }
-
     @Override
     public Double sumTotalAmountByIDDatPhong(Integer idDP) {
         Double tongTien = 0.0;

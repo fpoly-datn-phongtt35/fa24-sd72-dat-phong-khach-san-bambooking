@@ -58,5 +58,6 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     ThongTinDatPhong getTTDPByMa(@Param("maTTDP") String maTTDP);
 
 
+
 }
 

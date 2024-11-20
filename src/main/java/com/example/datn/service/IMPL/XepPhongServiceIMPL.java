@@ -82,4 +82,9 @@ public class XepPhongServiceIMPL implements XepPhongService {
         phongRepository.save(p);
         return xp;
     }
+
+    @Override
+    public List<XepPhong> findByKey(String key) {
+        return xepPhongRepository.findByKey(key);
+    }
 }

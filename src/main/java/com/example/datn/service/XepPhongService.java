@@ -12,4 +12,5 @@ public interface XepPhongService {
     XepPhong getByMaTTDP(String maTTDP);
     XepPhong checkIn(String maTTDP);
 
+    List<XepPhong> findByKey(String key);
 }
