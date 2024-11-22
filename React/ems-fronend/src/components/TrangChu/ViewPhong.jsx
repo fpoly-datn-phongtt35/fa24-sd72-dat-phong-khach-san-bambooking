@@ -71,11 +71,11 @@ const ViewPhong = () => {
           const ngayHienTai = new Date(); // Ngày hiện tại
 
           // So sánh timestamp
-          // if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
-          //   alert(`Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`);
-          // } else {
+          if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
+            alert(`Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`);
+          } else {
             navigate(`/api/RoomDetail/${roomId}`); // Điều hướng đến trang chi tiết
-          // }
+          }
         }
       })
       .catch(() => {
