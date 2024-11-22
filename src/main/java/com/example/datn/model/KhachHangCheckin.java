@@ -18,8 +18,8 @@ public class KhachHangCheckin {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "id_xep_phong")
-    private XepPhong xepPhong;
+    @JoinColumn(name = "id_thong_tin_dat_phong")
+    private ThongTinDatPhong thongTinDatPhong;
 
     @ManyToOne
     @JoinColumn(name = "id_khach_hang")

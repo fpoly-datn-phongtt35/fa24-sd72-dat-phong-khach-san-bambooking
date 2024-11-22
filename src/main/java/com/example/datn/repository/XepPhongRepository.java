@@ -20,17 +20,11 @@ public interface XepPhongRepository extends JpaRepository<XepPhong,Integer> {
     XepPhong getByIDPhong(int idPhong);
 
     @Query("SELECT xp FROM XepPhong xp " +
-            "JOIN KhachHangCheckin khc ON xp.id = khc.xepPhong.id " +
             "WHERE (" +
             "LOWER(CAST(xp.thongTinDatPhong.datPhong.maDatPhong AS string)) = LOWER(:key) " +
             "OR LOWER(CAST(xp.thongTinDatPhong.maThongTinDatPhong AS string)) = LOWER(:key) " +
             "OR LOWER(CAST(xp.phong.maPhong AS string)) = LOWER(:key) " +
             "OR LOWER(xp.phong.tenPhong) = LOWER(:key) " +
-            "OR LOWER(khc.khachHang.ho) = LOWER(:key) " +
-            "OR LOWER(khc.khachHang.ten) = LOWER(:key) " +
-            "OR LOWER(khc.khachHang.sdt) = LOWER(:key) " +
-            "OR LOWER(khc.khachHang.email) = LOWER(:key) " +
-            "OR LOWER(CONCAT(COALESCE(khc.khachHang.ho, ''), COALESCE(khc.khachHang.ten, ''))) = LOWER(:key) " +
             "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.sdt) = LOWER(:key) " +
             "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.email) = LOWER(:key) " +
             "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.ho) = LOWER(:key) " +
