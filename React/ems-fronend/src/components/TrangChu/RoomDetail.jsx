@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getRoomDetail, getDichVuSuDungByIDXepPhong, AddDichVuSuDung } from '../../services/ViewPhong';
 import { DuLieu } from '../../services/DichVuService';
+import DVSVDetail from './DVSDDetail';
 
 const RoomDetail = () => {
   const { roomId } = useParams();
   const [roomDetail, setRoomDetail] = useState(null);
   const [ListDVSD, setListDVSD] = useState([]);
-  const [ListDichVu, setListDichVu] = useState([]);
-  const [showForm, setShowForm] = useState(false); // Trạng thái hiển thị form
+  const [showFormDetail, setShowFormDetail] = useState(false);
+  const [selectedDichVu, setSelectedDichVu] = useState(null); // Lưu dịch vụ được chọn
   const [newDichVu, setNewDichVu] = useState({
     dichVu: { id: '' },
     xepPhong: { id: '' },
@@ -27,15 +28,11 @@ const RoomDetail = () => {
       .then((dichVuResponse) => {
         const responseArray = Array.isArray(dichVuResponse) ? dichVuResponse : [dichVuResponse];
         setListDVSD(responseArray);
-        
       })
       .catch((error) => {
         console.log("Error fetching data:", error);
       });
 
-    DuLieu().then((response) => {
-      setListDichVu(response.data);
-    });
 
   }, [roomId, ListDVSD]);
 
@@ -72,8 +69,11 @@ const RoomDetail = () => {
       });
   };
 
-  const handleFormCancel = () => {
-    setShowForm(false); // Đóng form khi nhấn hủy
+ 
+
+  const handleCloseFormDetail = () => {
+    setShowFormDetail(false);
+    setSelectedDichVu(null);
   };
 
   return (
@@ -131,7 +131,11 @@ const RoomDetail = () => {
           <div className='d-flex flex-wrap' style={{ width: '100%' }}>
             {Array.isArray(ListDVSD) && ListDVSD.length > 0 ? (
               ListDVSD.map((dv) => (
-                <div key={dv.id} className='card' style={{ width: '30%', margin: '10px' }}>
+                <div key={dv.id} className='card' style={{ width: '30%', margin: '10px' }}
+                  onClick={() => {
+                    setSelectedDichVu(dv);
+                    setShowFormDetail(true);
+                  }}>
                   <div className='card-footer'>
                     <label>Tên dịch vụ:</label>
                     <p>{dv.dichVu?.tenDichVu}</p>
@@ -147,78 +151,19 @@ const RoomDetail = () => {
             )}
           </div>
           <div>
-            <button className='btn btn-primary' onClick={handleAddDV}>
+            <button className='btn btn-primary' onClick={()=>{
+              setShowFormDetail(true);
+              setSelectedDichVu(null);
+            }}>
               Thêm dịch vụ
             </button>
           </div>
 
-          {/* Hiển thị form thêm dịch vụ */}
-          {showForm && (
-            <div className='form-container'>
-              <form onSubmit={handleFormSubmit}>
-                <div>
-                  <label>Dịch vụ:</label>
-                  <select
-                    className='form-select'
-                    value={newDichVu.dichVu.id}
-                    onChange={(e) =>
-                      setNewDichVu({
-                        ...newDichVu,
-                        dichVu: { ...newDichVu.dichVu, id: e.target.value },
-                      })
-                    }
-                  >
-                    <option value=''>Chọn dịch vụ</option>
-                    {ListDichVu.map((dv) => (
-                      <option key={dv.id} value={dv.id}>
-                        {dv.tenDichVu}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label>Số lượng sử dụng</label>
-                  <input
-                    type='number'
-                    value={newDichVu.soLuongSuDung}
-                    onChange={(e) =>
-                      setNewDichVu({ ...newDichVu, soLuongSuDung: parseFloat(e.target.value) })
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Ngày kết thúc</label>
-                  <input
-                    type='datetime-local'
-                    value={newDichVu.ngayKetThuc}
-                    onChange={(e) => setNewDichVu({ ...newDichVu, ngayKetThuc: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label>Giá sử dụng</label>
-                  <input
-                    type='number'
-                    value={newDichVu.giaSuDung}
-                    onChange={(e) => setNewDichVu({ ...newDichVu, giaSuDung: parseInt(e.target.value) })}
-                    required
-                  />
-                </div>
-                <div>
-                  <button type='submit' className='btn btn-success'>
-                    Thêm
-                  </button>
-                  <button type='button' className='btn btn-secondary' onClick={handleFormCancel}>
-                    Hủy
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
+         
         </div>
-
+        {showFormDetail && <DVSVDetail show={showFormDetail} handleClose={handleCloseFormDetail} data={selectedDichVu} idxp={roomDetail?.id}/>}
       </div>
+
     </div>
   );
 };
