@@ -1,6 +1,7 @@
 package com.example.datn.dto.request;
 
 import com.example.datn.model.KhachHang;
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.model.XepPhong;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
@@ -16,7 +17,7 @@ import lombok.Setter;
 @Setter
 public class KhachHangCheckinRequest {
     private Integer id;
-    private XepPhong xepPhong;
+    private ThongTinDatPhong thongTinDatPhong;
     private KhachHang khachHang;
     private Boolean trangThai;
 }

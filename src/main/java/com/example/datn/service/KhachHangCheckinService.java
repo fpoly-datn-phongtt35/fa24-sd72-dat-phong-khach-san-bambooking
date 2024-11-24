@@ -5,7 +5,10 @@ import com.example.datn.model.KhachHang;
 import com.example.datn.model.KhachHangCheckin;
 import com.example.datn.model.XepPhong;
 
+import java.util.List;
+
 public interface KhachHangCheckinService {
-    KhachHangCheckin add(KhachHang khachHang, XepPhong xepPhong);
+    KhachHangCheckin add(KhachHangCheckinRequest request);
     KhachHangCheckin update(KhachHangCheckinRequest request);
+    List<KhachHangCheckin> findsByMaTTDP(String maThongTinDatPhong);
 }

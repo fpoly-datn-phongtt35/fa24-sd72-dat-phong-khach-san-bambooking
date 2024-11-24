@@ -15,4 +15,8 @@ public class KhachHangDatPhongRequest {
     private String ten;
     private String sdt;
     private String email;
+    private String matKhau;
+    private Boolean trangThai;
+
+
 }

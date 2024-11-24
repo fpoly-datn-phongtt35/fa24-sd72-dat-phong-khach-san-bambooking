@@ -47,6 +47,8 @@ const TaoDatPhong = () => {
             ten: formData.ten,
             email: formData.email,
             sdt: formData.sdt,
+            matKhau : '',
+            trangThai: false
         };
     
         const datPhongRequest = {

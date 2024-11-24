@@ -22,4 +22,5 @@ public class TTDPResponse {
     LocalDate ngayNhanPhong;
     LocalDate ngayTraPhong;
     Double donGia;
+    String ghiChu;
 }

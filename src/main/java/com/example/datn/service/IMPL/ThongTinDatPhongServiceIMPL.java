@@ -44,11 +44,12 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setDatPhong(request.getDatPhong());
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
-        ttdp.setGiaDat(request.getGiaDat());
+        ttdp.setGiaDat(lp.getDonGia());
         ttdp.setNgayNhanPhong(request.getNgayNhanPhong());
         ttdp.setNgayTraPhong(request.getNgayTraPhong());
         ttdp.setSoNguoi(request.getSoNguoi());
         ttdp.setTrangThai(request.getTrangThai());
+        ttdp.setGhiChu(request.getGhiChu());
         return thongTinDatPhongRepository.save(ttdp);
     }
 
@@ -64,7 +65,16 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
     @Override
     public ThongTinDatPhong update(TTDPRequest request) {
-        return null;
+        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById(request.getId());
+        LoaiPhong lp = loaiPhongServiceIMPL.findByID(request.getIdLoaiPhong());
+        ttdp.setLoaiPhong(lp);
+        ttdp.setGiaDat(lp.getDonGia());
+        ttdp.setNgayNhanPhong(request.getNgayNhanPhong());
+        ttdp.setNgayTraPhong(request.getNgayTraPhong());
+        ttdp.setSoNguoi(request.getSoNguoi());
+        ttdp.setTrangThai(request.getTrangThai());
+        ttdp.setGhiChu(request.getGhiChu());
+        return thongTinDatPhongRepository.save(ttdp);
     }
 
     @Override
