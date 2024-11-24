@@ -3,7 +3,7 @@ import './ChiTietDatPhong.scss';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getTTDPByMaTTDP } from '../../services/TTDP';
 import { phongDaXep } from '../../services/XepPhongService';
-import XepPhong from './XepPhong';
+import XepPhong from '../XepPhong/XepPhong';
 const ChiTietTTDP = () => {
     const [thongTinDatPhong, setThongTinDatPhong] = useState(null);
     const [showXepPhongModal, setShowXepPhongModal] = useState(false);

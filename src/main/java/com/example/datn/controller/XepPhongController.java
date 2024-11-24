@@ -33,7 +33,12 @@ public class XepPhongController {
     }
 
     @GetMapping("check-in")
-    public ResponseEntity<XepPhong> checkIn(@RequestParam("maThongTinDatPhong") String maThongTinDatPhong){
-        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.checkIn(maThongTinDatPhong));
+    public ResponseEntity<XepPhong> checkIn(@RequestParam("xepPhongRequest") XepPhongRequest xepPhongRequest){
+        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.checkIn(xepPhongRequest));
+    }
+
+    @GetMapping("test")
+    public ResponseEntity<List<XepPhong>> tesst(@RequestParam("key") String key){
+        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.findByKey(key));
     }
 }

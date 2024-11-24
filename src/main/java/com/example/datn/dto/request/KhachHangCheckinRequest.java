@@ -1,8 +1,7 @@
 package com.example.datn.dto.request;
 
 import com.example.datn.model.KhachHang;
-import com.example.datn.model.Phong;
-import com.example.datn.model.ThongTinDatPhong;
+import com.example.datn.model.XepPhong;
 import jakarta.persistence.Column;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -11,16 +10,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-public class XepPhongRequest {
+public class KhachHangCheckinRequest {
     private Integer id;
-    private Phong phong;
-    private ThongTinDatPhong thongTinDatPhong;
-    private LocalDateTime ngayNhanPhong;
-    private LocalDateTime ngayTraPhong;
+    private XepPhong xepPhong;
+    private KhachHang khachHang;
     private Boolean trangThai;
 }

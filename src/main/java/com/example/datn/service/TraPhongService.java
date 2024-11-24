@@ -11,4 +11,5 @@ public interface TraPhongService {
     TraPhongResponse createTraPhong(TraPhongRequest request);
 
     TraPhong checkOut(String maThongTinDatPhong);
+    TraPhong CheckOut(Integer idTraPhong);
 }

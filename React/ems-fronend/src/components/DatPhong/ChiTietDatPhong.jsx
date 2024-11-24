@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { findTTDPByMaDatPhong } from '../../services/TTDP';
 import { findDatPhongByMaDatPhong, CapNhatDatPhong } from '../../services/DatPhong';
 import { phongDaXep } from '../../services/XepPhongService';
-import XepPhong from './XepPhong';
+import XepPhong from '../XepPhong/XepPhong';
 const ChiTietDatPhong = () => {
     const [datPhong, setDatPhong] = useState();
     const [thongTinDatPhong, setThongTinDatPhong] = useState([]);

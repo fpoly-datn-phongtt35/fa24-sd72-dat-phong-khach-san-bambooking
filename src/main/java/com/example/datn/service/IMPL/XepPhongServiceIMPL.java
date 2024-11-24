@@ -70,16 +70,23 @@ public class XepPhongServiceIMPL implements XepPhongService {
     }
 
     @Override
-    public XepPhong checkIn(String maTTDP) {
-        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByMa(maTTDP);
-        ttdp.setTrangThai("Dang o");
-        thongTinDatPhongRepository.save(ttdp);
-        XepPhong xp = xepPhongRepository.getByMaTTDP(maTTDP);
-        xp.setNgayNhanPhong(LocalDateTime.now());
-        xepPhongRepository.save(xp);
+    public XepPhong checkIn(XepPhongRequest xepPhongRequest) {
+        ThongTinDatPhong ttdp = xepPhongRequest.getThongTinDatPhong();
+        XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId()).get();
         Phong p = xp.getPhong();
+        ttdp.setTrangThai("Dang o");
         p.setTinhTrang("occupied");
-        phongRepository.save(p);
+        xp.setPhong(xepPhongRequest.getPhong());
+        xp.setThongTinDatPhong(ttdp);
+        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
+        xp.setNgayNhanPhong(xepPhongRequest.getNgayTraPhong());
+        xp.setTrangThai(true);
+        xepPhongRepository.save(xp);
         return xp;
+    }
+
+    @Override
+    public List<XepPhong> findByKey(String key) {
+        return xepPhongRepository.findByKey(key);
     }
 }

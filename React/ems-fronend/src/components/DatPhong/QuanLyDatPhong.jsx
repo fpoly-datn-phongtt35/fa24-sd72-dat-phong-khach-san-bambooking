@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './QuanLyDatPhong.scss';
 import { HienThiQuanLy, findTTDPS, huyTTDP } from '../../services/TTDP';
 import { useNavigate } from 'react-router-dom';
-import XepPhong from './XepPhong'; // Import XepPhong modal
+import XepPhong from '../XepPhong/XepPhong';
 import { phongDaXep ,checkIn} from '../../services/XepPhongService';
 import { Alert } from 'react-bootstrap';
 import { checkOut } from '../../services/TraPhong';
@@ -135,9 +135,10 @@ function QuanLyDatPhong() {
         });
     };
     const handleCheckIn = (maThongTinDatPhong) => {
+        navigate('/checkin', { state: { maThongTinDatPhong } });
         console.log("Checkin for:", maThongTinDatPhong);
-        checkIn(maThongTinDatPhong);
-        fetchThongTinDatPhong(currentStatus,currentPage);
+        // checkIn(maThongTinDatPhong);
+        // fetchThongTinDatPhong(currentStatus,currentPage);
     };
     const handleCheckOut = (maThongTinDatPhong) => {
         console.log("Checkout for:", maThongTinDatPhong);
