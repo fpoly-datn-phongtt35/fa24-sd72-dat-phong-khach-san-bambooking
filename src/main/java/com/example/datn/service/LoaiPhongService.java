@@ -42,6 +42,10 @@ public interface LoaiPhongService {
 
     Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
                                                     Integer soNguoi,Pageable pageable);
+
+    LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
+                                                     Integer idLoaiPhong);
+
     LoaiPhong findByID(Integer idLoaiPhong);
 
 }

@@ -107,6 +107,12 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
     }
 
+    @Override
+    public LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong
+            ,Integer idLoaiPhong) {
+        return loaiPhongRepository.LoaiPhongKhaDung1(ngayNhanPhong,ngayTraPhong,idLoaiPhong);
+    }
+
 
     @Override
     public LoaiPhong findByID(Integer idLoaiPhong) {
