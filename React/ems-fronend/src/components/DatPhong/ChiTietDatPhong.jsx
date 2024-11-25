@@ -167,6 +167,10 @@ const ChiTietDatPhong = () => {
                         <span>{calculateTotalGuests()}</span>
                     </div>
                     <div className="info-item">
+                        <label>Đặt cọc</label>
+                        <span className="highlight">{datPhong?.datCoc}</span>
+                    </div>
+                    <div className="info-item">
                         <label>Tổng tiền</label>
                         <span className="highlight">{datPhong?.tongTien}</span>
                     </div>

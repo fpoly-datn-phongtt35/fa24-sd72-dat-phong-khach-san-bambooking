@@ -2,10 +2,8 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.TTDPRequest;
 import com.example.datn.dto.response.TTDPResponse;
-import com.example.datn.model.LoaiPhong;
-import com.example.datn.model.Phong;
-import com.example.datn.model.ThongTinDatPhong;
-import com.example.datn.model.XepPhong;
+import com.example.datn.model.*;
+import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.repository.XepPhongRepository;
 import com.example.datn.service.ThongTinDatPhongService;
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +30,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Autowired
     XepPhongRepository xepPhongRepository;
 
+    @Autowired
+    DatPhongRepository datPhongRepository;
+
     @Override
     public List<ThongTinDatPhong> getAll() {
         return thongTinDatPhongRepository.findAll();
@@ -41,7 +43,12 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ThongTinDatPhong ttdp = new ThongTinDatPhong();
         LoaiPhong lp = loaiPhongServiceIMPL.findByID(request.getIdLoaiPhong());
         UniqueDatPhongCode code = new UniqueDatPhongCode();
-        ttdp.setDatPhong(request.getDatPhong());
+        long soDem = ChronoUnit.DAYS.between(request.getNgayNhanPhong(), request.getNgayTraPhong());
+        Double tienPhong = soDem*request.getGiaDat();
+        DatPhong dp = request.getDatPhong();
+        dp.setTongTien(dp.getTongTien()+tienPhong);
+        dp.setDatCoc(dp.getTongTien()*0.1);
+        ttdp.setDatPhong(dp);
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
         ttdp.setGiaDat(lp.getDonGia());
@@ -50,6 +57,7 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setSoNguoi(request.getSoNguoi());
         ttdp.setTrangThai(request.getTrangThai());
         ttdp.setGhiChu(request.getGhiChu());
+        datPhongRepository.save(dp);
         return thongTinDatPhongRepository.save(ttdp);
     }
 
