@@ -19,15 +19,10 @@ import java.time.LocalDateTime;
 @Setter
 public class TTDPRequest {
     private Integer id;
-
     private DatPhong datPhong;
-
     private Integer idLoaiPhong;
-
     private String maThongTinDatPhong;
-
     private LocalDate ngayNhanPhong;
-
     private LocalDate ngayTraPhong;
     private Integer soNguoi;
     private Double giaDat;

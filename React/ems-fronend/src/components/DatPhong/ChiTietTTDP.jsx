@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import './ChiTietTTDP.scss';
-import { useLocation, useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getTTDPByMaTTDP } from '../../services/TTDP';
 import { phongDaXep } from '../../services/XepPhongService';
 import XepPhong from '../XepPhong/XepPhong';
 import { hienThi } from '../../services/KhachHangCheckin';
 import ModalKhachHangCheckin from './ModalKhachHangCheckin';
+import ModalDoiNgay from './ModalDoiNgay';
+import { updateThongTinDatPhong } from '../../services/TTDP';
 const ChiTietTTDP = () => {
     const navigate = useNavigate();
     const [thongTinDatPhong, setThongTinDatPhong] = useState(null);
@@ -15,6 +17,7 @@ const ChiTietTTDP = () => {
     const { maThongTinDatPhong } = location.state || {};
     const [khachHangCheckin, setKhachHangCheckin] = useState([]);
     const [isModalOpen, setModalOpen] = useState(false);
+    const [isModalDoiNgayOpen, setModalDoiNgayOpen] = useState(false);
     const [selectedTTDPs, setSelectedTTDPs] = useState([]);
     const getDetailTTDP = (maThongTinDatPhong) => {
         getTTDPByMaTTDP(maThongTinDatPhong)
@@ -44,7 +47,28 @@ const ChiTietTTDP = () => {
                 console.error('Lỗi khi lấy thông tin phòng đã xếp:', error);
             });
     };
-
+    const capNhatTTDP = () =>{
+        const TTDPRequest = {
+            id: thongTinDatPhong.id,
+            datPhong: thongTinDatPhong.datPhong,
+            idLoaiPhong: thongTinDatPhong.loaiPhong.id,
+            maThongTinDatPhong: thongTinDatPhong.maThongTinDatPhong,
+            ngayNhanPhong: thongTinDatPhong.ngayNhanPhong,
+            ngayTraPhong: thongTinDatPhong.ngayTraPhong,
+            soNguoi: thongTinDatPhong.soNguoi,
+            giaDat: thongTinDatPhong.giaDat,
+            ghiChu: thongTinDatPhong.ghiChu,
+            trangThai: thongTinDatPhong.trangThai,
+        };
+        updateThongTinDatPhong(TTDPRequest)
+        .then((response)=>{
+            console.log(response.data);
+            navigate('/chi-tiet-ttdp', { state: { maThongTinDatPhong } });
+        })
+        .catch((error) => {
+            console.error('Lỗi khi cập nhật thông tin đặt phòng:', error);
+        })
+    }
     const calculateDays = (start, end) => {
         const startDate = new Date(start);
         const endDate = new Date(end);
@@ -79,6 +103,12 @@ const ChiTietTTDP = () => {
         setShowXepPhongModal(false);
         navigate('/chi-tiet-ttdp', { state: { maThongTinDatPhong } });
     };
+    const handleModalDoiNgay = () => {
+        setModalDoiNgayOpen(true);
+    }
+    const handleCloseModalDoiNgay = () => {
+        setModalDoiNgayOpen(false);
+    }
     return (
         <div className="TTDP-info-container">
             {/* Thông tin đặt phòng */}
@@ -88,18 +118,6 @@ const ChiTietTTDP = () => {
                     <div className="info-item">
                         <label>Mã đặt phòng:</label>
                         <span>{thongTinDatPhong?.maThongTinDatPhong || 'N/A'}</span>
-                    </div>
-                    <div className="info-item">
-                        <label>Ngày nhận phòng:</label>
-                        <span>{new Date(thongTinDatPhong?.ngayNhanPhong).toLocaleDateString() || 'N/A'}</span>
-                    </div>
-                    <div className="info-item">
-                        <label>Ngày trả phòng:</label>
-                        <span>{new Date(thongTinDatPhong?.ngayTraPhong).toLocaleDateString() || 'N/A'}</span>
-                    </div>
-                    <div className="info-item">
-                        <label>Số ngày:</label>
-                        <span>{calculateDays(thongTinDatPhong?.ngayNhanPhong, thongTinDatPhong?.ngayTraPhong)}</span>
                     </div>
                     <div className="info-item">
                         <label>Số người:</label>
@@ -115,6 +133,34 @@ const ChiTietTTDP = () => {
                             ).toLocaleString('vi-VN')} VND
                         </span>
                     </div>
+                    <div className="info-item">
+                        <label>Trạng thái:</label>
+                        <span>{thongTinDatPhong?.trangThai || 'N/A'}</span>
+                    </div>
+                </div>
+                <div className="box">
+                    <div className="info-item">
+                        <div className="date-container">
+                            <button onClick={handleModalDoiNgay}>Sửa</button>
+                            {/* Ngày nhận phòng */}
+                            <div className="date-box">
+                                <label>Ngày nhận phòng</label>
+                                <h3>{new Date(thongTinDatPhong?.ngayNhanPhong).toLocaleDateString() || 'N/A'}</h3>
+                            </div>
+
+                            {/* Icon hoặc số đêm */}
+                            <div className="icon">
+                                <span>🌙 {calculateDays(thongTinDatPhong?.ngayNhanPhong, thongTinDatPhong?.ngayTraPhong)}</span>
+                            </div>
+
+                            {/* Ngày trả phòng */}
+                            <div className="date-box">
+                                <label>Ngày trả phòng</label>
+                                <h3>{new Date(thongTinDatPhong?.ngayTraPhong).toLocaleDateString() || 'N/A'}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
                 <div className="box">
                     <h3>Trạng thái phòng</h3>
@@ -129,6 +175,14 @@ const ChiTietTTDP = () => {
                     >
                         {phongData?.phong ? 'Đã xếp phòng' : 'Xếp phòng'}
                     </button>
+                    <div className="info-item">
+                        <label>Ghi chú:</label>
+                        <textarea
+                        value={thongTinDatPhong?.ghiChu || ""}
+                        placeholder="Nhập ghi chú ở đây..."
+                        onChange={(e) => setThongTinDatPhong({ ...thongTinDatPhong, ghiChu: e.target.value })}
+                    />
+                    </div>
                 </div>
             </div>
             {/* Thông tin khách hàng */}
@@ -138,7 +192,7 @@ const ChiTietTTDP = () => {
                         <div class="box">
                             <div class="customer-header">
                                 <h3>
-                                    <span className={ khc?.khachHang?.trangThai === true ? "status verified" : "status unverified" } >
+                                    <span className={khc?.khachHang?.trangThai === true ? "status verified" : "status unverified"} >
                                         {khc?.khachHang?.trangThai === true ? "Verified" : "Unverified"}
                                     </span>
                                 </h3>
@@ -183,12 +237,16 @@ const ChiTietTTDP = () => {
                     <button class="btn add-unverified">+ Add unverified guest</button>
                 </div>
             </div>
+            <div>
+                <button onClick={capNhatTTDP}>Update</button>
+            </div>
             <ModalKhachHangCheckin
                 isOpen={isModalOpen}
                 onClose={handleClose}
                 thongTinDatPhong={thongTinDatPhong}
             />
             <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} selectedTTDPs={selectedTTDPs} />
+            <ModalDoiNgay isOpen={isModalDoiNgayOpen} onClose={handleCloseModalDoiNgay} thongTinDatPhong={thongTinDatPhong} />
         </div>
     );
 };

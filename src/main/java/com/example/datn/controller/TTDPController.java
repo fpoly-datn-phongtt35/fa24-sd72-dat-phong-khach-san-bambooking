@@ -52,6 +52,17 @@ public class TTDPController {
         }
     }
 
+    @PutMapping("sua")
+    public ResponseEntity<ThongTinDatPhong> updateDatPhong(@RequestBody TTDPRequest request) {
+        ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.update(request);
+        if (ttdp != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(ttdp);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+
     @GetMapping("loai-phong-kha-dung")
     public ResponseEntity<?> loaiPhongKhaDung(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
                                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
