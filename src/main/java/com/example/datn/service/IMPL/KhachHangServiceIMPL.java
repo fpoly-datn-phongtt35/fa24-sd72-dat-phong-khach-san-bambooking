@@ -164,6 +164,8 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setHo(request.getHo());
         khachHang.setSdt(request.getSdt());
         khachHang.setEmail(request.getEmail());
+        khachHang.setGioiTinh(request.getGioiTinh());
+        khachHang.setDiaChi(request.getDiaChi());
         khachHang.setMatKhau(request.getMatKhau());
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());

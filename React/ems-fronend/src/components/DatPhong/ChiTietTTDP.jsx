@@ -239,6 +239,7 @@ const ChiTietTTDP = () => {
             </div>
             <div>
                 <button onClick={capNhatTTDP}>Update</button>
+                <button>Checkin</button>
             </div>
             <ModalKhachHangCheckin
                 isOpen={isModalOpen}

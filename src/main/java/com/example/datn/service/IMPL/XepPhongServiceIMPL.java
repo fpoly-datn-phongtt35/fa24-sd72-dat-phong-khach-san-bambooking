@@ -35,32 +35,30 @@ public class XepPhongServiceIMPL implements XepPhongService {
     public XepPhong addXepPhong(XepPhongRequest xepPhongRequest) {
         XepPhong xp = new XepPhong();
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
-        Phong p = phongRepository.getPhongById(xepPhongRequest.getPhong().getId());
         xp.setPhong(xepPhongRequest.getPhong());
         xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
-        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
+        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong().withHour(14).withMinute(0).withSecond(0).withNano(0));
         xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong().withHour(12).withMinute(0).withSecond(0).withNano(0));
         xp.setTrangThai(xepPhongRequest.getTrangThai());
         ttdp.setTrangThai("Da xep");
         thongTinDatPhongRepository.save(ttdp);
         return xepPhongRepository.save(xp);
     }
-
     @Override
     public XepPhong updateXepPhong(XepPhongRequest xepPhongRequest) {
         XepPhong xp = new XepPhong();
-        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
-        Phong p = phongRepository.getPhongById(xepPhongRequest.getPhong().getId());
-        xp.setId(xepPhongRequest.getId());
-        xp.setPhong(xepPhongRequest.getPhong());
-        xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
-        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
-        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
-        xp.setTrangThai(xepPhongRequest.getTrangThai());
-        ttdp.setTrangThai("Da xep");
-        thongTinDatPhongRepository.save(ttdp);
-        p.setTinhTrang("occupied");
-        phongRepository.save(p);
+//        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
+//        Phong p = phongRepository.getPhongById(xepPhongRequest.getPhong().getId());
+//        xp.setId(xepPhongRequest.getId());
+//        xp.setPhong(xepPhongRequest.getPhong());
+//        xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
+//        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
+//        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
+//        xp.setTrangThai(xepPhongRequest.getTrangThai());
+//        ttdp.setTrangThai("Da xep");
+//        thongTinDatPhongRepository.save(ttdp);
+//        p.setTinhTrang("occupied");
+//        phongRepository.save(p);
         return xepPhongRepository.save(xp);
     }
 
@@ -71,18 +69,34 @@ public class XepPhongServiceIMPL implements XepPhongService {
 
     @Override
     public XepPhong checkIn(XepPhongRequest xepPhongRequest) {
-        ThongTinDatPhong ttdp = xepPhongRequest.getThongTinDatPhong();
-        XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId()).get();
-        Phong p = xp.getPhong();
-        ttdp.setTrangThai("Dang o");
-        p.setTinhTrang("occupied");
-        xp.setPhong(xepPhongRequest.getPhong());
-        xp.setThongTinDatPhong(ttdp);
-        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
-        xp.setNgayNhanPhong(xepPhongRequest.getNgayTraPhong());
-        xp.setTrangThai(true);
-        xepPhongRepository.save(xp);
-        return xp;
+
+        try{
+            XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId()).orElse(null);
+            if(xp!=null){
+                ThongTinDatPhong ttdp = xp.getThongTinDatPhong();
+                Phong p = xp.getPhong();
+                ttdp.setTrangThai("Dang o");
+                p.setTinhTrang("occupied");
+                xp.setPhong(xp.getPhong());
+                xp.setThongTinDatPhong(ttdp);
+                xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
+                xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
+                xp.setTrangThai(true);
+                return xepPhongRepository.save(xp);
+            }else{
+                XepPhong xpNew = this.addXepPhong(xepPhongRequest);
+                ThongTinDatPhong ttdp = xpNew.getThongTinDatPhong();
+                Phong p = xpNew.getPhong();
+                ttdp.setTrangThai("Dang o");
+                p.setTinhTrang("occupied");
+                xpNew.setTrangThai(true);
+                return xepPhongRepository.save(xpNew);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Chưa được xếp phòng");
+        }
+        return null;
     }
 
     @Override

@@ -45,7 +45,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
     };
 
     const handleSaveAll = () => {
-        const requests = selectedTTDPs.map((ttdp) => {
+        const requests = selectedTTDPs.map(async (ttdp) => {
             const xepPhongRequest = {
                 phong: { id: selectedPhong[ttdp.id] },
                 thongTinDatPhong: { id: ttdp.id },  
@@ -53,16 +53,13 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
                 ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong),
                 trangThai: true,
             };
-
-            return addXepPhong(xepPhongRequest)
-                .then(() => {
-                    console.log(`Xếp phòng thành công cho: ${ttdp.maTTDP}`);
-                })
-                .catch((error) => {
-                    console.error(`Lỗi khi xếp phòng cho ${ttdp.maTTDP}:`, error);
-                });
+            try {
+                const ttt = await addXepPhong(xepPhongRequest);
+                console.log(ttt);
+            } catch (error) {
+                console.error(`Lỗi khi xếp phòng cho ${ttdp.maTTDP}:`, error);
+            }
         });
-
         Promise.all(requests)
             .then(() => {
                 alert('Xếp phòng thành công cho tất cả các đặt phòng đã chọn!');
@@ -73,9 +70,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
                 alert('Xảy ra lỗi trong quá trình xếp phòng.');
             });
     };
-
     if (!show) return null;
-
     return (
         <div className="xp-modal-overlay">
             <div className={`xp-modal-container ${show ? 'show' : ''}`}>
@@ -99,7 +94,6 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
                                         {phong.maPhong} - {phong.tenPhong}
                                     </option>
                                 ))}
-
                             </select>
                         </div>
                     ))}
