@@ -26,4 +26,6 @@ public interface ThongTinDatPhongService {
 
     void kiemTraDenHan(List<ThongTinDatPhong> ttdps);
 
+    ThongTinDatPhong getByMaTTDP(String maTTDP);
+
 }

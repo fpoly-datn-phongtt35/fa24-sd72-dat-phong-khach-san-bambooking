@@ -10,6 +10,7 @@ public interface XepPhongService {
     XepPhong addXepPhong(XepPhongRequest xepPhongRequest);
     XepPhong updateXepPhong(XepPhongRequest xepPhongRequest);
     XepPhong getByMaTTDP(String maTTDP);
-    XepPhong checkIn(String maTTDP);
+    XepPhong checkIn(XepPhongRequest xepPhongRequest);
 
+    List<XepPhong> findByKey(String key);
 }

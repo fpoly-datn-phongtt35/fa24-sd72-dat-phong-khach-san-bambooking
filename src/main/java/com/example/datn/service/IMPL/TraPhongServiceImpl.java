@@ -16,10 +16,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -46,13 +44,24 @@ public class TraPhongServiceImpl implements TraPhongService {
     public TraPhong checkOut(String maThongTinDatPhong) {
         TraPhong traPhong = new TraPhong();
         XepPhong xepPhong = xepPhongRepository.getByMaTTDP(maThongTinDatPhong);
+        traPhong.setXepPhong(xepPhong);
+        traPhong.setNgayTraThucTe(LocalDateTime.now());
+        traPhong.setTrangThai(false);
+        traPhongRepository.save(traPhong);
+        return traPhong;
+    }
+
+    @Override
+    public TraPhong CheckOut(Integer idTraPhong) {
+        TraPhong traPhong = traPhongRepository.findById(idTraPhong).get();
+        XepPhong xepPhong = traPhong.getXepPhong();
         ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
         Phong p = xepPhong.getPhong();
+
         thongTinDatPhong.setTrangThai("Da tra phong");
-        traPhong.setXepPhong(xepPhong);
-        traPhong.setNgayTraThucTe(LocalDate.now());
-        traPhong.setTrangThai(true);
+        xepPhong.setTrangThai(false);
         p.setTinhTrang("available");
+        traPhong.setTrangThai(true);
         traPhongRepository.save(traPhong);
         return traPhong;
     }

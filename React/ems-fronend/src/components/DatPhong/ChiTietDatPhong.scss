@@ -61,16 +61,20 @@
         font-weight: bold;
     }
 
-    input[type="text-area"] {
+    .textarea {
         width: 100%;
         padding: 10px;
         margin-top: 10px;
         border-radius: 4px;
-        border: none;
+        border: none; // Loại bỏ viền
         font-size: 18px;
-        resize: vertical;
+        resize: vertical; // Cho phép người dùng thay đổi chiều cao
         outline: none; // Loại bỏ viền khi focus
+        background-color: #f9f9f9; // Thêm màu nền nhẹ để phân biệt
+    }
 
+    textarea:focus {
+        background-color: #ffffff; // Đổi màu nền khi focus để nổi bật
     }
 
     .booker-rooms {

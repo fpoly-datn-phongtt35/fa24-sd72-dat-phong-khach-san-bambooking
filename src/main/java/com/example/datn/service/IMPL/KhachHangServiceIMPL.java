@@ -168,25 +168,13 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setHo(request.getHo());
         khachHang.setSdt(request.getSdt());
         khachHang.setEmail(request.getEmail());
+        khachHang.setGioiTinh(request.getGioiTinh());
+        khachHang.setDiaChi(request.getDiaChi());
+        khachHang.setMatKhau(request.getMatKhau());
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
-        khachHang.setTrangThai(false);
+        khachHang.setTrangThai(request.getTrangThai());
+        return khachHangRepository.save(khachHang);
 
-        KhachHang savedKhachHang = khachHangRepository.save(khachHang);
-
-//        // Gửi email chúc mừng
-//        // Tạo task bất đồng bộ để gửi email
-//        new Thread(() -> {
-//            try {
-//                emailService.sendThankYouEmail(
-//                        savedKhachHang.getEmail(),
-//                        savedKhachHang.getHo() + " " + savedKhachHang.getTen()
-//                );
-//            } catch (Exception e) {
-//                System.err.println("Lỗi khi gửi email: " + e.getMessage());
-//            }
-//        }).start();
-
-        return savedKhachHang;
     }
 }

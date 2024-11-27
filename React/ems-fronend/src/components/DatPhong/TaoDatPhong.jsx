@@ -48,16 +48,18 @@ const TaoDatPhong = () => {
             ten: formData.ten,
             email: formData.email,
             sdt: formData.sdt,
+            matKhau : '',
+            trangThai: false
         };
     
         const datPhongRequest = {
             khachHang: null, // Chờ cập nhật id khách hàng sau khi tạo
             maDatPhong: 'DP' + Date.now(),
             ngayDat: new Date().toISOString(),
-            tongTien: calculateTotalAmount(),
+            tongTien: 0,
             datCoc: 0,
             ghiChu: 'Ghi chú thêm nếu cần',
-            trangThai: 'Đang xử lý'
+            trangThai: ''
         };
     
         try {

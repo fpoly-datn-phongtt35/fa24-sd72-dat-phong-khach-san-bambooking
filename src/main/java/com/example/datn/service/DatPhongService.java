@@ -25,4 +25,7 @@ public interface DatPhongService {
 
     Double sumTotalAmountByIDDatPhong(Integer idDP);
 
+    //Gnut
+    Page<DatPhongResponse> findAll(String keyword, Pageable pageable);
+
 }

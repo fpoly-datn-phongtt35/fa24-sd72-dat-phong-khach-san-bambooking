@@ -92,7 +92,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
         ttdp.setNgayTraPhong(request.getNgayTraPhong());
         ttdp.setSoNguoi(request.getSoNguoi());
         ttdp.setTrangThai(request.getTrangThai());
-
+        ttdp.setGhiChu(request.getGhiChu());
         // Lưu Thông Tin Đặt Phòng
         ThongTinDatPhong savedTTDP = thongTinDatPhongRepository.save(ttdp);
 

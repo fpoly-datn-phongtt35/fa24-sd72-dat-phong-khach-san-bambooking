@@ -167,7 +167,7 @@ export default function Home({ user }) {
 
     try {
       // Tạo khách hàng
-      const khachHangResponse = await ThemKhachHangDatPhong(khachHangRequest, { timeout: 5000 });
+      const khachHangResponse = await ThemKhachHangDatPhong(khachHangRequest);
       console.log('Phản hồi từ API ThemKhachHangDatPhong:', khachHangResponse);
 
       if (khachHangResponse && khachHangResponse.data) {
@@ -194,6 +194,7 @@ export default function Home({ user }) {
         soNguoi: numberOfPeople,
         giaDat: loaiPhong.donGia,
         trangThai: 'Chua xep',
+        ghiChu: 'abc'
       };
 
       const thongTinDatPhongResponse = await addThongTinDatPhong(thongTinDatPhongRequest);

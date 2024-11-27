@@ -26,9 +26,11 @@ import TaoDatPhong from './components/DatPhong/TaoDatPhong.jsx';
 import GiaoDienTaoDP from './components/DatPhong/GiaoDienTaoDP.jsx'
 import QuanLyDatPhong from './components/DatPhong/QuanLyDatPhong.jsx';
 import ListHoaDon from './components/HoaDon/ListHoaDon.jsx';
-import HoaDonComponent from './components/HoaDon/HoaDonComponent.jsx';
+import CreateHoaDon from './components/HoaDon/CreateHoaDon.jsx';
 import RoomDetail from './components/TrangChu/RoomDetail.jsx';
-import ListThongTinHoaDon from './components/HoaDon/ListThongTinHoaDon.jsx';
+import ChiTietTTDP from './components/DatPhong/ChiTietTTDP.jsx';
+import Demo from './components/HoaDon/Demo.jsx';
+import DemoTaoHoaDon from './components/HoaDon/DemoTaoHoaDon.jsx';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
@@ -110,10 +112,16 @@ function App() {
             <Route path="/giao-dien-tao-dp" element={<RequireAuth> <GiaoDienTaoDP /> </RequireAuth>} />
             <Route path="/tao-dat-phong" element={<RequireAuth> <TaoDatPhong /> </RequireAuth>} />
             <Route path="/thong-tin-dat-phong" element={<RequireAuth> <ChiTietDatPhong /> </RequireAuth>} />
+
+            {/*Hoa don */}
             <Route path="/hoa-don" element={<RequireAuth> <ListHoaDon /> </RequireAuth>} />
-            <Route path="/thong-tin-hoa-don" element={<RequireAuth> <ListThongTinHoaDon /> </RequireAuth>} />
-            <Route path="/add-hoa-don" element={<RequireAuth> <HoaDonComponent /> </RequireAuth>} />
+            <Route path="/tao-hoa-don" element={<RequireAuth> <CreateHoaDon /> </RequireAuth>} />
+
             <Route path="/api/RoomDetail/:roomId" element={<RequireAuth> <RoomDetail /> </RequireAuth>} />
+            <Route path="/chi-tiet-ttdp" element={<RequireAuth> <ChiTietTTDP /></RequireAuth>} />
+            <Route path="/demo" element={<RequireAuth> <Demo /></RequireAuth>} />
+            <Route path="/demo-tao-hoa-don" element={<RequireAuth> <DemoTaoHoaDon /></RequireAuth>} />
+            
             {/* Route chính, điều hướng đến ViewPhong */}
             <Route path="/" element={<RequireAuth><ViewPhong /></RequireAuth>} />
             {/* Redirect các đường dẫn không xác định */}
