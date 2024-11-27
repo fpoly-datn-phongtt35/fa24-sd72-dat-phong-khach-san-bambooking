@@ -10,6 +10,7 @@ import com.example.datn.model.KhachHangRegister;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.KhachHangRepository;
 import com.example.datn.repository.TaiKhoanRepository;
+import com.example.datn.service.EmailService;
 import com.example.datn.service.KhachHangService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,9 @@ public class KhachHangServiceIMPL implements KhachHangService {
     KhachHangMapper khachHangMapper;
     @Autowired
     JavaMailSender mailSender;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public Page<KhachHang> getAllKhachHang(Pageable pageable) {
@@ -167,6 +171,22 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(false);
-        return khachHangRepository.save(khachHang);
+
+        KhachHang savedKhachHang = khachHangRepository.save(khachHang);
+
+//        // Gửi email chúc mừng
+//        // Tạo task bất đồng bộ để gửi email
+//        new Thread(() -> {
+//            try {
+//                emailService.sendThankYouEmail(
+//                        savedKhachHang.getEmail(),
+//                        savedKhachHang.getHo() + " " + savedKhachHang.getTen()
+//                );
+//            } catch (Exception e) {
+//                System.err.println("Lỗi khi gửi email: " + e.getMessage());
+//            }
+//        }).start();
+
+        return savedKhachHang;
     }
 }

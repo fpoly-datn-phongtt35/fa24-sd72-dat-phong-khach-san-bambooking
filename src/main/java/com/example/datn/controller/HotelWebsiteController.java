@@ -1,16 +1,27 @@
 package com.example.datn.controller;
 
+import com.example.datn.dto.request.DatPhongRequest;
+import com.example.datn.dto.request.KhachHangDatPhongRequest;
+import com.example.datn.dto.request.TTDPRequest;
+import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.model.LoaiPhong;
+import com.example.datn.model.ThongTinDatPhong;
+import com.example.datn.service.HotelWebsiteService;
+import com.example.datn.service.IMPL.DatPhongServiceIMPL;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
+import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +38,12 @@ public class HotelWebsiteController {
     LoaiPhongServiceIMPL phongServiceIMPL;
     @Autowired
     LoaiPhongServiceIMPL loaiPhongServiceIMPL;
+    @Autowired
+    DatPhongServiceIMPL datPhongServiceIMPL;
+    @Autowired
+    ThongTinDatPhongServiceIMPL thongTinDatPhongServiceIMPL;
+    @Autowired
+    HotelWebsiteService hotelWebsiteService;
 
     @GetMapping("/index")
     public ResponseEntity<?> DanhSachTienNghi(Pageable pageable){
@@ -51,4 +68,23 @@ public class HotelWebsiteController {
         return ResponseEntity.ok(p);
     }
 
+    @PostMapping("/create-kh-dp")
+    public ResponseEntity<?> createKhachHangDatPhong(@RequestBody KhachHangDatPhongRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(hotelWebsiteService.createKhachHangDatPhong(request));
+    }
+
+    @PostMapping("them-moi-dp")
+    public ResponseEntity<DatPhongResponse> createDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(hotelWebsiteService.addDatPhong(datPhongRequest));
+    }
+
+    @PostMapping("them-moi")
+    public ResponseEntity<ThongTinDatPhong> createDatPhong(@RequestBody TTDPRequest request) {
+        ThongTinDatPhong ttdp = hotelWebsiteService.add(request);
+        if (ttdp != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(ttdp);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
 }

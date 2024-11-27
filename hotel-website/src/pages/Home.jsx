@@ -156,56 +156,60 @@ export default function Home({ user }) {
     };
 
     const datPhongRequest = {
-      khachHang: null, // Chờ cập nhật id khách hàng sau khi tạo
+      khachHang: null,
       maDatPhong: 'DP' + Date.now(),
       ngayDat: new Date().toISOString(),
       tongTien: calculateTotalPrice(),
       datCoc: 0,
       ghiChu: 'Ghi chú thêm nếu cần',
-      trangThai: 'Đang xử lý'
+      trangThai: 'Đang xử lý',
     };
 
     try {
       // Tạo khách hàng
-      const khachHangResponse = await ThemKhachHangDatPhong(khachHangRequest);
-      console.log(khachHangResponse.data);
+      const khachHangResponse = await ThemKhachHangDatPhong(khachHangRequest, { timeout: 5000 });
+      console.log('Phản hồi từ API ThemKhachHangDatPhong:', khachHangResponse);
 
-      if (khachHangResponse != null) {
-        // Gán id của khách hàng vào datPhongRequest
+      if (khachHangResponse && khachHangResponse.data) {
         datPhongRequest.khachHang = khachHangResponse.data;
-
-        // Tạo và lưu `datPhong`
-        const datPhongResponse = await ThemMoiDatPhong(datPhongRequest);
-        console.log(datPhongResponse);
-
-        const dp = datPhongResponse.data; // Đối tượng `datPhong` đã được lưu
-        console.log(dp);
-
-
-        const thongTinDatPhongRequest = {
-          datPhong: dp,  // Gán đối tượng `datPhong` đã được lưu
-          idLoaiPhong: loaiPhong.id,
-          maThongTinDatPhong: '',
-          ngayNhanPhong: startDate,
-          ngayTraPhong: endDate,
-          soNguoi: numberOfPeople,
-          giaDat: loaiPhong.donGia,
-          trangThai: 'Chua xep'
-        };
-        console.log(thongTinDatPhongRequest);
-        const thongTinDatPhongResponse = addThongTinDatPhong(thongTinDatPhongRequest);
-        console.log(thongTinDatPhongResponse);
-
-        alert('Đặt phòng thành công');
-        // navigate('/quan-ly-dat-phong');
       } else {
-        throw new Error('Không thể lấy id khách hàng');
+        throw new Error('Không thể lấy id khách hàng từ backend');
       }
+
+      // Tạo và lưu `datPhong`
+      const datPhongResponse = await ThemMoiDatPhong(datPhongRequest);
+      if (!datPhongResponse || !datPhongResponse.data) {
+        throw new Error('Không thể tạo đặt phòng');
+      }
+
+      const dp = datPhongResponse.data;
+
+      // Tạo thông tin đặt phòng
+      const thongTinDatPhongRequest = {
+        datPhong: dp,
+        idLoaiPhong: loaiPhong.id,
+        maThongTinDatPhong: '',
+        ngayNhanPhong: startDate,
+        ngayTraPhong: endDate,
+        soNguoi: numberOfPeople,
+        giaDat: loaiPhong.donGia,
+        trangThai: 'Chua xep',
+      };
+
+      const thongTinDatPhongResponse = await addThongTinDatPhong(thongTinDatPhongRequest);
+
+      if (!thongTinDatPhongResponse || !thongTinDatPhongResponse.data) {
+        throw new Error('Không thể tạo thông tin đặt phòng');
+      }
+
+      alert('Đặt phòng thành công');
+      alert(`Đã gửi email chúc mừng đến: ${khachHangRequest.email}`);
     } catch (error) {
-      console.error('Lỗi khi gửi thông tin khách hàng hoặc đặt phòng:', error);
-      alert('Đã xảy ra lỗi trong quá trình đặt phòng');
+      console.error('Lỗi khi xử lý:', error.response || error.message || error);
+      alert('Đã xảy ra lỗi: ' + (error.response?.data?.message || 'Không rõ lỗi'));
     }
   };
+
 
   return (
     <div className="home-page">
@@ -364,7 +368,7 @@ export default function Home({ user }) {
                 </div>
               </div>
             )}
-
+            {/* Form nhập thông tin người đặt */}
             {showBookingForm && (
               <div className="modal">
                 <div className="modal-content">

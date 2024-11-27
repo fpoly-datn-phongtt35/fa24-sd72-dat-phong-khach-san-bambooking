@@ -1,9 +1,9 @@
 import axios from "axios";
 const api = "http://localhost:8080/loai-phong/index";
 const apiLoaiPhongKhaDung = "http://localhost:8080/api/loai-phong-kha-dung"
-const apiDPAdd = "http://localhost:8080/dat-phong/them-moi";
-const apiCreateKH = "http://localhost:8080/khach-hang/create-kh-dp";
-const apiAdd = "http://localhost:8080/ttdp/them-moi"
+const apiDPAdd = "http://localhost:8080/api/them-moi-dp";
+const apiCreateKH = "http://localhost:8080/api/create-kh-dp";
+const apiAdd = "http://localhost:8080/api/them-moi"
 
 export const listLoaiPhong = (pageable) => {
     return axios.get(api, {

@@ -52,6 +52,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setNgayDat(LocalDate.now());
         datPhong.setTrangThai("Pending");
         DatPhong dp = datPhongRepository.save(datPhong);
+
         datPhongResponse.setId(dp.getId());
         datPhongResponse.setMaDatPhong(dp.getMaDatPhong());
         datPhongResponse.setKhachHang(dp.getKhachHang());
