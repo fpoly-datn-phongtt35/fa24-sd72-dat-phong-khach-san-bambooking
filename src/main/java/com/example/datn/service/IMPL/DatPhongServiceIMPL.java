@@ -121,4 +121,26 @@ public class DatPhongServiceIMPL implements DatPhongService {
         }
         return tongTien;
     }
+
+    @Override
+    public DatPhong addDatPhongNgay(DatPhongRequest datPhongRequest) {
+        DatPhong datPhong = new DatPhong();
+        UniqueDatPhongCode code = new UniqueDatPhongCode();
+        String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
+        datPhong.setMaDatPhong(codeDP);
+        datPhong.setTongTien(datPhongRequest.getTongTien());
+        datPhong.setDatCoc(datPhongRequest.getDatCoc());
+        datPhong.setNgayDat(datPhongRequest.getNgayDat());
+        datPhong.setGhiChu(datPhongRequest.getGhiChu());
+        datPhong.setKhachHang(datPhongRequest.getKhachHang());
+        datPhong.setTrangThai(datPhongRequest.getTrangThai());
+        return datPhongRepository.save(datPhong);
+    }
+
+    @Override
+    public Page<DatPhong> DSDatPhong(Pageable pageable) {
+        return  datPhongRepository.DSDatPhong(pageable);
+    }
+
+
 }

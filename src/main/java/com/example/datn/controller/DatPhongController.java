@@ -4,6 +4,7 @@ package com.example.datn.controller;
 import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.model.DatPhong;
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
 import com.example.datn.service.IMPL.PhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,4 +75,18 @@ public class DatPhongController {
     public ResponseEntity<?> ChiTietDatPhong(@RequestParam String maDatPhong){
         return ResponseEntity.ok(datPhongServiceIMPL.findByMaDatPhong(maDatPhong));
     }
+
+    @PostMapping("them-gio-hang")
+    public ResponseEntity<Integer> addDatPhongNgay(@RequestBody DatPhongRequest datPhongRequest) {
+        DatPhong datPhong = datPhongServiceIMPL.addDatPhongNgay(datPhongRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(datPhong.getId());
+    }
+
+
+    @GetMapping("danh-sach")
+    public ResponseEntity<?> DSDatPhong(Pageable pageable) {
+        return ResponseEntity.ok(datPhongServiceIMPL.DSDatPhong(pageable));
+    }
+
+
 }

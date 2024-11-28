@@ -25,4 +25,8 @@ public interface DatPhongService {
 
     Double sumTotalAmountByIDDatPhong(Integer idDP);
 
+    DatPhong addDatPhongNgay(DatPhongRequest datPhongRequest);
+
+    Page<DatPhong> DSDatPhong (Pageable pageable);
+
 }

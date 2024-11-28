@@ -57,5 +57,8 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.maThongTinDatPhong = :maTTDP")
     ThongTinDatPhong getTTDPByMa(@Param("maTTDP") String maTTDP);
 
+    @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :idDatPhong")
+    List<ThongTinDatPhong> findByIDDatPhong(@Param("idDatPhong") Integer idDatPhong);
+
 }
 

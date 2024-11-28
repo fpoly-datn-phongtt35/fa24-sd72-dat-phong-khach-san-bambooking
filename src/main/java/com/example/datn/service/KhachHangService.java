@@ -24,4 +24,6 @@ public interface KhachHangService {
 
     KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request);
 
+    Optional<KhachHang> KhachHangLogin (String email);
+
 }

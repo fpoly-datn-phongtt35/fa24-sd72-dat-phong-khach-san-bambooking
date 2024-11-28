@@ -30,7 +30,7 @@ public class TTDPController {
     LoaiPhongServiceIMPL loaiPhongServiceIMPL;
 
     @GetMapping("all")
-    public Page<ThongTinDatPhong> all(Pageable pageable){
+    public Page<ThongTinDatPhong> all(Pageable pageable) {
         return thongTinDatPhongServiceIMPL.getAll(pageable);
     }
 
@@ -38,10 +38,12 @@ public class TTDPController {
     public ResponseEntity<?> hienThiQuanLy(@RequestParam("trangThai") String trangThai, Pageable pageable) {
         return ResponseEntity.ok(thongTinDatPhongServiceIMPL.HienThiQuanLy(trangThai, pageable));
     }
+
     @GetMapping("hien-thi-by-iddp")
-    public List<ThongTinDatPhong> getByIDDP(@RequestParam(value = "idDP") Integer idDP){
+    public List<ThongTinDatPhong> getByIDDP(@RequestParam(value = "idDP") Integer idDP) {
         return thongTinDatPhongServiceIMPL.getByIDDP(idDP);
     }
+
     @PostMapping("them-moi")
     public ResponseEntity<ThongTinDatPhong> createDatPhong(@RequestBody TTDPRequest request) {
         ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.add(request);
@@ -54,17 +56,17 @@ public class TTDPController {
 
     @GetMapping("loai-phong-kha-dung")
     public ResponseEntity<?> loaiPhongKhaDung(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
-                                          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
-                                          @RequestParam(required = false) Integer soNguoi,
-                                          Pageable pageable){
+                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
+                                              @RequestParam(required = false) Integer soNguoi,
+                                              Pageable pageable) {
         LocalDateTime ngayNhanPhongStart = (ngayNhanPhong != null) ? ngayNhanPhong.atStartOfDay() : LocalDate.now().atStartOfDay();
         LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(23, 59, 59) : LocalDate.now().atTime(23, 59, 59);
-        Page<LoaiPhongKhaDungResponse> p = loaiPhongServiceIMPL.LoaiPhongKhaDung(ngayNhanPhongStart,ngayTraPhongEnd,soNguoi,pageable);
+        Page<LoaiPhongKhaDungResponse> p = loaiPhongServiceIMPL.LoaiPhongKhaDung(ngayNhanPhongStart, ngayTraPhongEnd, soNguoi, pageable);
         return ResponseEntity.ok(p);
     }
 
     @GetMapping("chi-tiet-dat-phong")
-    public ResponseEntity<?> chiTietDatPhong(@RequestParam String maDatPhong){
+    public ResponseEntity<?> chiTietDatPhong(@RequestParam String maDatPhong) {
         List<ThongTinDatPhong> ttdps = thongTinDatPhongServiceIMPL.findByMaDatPhong(maDatPhong);
         return ResponseEntity.ok(ttdps);
     }
@@ -79,9 +81,27 @@ public class TTDPController {
         thongTinDatPhongServiceIMPL.kiemTraDenHan(thongTinDatPhongServiceIMPL.getAll());
         return thongTinDatPhongServiceIMPL.findByDateRangeAndKey(startDate, endDate, key, trangThai, pageable);
     }
+
     @GetMapping("/huy-ttdp")
-    public ThongTinDatPhong huyTTDP(@RequestParam String maThongTinDatPhong){
+    public ThongTinDatPhong huyTTDP(@RequestParam String maThongTinDatPhong) {
         return thongTinDatPhongServiceIMPL.huyTTDP(maThongTinDatPhong);
+    }
+
+    @GetMapping("list-gio-hang")
+    public List<ThongTinDatPhong> getGioHang(@RequestParam(value = "idDatPhong") Integer idDatPhong) {
+        return thongTinDatPhongServiceIMPL.getGioHang(idDatPhong);
+    }
+
+    @GetMapping("/xoa-ttdp")
+    public ResponseEntity<?> huyTTDP(@RequestParam Integer idTTDP) {
+        thongTinDatPhongServiceIMPL.xoaTTDP(idTTDP);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PostMapping("update")
+    public ResponseEntity<ThongTinDatPhong> updateTTDP(@RequestBody TTDPRequest request) {
+        ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.update(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ttdp);
     }
 
 }
