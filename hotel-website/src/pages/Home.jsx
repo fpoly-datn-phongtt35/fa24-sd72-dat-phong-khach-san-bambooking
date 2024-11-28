@@ -159,7 +159,7 @@ export default function Home({ user }) {
       khachHang: null,
       maDatPhong: 'DP' + Date.now(),
       ngayDat: new Date().toISOString(),
-      tongTien: calculateTotalPrice(),
+      tongTien: 0,
       datCoc: 0,
       ghiChu: 'Ghi chú thêm nếu cần',
       trangThai: 'Đang xử lý',

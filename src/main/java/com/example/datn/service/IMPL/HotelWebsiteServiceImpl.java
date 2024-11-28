@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class HotelWebsiteServiceImpl implements HotelWebsiteService {
@@ -84,35 +85,68 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
         ThongTinDatPhong ttdp = new ThongTinDatPhong();
         LoaiPhong lp = loaiPhongServiceIMPL.findByID(request.getIdLoaiPhong());
         UniqueDatPhongCode code = new UniqueDatPhongCode();
-        ttdp.setDatPhong(request.getDatPhong());
+
+        // Tính số đêm và tiền phòng
+        long soDem = ChronoUnit.DAYS.between(request.getNgayNhanPhong(), request.getNgayTraPhong());
+        Double tienPhong = soDem * lp.getDonGia();
+
+        // Kiểm tra số người và tính tiền phụ thu nếu có
+        long soNguoiToiDa = lp.getSoKhachToiDa();
+        long soNguoi = request.getSoNguoi();
+        Double tienPhuThu = 0.0;
+        if (soNguoi > soNguoiToiDa) {
+            tienPhuThu += (soNguoi - soNguoiToiDa) * lp.getDonGiaPhuThu();
+        }
+
+        // Cập nhật thông tin đặt phòng
+        DatPhong dp = request.getDatPhong();
+        dp.setTongTien(dp.getTongTien() + tienPhong + tienPhuThu);
+        dp.setDatCoc(dp.getTongTien() * 0.1);
+
+        // Thiết lập các thông tin cho ThongTinDatPhong
+        ttdp.setDatPhong(dp);
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
-        ttdp.setGiaDat(request.getGiaDat());
+        ttdp.setGiaDat(lp.getDonGia());
         ttdp.setNgayNhanPhong(request.getNgayNhanPhong());
         ttdp.setNgayTraPhong(request.getNgayTraPhong());
         ttdp.setSoNguoi(request.getSoNguoi());
         ttdp.setTrangThai(request.getTrangThai());
         ttdp.setGhiChu(request.getGhiChu());
-        // Lưu Thông Tin Đặt Phòng
+
+        // Lưu thông tin đặt phòng và thông tin chi tiết
+        datPhongRepository.save(dp);
         ThongTinDatPhong savedTTDP = thongTinDatPhongRepository.save(ttdp);
 
-        // Sau khi lưu, bạn có thể lấy thông tin phòng từ savedTTDP
-        String loaiPhong = savedTTDP.getLoaiPhong().getTenLoaiPhong();
-        Double giaDat = savedTTDP.getGiaDat();
-        LocalDateTime ngayNhanPhong = savedTTDP.getNgayNhanPhong().atStartOfDay(); // Chuyển LocalDate thành LocalDateTime
-        LocalDateTime ngayTraPhong = savedTTDP.getNgayTraPhong().atStartOfDay(); // Chuyển LocalDate thành LocalDateTime
-
-        // Gửi email chúc mừng với thông tin phòng
+        // Gửi email chúc mừng
+        Double finalTienPhuThu = tienPhuThu;
         new Thread(() -> {
             try {
+                String loaiPhong = savedTTDP.getLoaiPhong().getTenLoaiPhong();
+                Double giaDat = savedTTDP.getGiaDat();
+                String maThongTinDatPhong = savedTTDP.getMaThongTinDatPhong();
+                LocalDateTime ngayNhanPhong = savedTTDP.getNgayNhanPhong().atStartOfDay();
+                LocalDateTime ngayTraPhong = savedTTDP.getNgayTraPhong().atStartOfDay();
                 String fullName = savedTTDP.getDatPhong().getKhachHang().getHo() + " " + savedTTDP.getDatPhong().getKhachHang().getTen();
+                LocalDateTime ngayDatPhong= savedTTDP.getDatPhong().getNgayDat().atStartOfDay();
+
+                // Thông tin thêm
+                Double tongTien = dp.getTongTien();
+                Double tienDatCoc = dp.getDatCoc();
+
                 emailService.sendThankYouEmail(
                         savedTTDP.getDatPhong().getKhachHang().getEmail(),
                         fullName,
                         loaiPhong,
                         giaDat,
                         ngayNhanPhong,
-                        ngayTraPhong
+                        ngayTraPhong,
+                        ngayDatPhong,
+                        maThongTinDatPhong,
+                        soDem,
+                        finalTienPhuThu,
+                        tongTien,
+                        tienDatCoc
                 );
             } catch (Exception e) {
                 System.err.println("Lỗi khi gửi email: " + e.getMessage());
@@ -120,6 +154,6 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
         }).start();
 
         return savedTTDP;
-
     }
+
 }

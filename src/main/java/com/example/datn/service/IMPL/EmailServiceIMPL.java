@@ -16,22 +16,46 @@ public class EmailServiceIMPL implements EmailService {
     private JavaMailSender mailSender;
 
     @Override
-    public void sendThankYouEmail(String email, String fullName, String roomType, Double price, LocalDateTime checkInDate, LocalDateTime checkOutDate) {
+    public void sendThankYouEmail(String email,
+                                  String fullName,
+                                  String loaiPhong,
+                                  Double giaDat,
+                                  LocalDateTime ngayNhanPhong,
+                                  LocalDateTime ngayTraPhong,
+                                  LocalDateTime ngayDatPhong,
+                                  String maThongTinDatPhong,
+                                  long soDem,
+                                  Double tienPhuThu,
+                                  Double tongTien,
+                                  Double tienDatCoc) {
         try {
+            // Định dạng ngày tháng chỉ hiển thị ngày
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            // Tạo nội dung email
+            String emailContent = "Xin chào " + fullName + ",\n\n"
+                    + "Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi. Thông tin đặt phòng của bạn như sau:\n\n"
+                    + "Loại phòng: " + loaiPhong + "\n"
+                    + "Giá mỗi đêm: " + String.format("%.2f", giaDat) + " VND\n"
+                    + "Số đêm: " + soDem + "\n"
+                    + "Tiền phụ thu (nếu có): " + String.format("%.2f", tienPhuThu) + " VND\n"
+                    + "Tổng tiền: " + String.format("%.2f", tongTien) + " VND\n"
+                    + "Tiền đặt cọc: " + String.format("%.2f", tienDatCoc) + " VND\n"
+                    + "Mã đặt phòng: " + maThongTinDatPhong + "\n\n"
+                    + "Ngày đặt phòng: " + ngayDatPhong.format(dateFormatter) + "\n"
+                    + "Ngày nhận phòng: " + ngayNhanPhong.format(dateFormatter) + "\n"
+                    + "Ngày trả phòng: " + ngayTraPhong.format(dateFormatter) + "\n\n"
+                    + "Chúng tôi rất mong được phục vụ bạn trong thời gian tới.\n\n"
+                    + "Trân trọng,\n"
+                    + "Khách sạn Bam";
+
+            // Tạo đối tượng email
             SimpleMailMessage message = new SimpleMailMessage();
             message.setTo(email);
             message.setSubject("Cảm ơn bạn đã đặt phòng tại khách sạn của chúng tôi!");
-            message.setText("Xin chào " + fullName + ",\n\n"
-                    + "Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi. "
-                    + "Thông tin phòng của bạn như sau:\n"
-                    + "Loại phòng: " + roomType + "\n"
-                    + "Giá phòng: " + price + " VND\n"
-                    + "Ngày nhận phòng: " + checkInDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + "\n"
-                    + "Ngày trả phòng: " + checkOutDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")) + "\n\n"
-                    + "Chúng tôi rất mong được phục vụ bạn trong thời gian tới.\n\n"
-                    + "Trân trọng,\n"
-                    + "Khách sạn Bam");
+            message.setText(emailContent);
 
+            // Gửi email
             mailSender.send(message);
         } catch (Exception e) {
             // Log lỗi gửi email nếu có
