@@ -39,8 +39,8 @@ CREATE TABLE khach_hang (
   ten NVARCHAR(255),
   gioi_tinh NVARCHAR(255),
   dia_chi NVARCHAR(255),
-  sdt VARCHAR(255) UNIQUE,
-  email VARCHAR(255) UNIQUE,
+  sdt VARCHAR(255),
+  email VARCHAR(255),
   mat_khau VARCHAR (255),
   ngay_tao DATETIME,
   ngay_sua DATETIME,
@@ -121,9 +121,19 @@ CREATE TABLE thong_tin_dat_phong (
   ngay_tra_phong DATE,
   so_nguoi INT,
   gia_dat DECIMAL(18,2),
+  ghi_chu NVARCHAR(255),
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_dat_phong) REFERENCES dat_phong(id),
   FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id)
+);
+
+CREATE TABLE khach_hang_checkin (
+  id INT IDENTITY(1,1) PRIMARY KEY,
+  id_thong_tin_dat_phong  INT ,
+  id_khach_hang INT,
+  trang_thai BIT,
+  FOREIGN KEY (id_thong_tin_dat_phong) REFERENCES thong_tin_dat_phong(id),
+  FOREIGN KEY (id_khach_hang) REFERENCES khach_hang(id)
 );
 
 CREATE TABLE xep_phong (

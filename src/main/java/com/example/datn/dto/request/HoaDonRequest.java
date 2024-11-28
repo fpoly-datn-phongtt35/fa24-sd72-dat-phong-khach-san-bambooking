@@ -10,6 +10,6 @@ import lombok.experimental.FieldDefaults;
 public class HoaDonRequest {
 //    String maHoaDon;
     String tenDangNhap;
-//    Integer idDatPhong;
+    Integer idDatPhong;
 //    Double tongTien;
 }

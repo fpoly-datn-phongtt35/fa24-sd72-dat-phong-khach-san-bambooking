@@ -63,7 +63,7 @@ function Sidebar({ isAuthenticated, onLogout }) {
               <div className="nav-link">Hóa đơn</div>
               <ul className={`submenu ${activeSubmenu === 2 ? 'open' : ''}`}>
               <li className="nav-item">
-                  <Link className="nav-link" to="/tao-hoa-don">Tạo hóa đơn</Link>
+                  <Link className="nav-link" to="/demo">Trả phòng</Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/hoa-don">Quản lý hóa đơn</Link>

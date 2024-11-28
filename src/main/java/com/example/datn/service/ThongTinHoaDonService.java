@@ -13,5 +13,5 @@ public interface ThongTinHoaDonService {
     Page<ThongTinHoaDonResponse> getAllThongTinHoaDon(Pageable pageable);
     List<ThongTinHoaDonResponse> getThongTinHoaDonByHoaDonId(Integer idHoaDon);
     List<ThongTinHoaDon> createThongTinHoaDon(Integer idHD, List<TraPhong> listTraPhong);
-    void tongTienHoaDon();
+//    void tongTienHoaDon();
 }
