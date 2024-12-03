@@ -2,7 +2,9 @@ import axios from "axios";
 const apiFindCheckOut = "http://localhost:8080/tra-phong/check-out";
 const apiCheckOut = "http://localhost:8080/tra-phong/Check-out";
 const apiGetDatPhong = "http://localhost:8080/dat-phong/chi-tiet-dat-phong";
-const apiCreateTTHD = "http://localhost:8080/thong-tin-hoa-don"
+const apiCreateTTHD = "http://localhost:8080/thong-tin-hoa-don";
+const apiGetHoaDonByID = "http://localhost:8080/hoa-don";
+
 export const findCheckOut = (key) => {
     return axios.get(apiFindCheckOut, {
         params: {
@@ -10,7 +12,6 @@ export const findCheckOut = (key) => {
         }
     });
 };
-
 export const checkOut = (idTraPhong) => {
     return axios.get(apiCheckOut, {
         params: {
@@ -32,4 +33,10 @@ export const createThongTinHoaDon = (tthdRequest) => {
         },
     });
 };
-
+export const getHoaDonById = (idHoaDon) => {
+    return axios.get(apiGetHoaDonByID,{
+        params: {
+            idHoaDon: idHoaDon
+        }
+    });
+};

@@ -16,7 +16,7 @@ public class HoaDonMapper {
         //Set mã hóa đơn tự sinh 6 ký tự (impl)
         hoaDon.setNhanVien(nhanVien);
         hoaDon.setDatPhong(datPhong);
-        hoaDon.setTongTien(0.0);
+//        hoaDon.setTongTien(0.0);
         hoaDon.setNgayTao(LocalDateTime.now());
         hoaDon.setTrangThai("Chưa thanh toán");
         return hoaDon;

@@ -26,7 +26,6 @@ import TaoDatPhong from './components/DatPhong/TaoDatPhong.jsx';
 import GiaoDienTaoDP from './components/DatPhong/GiaoDienTaoDP.jsx'
 import QuanLyDatPhong from './components/DatPhong/QuanLyDatPhong.jsx';
 import ListHoaDon from './components/HoaDon/ListHoaDon.jsx';
-import CreateHoaDon from './components/HoaDon/CreateHoaDon.jsx';
 import RoomDetail from './components/TrangChu/RoomDetail.jsx';
 import ChiTietTTDP from './components/DatPhong/ChiTietTTDP.jsx';
 import Demo from './components/HoaDon/Demo.jsx';
@@ -115,7 +114,7 @@ function App() {
 
             {/*Hoa don */}
             <Route path="/hoa-don" element={<RequireAuth> <ListHoaDon /> </RequireAuth>} />
-            <Route path="/tao-hoa-don" element={<RequireAuth> <CreateHoaDon /> </RequireAuth>} />
+            {/* <Route path="/tao-hoa-don" element={<RequireAuth> <CreateHoaDon /> </RequireAuth>} /> */}
 
             <Route path="/api/RoomDetail/:roomId" element={<RequireAuth> <RoomDetail /> </RequireAuth>} />
             <Route path="/chi-tiet-ttdp" element={<RequireAuth> <ChiTietTTDP /></RequireAuth>} />

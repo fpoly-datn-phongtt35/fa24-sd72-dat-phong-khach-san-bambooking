@@ -37,10 +37,10 @@ public class TraPhongController {
     }
 
     @GetMapping("check-out")
-    public ResponseEntity<List<TraPhong>> checkOut(@RequestParam("key") String key){
+    public ResponseEntity<List<TraPhong>> checkOut(@RequestParam("key") String key) {
         List<XepPhong> lxp = xepPhongServiceIMPL.findByKey(key);
         List<TraPhong> ltp = new ArrayList<>();
-        for(XepPhong xp:lxp){
+        for (XepPhong xp : lxp) {
             TraPhong traPhong = traPhongService.checkOut(xp.getThongTinDatPhong().getMaThongTinDatPhong());
             if (traPhong != null) {
                 ltp.add(traPhong);
@@ -50,7 +50,7 @@ public class TraPhongController {
     }
 
     @GetMapping("Check-out")
-    public ResponseEntity<TraPhong> checkOut(@RequestParam("idTraPhong") Integer idTraPhong){
+    public ResponseEntity<TraPhong> checkOut(@RequestParam("idTraPhong") Integer idTraPhong) {
         return ResponseEntity.status(HttpStatus.OK).body(traPhongService.CheckOut(idTraPhong));
     }
 }

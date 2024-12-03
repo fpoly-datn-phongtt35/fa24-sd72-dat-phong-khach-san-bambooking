@@ -1,11 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { taoHoaDon } from '../../services/HoaDonService';
-import { createThongTinHoaDon } from '../../services/HoaDonDat';
+import { createThongTinHoaDon, getHoaDonById } from '../../services/HoaDonDat';
+import { useNavigate } from 'react-router-dom';
 
 const DemoTaoHoaDon = () => {
-    const [traPhong, setTraPhong] = useState([]); // Danh sách trả phòng (hiển thị)
-    const [tenDangNhap, setTenDangNhap] = useState(''); // Tên đăng nhập của người dùng
-    const hoaDonDaTaoRef = useRef(false);
+    const [traPhong, setTraPhong] = useState([]);
+    const [tenDangNhap, setTenDangNhap] = useState('');
+    const hoaDonDaTaoRef = useRef(false);//Hóa đơn tạo 1 lần
+
+    const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
+    const [selectedTraPhong, setSelectedTraPhong] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const storedTraPhong = localStorage.getItem('traPhong');
@@ -27,60 +34,173 @@ const DemoTaoHoaDon = () => {
     }, []);
 
     const createHoaDon = async (username) => {
-
         try {
             const hoaDonRequest = { tenDangNhap: username };
-            const hdResponse = await taoHoaDon(hoaDonRequest);
-            console.log(hdResponse);
+            const hdResponse = await taoHoaDon(hoaDonRequest); // Gọi API tạo hóa đơn
+            console.log( hdResponse);
+            console.log("Hóa đơn id: " + hdResponse.id)
+            console.log("Mã hóa đơn id: " + hdResponse.maHoaDon)
+            console.log("Tổng tiền hóa đơn id: " + hdResponse.tongTien)
             alert('Hóa đơn đã được tạo thành công!');
+
             if (hoaDonDaTaoRef.current === true) {
+                // Tạo thông tin hóa đơn
                 if (hdResponse) {
                     const tthdRequest = {
-                        idHoaDon: '',
-                        listTraPhong: JSON.parse(localStorage.getItem('traPhong')),
-                        tienDichVu: 0,
-                        tienPhong: 0,
-                        tienPhuThu: 0
-                    }
-                    tthdRequest.idHoaDon = hdResponse.id;
-                    console.log(tthdRequest);
-                    await createThongTinHoaDon(tthdRequest)
-                        .then(response => {
-                            console.log("Response from createThongTinHoaDon:", response.data);
-                        })  
-                        .catch(error => {
-                            console.error("Error from createThongTinHoaDon:", error);
-                        });
+                        idHoaDon: hdResponse.id,
+                        listTraPhong: JSON.parse(localStorage.getItem('traPhong'))
+                    };
+
+                    console.log(tthdRequest);//du lieu hoa don
+
+                    const response = await createThongTinHoaDon(tthdRequest);
+                    console.log("Response from createThongTinHoaDon:", response.data);
+
+                    // Cập nhật danh sách thông tin hóa đơn với dữ liệu trả về từ backend
+                    setThongTinHoaDon((prev) => [...prev, ...response.data]); // Gọi data để lấy kết quả trả về
+
+                    response.data.forEach((thongTin) => {
+                        console.log(
+                            `Tiền phòng: ${thongTin.tienPhong}, 
+                             Tiền phụ thu: ${thongTin.tienPhuThu}, 
+                             Tiền dịch vụ: ${thongTin.tienDichVu}`
+                        );
+                    });
                 }
+                
             }
-
-
         } catch (error) {
             alert('Lỗi khi tạo hóa đơn.');
             console.error('Lỗi tạo hóa đơn:', error);
         }
     };
 
+    const handleTraPhongClick = (traPhong) => {
+        setSelectedTraPhong(traPhong);
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+        setSelectedTraPhong(null);
+    };
+
+    const calculateStayDays = (ngayNhanPhong, ngayTraThucTe) => {
+        const startDate = new Date(ngayNhanPhong);
+        const endDate = new Date(ngayTraThucTe);
+
+        // Lấy giờ và phút của ngày trả phòng thực tế
+        const checkOutHour = endDate.getHours();
+        const checkOutMinute = endDate.getMinutes();
+
+        // Tính số ngày ở
+        let timeDifference = endDate - startDate;
+        let dayDifference = timeDifference / (1000 * 3600 * 24);
+
+        // Nếu trả phòng trong ngày (trước 12h trưa), thì giảm bớt 1 ngày
+        if (checkOutHour < 6 || (checkOutHour === 6 && checkOutMinute === 0)) {
+            dayDifference -= 1; // Trả phòng trước 6h sáng, tính thêm 1 ngày
+        }
+
+        // Trả phòng trong cùng ngày, thêm một ngày nữa (tính đủ một ngày)
+        if (dayDifference <= 0) {
+            dayDifference = 1;
+        }
+
+        // Làm tròn lên nếu có phần thập phân
+        return Math.ceil(dayDifference);
+    };
+
+    const totalAmount = useMemo(() => {
+        return thongTinHoaDon.reduce((total, item) => total + item.tienPhong + item.tienPhuThu + item.tienDichVu, 0);
+    }, [thongTinHoaDon]);
+    
+
     return (
-        <div className="tao-hoa-don-container">
-            <h5>Danh sách trả phòng</h5>
-            {traPhong.length > 0 ? (
-                <div className="card-list">
-                    {traPhong.map((item, index) => (
-                        <div className="room-card" key={index}>
-                            <div className="card-content">
-                                <h6 className="room-title">Phòng: {item.tenPhong}</h6>
-                                <p className="room-details">
-                                    <strong>ID:</strong> {item.id}<br />
-                                    <strong>Ngày trả:</strong> {item.ngayTra}<br />
-                                    <strong>Trạng thái:</strong> {item.trangThai}
-                                </p>
+        <div className="container">
+            <div className="card mt-4">
+                <div className="card-header">
+                    <h5>Thông Tin Hóa Đơn</h5>
+                </div>
+                <div className="card-body">
+                    <table className="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Mã Hóa Đơn</th>
+                                <th>ID Trả phòng</th>
+                                <th>Phòng</th>
+                                <th>Tiền Phòng</th>
+                                <th>Tiền Phụ Thu</th>
+                                <th>Tiền Dịch Vụ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {thongTinHoaDon.length > 0 ? (
+                                thongTinHoaDon.map((item, index) => (
+                                    <tr key={index}>
+                                        <td>{item.id}</td>
+                                        <td>{item.hoaDon.maHoaDon}</td>
+                                        <td>
+                                            <span
+                                                onClick={() => handleTraPhongClick(item.traPhong)}
+                                                style={{ color: '#007bff', cursor: 'pointer' }}
+                                            >
+                                                {item.traPhong.id}
+                                            </span>
+                                        </td>
+                                        <td>{item.traPhong.xepPhong.phong.tenPhong}</td>
+                                        <td>{item.tienPhong}</td>
+                                        <td>{item.tienPhuThu}</td>
+                                        <td>{item.tienDichVu}</td>
+                                        
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan="7" style={{ textAlign: 'center' }}>Chưa có thông tin hóa đơn.</td>
+                                </tr>
+                            )}
+                            <tr>
+                                <td colSpan={5}></td>
+                                <td><b>Tổng tiền:</b></td>
+                                <td>{isNaN(totalAmount) ? '0' : totalAmount}</td>
+                            </tr>
+                            <tr>
+                                <td colSpan={6}></td>
+                                <td>
+                                    <button>Thanh toán</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+
+            {showModal && selectedTraPhong && (
+                <div className="modal" style={{ display: 'block' }}>
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Thông Tin Trả Phòng</h5>
+                                <button type="button" className="close" onClick={closeModal}>&times;</button>
+                            </div>
+                            <div className="modal-body">
+                                <p><strong>Phòng:</strong> {selectedTraPhong.xepPhong.phong.tenPhong}</p>
+                                <p><strong>Ngày nhận phòng:</strong> {selectedTraPhong.xepPhong.thongTinDatPhong.ngayNhanPhong}</p>
+                                <p><strong>Ngày trả thực tế:</strong> {selectedTraPhong.ngayTraThucTe}</p>
+                                {selectedTraPhong.ngayTraThucTe && selectedTraPhong.xepPhong.thongTinDatPhong.ngayNhanPhong && (
+                                    <p>
+                                        <strong>Số ngày ở:</strong> {calculateStayDays(selectedTraPhong.xepPhong.thongTinDatPhong.ngayNhanPhong, selectedTraPhong.ngayTraThucTe)}
+                                    </p>
+                                )}
+                                <p><b> Giá phòng: </b> {selectedTraPhong.xepPhong.thongTinDatPhong.giaDat}</p>
                             </div>
                         </div>
-                    ))}
+                    </div>
                 </div>
-            ) : (
-                <p>Không có phòng nào cần xử lý.</p>
             )}
         </div>
     );

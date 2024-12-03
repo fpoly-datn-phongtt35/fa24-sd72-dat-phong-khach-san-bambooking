@@ -6,6 +6,7 @@ import com.example.datn.mapper.HoaDonMapper;
 import com.example.datn.model.DatPhong;
 import com.example.datn.model.HoaDon;
 import com.example.datn.model.NhanVien;
+import com.example.datn.model.ThongTinHoaDon;
 import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.repository.HoaDonRepository;
 import com.example.datn.service.HoaDonService;
@@ -61,6 +62,7 @@ public class HoaDonServiceIMPL implements HoaDonService {
     public HoaDonResponse createHoaDon(HoaDonRequest request) {
         // Check trùng mã hóa đơn
         String maHoaDon;
+
         do {
             maHoaDon = generateMaaHoaDon();
         } while (isMaHoaDonExists(maHoaDon));
@@ -75,6 +77,13 @@ public class HoaDonServiceIMPL implements HoaDonService {
         hoaDon.setTrangThai("Chưa thanh toán");
 
         return hoaDonMapper.toHoaDonResponse(hoaDonRepository.save(hoaDon));
+    }
+
+    @Override
+    public HoaDonResponse getOneHoaDon(Integer idHoaDon) {
+        HoaDon hoaDon = hoaDonRepository.findById(idHoaDon)
+                .orElseThrow(()-> new RuntimeException("Không tìm thấy hóa đơn có ID: " + idHoaDon));
+        return hoaDonMapper.toHoaDonResponse(hoaDon);
     }
 
 

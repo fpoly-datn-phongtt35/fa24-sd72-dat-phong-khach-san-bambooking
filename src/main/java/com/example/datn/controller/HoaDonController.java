@@ -31,7 +31,7 @@ public class HoaDonController {
             @RequestParam(value = "trangThai", required = false) String trangThai,
             @RequestParam(value = "keyword", required = false) String keyword,
             Pageable pageable) {
-        thongTinHoaDonService.tongTienHoaDon();
+//        thongTinHoaDonService.tongTienHoaDon();
         Page<HoaDonResponse> hoaDonResponses = hoaDonService.getHoaDonByTrangThai(trangThai, keyword, pageable);
         return ResponseEntity.ok(hoaDonResponses);
     }
@@ -39,6 +39,11 @@ public class HoaDonController {
     @PostMapping("tao-hoa-don")
     public ResponseEntity<?> createHoaDon(@RequestBody HoaDonRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(hoaDonService.createHoaDon(request));
+    }
+
+    @GetMapping("/idHoaDon")
+    public ResponseEntity<?> getHoaDonById(@RequestParam("idHoaDon") Integer idHoaDon){
+        return ResponseEntity.ok(hoaDonService.getOneHoaDon(idHoaDon));
     }
 
 //    @GetMapping("/search")

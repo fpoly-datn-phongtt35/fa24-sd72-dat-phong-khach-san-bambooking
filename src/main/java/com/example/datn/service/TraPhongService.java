@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 public interface TraPhongService {
     Page<TraPhongResponse> getAllTraPhong(Pageable pageable);
     TraPhongResponse createTraPhong(TraPhongRequest request);
-
     TraPhong checkOut(String maThongTinDatPhong);
     TraPhong CheckOut(Integer idTraPhong);
 }
