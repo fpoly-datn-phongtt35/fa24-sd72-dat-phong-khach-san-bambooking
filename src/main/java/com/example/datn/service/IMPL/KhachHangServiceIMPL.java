@@ -8,6 +8,8 @@ import com.example.datn.mapper.KhachHangMapper;
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.KhachHangRegister;
 import com.example.datn.repository.KhachHangRepository;
+import com.example.datn.repository.TaiKhoanRepository;
+import com.example.datn.service.EmailService;
 import com.example.datn.service.KhachHangService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,9 @@ public class KhachHangServiceIMPL implements KhachHangService {
     KhachHangMapper khachHangMapper;
     @Autowired
     JavaMailSender mailSender;
+
+    @Autowired
+    private EmailService emailService;
 
     @Override
     public Page<KhachHang> getAllKhachHang(Pageable pageable) {
@@ -169,6 +174,7 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(request.getTrangThai());
         return khachHangRepository.save(khachHang);
+
     }
 
     @Override

@@ -5,6 +5,7 @@ import './BookingForm.scss'; // Import file CSS
 import ModalSelectedRoom from './ModalSelectedRoom'; // Import the new modal component
 import { addThongTinDatPhong, getLoaiPhongKhaDung } from '../../services/TTDP';
 import TaoDatPhong from './TaoDatPhong';
+
 const BookingForm = () => {
     const [datPhong, setDatPhong] = useState(null);
     const [startDate, setStartDate] = useState('');

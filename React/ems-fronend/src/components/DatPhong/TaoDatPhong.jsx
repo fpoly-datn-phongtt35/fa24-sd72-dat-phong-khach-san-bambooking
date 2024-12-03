@@ -3,6 +3,7 @@ import { useLocation,useNavigate  } from 'react-router-dom';
 import './TaoDatPhong.scss';
 import { ThemKhachHangDatPhong, ThemMoiDatPhong ,CapNhatDatPhong} from '../../services/DatPhong';
 import { addThongTinDatPhong } from '../../services/TTDP';
+
 const TaoDatPhong = () => {
     const location = useLocation();
     const navigate = useNavigate();

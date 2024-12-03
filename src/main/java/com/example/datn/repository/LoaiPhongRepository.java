@@ -124,28 +124,39 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
+            "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
+            "(COUNT(p) - " +
+            " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
+            " AND xp.trangThai = true) - " +
+            " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            " AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            " AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
+            " AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o', 'Den han'))" +
+            ") AS soPhongKhaDung) " +
+            "FROM LoaiPhong lp " +
+            "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+            "WHERE p.trangThai = true " +
+            "AND lp.id = :loaiPhongId " + // Điều kiện tìm theo ID loại phòng
+            "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa " +
+            "HAVING (COUNT(p) - " +
+            " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
+            " AND xp.trangThai = true) - " +
+            " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            " AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            " AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate))" +
+            ") > 0",
+            countQuery = "SELECT COUNT(DISTINCT lp.id) FROM LoaiPhong lp " +
+                    "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+                    "WHERE p.trangThai = true " +
+                    "AND lp.id = :loaiPhongId") // Điều kiện tìm theo ID loại phòng
+    LoaiPhongKhaDungResponse LoaiPhongKhaDung1(
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
+            @Param("loaiPhongId") Integer idLoaiPhong // Tham số mới
+    );
 
 
 

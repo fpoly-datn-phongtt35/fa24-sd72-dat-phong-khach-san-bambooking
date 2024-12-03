@@ -39,6 +39,7 @@ export const DanhSachKhachHang = () => {
 export const ThemMoiDatPhong = (DatPhongRequest) => {
     return axios.post(apiDPAdd, DatPhongRequest);
 };
+
 export const DatPhongDetail = (id) => {
     return axios.get(`${apiDetail}/${id}`);
 };

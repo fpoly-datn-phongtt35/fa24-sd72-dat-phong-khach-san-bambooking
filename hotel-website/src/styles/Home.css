@@ -179,6 +179,251 @@ p {
   background-color: #f1f1f1;
 }
 
+/* Container chính cho form tìm phòng và danh sách phòng */
+.search-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; /* Khoảng cách giữa form tìm phòng và danh sách phòng */
+  margin-top: 20px;
+}
+
+/* Form tìm phòng (nằm bên trái) */
+.search-form {
+  flex: 0 0 45%; /* Chiếm 45% chiều rộng */
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Danh sách phòng khả dụng (nằm bên phải) */
+.room-list {
+  flex: 0 0 50%; /* Chiếm 50% chiều rộng */
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Thêm thanh cuộn dọc nếu danh sách phòng dài */
+}
+
+/* Cập nhật cho room-item */
+.room-item {
+  display: flex;
+  flex-direction: column;
+  width: 55%; /* Đặt chiều rộng của room-item */
+  padding: 15px;
+  margin: 15px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  gap: 15px; /* Khoảng cách giữa các phần tử con */
+}
+
+/* Cập nhật cho room-info */
+.room-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Đảm bảo các phần tử con đều cách đều nhau */
+  flex-grow: 1; /* Chiếm không gian còn lại */
+}
+
+/* Tiêu đề phòng */
+.room-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 0; /* Loại bỏ khoảng cách dưới */
+  flex: 1; /* Để tiêu đề phòng chiếm không gian còn lại */
+}
+
+
+/* Cập nhật cho các detail-item */
+.detail-item {
+  display: flex;
+  justify-content: space-between; /* Đảm bảo các thông tin (ví dụ: diện tích, sức chứa...) nằm ở hai đầu */
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.detail-item span {
+  color: #555;
+}
+
+.detail-item strong {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Mô tả và giá */
+.description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.total-price {
+  font-size: 16px;
+  font-weight: bold;
+  color: #007bff;
+  margin-top: 10px;
+  text-align: left; /* Đảm bảo thành tiền căn trái */
+  margin-left: 0; /* Loại bỏ khoảng cách bên trái nếu có */
+}
+
+/* Nút phân trang */
+.slideshow-navigation {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.slideshow-navigation button {
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 25px;
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.slideshow-navigation button:hover {
+  background-color: #0056b3;
+  transform: scale(1.1);
+}
+
+.slideshow-navigation span {
+  font-size: 14px;
+  margin: 0 10px;
+  color: #333;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Tạo nền mờ */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 1000px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow-y: auto;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+  transition: background-color 0.3s;
+}
+
+.close-button:hover {
+  background: #d43636;
+}
+
+/* Khi modal mở, vô hiệu hóa nội dung bên ngoài */
+body.modal-open {
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.modal-content {
+  pointer-events: auto;
+}
+
+/* Căn giữa tiêu đề trong form */
+.form-title {
+  text-align: center; /* Căn giữa tiêu đề */
+  font-size: 24px; /* Điều chỉnh kích thước nếu cần */
+  margin-bottom: 20px; /* Khoảng cách dưới tiêu đề */
+}
+
+/* Cập nhật cho thông tin phòng */
+.room-info-ttnd {
+  width: 80%; /* Giảm chiều rộng */
+  max-width: 500px; /* Giới hạn chiều rộng tối đa */
+  margin: 0 auto; /* Căn giữa */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.room-title-ttnd {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* Cập nhật cho form */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Khoảng cách giữa các input */
+  width: 80%; /* Giảm chiều rộng */
+  max-width: 500px; /* Giới hạn chiều rộng tối đa */
+  margin: 20px auto; /* Căn giữa form */
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Cập nhật cho các group trong form */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.form-group input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box; /* Đảm bảo input chiếm đầy chiều rộng */
+}
+
 @media (max-width: 768px) {
   .services-and-image {
     flex-direction: column;
