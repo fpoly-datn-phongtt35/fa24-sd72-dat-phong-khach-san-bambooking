@@ -71,5 +71,16 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
             " OR dp.maDatPhong LIKE %:keyword%)" +
             " ORDER BY dp.ngayDat DESC")
     Page<DatPhongResponse> findAll(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query(
+            "Select dp from DatPhong dp where dp.khachHang.id = :idKhachHang"
+    )
+    List<DatPhong> findByIdKhachHang(@Param("idKhachHang") Integer idKhachHang);
+
+    @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
+            "FROM DatPhong dp " +
+            "ORDER BY dp.ngayDat DESC")
+    Page<DatPhong> DSDatPhong(Pageable pageable);
 }
 

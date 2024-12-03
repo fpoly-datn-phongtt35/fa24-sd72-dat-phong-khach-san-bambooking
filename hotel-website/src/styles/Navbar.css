@@ -151,3 +151,91 @@
     text-align: center;
   }
 }
+
+/* Container của form đặt phòng */
+
+/* Đặt phòng form */
+.book-now-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.book-now-button:hover {
+  background-color: #45a049;
+}
+
+.booking-form-container1 {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+.booking-form {
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  display: flex;
+  align-items: center; /* Căn giữa theo chiều dọc */
+  gap: 20px; /* Khoảng cách giữa các phần tử */
+}
+
+/* Các thành phần trong form */
+.form-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1; /* Chia đều không gian */
+}
+
+
+.form-item label {
+  font-size: 16px; /* Tăng kích thước label để dễ đọc */
+  color: #333;
+  min-width: 120px; /* Đảm bảo label có kích thước đều và rõ ràng */
+}
+
+.form-item input {
+  flex: 1;
+  padding: 8px 12px; /* Cải thiện padding cho input */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.confirm-button {
+  background-color: #007bff;
+  color: white;
+  padding: 8px 16px; /* Giảm padding để nút không quá to */
+  font-size: 16px; /* Điều chỉnh font-size của nút */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  min-width: 120px; /* Đảm bảo nút có chiều rộng hợp lý */
+  height: 40px; /* Giữ chiều cao cố định để nút đồng đều */
+}
+
+.confirm-button:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive: Form hiển thị tốt trên màn hình nhỏ */
+@media (max-width: 768px) {
+  .booking-form {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+}
+.form-item input[type="number"] {
+  width: auto; /* Để input số người có chiều rộng tự động */
+  min-width: 100px; /* Đảm bảo kích thước hợp lý */
+  max-width: 150px; /* Không để input quá rộng */
+}

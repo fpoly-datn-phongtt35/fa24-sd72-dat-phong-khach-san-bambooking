@@ -7,9 +7,7 @@ import com.example.datn.dto.response.KhachHangResponse;
 import com.example.datn.mapper.KhachHangMapper;
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.KhachHangRegister;
-import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.KhachHangRepository;
-import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.service.KhachHangService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -171,5 +169,11 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(request.getTrangThai());
         return khachHangRepository.save(khachHang);
+    }
+
+    @Override
+    public Optional<KhachHang> KhachHangLogin(String email) {
+        Optional<KhachHang> khachHang = khachHangRepository.findByEmail(email);
+        return khachHang;
     }
 }

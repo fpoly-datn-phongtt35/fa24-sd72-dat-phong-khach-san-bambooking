@@ -1,0 +1,109 @@
+/* Đặt container của modal */
+.XNDP-modal-container {
+    position: fixed;
+    top: 103px;
+    right: -100%; /* Ẩn modal bên ngoài viewport */
+    width: 30%; /* Chiếm 30% chiều ngang màn hình */
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95); /* Nền trắng mờ */
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+    overflow-y: auto; /* Cho phép cuộn dọc khi nội dung dài */
+    z-index: 1000; /* Hiển thị trên các thành phần khác */
+    transition: right 0.3s ease-in-out; /* Hiệu ứng trượt mượt */
+}
+
+/* Khi showModal = true */
+.XNDP-modal-container.show {
+    right: 0; /* Hiển thị modal ở bên phải */
+}
+
+/* Nội dung modal */
+.XNDP-modal-content {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+/* Tiêu đề */
+.XNDP-modal-content h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #222;
+}
+
+.XNDP-modal-content h4 {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: #555;
+}
+
+/* Card thông tin phòng */
+.ttdp-card {
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    position: relative;
+}
+
+.ttdp-card p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+/* Nút xóa phòng */
+.ttdp-card .remove-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff5c5c;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ttdp-card .remove-btn:hover {
+    background-color: #e44e4e;
+}
+
+/* Phần footer */
+.modal-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-footer .cancel-btn,
+.modal-footer .confirm-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.modal-footer .cancel-btn {
+    background-color: #ccc;
+    color: #333;
+}
+
+.modal-footer .cancel-btn:hover {
+    background-color: #bbb;
+}
+
+.modal-footer .confirm-btn {
+    background-color: #4caf50;
+    color: #fff;
+}
+
+.modal-footer .confirm-btn:hover {
+    background-color: #43a047;
+}

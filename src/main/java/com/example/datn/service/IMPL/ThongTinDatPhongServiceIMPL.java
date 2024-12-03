@@ -29,9 +29,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
     @Autowired
     XepPhongRepository xepPhongRepository;
-
     @Autowired
     DatPhongRepository datPhongRepository;
+
 
     @Override
     public List<ThongTinDatPhong> getAll() {
@@ -44,16 +44,16 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         LoaiPhong lp = loaiPhongServiceIMPL.findByID(request.getIdLoaiPhong());
         UniqueDatPhongCode code = new UniqueDatPhongCode();
         long soDem = ChronoUnit.DAYS.between(request.getNgayNhanPhong(), request.getNgayTraPhong());
-        Double tienPhong = soDem*request.getGiaDat();
+        Double tienPhong = soDem * request.getGiaDat();
         long soNguoiToiDa = lp.getSoKhachToiDa();
         long soNguoi = request.getSoNguoi();
         Double tienPhuThu = 0.0;
-        if(soNguoi>soNguoiToiDa){
-            tienPhuThu+= (soNguoi - soNguoiToiDa) * lp.getDonGiaPhuThu();
+        if (soNguoi > soNguoiToiDa) {
+            tienPhuThu += (soNguoi - soNguoiToiDa) * lp.getDonGiaPhuThu();
         }
         DatPhong dp = request.getDatPhong();
-        dp.setTongTien(dp.getTongTien()+tienPhong+tienPhuThu);
-        dp.setDatCoc(dp.getTongTien()*0.1);
+        dp.setTongTien(dp.getTongTien() + tienPhong + tienPhuThu);
+        dp.setDatCoc(dp.getTongTien() * 0.1);
         ttdp.setDatPhong(dp);
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
@@ -62,7 +62,7 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setNgayTraPhong(request.getNgayTraPhong());
         ttdp.setSoNguoi(request.getSoNguoi());
         ttdp.setTrangThai(request.getTrangThai());
-        ttdp.setGhiChu(request.getGhiChu());
+//        ttdp.setGhiChu(request.getGhiChu());
         datPhongRepository.save(dp);
         return thongTinDatPhongRepository.save(ttdp);
     }
@@ -93,25 +93,25 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
     @Override
     public Page<TTDPResponse> HienThiQuanLy(String trangThai, Pageable pageable) {
-        return thongTinDatPhongRepository.HienThiQuanLy(trangThai,pageable);
+        return thongTinDatPhongRepository.HienThiQuanLy(trangThai, pageable);
     }
 
     @Override
-    public List<ThongTinDatPhong>  findByMaDatPhong(String maDatPhong) {
+    public List<ThongTinDatPhong> findByMaDatPhong(String maDatPhong) {
         return thongTinDatPhongRepository.findByMaDatPhong(maDatPhong);
     }
 
     @Override
     public Page<TTDPResponse> findByDateRangeAndKey(LocalDate startDate, LocalDate endDate, String key,
-                                                        String trangThai, Pageable pageable) {
-        return thongTinDatPhongRepository.findByDateRangeAndKey(startDate,endDate,key,trangThai,pageable);
+                                                    String trangThai, Pageable pageable) {
+        return thongTinDatPhongRepository.findByDateRangeAndKey(startDate, endDate, key, trangThai, pageable);
     }
 
     @Override
     public ThongTinDatPhong huyTTDP(String maTTDP) {
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByMa(maTTDP);
         XepPhong xp = xepPhongRepository.getByMaTTDP(maTTDP);
-        if(xp!=null){
+        if (xp != null) {
             xp.setTrangThai(false);
             xepPhongRepository.save(xp);
         }
@@ -124,4 +124,15 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     public ThongTinDatPhong getByMaTTDP(String maTTDP) {
         return thongTinDatPhongRepository.getTTDPByMa(maTTDP);
     }
+
+    @Override
+    public List<ThongTinDatPhong> getGioHang(Integer idDatPhong) {
+        return thongTinDatPhongRepository.findByIDDatPhong(idDatPhong);
+    }
+
+    @Override
+    public void xoaTTDP(Integer idTTDP) {
+        thongTinDatPhongRepository.deleteById(idTTDP);
+    }
+
 }
