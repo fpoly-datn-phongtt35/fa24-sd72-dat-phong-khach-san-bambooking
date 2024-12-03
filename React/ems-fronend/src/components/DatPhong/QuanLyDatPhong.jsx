@@ -157,7 +157,6 @@ function QuanLyDatPhong() {
                 <a onClick={() => handleStatusChange('Chua xep')}>Chưa xếp</a>
                 <a onClick={() => handleStatusChange('Da xep')}>Đã xếp</a>
                 <a onClick={() => handleStatusChange('Dang o')}>Đang ở</a>
-                <a onClick={() => handleStatusChange('Den han')}>Đến hạn</a>
                 <a onClick={() => handleStatusChange('Da tra phong')}>Đã trả phòng</a>
                 <a onClick={() => handleStatusChange('Da huy')}>Đã hủy</a>
             </nav>

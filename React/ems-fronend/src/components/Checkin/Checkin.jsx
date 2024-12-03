@@ -28,14 +28,30 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
 
     }
     const handleNgayNhanPhongChange = (event) => {
-        setNgayNhanPhong(event.target.value);
+        // Retrieve the date part from thongTinDatPhong
+        const ngayNhanPhongDate = thongTinDatPhong.getNgayNhanPhong();
+    
+        // Retrieve the time part from the event target value
+        const timeValue = event.target.value; // Assuming time is in "HH:mm:ss" or "HH:mm" format
+    
+        // Combine date and time into a single LocalDateTime string
+        const combinedDateTime = `${ngayNhanPhongDate}T${timeValue}`;
+    
+        // Update state with the combined LocalDateTime
+        setNgayNhanPhong(combinedDateTime);
     };
 
     const handleNgayTraPhongChange = (event) => {
-        setNgayTraPhong(event.target.value);
+        const ngayNhanPhongDate = thongTinDatPhong.getNgayTraPhong();
+    
+        // Retrieve the time part from the event target value
+        const timeValue = event.target.value; // Assuming time is in "HH:mm:ss" or "HH:mm" format
+    
+        // Combine date and time into a single LocalDateTime string
+        const combinedDateTime = `${ngayNhanPhongDate}T${timeValue}`;
+
+        setNgayTraPhong(combinedDateTime);
     };
-
-
     if (!show) return null;
     return (
         <div className="checkin-modal-overlay">
@@ -57,7 +73,7 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
                     <div className="form-group">
                         <label htmlFor="ngayTraPhong">Ngày trả phòng</label>
                         <input
-                            type="datetime-local"
+                            type="localdate-time"
                             id="ngayTraPhong"
                             value={ngayTraPhong}
                             onChange={handleNgayTraPhongChange}
