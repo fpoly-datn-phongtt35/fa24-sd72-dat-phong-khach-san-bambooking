@@ -1,7 +1,7 @@
 package com.example.datn.dto.request;
 
 import com.example.datn.model.LoaiPhong;
-import com.example.datn.model.TienIch;
+import com.example.datn.model.VatTu;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,5 +14,5 @@ import lombok.Setter;
 public class TienIchPhongRequest {
     private Integer id;
     private LoaiPhong loaiPhong;
-    private TienIch tienIch;
+    private VatTu vatTu;
 }

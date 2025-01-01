@@ -215,7 +215,7 @@ const BookingForm = () => {
                     </div>
                     <div className="form-group action-buttons">
                         <button type="button" className="cart-btn" onClick={handleOpenModal}>
-                            Giỏ
+                            Phòng đã chọn
                         </button>
                     </div>
                 </div>
@@ -259,7 +259,7 @@ const BookingForm = () => {
                                 Đặt ngay
                             </button>
                             <button className="primary-btn" onClick={() => handleAddSelectedRooms(lp)}>
-                                Thêm vào giỏ
+                                Thêm phòng
                             </button>
                         </div>
                     </div>

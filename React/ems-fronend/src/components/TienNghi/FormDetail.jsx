@@ -4,7 +4,7 @@ import { updateTienIchPhong, DSTienIch, DSLoaiPhong, deleteTienNghiPhong } from 
 const FormDetail = ({ show, handleClose, data }) => {
     const [formData, setFormData] = useState({
         id: data?.id || '',
-        tienIch: data?.tenTienIch || null,
+        vatTu: data?.tenTienIch || null,
         loaiPhong: data?.tenLoaiPhong || null,
     });
 
@@ -35,7 +35,7 @@ const FormDetail = ({ show, handleClose, data }) => {
         if (data) {
             setFormData({
                 id: data.id,
-                tienIch: data.tienIch || null, // Đảm bảo rằng tiện ích được thiết lập đúng
+                vatTu: data.vatTu || null, // Đảm bảo rằng tiện ích được thiết lập đúng
                 loaiPhong: data.loaiPhong || null,
             });
         }
@@ -60,7 +60,7 @@ const FormDetail = ({ show, handleClose, data }) => {
 
         setFormData(prevState => ({
             ...prevState,
-            tienIch: selectedTienIch // Cập nhật tiện ích đã chọn
+            vatTu: selectedTienIch // Cập nhật tiện ích đã chọn
         }));
     };
 
@@ -83,14 +83,14 @@ const FormDetail = ({ show, handleClose, data }) => {
         updateTienIchPhong(formData)
             .then(response => {
                 console.log("Cập nhật thành công:", response.data);
-                console.log("formData.tienIch", formData.tienIch);
+                console.log("formData.vatTu", formData.vatTu);
                 console.log("ListTienIch", ListTienIch);
 
                 handleClose();
             })
             .catch(error => {
                 console.error("Lỗi khi cập nhật:", error);
-                console.log("formData.tienIch", formData.tienIch);
+                console.log("formData.vatTu", formData.vatTu);
                 console.log("ListTienIch", ListTienIch);
 
             });
@@ -129,12 +129,12 @@ const FormDetail = ({ show, handleClose, data }) => {
 
                             {/* Tiện ích */}
                             <div className="mb-3">
-                                <label htmlFor="tienIch" className="form-label">Tiện ích</label>
+                                <label htmlFor="vatTu" className="form-label">Tiện ích</label>
                                 <select
                                     className="form-select"
-                                    id="tienIch"
-                                    name="tienIch"
-                                    value={formData.tienIch?.id || ''} // Sử dụng value từ formData
+                                    id="vatTu"
+                                    name="vatTu"
+                                    value={formData.vatTu?.id || ''} // Sử dụng value từ formData
                                     onChange={handleTienIchChange} // Hàm xử lý khi thay đổi
                                     required
                                 >

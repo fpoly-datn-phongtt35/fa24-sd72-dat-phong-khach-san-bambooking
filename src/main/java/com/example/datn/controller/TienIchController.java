@@ -1,20 +1,14 @@
 package com.example.datn.controller;
 
-import com.example.datn.dto.request.TienIchPhongRequest;
 import com.example.datn.dto.request.TienIchRequest;
-import com.example.datn.dto.response.HinhAnhResponse;
-import com.example.datn.dto.response.TienIchPhongResponse;
 import com.example.datn.dto.response.TienIchResponse;
-import com.example.datn.model.HinhAnh;
-import com.example.datn.model.TienIch;
+import com.example.datn.model.VatTu;
 import com.example.datn.repository.TienIchRepository;
-import com.example.datn.service.IMPL.TienIchPhongServiceIMPL;
 import com.example.datn.service.IMPL.TienIchServiceIMPL;
 import com.example.datn.service.TienIchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +31,7 @@ public class TienIchController {
     TienIchServiceIMPL tienIchServiceIMPL;
     @GetMapping("/home")
     public ResponseEntity<?> ListTienIch(){
-        List<TienIch> ti = tienIchRepository.findAll();
+        List<VatTu> ti = tienIchRepository.findAll();
         return ResponseEntity.ok(ti);
     }
     @GetMapping("/index")
@@ -97,7 +91,7 @@ public class TienIchController {
 
     @GetMapping("")
     public ResponseEntity<?> getAllTienIch(Pageable pageable) {
-        Page<TienIch> imagesPage = tienIchService.getAllTienIch(pageable);
+        Page<VatTu> imagesPage = tienIchService.getAllTienIch(pageable);
         Page<TienIchResponse> responsePage = imagesPage.map(image -> {
             TienIchResponse response = new TienIchResponse();
             response.setId(image.getId());

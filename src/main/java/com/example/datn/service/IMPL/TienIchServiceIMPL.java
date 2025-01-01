@@ -1,8 +1,7 @@
 package com.example.datn.service.IMPL;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.example.datn.model.HinhAnh;
-import com.example.datn.model.TienIch;
+import com.example.datn.model.VatTu;
 import com.example.datn.repository.TienIchRepository;
 import com.example.datn.service.TienIchService;
 import lombok.AccessLevel;
@@ -19,18 +18,14 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import com.example.datn.dto.request.TienIchPhongRequest;
+
 import com.example.datn.dto.request.TienIchRequest;
-import com.example.datn.dto.response.TienIchPhongResponse;
 import com.example.datn.dto.response.TienIchResponse;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -44,7 +39,7 @@ public class TienIchServiceIMPL implements TienIchService {
     Cloudinary cloudinary;
 
     @Override
-    public List<TienIch> getAll() {
+    public List<VatTu> getAll() {
         return tienIchRepository.findAll();
     }
     @Override
@@ -53,7 +48,7 @@ public class TienIchServiceIMPL implements TienIchService {
         return tienIchRepository.TienIch(pageable);
     }
     @Override
-    public Page<TienIch> getAllTienIch(Pageable pageable) {
+    public Page<VatTu> getAllTienIch(Pageable pageable) {
         return tienIchRepository.findAll(pageable);
     }
 
@@ -83,20 +78,20 @@ public class TienIchServiceIMPL implements TienIchService {
         }
         cleanDisk(fileUpload);
 
-        TienIch tienIch = new TienIch();
-        tienIch.setTenTienIch(tienIchRequest.getTenTienIch());
-        tienIch.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
-        tienIchRepository.save(tienIch);
+        VatTu vatTu = new VatTu();
+        vatTu.setTenTienIch(tienIchRequest.getTenTienIch());
+        vatTu.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
+        tienIchRepository.save(vatTu);
 
         TienIchResponse response = new TienIchResponse();
-        response.setId(tienIch.getId());
-        response.setTenTienIch(tienIch.getTenTienIch());
-        response.setHinhAnh(tienIch.getHinhAnh());
+        response.setId(vatTu.getId());
+        response.setTenTienIch(vatTu.getTenTienIch());
+        response.setHinhAnh(vatTu.getHinhAnh());
         return response;
     }
 
     @Override
-    public TienIch detail(Integer id) {
+    public VatTu detail(Integer id) {
         return tienIchRepository.findById(id).get();
     }
 
@@ -108,7 +103,7 @@ public class TienIchServiceIMPL implements TienIchService {
     @Override
     public TienIchResponse update(TienIchRequest tienIchRequest, MultipartFile file) throws IOException {
         // Tìm tiện ích theo ID
-        TienIch tienIch = tienIchRepository.findById(tienIchRequest.getId())
+        VatTu vatTu = tienIchRepository.findById(tienIchRequest.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tiện ích với ID này"));
 
         // Kiểm tra nếu có file mới, chỉ xử lý upload khi file không rỗng
@@ -126,7 +121,7 @@ public class TienIchServiceIMPL implements TienIchService {
             // Upload file lên Cloudinary
             try {
                 cloudinary.uploader().upload(fileUpload, ObjectUtils.asMap("public_id", publicValue));
-                tienIch.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
+                vatTu.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
             } catch (Exception e) {
                 throw new IOException("Lỗi khi upload lên Cloudinary: " + e.getMessage());
             }
@@ -134,24 +129,24 @@ public class TienIchServiceIMPL implements TienIchService {
         }
 
         // Cập nhật tên tiện ích
-        tienIch.setTenTienIch(tienIchRequest.getTenTienIch());
-        tienIchRepository.save(tienIch);
+        vatTu.setTenTienIch(tienIchRequest.getTenTienIch());
+        tienIchRepository.save(vatTu);
 
         // Tạo response sau khi cập nhật thành công
         TienIchResponse response = new TienIchResponse();
-        response.setId(tienIch.getId());
-        response.setTenTienIch(tienIch.getTenTienIch());
-        response.setHinhAnh(tienIch.getHinhAnh());  // Giữ nguyên ảnh cũ nếu không upload ảnh mới
+        response.setId(vatTu.getId());
+        response.setTenTienIch(vatTu.getTenTienIch());
+        response.setHinhAnh(vatTu.getHinhAnh());  // Giữ nguyên ảnh cũ nếu không upload ảnh mới
         return response;
     }
 
 
     @Override
-    public  Page<TienIch> search(String tenTienIch,Pageable pageable) {
+    public  Page<VatTu> search(String tenTienIch, Pageable pageable) {
         return tienIchRepository.search(tenTienIch,pageable);
     }
     @Override
-    public Page<TienIch> searchTienIch(String keyword, Pageable pageable) {
+    public Page<VatTu> searchTienIch(String keyword, Pageable pageable) {
         return tienIchRepository.search(keyword, pageable);
     }
 

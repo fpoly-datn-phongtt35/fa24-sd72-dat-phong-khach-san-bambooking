@@ -7,7 +7,7 @@
   top: 0;
   left: 0;
   overflow-y: auto;
-  /* Scroll nếu nội dung quá dài */
+  background-color: #343a40; /* Thay đổi màu nền */
   scrollbar-width: none;
 }
 
@@ -18,23 +18,21 @@
 }
 
 .nav-item {
-  padding: 10px 10px;
+  padding: 15px 20px; /* Thay đổi padding */
 }
 
 .nav-link {
   text-decoration: none;
-  color: #adb5bd;
-  font-size: 17px;
+  color: #f8f9fa; /* Thay đổi màu chữ */
+  font-size: 18px; /* Thay đổi kích thước chữ */
   display: block;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 /* Hiệu ứng hover */
 .nav-link:hover {
-  color: #fff;
-  /* Chữ trắng khi hover */
-  background-color: #166df8;
-  /* Màu nền khi hover */
+  color: #343a40; /* Thay đổi màu chữ khi hover */
+  background-color: #ffc107; /* Thay đổi màu nền khi hover */
 }
 
 /* Submenu */
@@ -58,7 +56,6 @@
   transform: translateY(-50%) rotate(180deg);
 }
 
-
 /* Submenu ẩn và hiển thị */
 .submenu {
   display: none;
@@ -77,10 +74,9 @@
 }
 
 .submenu .nav-link {
-  font-size: 14px;
+  font-size: 16px; /* Thay đổi kích thước chữ */
   color: #ced4da;
 }
-
 
 /* Khi sidebar rỗng (chưa đăng nhập) */
 .empty-sidebar {
@@ -95,14 +91,14 @@
 /* Đảm bảo responsive cho màn hình nhỏ */
 @media (max-width: 768px) {
   .sidebar {
-    width: 200px;
+    width: 180px; /* Thay đổi kích thước sidebar */
   }
 
   .nav-link {
-    font-size: 14px;
+    font-size: 16px; /* Thay đổi kích thước chữ */
   }
 
   .submenu .nav-link {
-    font-size: 12px;
+    font-size: 14px; /* Thay đổi kích thước chữ */
   }
 }

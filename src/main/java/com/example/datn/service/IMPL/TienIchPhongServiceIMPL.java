@@ -2,8 +2,8 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.TienIchPhongRequest;
 import com.example.datn.dto.response.TienIchPhongResponse;
-import com.example.datn.model.TienIch;
-import com.example.datn.model.TienIchPhong;
+import com.example.datn.model.VatTu;
+import com.example.datn.model.VatTuLoaiPhong;
 import com.example.datn.repository.TienIchPhongRepository;
 import com.example.datn.service.TienIchPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -28,17 +26,17 @@ public class TienIchPhongServiceIMPL implements TienIchPhongService {
 
 
     @Override
-    public TienIchPhong add(TienIchPhongRequest tienIchPhongRequest) {
-        System.out.println(tienIchPhongRequest.getTienIch());
+    public VatTuLoaiPhong add(TienIchPhongRequest tienIchPhongRequest) {
+        System.out.println(tienIchPhongRequest.getVatTu());
         System.out.println(tienIchPhongRequest.getLoaiPhong());
-        TienIchPhong tienIchPhong = new TienIchPhong();
-        tienIchPhong.setTienIch(tienIchPhongRequest.getTienIch());
-        tienIchPhong.setLoaiPhong(tienIchPhongRequest.getLoaiPhong());
-        return tienIchPhongRepository.save(tienIchPhong);
+        VatTuLoaiPhong vatTuLoaiPhong = new VatTuLoaiPhong();
+        vatTuLoaiPhong.setVatTu(tienIchPhongRequest.getVatTu());
+        vatTuLoaiPhong.setLoaiPhong(tienIchPhongRequest.getLoaiPhong());
+        return tienIchPhongRepository.save(vatTuLoaiPhong);
     }
 
     @Override
-    public TienIch detail(Integer id) {
+    public VatTu detail(Integer id) {
         return null;
     }
 
@@ -48,11 +46,11 @@ public class TienIchPhongServiceIMPL implements TienIchPhongService {
     }
 
     @Override
-    public TienIchPhong update(TienIchPhongRequest tienIchPhongRequest) {
-        Optional<TienIchPhong> tienIchPhong = tienIchPhongRepository.findById(tienIchPhongRequest.getId());
+    public VatTuLoaiPhong update(TienIchPhongRequest tienIchPhongRequest) {
+        Optional<VatTuLoaiPhong> tienIchPhong = tienIchPhongRepository.findById(tienIchPhongRequest.getId());
 //        TienIchPhong tienIchPhong = new TienIchPhong();
         tienIchPhong.get().setId(tienIchPhongRequest.getId());
-        tienIchPhong.get().setTienIch(tienIchPhongRequest.getTienIch());
+        tienIchPhong.get().setVatTu(tienIchPhongRequest.getVatTu());
         tienIchPhong.get().setLoaiPhong(tienIchPhongRequest.getLoaiPhong());
         return tienIchPhongRepository.save(tienIchPhong.get());
     }

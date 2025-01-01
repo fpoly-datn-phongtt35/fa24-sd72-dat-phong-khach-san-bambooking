@@ -4,6 +4,8 @@ import { checkIn, phongDaXep } from '../../services/XepPhongService';
 const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
     const [ngayNhanPhong, setNgayNhanPhong] = useState('');
     const [ngayTraPhong, setNgayTraPhong] = useState('');
+    const [ngayNhanPhongTime, setNgayNhanPhongTime] = useState('');
+    const [ngayTraPhongTime, setNgayTraPhongTime] = useState('');
     const handleCheckin = async () => {
         console.log(thongTinDatPhong)
         const xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
@@ -27,31 +29,30 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
         }
 
     }
-    const handleNgayNhanPhongChange = (event) => {
-        // Retrieve the date part from thongTinDatPhong
-        const ngayNhanPhongDate = thongTinDatPhong.getNgayNhanPhong();
-    
-        // Retrieve the time part from the event target value
-        const timeValue = event.target.value; // Assuming time is in "HH:mm:ss" or "HH:mm" format
-    
-        // Combine date and time into a single LocalDateTime string
+    const handleNgayNhanPhongChange = () => {
+        const ngayNhanPhongDate = thongTinDatPhong.ngayNhanPhong;
+        const timeValue = ngayNhanPhongTime;
         const combinedDateTime = `${ngayNhanPhongDate}T${timeValue}`;
-    
-        // Update state with the combined LocalDateTime
         setNgayNhanPhong(combinedDateTime);
     };
 
-    const handleNgayTraPhongChange = (event) => {
-        const ngayNhanPhongDate = thongTinDatPhong.getNgayTraPhong();
-    
-        // Retrieve the time part from the event target value
-        const timeValue = event.target.value; // Assuming time is in "HH:mm:ss" or "HH:mm" format
-    
-        // Combine date and time into a single LocalDateTime string
+    const handleNgayTraPhongChange = () => {
+        const ngayNhanPhongDate = thongTinDatPhong.ngayTraPhong;
+        const timeValue = ngayTraPhongTime;
         const combinedDateTime = `${ngayNhanPhongDate}T${timeValue}`;
-
         setNgayTraPhong(combinedDateTime);
     };
+
+    const handleNgayNhanPhongTimeChange = (event) => {
+        setNgayNhanPhongTime(event.target.value);
+        handleNgayNhanPhongChange();
+    };
+
+    const handleNgayTraPhongTimeChange = (event) => {
+        setNgayTraPhongTime(event.target.value);
+        handleNgayTraPhongChange();
+    };
+
     if (!show) return null;
     return (
         <div className="checkin-modal-overlay">
@@ -63,20 +64,20 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
                     <div className="form-group">
                         <label htmlFor="ngayNhanPhong">Ngày nhận phòng</label>
                         <input
-                            type="datetime-local"
+                            type="time"
                             id="ngayNhanPhong"
-                            value={ngayNhanPhong}
-                            onChange={handleNgayNhanPhongChange}
+                            value={ngayNhanPhongTime}
+                            onChange={handleNgayNhanPhongTimeChange}
                         />
                     </div>
 
                     <div className="form-group">
                         <label htmlFor="ngayTraPhong">Ngày trả phòng</label>
                         <input
-                            type="localdate-time"
+                            type="time"
                             id="ngayTraPhong"
-                            value={ngayTraPhong}
-                            onChange={handleNgayTraPhongChange}
+                            value={ngayTraPhongTime}
+                            onChange={handleNgayTraPhongTimeChange}
                         />
                     </div>
                 </div>

@@ -65,6 +65,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 //        ttdp.setGhiChu(request.getGhiChu());
         datPhongRepository.save(dp);
         return thongTinDatPhongRepository.save(ttdp);
+
+
+        
     }
 
     @Override

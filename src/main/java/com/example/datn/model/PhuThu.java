@@ -6,28 +6,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
+@Table(name = "phu_thu")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity
-@Table(name = "dich_vu_di_kem")
-public class DichVuDiKem {
+public class PhuThu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
+    @JoinColumn(name = "xep_phong")
     @ManyToOne
-    @JoinColumn(name = "id_dich_vu")
-    private DichVu dichVu;
-
-    @ManyToOne
-    @JoinColumn(name = "id_loai_phong")
-    private LoaiPhong loaiPhong;
-
+    private XepPhong xepPhong;
+    @Column(name = "ten_phu_thu")
+    private String tenPhuThu;
+    @Column(name = "tien_phu_thu")
+    private Double tienPhuThu;
     @Column(name = "so_luong")
     private Integer soLuong;
-
     @Column(name = "trang_thai")
     private Boolean trangThai;
 }

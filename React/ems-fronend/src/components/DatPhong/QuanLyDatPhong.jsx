@@ -151,6 +151,11 @@ function QuanLyDatPhong() {
         checkOut(maThongTinDatPhong);
         fetchThongTinDatPhong(currentStatus,currentPage);
     };
+    const isToday = (dateString) => {
+        const today = new Date();
+        const date = new Date(dateString);
+        return today.toDateString() === date.toDateString();
+    };
     return (
         <div className="reservation">
             <nav>
@@ -226,8 +231,8 @@ function QuanLyDatPhong() {
                                             ? (phongData[ttdp.maThongTinDatPhong]?.phong.tenPhong || "Đang tải...")
                                             : ttdp.loaiPhong.tenLoaiPhong}
                                     </td>
-                                    <td>{ttdp.ngayNhanPhong}</td>
-                                    <td>{ttdp.ngayTraPhong}</td>
+                                    <td>{isToday(ttdp.ngayNhanPhong) ? 'Hôm nay' : ttdp.ngayNhanPhong}</td>
+                                    <td>{isToday(ttdp.ngayTraPhong) ? 'Hôm nay' : ttdp.ngayTraPhong}</td>
                                     <td>{calculateTotalPrice(ttdp.donGia, ttdp.ngayNhanPhong, ttdp.ngayTraPhong).toLocaleString()}</td>
                                     <td>
                                         {currentStatus === 'Chua xep' ? (

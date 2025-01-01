@@ -1,11 +1,8 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.TienIchPhongRequest;
-import com.example.datn.dto.request.TienIchRequest;
 import com.example.datn.dto.response.TienIchPhongResponse;
-import com.example.datn.model.TienIch;
-import com.example.datn.model.TienIchPhong;
-import com.example.datn.repository.TienIchPhongRepository;
+import com.example.datn.model.VatTu;
 import com.example.datn.repository.TienIchRepository;
 import com.example.datn.service.IMPL.TienIchPhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 @CrossOrigin
 @RestController
@@ -44,7 +40,7 @@ public class TienIchPhongController {
 
 
     @GetMapping("/index")
-    public List<TienIch> ListTienNghi(Pageable pageable) {
+    public List<VatTu> ListTienNghi(Pageable pageable) {
 
         return tienIchRepository.findAll();
 

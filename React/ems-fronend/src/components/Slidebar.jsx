@@ -87,7 +87,7 @@ function Sidebar({ isAuthenticated, onLogout }) {
         </>
       ) : (
         // Nội dung trống khi chưa đăng nhập
-        <div className="empty-sidebar"></div>
+        <div className="empty-sidebar">Vui lòng đăng nhập để xem nội dung</div>
       )}
     </div>
   );

@@ -25,10 +25,8 @@ public class NhanVien {
     @ManyToOne
     private TaiKhoan taiKhoan;
 
-    @JoinColumn(name = "id_vai_tro")
-    @ManyToOne
-    private VaiTro vaiTro;
-
+    @Column(name = "cmnd")
+    private String cmnd;
     @Column(name = "ho")
     private String ho;
 

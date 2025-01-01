@@ -10,17 +10,22 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-
 @Entity
-@Table(name = "tien_ich")
-public class TienIch {
+@Table(name = "tien_ich_phong")
+
+public class VatTuLoaiPhong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "ten_tien_ich")
-    private String tenTienIch;
 
-    @Column(name = "hinh_anh")
-    private String hinhAnh;
+    @ManyToOne
+    @JoinColumn(name = "id_loai_phong")
+    private LoaiPhong loaiPhong;
+
+    @JoinColumn(name = "id_vat_tu")
+    @ManyToOne
+    private VatTu vatTu;
+    @Column(name = "so_luong")
+    private Integer soLuong;
 
 }
