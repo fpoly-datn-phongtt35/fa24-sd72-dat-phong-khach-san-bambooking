@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { taoHoaDon } from '../../services/HoaDonService';
-import { createThongTinHoaDon, getHoaDonById } from '../../services/HoaDonDat';
+import { createThongTinHoaDon } from '../../services/HoaDonDat';
 import { useNavigate } from 'react-router-dom';
 
 const DemoTaoHoaDon = () => {
@@ -11,6 +11,8 @@ const DemoTaoHoaDon = () => {
     const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
     const [selectedTraPhong, setSelectedTraPhong] = useState(null);
     const [showModal, setShowModal] = useState(false);
+
+    const [idHoaDon, setIdHoaDon] = useState(null);
 
     const navigate = useNavigate();
 
@@ -41,6 +43,7 @@ const DemoTaoHoaDon = () => {
             console.log("Hóa đơn id: " + hdResponse.id)
             console.log("Mã hóa đơn id: " + hdResponse.maHoaDon)
             console.log("Tổng tiền hóa đơn id: " + hdResponse.tongTien)
+            setIdHoaDon(hdResponse.id);
             alert('Hóa đơn đã được tạo thành công!');
 
             if (hoaDonDaTaoRef.current === true) {
@@ -169,7 +172,7 @@ const DemoTaoHoaDon = () => {
                             <tr>
                                 <td colSpan={6}></td>
                                 <td>
-                                    <button>Thanh toán</button>
+                                    <button onClick={()=> navigate(`/thanh-toan/${idHoaDon}`)}>Thanh toán</button>
                                 </td>
                             </tr>
                         </tbody>

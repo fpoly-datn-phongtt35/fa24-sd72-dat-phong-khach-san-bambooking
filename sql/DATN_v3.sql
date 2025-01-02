@@ -199,6 +199,21 @@ CREATE TABLE thong_tin_hoa_don (
   FOREIGN KEY (id_tra_phong) REFERENCES tra_phong(id),
   FOREIGN KEY (id_hoa_don) REFERENCES hoa_don(id)
 );
+
+CREATE TABLE thanh_toan(
+	id INT IDENTITY(1,1) PRIMARY KEY,
+	id_hoa_don INT,
+	id_nhan_vien INT,
+	ngay_thanh_toan DATETIME,
+	tien_thanh_toan DECIMAL(18,2),
+	tien_thua DECIMAL(18,2),
+	phuong_thuc_thanh_toan bit,
+	ma_viet_qr varchar(255),
+	trang_thai bit,
+	FOREIGN KEY (id_hoa_don) REFERENCES hoa_don(id),
+	FOREIGN KEY (id_nhan_vien) REFERENCES nhan_vien(id)
+);
+
 --Dừng ở đây
 CREATE TABLE danh_gia (
   id INT IDENTITY(1,1) PRIMARY KEY,

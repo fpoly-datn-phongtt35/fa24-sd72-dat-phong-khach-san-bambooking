@@ -18,7 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -75,8 +77,13 @@ public class HoaDonServiceIMPL implements HoaDonService {
         hoaDon.setTongTien(0.0);
         hoaDon.setNgayTao(LocalDateTime.now());
         hoaDon.setTrangThai("Chưa thanh toán");
+        double tongTien = hoaDon.getTongTien();
+        String formattedTongTien = formatCurrency(tongTien);
 
-        return hoaDonMapper.toHoaDonResponse(hoaDonRepository.save(hoaDon));
+        HoaDonResponse hoaDonResponse = hoaDonMapper.toHoaDonResponse(hoaDonRepository.save(hoaDon));
+        hoaDonResponse.setTongTien(Double.valueOf(formattedTongTien));
+
+        return hoaDonResponse;
     }
 
     @Override
@@ -86,13 +93,28 @@ public class HoaDonServiceIMPL implements HoaDonService {
         return hoaDonMapper.toHoaDonResponse(hoaDon);
     }
 
-
     @Override
-    public void changeStatusHoaDon(Integer idHoaDon) {
+    public String changeStatusHoaDon(Integer id) {
+        HoaDon hoaDon = hoaDonRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn có ID: " + id));
 
+        if ("Chờ xác nhận".equals(hoaDon.getTrangThai())) {
+            hoaDon.setTrangThai("Đã thanh toán");
+            hoaDonRepository.save(hoaDon);
+            return "Hóa đơn đã được thanh toán thành công.";
+        } else {
+            throw new RuntimeException("Hóa đơn không ở trạng thái 'Chờ xác nhận', không thể thay đổi.");
+        }
     }
+
     @Override
     public NhanVien searchNhanVienByTenDangNhap(String tenDangNhap) {
         return hoaDonRepository.searchTenDangNhap(tenDangNhap);
+    }
+
+    // Phương thức định dạng tiền tệ
+    private String formatCurrency(double amount) {
+        NumberFormat currencyFormatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        return currencyFormatter.format(amount);
     }
 }

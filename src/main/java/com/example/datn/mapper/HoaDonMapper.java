@@ -8,15 +8,14 @@ import com.example.datn.model.NhanVien;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Component
 public class HoaDonMapper {
     public static HoaDon toHoaDon(HoaDonRequest request, NhanVien nhanVien, DatPhong datPhong) {
-        HoaDon hoaDon = new HoaDon();
-        //Set mã hóa đơn tự sinh 6 ký tự (impl)
+        HoaDon hoaDon = new HoaDon(); //Set mã hóa đơn tự sinh 6 ký tự (impl)
         hoaDon.setNhanVien(nhanVien);
         hoaDon.setDatPhong(datPhong);
-//        hoaDon.setTongTien(0.0);
         hoaDon.setNgayTao(LocalDateTime.now());
         hoaDon.setTrangThai("Chưa thanh toán");
         return hoaDon;
@@ -27,9 +26,15 @@ public class HoaDonMapper {
         response.setId(hoaDon.getId());
         response.setMaHoaDon(hoaDon.getMaHoaDon());
         response.setTenDangNhap(hoaDon.getTenDangNhap());
+        response.setTenNhanVien(hoaDon.getTenNhanVien());
         response.setMaDatPhong(hoaDon.getDatPhong() != null ? hoaDon.getDatPhong().getMaDatPhong() : "Không có thông tin");
         response.setTongTien(hoaDon.getTongTien());
-        response.setNgayTao(hoaDon.getNgayTao());
+
+        LocalDateTime ngayTao = hoaDon.getNgayTao();
+        if (ngayTao != null){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            response.setNgayTao(ngayTao.format(formatter));        }
+
         response.setTrangThai(hoaDon.getTrangThai());
         return response;
     }

@@ -12,7 +12,7 @@ public interface HoaDonService {
     HoaDonResponse createHoaDon(HoaDonRequest request);
     HoaDonResponse getOneHoaDon(Integer idHoaDon);
 
-    void changeStatusHoaDon(Integer idHoaDon);
+    String changeStatusHoaDon(Integer id);
 
     NhanVien searchNhanVienByTenDangNhap(String tenDangNhap);
 }

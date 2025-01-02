@@ -1,0 +1,120 @@
+.modal {
+    display: none; 
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+h5{
+    padding-top: 10px;
+    text-align: center;
+}
+
+.modal-content {
+    background: white;
+    margin-top: -100px;
+    margin-left: 180px;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 35%;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: row;
+    margin: 20px 100px;
+}
+
+.button-group button {
+    border: none;
+    background-color: #f0efef;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 20px;
+}
+
+button.active {
+    background-color: #e2833b;
+    color: white;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; 
+    margin-left: 55px;
+    font-size: 18px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+p {
+    margin: 0;
+    padding-left: 10px;
+}
+
+.input-tien-thanh-toan {
+    flex: 1;
+    max-width: 150px;
+    height: 40px;
+    padding: 6px;
+    margin-top: -7px;
+    border: none;
+    border-radius: 4px;
+    background-color: #f5f5f5;
+}
+
+
+.btn-control {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-payment {
+    background-color: #5dc3b2ac; /* Màu xanh lá cây */
+    color: white; /* Màu chữ trắng */
+    border: none; /* Không có viền */
+    padding: 10px 20px; /* Padding cho nút */
+    border-radius: 5px; /* Bo góc */
+    cursor: pointer; /* Đổi con trỏ thành hình tay khi hover */
+    transition: background-color 0.3s ease; /* Hiệu ứng khi hover */
+    width: 150px;
+}
+
+.btn-payment:hover {
+    background-color: #0ca886fc; /* Màu xanh đậm khi hover */
+}
+
+.btn-cancel {
+    background-color: #dc7272b9; /* Màu đỏ */
+    color: white; /* Màu chữ trắng */
+    border: none; /* Không có viền */
+    padding: 10px 20px; /* Padding cho nút */
+    border-radius: 5px; /* Bo góc */
+    cursor: pointer; /* Đổi con trỏ thành hình tay khi hover */
+    transition: background-color 0.3s ease; /* Hiệu ứng khi hover */
+}
+
+.btn-cancel:hover {
+    background-color: #db3344; /* Màu đỏ đậm khi hover */
+}
+
+
+

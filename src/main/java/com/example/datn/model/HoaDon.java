@@ -39,5 +39,11 @@ public class HoaDon {
         }
         return nhanVien.getTaiKhoan() != null ? nhanVien.getTaiKhoan().getTenDangNhap() : "Chưa có thông tin nhân viên";
     }
+    public String getTenNhanVien(){
+        if (nhanVien != null){
+            return nhanVien.getHo() + " " + nhanVien.getTen();
+        }
+        return null;
+    }
 
 }

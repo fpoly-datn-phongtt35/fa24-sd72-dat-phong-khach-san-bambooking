@@ -31,6 +31,7 @@ import ChiTietTTDP from './components/DatPhong/ChiTietTTDP.jsx';
 import Demo from './components/HoaDon/Demo.jsx';
 import DemoTaoHoaDon from './components/HoaDon/DemoTaoHoaDon.jsx';
 import Checkin from './components/Checkin/Checkin.jsx';
+import ThanhToanComponent from './components/ThanhToan/ThanhToanComponent.jsx';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
@@ -121,8 +122,11 @@ function App() {
             <Route path="/chi-tiet-ttdp" element={<RequireAuth> <ChiTietTTDP /></RequireAuth>} />
             <Route path="/demo" element={<RequireAuth> <Demo /></RequireAuth>} />
             <Route path="/demo-tao-hoa-don" element={<RequireAuth> <DemoTaoHoaDon /></RequireAuth>} />
-            
+
             <Route path="/checkin" element={<RequireAuth> <Checkin /></RequireAuth>} />
+
+            {/*Thanh toán */}
+            <Route path='thanh-toan/:idHoaDon' element={<RequireAuth><ThanhToanComponent /></RequireAuth>} />
             {/* Route chính, điều hướng đến ViewPhong */}
             <Route path="/" element={<RequireAuth><ViewPhong /></RequireAuth>} />
             {/* Redirect các đường dẫn không xác định */}
