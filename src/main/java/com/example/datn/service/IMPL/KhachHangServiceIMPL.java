@@ -50,7 +50,6 @@ public class KhachHangServiceIMPL implements KhachHangService {
         // Tạo đối tượng KhachHang và gán thông tin
         KhachHang khachHang = khachHangMapper.toKhachHang(request);
         khachHang.setEmail(request.getEmail());
-        khachHang.setMatKhau(generatedPassword); // Lưu mật khẩu vào bảng KhachHang
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(false); // Tài khoản chưa kích hoạt
@@ -71,7 +70,6 @@ public class KhachHangServiceIMPL implements KhachHangService {
         // Tạo đối tượng KhachHang và gán thông tin
         KhachHang khachHang = new KhachHang();
         khachHang.setEmail(request.getEmail());
-        khachHang.setMatKhau(generatedPassword); // Lưu mật khẩu vào DB
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(true);
@@ -157,7 +155,7 @@ public class KhachHangServiceIMPL implements KhachHangService {
     @Override
     public boolean checkLogin(String email, String matKhau) {
         Optional<KhachHang> khachHang = khachHangRepository.findByEmail(email);
-        return khachHang.isPresent() && khachHang.get().getMatKhau().equals(matKhau);
+        return khachHang.isPresent();
     }
 
     @Override
@@ -169,7 +167,6 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setEmail(request.getEmail());
         khachHang.setGioiTinh(request.getGioiTinh());
         khachHang.setDiaChi(request.getDiaChi());
-        khachHang.setMatKhau(request.getMatKhau());
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(request.getTrangThai());

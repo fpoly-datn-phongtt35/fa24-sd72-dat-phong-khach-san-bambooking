@@ -1,6 +1,5 @@
 package com.example.datn.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -8,15 +7,13 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TienIchPhongResponse {
+public class VatTuResponse {
     private Integer id;
-    private String tenLoaiPhong;
     private String tenTienIch;
     private String hinhAnh;
 
-    public TienIchPhongResponse(Integer id,String tenTienIch,String hinhAnh,String tenLoaiPhong){
+    public VatTuResponse(Integer id, String tenTienIch, String hinhAnh){
         this.id = id;
-        this.tenLoaiPhong = tenLoaiPhong;
         this.tenTienIch = tenTienIch;
         this.hinhAnh = hinhAnh;
     }

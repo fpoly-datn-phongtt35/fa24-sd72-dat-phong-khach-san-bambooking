@@ -97,7 +97,6 @@ public class NhanVienServiceIMPL implements NhanVienService{
         // Tạo và lưu nhân viên
         NhanVien nhanVien = new NhanVien();
         nhanVien.setTaiKhoan(saveTaiKhoan);
-        nhanVien.setVaiTro(vaiTro);
         nhanVien.setHo(request.getHo());
         nhanVien.setTen(request.getTen());
         nhanVien.setGioiTinh(request.getGioiTinh());

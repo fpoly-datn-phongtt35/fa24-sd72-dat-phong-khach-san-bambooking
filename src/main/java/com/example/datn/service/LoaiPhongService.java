@@ -34,7 +34,7 @@ public interface LoaiPhongService {
                             Pageable pageable);
 
     Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
-                                                    Integer soNguoi,Pageable pageable);
+                                                    Integer soNguoi,Integer soPhong,Pageable pageable);
 
     LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
                                                      Integer idLoaiPhong);

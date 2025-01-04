@@ -9,7 +9,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TienIchRequest {
+public class VatTuRequest {
     private Integer id;
     private String tenTienIch;
     private String hinhAnh;

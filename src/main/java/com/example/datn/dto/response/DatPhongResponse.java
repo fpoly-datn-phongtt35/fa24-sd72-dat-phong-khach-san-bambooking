@@ -20,7 +20,6 @@ public class DatPhongResponse {
     private String maDatPhong;
     private LocalDate ngayDat;
     private Double tongTien;
-    private Double datCoc;
     private String ghiChu;
     private String trangThai;
 

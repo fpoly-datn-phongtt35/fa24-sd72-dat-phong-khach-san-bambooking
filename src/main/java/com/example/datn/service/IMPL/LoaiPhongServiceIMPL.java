@@ -100,9 +100,10 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
     @Override
     public Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
-                                                           Integer soNguoi, Pageable pageable) {
+                                                           Integer soNguoi, Integer soPhong, Pageable pageable) {
 
             Pageable pageable1 = PageRequest.of(pageable.getPageNumber(),3);
+            Page<LoaiPhongKhaDungResponse> pageLPKD = loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,pageable1);
             return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,pageable1);
 
     }

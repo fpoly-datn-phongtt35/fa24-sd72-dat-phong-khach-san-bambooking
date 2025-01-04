@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TienIchPhongRequest {
+public class VatTuLoaiPhongRequest {
     private Integer id;
     private LoaiPhong loaiPhong;
     private VatTu vatTu;

@@ -1,7 +1,7 @@
 package com.example.datn.controller;
 
-import com.example.datn.dto.request.TienIchRequest;
-import com.example.datn.dto.response.TienIchResponse;
+import com.example.datn.dto.request.VatTuRequest;
+import com.example.datn.dto.response.VatTuResponse;
 import com.example.datn.model.VatTu;
 import com.example.datn.repository.TienIchRepository;
 import com.example.datn.service.IMPL.TienIchServiceIMPL;
@@ -36,17 +36,17 @@ public class TienIchController {
     }
     @GetMapping("/index")
     public ResponseEntity<?> DanhSachTienIch(Pageable pageable){
-        Page<TienIchResponse> ti = tienIchServiceIMPL.getPage(pageable);
+        Page<VatTuResponse> ti = tienIchServiceIMPL.getPage(pageable);
         return ResponseEntity.ok(ti);
     }
 
     @PostMapping("/add")
     public ResponseEntity<?> add(@RequestParam("tenTienIch") String tenTienIch,
             @RequestParam("file") MultipartFile file) {
-            TienIchRequest tienIchRequest = new TienIchRequest();
-            tienIchRequest.setTenTienIch(tenTienIch);
+            VatTuRequest vatTuRequest = new VatTuRequest();
+            vatTuRequest.setTenTienIch(tenTienIch);
         try {
-            TienIchResponse response = tienIchServiceIMPL.add(tienIchRequest,file);
+            VatTuResponse response = tienIchServiceIMPL.add(vatTuRequest,file);
             return ResponseEntity.ok(response);
         } catch (IOException e) {
             return ResponseEntity.status(500).body("Lỗi khi tải lên hình ảnh: " + e.getMessage());
@@ -65,11 +65,11 @@ public class TienIchController {
     public ResponseEntity<?> update(@RequestParam("id") Integer id,
                                     @RequestParam("tenTienIch") String tenTienIch,
                                     @RequestParam(value = "file", required = false) MultipartFile file) {
-        TienIchRequest tienIchRequest = new TienIchRequest();
-        tienIchRequest.setId(id);
-        tienIchRequest.setTenTienIch(tenTienIch);
+        VatTuRequest vatTuRequest = new VatTuRequest();
+        vatTuRequest.setId(id);
+        vatTuRequest.setTenTienIch(tenTienIch);
         try {
-            TienIchResponse response = tienIchServiceIMPL.update(tienIchRequest,file);
+            VatTuResponse response = tienIchServiceIMPL.update(vatTuRequest,file);
             return ResponseEntity.ok(response);
         } catch (IOException e) {
             return ResponseEntity.status(500).body("Lỗi khi tải lên hình ảnh: " + e.getMessage());
@@ -92,10 +92,10 @@ public class TienIchController {
     @GetMapping("")
     public ResponseEntity<?> getAllTienIch(Pageable pageable) {
         Page<VatTu> imagesPage = tienIchService.getAllTienIch(pageable);
-        Page<TienIchResponse> responsePage = imagesPage.map(image -> {
-            TienIchResponse response = new TienIchResponse();
+        Page<VatTuResponse> responsePage = imagesPage.map(image -> {
+            VatTuResponse response = new VatTuResponse();
             response.setId(image.getId());
-            response.setTenTienIch(image.getTenTienIch());
+            response.setTenTienIch(image.getTenVatTu());
             response.setHinhAnh(image.getHinhAnh());
             return response;
         });
