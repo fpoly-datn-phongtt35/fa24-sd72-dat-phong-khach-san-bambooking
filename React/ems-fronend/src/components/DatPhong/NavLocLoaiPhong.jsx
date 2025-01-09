@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import './NavPhong.scss';
-const NavPhong = () => {
+import './NavLocLoaiPhong.scss';
+const NavLocLoaiPhong = () => {
     return (
         <div className="vertical-bar">
             <div className="filter-section">
@@ -20,4 +20,4 @@ const NavPhong = () => {
     );
 };
 
-export default NavPhong;
+export default NavLocLoaiPhong;

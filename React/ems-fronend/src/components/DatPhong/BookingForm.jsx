@@ -8,9 +8,10 @@ import TaoDatPhong from './TaoDatPhong';
 
 const BookingForm = () => {
     const [datPhong, setDatPhong] = useState(null);
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [adults, setAdults] = useState(2);
+    const [ngayNhanPhong, setngayNhanPhong] = useState('');
+    const [ngayTraPhong, setngayTraPhong] = useState('');
+    const [soPhong, setSoPhong] = useState('');
+    const [soNguoi, setsoNguoi] = useState(2);
     const [children, setChildren] = useState(0);
     const [loaiPhongKhaDung, setLoaiPhongKhaDung] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
@@ -19,8 +20,8 @@ const BookingForm = () => {
     const [selectedRooms, setSelectedRooms] = useState([]); // Mảng chứa các phòng đã chọn
     const navigate = useNavigate();
 
-    const LoaiPhongKhaDung = (ngayNhanPhong, ngayTraPhong, soNguoi) => {
-        getLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi, { page: currentPage })
+    const LoaiPhongKhaDung = (ngayNhanPhong, ngayTraPhong, soNguoi,soPhong) => {
+        getLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi,soPhong ,{ page: currentPage })
             .then((response) => {
                 setLoaiPhongKhaDung(response.data.content);
                 console.log(response.data);
@@ -34,7 +35,7 @@ const BookingForm = () => {
     const handleSearch = (e) => {
         e.preventDefault();
         setCurrentPage(0);
-        LoaiPhongKhaDung(startDate, endDate, adults);
+        LoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi,soPhong);
     };
 
     const handleNextPage = () => {
@@ -56,17 +57,17 @@ const BookingForm = () => {
     };
 
     useEffect(() => {
-        if (startDate && endDate) { 
-            LoaiPhongKhaDung(startDate, endDate, adults);
+        if (ngayNhanPhong && ngayTraPhong) { 
+            LoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong);
         }
     }, [currentPage]);
 
     const handleAddSelectedRooms = (room) => {
         const selectedRoomInfo = {
             ...room,
-            adults: adults,
-            startDate: startDate,
-            endDate: endDate
+            soNguoi: soNguoi,
+            ngayNhanPhong: ngayNhanPhong,
+            ngayTraPhong: ngayTraPhong
         };
         setSelectedRooms((prevRooms) => [...prevRooms, selectedRoomInfo]);
         setShowModal(true);
@@ -84,9 +85,9 @@ const BookingForm = () => {
     };
 
     const calculateDays = (start, end) => {
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-        const diffTime = Math.abs(endDate - startDate); // Khoảng cách thời gian bằng milliseconds
+        const ngayNhanPhong = new Date(start);
+        const ngayTraPhong = new Date(end);
+        const diffTime = Math.abs(ngayTraPhong - ngayNhanPhong); // Khoảng cách thời gian bằng milliseconds
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); // Chuyển đổi sang số ngày
         return diffDays === 0 ? 1 : diffDays; // Đảm bảo ít nhất là 1 ngày
     };
@@ -113,14 +114,14 @@ const BookingForm = () => {
     const handleCreateBooking = (room) => {
         const selectedRoomInfo = {
             ...room,
-            adults,
-            startDate,
-            endDate,
+            soNguoi,
+            ngayNhanPhong,
+            ngayTraPhong,
         };
         setSelectedRooms((prevRooms) => {
             const updatedRooms = [...prevRooms, selectedRoomInfo];
             // Điều hướng sang TaoDatPhong với toàn bộ danh sách phòng
-            navigate('/tao-dat-phong', { state: { selectedRooms: updatedRooms, startDate, endDate, adults } });
+            navigate('/tao-dat-phong', { state: { selectedRooms: updatedRooms, ngayNhanPhong, ngayTraPhong, soNguoi } });
             return updatedRooms;
         });
     };
@@ -128,8 +129,8 @@ const BookingForm = () => {
         if (selectedRooms.length === 0) return { minDate: '', maxDate: '' };
     
         const dates = selectedRooms.map(room => ({
-            start: new Date(room.startDate),
-            end: new Date(room.endDate)
+            start: new Date(room.ngayNhanPhong),
+            end: new Date(room.ngayTraPhong)
         }));
     
         const minDate = new Date(Math.min(...dates.map(date => date.start)));
@@ -148,15 +149,15 @@ const BookingForm = () => {
             <form className="search-form" onSubmit={handleSearch}>
                 <div className="form-row">
                     <div className="form-group">
-                        <label htmlFor="formStartDate">Ngày Check-in</label>
+                        <label htmlFor="formngayNhanPhong">Ngày Check-in</label>
                         <input
                             type="date"
-                            id="formStartDate"
-                            value={startDate}
+                            id="formngayNhanPhong"
+                            value={ngayNhanPhong}
                             onChange={(e) => {
-                                setStartDate(e.target.value);
-                                if (e.target.value > endDate) {
-                                    setEndDate(e.target.value); // Cập nhật ngày kết thúc nếu trước ngày bắt đầu
+                                setngayNhanPhong(e.target.value);
+                                if (e.target.value > ngayTraPhong) {
+                                    setngayTraPhong(e.target.value); // Cập nhật ngày kết thúc nếu trước ngày bắt đầu
                                 }
                             }}
                             min={getTodayDate()} // Đảm bảo lấy đúng ngày hiện tại theo múi giờ người dùng
@@ -166,13 +167,13 @@ const BookingForm = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="formEndDate">Ngày Check-out</label>
+                        <label htmlFor="formngayTraPhong">Ngày Check-out</label>
                         <input
                             type="date"
-                            id="formEndDate"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            min={startDate} // Ngày kết thúc không được trước ngày bắt đầu
+                            id="formngayTraPhong"
+                            value={ngayTraPhong}
+                            onChange={(e) => setngayTraPhong(e.target.value)}
+                            min={ngayNhanPhong} // Ngày kết thúc không được trước ngày bắt đầu
                             required
                             className="form-control"
                         />
@@ -183,7 +184,7 @@ const BookingForm = () => {
                         <label htmlFor="formGuests">Số Người</label>
                         <div className="dropdown">
                             <button type="button" className="dropdown-toggle">
-                                Số người: {adults}
+                                Số người: {soNguoi}
                             </button>
                             <div className="dropdown-menu">
                                 <div className="dropdown-item">
@@ -191,14 +192,14 @@ const BookingForm = () => {
                                     <div className="quantity-control">
                                         <button
                                             className="round-button"
-                                            onClick={() => setAdults(adults > 1 ? adults - 1 : 1)}
+                                            onClick={() => setsoNguoi(soNguoi > 1 ? soNguoi - 1 : 1)}
                                         >
                                             -
                                         </button>
-                                        <span>{adults}</span>
+                                        <span>{soNguoi}</span>
                                         <button
                                             className="round-button"
-                                            onClick={() => setAdults(adults + 1)}
+                                            onClick={() => setsoNguoi(soNguoi + 1)}
                                         >
                                             +
                                         </button>
@@ -206,6 +207,18 @@ const BookingForm = () => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="formngayTraPhong">Số phòng</label>
+                        <input
+                            type="number"
+                            id="soPhong"
+                            value={soPhong}
+                            onChange={(e) => setSoPhong(e.target.value)}
+                            min={1}
+                            required
+                            className="form-control"
+                        />
                     </div>
 
                     <div className="form-group action-buttons">
@@ -251,7 +264,7 @@ const BookingForm = () => {
                             </div>
                             <p className="description">Mô tả: {lp.moTa}</p>
                             <p className="total-price">
-                                Thành tiền: <strong>{calculateTotalPrice(lp.donGia, startDate, endDate).toLocaleString()} VND</strong>
+                                Thành tiền: <strong>{calculateTotalPrice(lp.donGia, ngayNhanPhong, ngayTraPhong).toLocaleString()} VND</strong>
                             </p>
                         </div>
                         <div className="room-actions">
@@ -284,9 +297,9 @@ const BookingForm = () => {
                             showModal={showModal}
                             handleCloseModal={handleCloseModal}
                             selectedRooms={selectedRooms}
-                            startDate={minDate}
-                            endDate={maxDate}
-                            adults={adults}
+                            ngayNhanPhong={minDate}
+                            ngayTraPhong={maxDate}
+                            soNguoi={soNguoi}
                             handleRemoveRoom = {handleRemoveRoom}
                         />
                     </div>

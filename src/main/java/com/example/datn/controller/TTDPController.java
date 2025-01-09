@@ -7,6 +7,7 @@ import com.example.datn.dto.response.TTDPResponse;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
+import com.example.datn.service.LoaiPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +28,7 @@ public class TTDPController {
     ThongTinDatPhongServiceIMPL thongTinDatPhongServiceIMPL;
 
     @Autowired
-    LoaiPhongServiceIMPL loaiPhongServiceIMPL;
+    LoaiPhongService loaiPhongService;
 
     @GetMapping("all")
     public Page<ThongTinDatPhong> all(Pageable pageable) {
@@ -71,9 +72,9 @@ public class TTDPController {
                                               @RequestParam(required = false) Integer soNguoi,
                                               @RequestParam(required = false) Integer soPhong,
                                               Pageable pageable) {
-        LocalDateTime ngayNhanPhongStart = (ngayNhanPhong != null) ? ngayNhanPhong.atStartOfDay() : LocalDate.now().atStartOfDay();
-        LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(23, 59, 59) : LocalDate.now().atTime(23, 59, 59);
-        Page<LoaiPhongKhaDungResponse> p = loaiPhongServiceIMPL.LoaiPhongKhaDung(ngayNhanPhongStart, ngayTraPhongEnd, soNguoi, soPhong, pageable);
+        LocalDateTime ngayNhanPhongStart = (ngayNhanPhong != null) ? ngayNhanPhong.atTime(14, 00,00) : LocalDate.now().atTime(14, 00,00);
+        LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(12, 00,00) : LocalDate.now().atTime(12, 00,00);
+        Page<LoaiPhongKhaDungResponse> p = loaiPhongService.LoaiPhongKhaDung(ngayNhanPhongStart, ngayTraPhongEnd, soNguoi, soPhong, pageable);
         return ResponseEntity.ok(p);
     }
 

@@ -12,6 +12,7 @@ import com.example.datn.service.HotelWebsiteService;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
+import com.example.datn.service.LoaiPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,9 +36,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class HotelWebsiteController {
     @Autowired
-    LoaiPhongServiceIMPL phongServiceIMPL;
-    @Autowired
-    LoaiPhongServiceIMPL loaiPhongServiceIMPL;
+    LoaiPhongService loaiPhongService;
     @Autowired
     DatPhongServiceIMPL datPhongServiceIMPL;
     @Autowired
@@ -47,7 +46,7 @@ public class HotelWebsiteController {
 
     @GetMapping("/index")
     public ResponseEntity<?> DanhSachTienNghi(Pageable pageable){
-        Page<LoaiPhongResponse> ti = phongServiceIMPL.getPage(pageable);
+        Page<LoaiPhongResponse> ti = loaiPhongService.getPage(pageable);
         return ResponseEntity.ok(ti);
     }
 
@@ -61,7 +60,7 @@ public class HotelWebsiteController {
         LocalDateTime ngayNhanPhongStart = (ngayNhanPhong != null) ? ngayNhanPhong.atStartOfDay() : LocalDate.now().atStartOfDay();
         LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(23, 59, 59) : LocalDate.now().atTime(23, 59, 59);
 
-        LoaiPhongKhaDungResponse p = loaiPhongServiceIMPL.LoaiPhongKhaDungByLoaiPhong(
+        LoaiPhongKhaDungResponse p = loaiPhongService.LoaiPhongKhaDungByLoaiPhong(
                 ngayNhanPhongStart, ngayTraPhongEnd, idLoaiPhong
         );
 

@@ -45,15 +45,20 @@ public class DatPhongServiceIMPL implements DatPhongService {
         UniqueDatPhongCode code = new UniqueDatPhongCode();
         String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
         datPhong.setMaDatPhong(codeDP);
+        datPhong.setSoPhong(datPhongRequest.getSoPhong());
+        datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTongTien(datPhongRequest.getTongTien());
         datPhong.setNgayDat(LocalDate.now());
-        datPhong.setTrangThai("Da xac nhan");
+        datPhong.setTrangThai("Chua xac nhan");
         DatPhong dp = datPhongRepository.save(datPhong);
+
 
         datPhongResponse.setId(dp.getId());
         datPhongResponse.setMaDatPhong(dp.getMaDatPhong());
+        datPhongResponse.setSoPhong(dp.getSoPhong());
+        datPhongResponse.setSoNguoi(dp.getSoNguoi());
         datPhongResponse.setKhachHang(dp.getKhachHang());
         datPhongResponse.setTongTien(dp.getTongTien());
         datPhongResponse.setNgayDat(dp.getNgayDat());
@@ -85,6 +90,8 @@ public class DatPhongServiceIMPL implements DatPhongService {
     @Override
     public DatPhong updateDatPhong(DatPhongRequest datPhongRequest) {
         DatPhong datPhong = datPhongRepository.findByMaDatPhong(datPhongRequest.getMaDatPhong());
+        datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
+        datPhong.setSoPhong(datPhongRequest.getSoPhong());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTongTien(datPhongRequest.getTongTien());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());

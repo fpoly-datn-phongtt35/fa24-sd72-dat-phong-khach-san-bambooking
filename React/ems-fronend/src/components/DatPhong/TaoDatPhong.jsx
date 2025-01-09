@@ -55,6 +55,8 @@ const TaoDatPhong = () => {
         const datPhongRequest = {
             khachHang: null, // Chờ cập nhật id khách hàng sau khi tạo
             maDatPhong: 'DP' + Date.now(),
+            soNguoi: adults,
+            soPhong: 1,
             ngayDat: new Date().toISOString(),
             tongTien: 0,
             datCoc: 0,

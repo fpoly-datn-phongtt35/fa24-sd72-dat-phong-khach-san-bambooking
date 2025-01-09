@@ -1,13 +1,13 @@
 import React from 'react';
 import './GiaoDienTaoDP.scss'; // Để định kiểu cho giao diện
 import BookingForm from './BookingForm';
-import NavPhong from './NavPhong';
+import NavLocLoaiPhong from './NavLocLoaiPhong';
 const GiaoDienTaoDP = () => {
     return (
         <div className="form-add-page">
-            <div className="form-container">
-                <NavPhong />
-            </div>
+            {/* <div className="form-container">
+                <NavLocLoaiPhong />
+            </div> */}
             <div className="empty-space">
                 <BookingForm />
             </div>
