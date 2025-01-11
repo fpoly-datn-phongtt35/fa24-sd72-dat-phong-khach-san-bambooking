@@ -104,9 +104,9 @@ const ThanhToanComponent = () => {
                                 <b>Thanh toán:</b>
                                 <i
                                     className={`bi bi-credit-card ${hoaDon.trangThai === 'Chờ xác nhận' ? 'text-muted' : 'text-primary'}`}
-                                    style={{ 
-                                        marginLeft:'10px',
-                                        cursor: hoaDon.trangThai === 'Chờ xác nhận' ? 'not-allowed' : 'pointer', 
+                                    style={{
+                                        marginLeft: '10px',
+                                        cursor: hoaDon.trangThai === 'Chờ xác nhận' ? 'not-allowed' : 'pointer',
                                         color: hoaDon.trangThai === 'Chờ xác nhận' ? 'gray' : 'blue',
                                         fontSize: '1.5rem'
                                     }}

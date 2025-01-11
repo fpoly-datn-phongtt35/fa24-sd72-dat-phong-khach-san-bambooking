@@ -32,6 +32,7 @@ import Demo from './components/HoaDon/Demo.jsx';
 import DemoTaoHoaDon from './components/HoaDon/DemoTaoHoaDon.jsx';
 import Checkin from './components/Checkin/Checkin.jsx';
 import ThanhToanComponent from './components/ThanhToan/ThanhToanComponent.jsx';
+import InfoHoaDon from './components/HoaDon/InfoHoaDon.jsx';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     const auth = localStorage.getItem('isAuthenticated');
@@ -116,13 +117,13 @@ function App() {
 
             {/*Hoa don */}
             <Route path="/hoa-don" element={<RequireAuth> <ListHoaDon /> </RequireAuth>} />
-            {/* <Route path="/tao-hoa-don" element={<RequireAuth> <CreateHoaDon /> </RequireAuth>} /> */}
-
+            <Route path="/hoa-don/:id" element={<RequireAuth> <InfoHoaDon /> </RequireAuth>} />
             <Route path="/api/RoomDetail/:roomId" element={<RequireAuth> <RoomDetail /> </RequireAuth>} />
             <Route path="/chi-tiet-ttdp" element={<RequireAuth> <ChiTietTTDP /></RequireAuth>} />
             <Route path="/demo" element={<RequireAuth> <Demo /></RequireAuth>} />
             <Route path="/demo-tao-hoa-don" element={<RequireAuth> <DemoTaoHoaDon /></RequireAuth>} />
 
+            {/* Checkin */}
             <Route path="/checkin" element={<RequireAuth> <Checkin /></RequireAuth>} />
 
             {/*Thanh toán */}

@@ -10,8 +10,6 @@ const DemoTaoHoaDon = () => {
     const hoaDonDaTaoRef = useRef(false); // Hóa đơn tạo 1 lần
 
     const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
-    const [selectedTraPhong, setSelectedTraPhong] = useState(null);
-    const [showModal, setShowModal] = useState(false);
 
     const [idHoaDon, setIdHoaDon] = useState(null);
 

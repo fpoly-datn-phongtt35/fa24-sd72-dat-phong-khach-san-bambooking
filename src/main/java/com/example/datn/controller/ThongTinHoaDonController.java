@@ -1,8 +1,10 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.ThongTinHoaDonRequest;
-import com.example.datn.model.TraPhong;
+import com.example.datn.dto.response.DichVuSuDungResponse;
+import com.example.datn.repository.TraPhongRepository;
 import com.example.datn.service.ThongTinHoaDonService;
+import com.oracle.wls.shaded.org.apache.regexp.RE;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @CrossOrigin("*")
@@ -27,7 +30,7 @@ public class ThongTinHoaDonController {
     }
 
     @GetMapping("/{idHoaDon}")
-    public ResponseEntity<?> findThongTinHoaDonByHoaDonId(@PathVariable("idHoaDon") Integer idHoaDon){
+    public ResponseEntity<?> findThongTinHoaDonByHoaDonId(@PathVariable("idHoaDon") Integer idHoaDon) {
         return ResponseEntity.status(HttpStatus.OK).body(thongTinHoaDonService.getThongTinHoaDonByHoaDonId(idHoaDon));
     }
 
@@ -35,6 +38,12 @@ public class ThongTinHoaDonController {
     public ResponseEntity<?> createThongTinHoaDon(@RequestBody ThongTinHoaDonRequest tthdRequest) {
         System.out.println(tthdRequest.getIdHoaDon());
         System.out.println(tthdRequest.getListTraPhong());
-        return ResponseEntity.status(HttpStatus.CREATED).body(thongTinHoaDonService.createThongTinHoaDon(tthdRequest.getIdHoaDon(),tthdRequest.getListTraPhong()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(thongTinHoaDonService.createThongTinHoaDon(tthdRequest.getIdHoaDon(), tthdRequest.getListTraPhong()));
+    }
+
+    @GetMapping("/dich-vu-su-dung/{idHoaDon}")
+    public ResponseEntity<?> getDichVuSuDung(@PathVariable("idHoaDon") Integer idHoaDon) {
+        List<DichVuSuDungResponse> dichVuSuDung = thongTinHoaDonService.getDichVuSuDung(idHoaDon);
+        return ResponseEntity.ok(dichVuSuDung);
     }
 }
