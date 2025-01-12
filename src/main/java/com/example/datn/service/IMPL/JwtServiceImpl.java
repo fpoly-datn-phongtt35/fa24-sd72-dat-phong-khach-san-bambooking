@@ -18,9 +18,8 @@ import java.util.function.Function;
 import static com.example.datn.common.TokenType.ACCESS_TOKEN;
 import static com.example.datn.common.TokenType.REFRESH_TOKEN;
 
-@Slf4j
+@Slf4j(topic = "JWT-SERVICE")
 @Service
-
 public class JwtServiceImpl implements JwtService {
 
     @Value("${jwt.expireMinutes}")
@@ -78,7 +77,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private Key getKey(TokenType type) {
-        log.info("=================== getKey ===================");
         switch (type) {
             case ACCESS_TOKEN -> {
                 return Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessKey));

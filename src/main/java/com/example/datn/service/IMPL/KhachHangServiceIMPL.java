@@ -17,6 +17,7 @@ import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.KhachHangRepository;
 import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.repository.VaiTroRepository;
+import com.example.datn.repository.customizeQuery.CustomerRepository;
 import com.example.datn.service.KhachHangService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +53,8 @@ public class KhachHangServiceIMPL implements KhachHangService {
     VaiTroRepository vaiTroRepository;
 
     PasswordEncoder passwordEncoder;
+
+    CustomerRepository customerRepository;
 
     JavaMailSender mailSender;
 
@@ -186,24 +189,7 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
     @Override
     public BaseCustomerResponse getCustomers(FilterRequest request) {
-        Page<KhachHang> pageable = this.khachHangRepository.findAll(PageRequest.of(request.getPageNo(), request.getPageSize()));
-        List<CustomerResponse> data  = pageable.getContent().stream().map(s ->
-            CustomerResponse.builder()
-                    .id(s.getId())
-                    .fullName(String.format("%s %s", s.getHo(), s.getTen()))
-                    .username(s.getTaiKhoan().getUsername())
-                    .gender(s.getGioiTinh())
-                    .phoneNumber(s.getSdt())
-                    .isLocked(s.getTaiKhoan().getTrangThai())
-                    .build()
-        ).toList();
-
-        return BaseCustomerResponse.builder()
-                .totalPage(pageable.getTotalPages())
-                .pageNo(request.getPageNo())
-                .pageSize(request.getPageSize())
-                .data(data)
-                .build();
+        return this.customerRepository.getAllCustomers(request);
     }
 
     @Override

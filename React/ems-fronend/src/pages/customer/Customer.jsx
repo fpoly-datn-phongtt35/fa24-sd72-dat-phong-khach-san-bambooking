@@ -6,17 +6,22 @@ import { IconButton, Pagination, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { fetchAllCustomer, updatStatus } from '../../apis/customerApi';
 import { useNavigate } from 'react-router-dom';
+import debounce from 'lodash.debounce';
 
 export const Customer = () => {
     const [data, setData] = useState(null);
+    const [pageNo, setPageNo] = useState(1);
+    const [keyword, setKeyword] = useState('');
+
     const navigate = useNavigate();
 
     useEffect(() => {
         handleFetchData();
-    }, []);
+    }, [pageNo, keyword]);
 
     const handleFetchData = async () => {
-        await fetchAllCustomer().then(res => {
+        const param = { pageNo, keyword }
+        await fetchAllCustomer(param).then(res => {
             setData(res?.data);
 
         })
@@ -28,6 +33,19 @@ export const Customer = () => {
         })
     }
 
+    const handlePageChange = (event, value) => {
+        setPageNo(value);
+    };
+
+    const debouncedSearch = debounce((value) => {
+        setKeyword(value);
+        setPageNo(1);
+    }, 300);
+
+    const onChangeSearch = (e) => {
+        debouncedSearch(e.target.value);
+    };
+
     return (
         <Container>
             <Typography level='h4'>Quản lý khách hàng</Typography>
@@ -38,7 +56,7 @@ export const Customer = () => {
                 marginTop: '20px'
             }}>
                 <Box className="col-9" style={{ display: 'flex', alignItems: 'center', marginBottom: 0, width: '50%' }}>
-                    <Input placeholder='Tìm kiếm khách hàng' startDecorator={<SearchIcon />} sx={{ width: '400px' }} />
+                    <Input placeholder='Tìm kiếm khách hàng' startDecorator={<SearchIcon />} sx={{ width: '400px' }} onChange={(e) => onChangeSearch(e)} />
                 </Box>
                 <Box className="col-3 text-end">
                     <Button color='primary' startDecorator={<AddIcon />} onClick={() => navigate('/add-khach-hang')}>Thêm khách hàng</Button>
@@ -88,11 +106,15 @@ export const Customer = () => {
                     </tbody>
                 </Table>
             </Sheet>
-            <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}>
-                <Stack spacing={2}>
-                    <Pagination count={data?.totalPage} variant="outlined" shape="rounded" />
-                </Stack>
-            </Box>
+            {
+                data?.totalPage > 1 && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 3 }}>
+                        <Stack spacing={2}>
+                            <Pagination count={data?.totalPage} page={pageNo} onChange={handlePageChange} variant="outlined" shape="rounded" />
+                        </Stack>
+                    </Box>
+                )
+            }
         </Container>
     )
 }   

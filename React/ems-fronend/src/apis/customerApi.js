@@ -1,9 +1,20 @@
 import authorizedAxiosInstance from "../utils/authorizedAxios";
 import { API_ROOT } from "../utils/constants";
 
-export const fetchAllCustomer = async () => {
+export const fetchAllCustomer = async (param) => {
+  let uri = "/api/v1/customer?";
+  let queryParams = [];
+  if (param.pageNo !== null && param.pageNo !== undefined) {
+    queryParams.push(`pageNo=${param.pageNo}`);
+  }
+
+  if (param.keyword) {
+    queryParams.push(`keyword=${encodeURIComponent(param.keyword)}`);
+  }
+
+  uri += queryParams.join("&");
   return await authorizedAxiosInstance
-    .get(`${API_ROOT}/api/v1/customer`)
+    .get(`${API_ROOT}${uri}`)
     .then((res) => res.data);
 };
 
