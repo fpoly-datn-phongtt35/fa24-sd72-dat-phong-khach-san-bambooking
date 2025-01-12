@@ -2,7 +2,10 @@ package com.example.datn.service;
 
 import com.example.datn.dto.request.KhachHangDatPhongRequest;
 import com.example.datn.dto.request.KhachHangRequest;
+import com.example.datn.dto.request.customer.CustomerRequest;
+import com.example.datn.dto.request.customer.FilterRequest;
 import com.example.datn.dto.response.KhachHangResponse;
+import com.example.datn.dto.response.customer.BaseCustomerResponse;
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.KhachHangRegister;
 import org.springframework.data.domain.Page;
@@ -20,8 +23,10 @@ public interface KhachHangService {
     Page<KhachHang> searchKhachHang(String keyword, Pageable pageable);
     void sendPasswordEmail(String email, String generatedPassword);
     String generatePassword();
-    boolean checkLogin(String email, String matKhau);
 
     KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request);
 
+    BaseCustomerResponse getCustomers(FilterRequest request);
+    void updateStatus(int id, boolean status);
+    int storeCustomer(CustomerRequest request);
 }

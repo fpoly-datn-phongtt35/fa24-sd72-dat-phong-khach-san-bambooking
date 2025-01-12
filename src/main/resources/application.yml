@@ -1,0 +1,7 @@
+jwt:
+  expireMinutes: 60
+  expireDay: 7
+  accessKey: c2VjcmV0QG5ndXllbl90aGlfdGh1X2NodWNfYWNjZXNzX3Rva2Vu
+  refreshKey: c2VjcmV0QG5ndXllbl90aGlfdGh1X2NodWNfcmVmcmVzaF90b2tlbg==
+api:
+  version: v1

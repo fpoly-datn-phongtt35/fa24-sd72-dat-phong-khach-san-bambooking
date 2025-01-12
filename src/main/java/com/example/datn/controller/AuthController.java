@@ -1,30 +1,32 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.ThongTinNhanVienRequest;
+import com.example.datn.dto.request.auth.SigninRequest;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.service.AuthService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-@CrossOrigin(origins = "*")
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
-    @Autowired
-    private AuthService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody TaiKhoan taiKhoan) {
-        TaiKhoan authenticatedTaiKhoan = authService.login(taiKhoan.getTenDangNhap(), taiKhoan.getMatKhau());
+    private final AuthService authService;
 
-        if (authenticatedTaiKhoan != null) {
-            return ResponseEntity.ok(authenticatedTaiKhoan); // Trả về thông tin tài khoản nếu thành công
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sai tên đăng nhập hoặc mật khẩu.");
-        }
+    @PostMapping("/access")
+    public ResponseEntity<?> accessToken(@Valid @RequestBody SigninRequest req){
+        return ResponseEntity.ok(this.authService.authenticate(req));
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(HttpServletRequest request) {
+        return ResponseEntity.ok(this.authService.refresh(request));
+    }
+
 
     @PostMapping("/register")
     public ResponseEntity<TaiKhoan> register(@RequestBody TaiKhoan taiKhoan) {
@@ -36,8 +38,4 @@ public class AuthController {
     public ThongTinNhanVienRequest getThongTinNhanVien(@RequestParam String tenDangNhap) {
         return authService.getThongTinNhanVien(tenDangNhap);
     }
-
-
-
-
 }

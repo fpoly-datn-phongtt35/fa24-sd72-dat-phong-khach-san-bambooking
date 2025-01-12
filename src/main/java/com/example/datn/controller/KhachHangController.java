@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Optional;
 
-@CrossOrigin("*")
+//@CrossOrigin("*")
 @RestController
 @RequestMapping("/khach-hang")
 @RequiredArgsConstructor
@@ -32,16 +32,7 @@ public class KhachHangController {
     KhachHangRepository khachHangRepository;
 
     KhachHangService khachHangService;
-//    @PostMapping("/login")
-//    public ResponseEntity<String> login(@RequestBody KhachHangRegister request) {
-//        boolean isAuthenticated = khachHangService.checkLogin(request.getEmail(), request.getMatKhau());
-//
-//        if (isAuthenticated) {
-//            return ResponseEntity.ok("Đăng nhập thành công!");
-//        } else {
-//            return ResponseEntity.status(401).body("Email hoặc mật khẩu không chính xác.");
-//        }
-//    }
+
 
     @GetMapping("")
     public ResponseEntity<?> getAllKhachHang(Pageable pageable){
@@ -93,7 +84,6 @@ public class KhachHangController {
         // Lưu mật khẩu tạm thời vào cơ sở dữ liệu (tạo trước đối tượng nhưng chưa kích hoạt)
         KhachHang newCustomer = new KhachHang();
         newCustomer.setEmail(request.getEmail());
-        newCustomer.setMatKhau(tempPassword);
         newCustomer.setTrangThai(false);  // Chưa kích hoạt tài khoản
         newCustomer.setNgayTao(LocalDateTime.now());
         newCustomer.setNgaySua(LocalDateTime.now());
@@ -114,7 +104,6 @@ public class KhachHangController {
 
         // Cập nhật mật khẩu mới và kích hoạt tài khoản
         KhachHang customer = existingCustomer.get();
-        customer.setMatKhau(request.getMatKhau());
         customer.setTrangThai(true);  // Kích hoạt tài khoản
         customer.setNgaySua(LocalDateTime.now());
 

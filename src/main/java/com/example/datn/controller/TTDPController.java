@@ -19,7 +19,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@CrossOrigin("*")
+//@CrossOrigin("*")
 @RestController
 @RequestMapping("/ttdp")
 public class TTDPController {
@@ -67,6 +67,7 @@ public class TTDPController {
     public ResponseEntity<?> chiTietDatPhong(@RequestParam String maDatPhong){
         List<ThongTinDatPhong> ttdps = thongTinDatPhongServiceIMPL.findByMaDatPhong(maDatPhong);
         return ResponseEntity.ok(ttdps);
+
     }
 
     @GetMapping("/tim-kiem")

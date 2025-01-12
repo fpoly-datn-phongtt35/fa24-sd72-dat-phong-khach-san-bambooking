@@ -12,6 +12,7 @@ import PaymentPage from './pages/PaymentPage';
 import './App.css';
 import AboutPage from './pages/AboutPage';
 import HotelRules from './pages/HotelRules';
+import BookingConfirmation from './pages/BookingConfirmation';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái đăng nhập
@@ -52,6 +53,7 @@ export default function App() {
               <Route path="/contact" element={<PaymentPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/rules" element={<HotelRules />} />
+              <Route path="/confirmation" element={<BookingConfirmation />} />
               <Route
                 path="/register"
                 element={<Register handleRegister={handleLogin} />}

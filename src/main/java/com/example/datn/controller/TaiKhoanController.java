@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin("*")
+//@CrossOrigin("*")
 public class TaiKhoanController {
     @Autowired
     TaiKhoanService taiKhoanService;

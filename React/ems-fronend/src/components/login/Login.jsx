@@ -1,82 +1,72 @@
-import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Login.css'; // Import CSS
+import { useForm } from 'react-hook-form';
+import { API_ROOT } from '../../utils/constants';
+import { useState } from 'react';
 
-const Login = ({ onLoginSuccess }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+const Login = () => {
+  const [serverError, setServerError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    if (loading) return;
-    setLoading(true);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-    try {
-      const response = await axios.post(
-        'http://localhost:8080/api/auth/login',
-        { tenDangNhap: username, matKhau: password },
-        { withCredentials: true }
-      );
+  const onSubmit = async (data) => {
+    const result = {
+      username: data.username,
+      password: data.password
+    };
 
-      if (response.status === 200) {
-        // Lưu thông tin người dùng vào localStorage
-        const userData = response.data;
-        localStorage.setItem('user', JSON.stringify(userData));
-        localStorage.setItem('isAuthenticated', 'true'); // Lưu trạng thái đăng nhập
-
-        // Gọi hàm onLoginSuccess (nếu có) và điều hướng đến trang Nhân Viên
-        if (onLoginSuccess) onLoginSuccess(userData);
-
-        navigate('/*'); // Điều hướng sau khi đăng nhập
-      }
-    } catch (error) {
-      if (error.response) {
-        switch (error.response.status) {
-          case 401:
-            setMessage('Sai tên đăng nhập hoặc mật khẩu!');
-            break;
-          case 500:
-            setMessage('Lỗi máy chủ, vui lòng thử lại sau!');
-            break;
-          default:
-            setMessage('Có lỗi xảy ra, vui lòng thử lại!');
+    await axios.post(`${API_ROOT}/api/auth/access`, result).then((res) => {
+      if (res.status === 200) {
+        if (res.data.role[0].authority !== "Admin") {
+          alert("Bạn không phải admin!")
+          return;
         }
-      } else {
-        setMessage('Không thể kết nối đến máy chủ, vui lòng kiểm tra mạng!');
+        localStorage.setItem("accessToken", res.data.accessToken);
+        localStorage.setItem("refreshToken", res.data.refreshToken);
+        localStorage.setItem("user", res.data.username);
+        navigate("/TrangChu")
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+
+    }).catch((err) => {
+      alert(err?.response?.data?.message);
+
+    })
+  }
 
   return (
     <div className="login-container">
       <div className="login-form">
         <h2>Đăng Nhập</h2>
-        <form onSubmit={handleLogin}>
+        {serverError && <p className="error-message">{serverError}</p>}
+        <form onSubmit={handleSubmit(onSubmit)}>
           <input
             type="text"
             placeholder="Tên đăng nhập"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            {...register("username", { required: true })}
             required
           />
+          {errors.username && (
+            <p className="error-message">Vui lòng nhập tên đăng nhập!</p>
+          )}
           <input
             type="password"
             placeholder="Mật khẩu"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register("password", { required: true })}
             required
           />
-          <button type="submit" disabled={loading}>
-            {loading ? 'Đang Đăng Nhập...' : 'Đăng Nhập'}
+          {errors.password && (
+            <p className="error-message">Vui lòng nhập mật khẩu!</p>
+          )}
+          <button type="submit">
+            Đăng Nhập
           </button>
         </form>
-        {message && <p className="error-message">{message}</p>}
       </div>
     </div>
   );

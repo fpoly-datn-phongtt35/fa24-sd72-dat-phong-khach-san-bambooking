@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@CrossOrigin("*")
+//@CrossOrigin("*")
 @RequiredArgsConstructor
 @RequestMapping("/tra-phong")
 public class TraPhongController {

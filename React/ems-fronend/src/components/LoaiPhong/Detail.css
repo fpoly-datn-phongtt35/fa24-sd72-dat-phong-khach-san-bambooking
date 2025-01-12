@@ -76,14 +76,14 @@
     margin-bottom: 15px;
 }
 
-label {
+/* label {
     display: block;
     font-weight: bold;
     margin-bottom: 5px;
     color: #555;
-}
+} */
 
-input[type="text"],
+/* input[type="text"],
 select {
     width: 100%;
     padding: 8px;
@@ -91,7 +91,7 @@ select {
     border-radius: 4px;
     font-size: 1em;
     box-sizing: border-box;
-}
+} */
 
 .submit-button {
     background-color: #28a745;

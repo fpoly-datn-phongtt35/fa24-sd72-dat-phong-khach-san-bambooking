@@ -14,6 +14,7 @@ import PaymentPage from './pages/PaymentPage';
 import Contact from './pages/Contact';
 import AboutPage from './pages/AboutPage';
 import HotelRules from './pages/HotelRules';
+import BookingConfirmation from './pages/BookingConfirmation';
 function App() {
   return (
     <div className="app-container">
@@ -31,6 +32,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/rules" element={<HotelRules />} />
+            <Route path="/confirmation" element={<BookingConfirmation />} />
           </Routes>
         </div>
       </div>

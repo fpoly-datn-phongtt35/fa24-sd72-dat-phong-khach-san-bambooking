@@ -19,5 +19,9 @@ public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, Integer> {
                 and t.trangThai = TRUE
                 """)
     Page<TaiKhoan> searchByName(@Param("keyword") String keyword, Pageable pageable);
+
     Optional<TaiKhoan> findByTenDangNhap(String tenDangNhap);
+
+    @Query("FROM TaiKhoan tk WHERE tk.tenDangNhap = :username")
+    TaiKhoan findByUsername(String username);
 }

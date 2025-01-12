@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listTaiKhoan, deleteTaiKhoan, updateTaiKhoan } from '../../services/TaiKhoanService'; // Giả sử bạn có API service này
-import Modal from 'react-bootstrap/Modal'; // Thư viện Modal
-import Button from 'react-bootstrap/Button'; // Thư viện Button
+
 
 const ListTaiKhoan = () => {
     const [taiKhoan, setTaiKhoan] = useState([]);
