@@ -1,7 +1,6 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.PhongRequest;
-import com.example.datn.model.LoaiPhong;
 import com.example.datn.service.IMPL.PhongServiceIMPL;
 import com.example.datn.service.PhongService;
 import jakarta.validation.Valid;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-//@CrossOrigin("*")
 @RestController
 @RequestMapping("/phong")
 @RequiredArgsConstructor

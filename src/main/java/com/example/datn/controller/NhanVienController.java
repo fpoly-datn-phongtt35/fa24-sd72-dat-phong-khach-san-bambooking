@@ -1,7 +1,6 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.NhanVienRequest;
-import com.example.datn.model.KhachHang;
 import com.example.datn.model.NhanVien;
 import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.service.NhanVienService;
@@ -14,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-
-//@CrossOrigin(origins = "*")
 
 @RestController
 

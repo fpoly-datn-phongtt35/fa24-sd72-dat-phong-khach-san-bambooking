@@ -1,4 +1,4 @@
-import { Box, Button, Container, Input, Sheet, Switch, Table, Tooltip, Typography } from '@mui/joy'
+import { Box, Container, Input, Option, Select, Sheet, Switch, Table, Tooltip, Typography } from '@mui/joy'
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -11,16 +11,17 @@ import debounce from 'lodash.debounce';
 export const Customer = () => {
     const [data, setData] = useState(null);
     const [pageNo, setPageNo] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
     const [keyword, setKeyword] = useState('');
 
     const navigate = useNavigate();
 
     useEffect(() => {
         handleFetchData();
-    }, [pageNo, keyword]);
+    }, [pageNo, pageSize, keyword]);
 
     const handleFetchData = async () => {
-        const param = { pageNo, keyword }
+        const param = { pageNo, pageSize, keyword }
         await fetchAllCustomer(param).then(res => {
             setData(res?.data);
 
@@ -48,34 +49,70 @@ export const Customer = () => {
 
     return (
         <Container>
-            <Typography level='h4'>Quản lý khách hàng</Typography>
+
             <Box sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 marginTop: '20px'
             }}>
-                <Box className="col-9" style={{ display: 'flex', alignItems: 'center', marginBottom: 0, width: '50%' }}>
-                    <Input placeholder='Tìm kiếm khách hàng' startDecorator={<SearchIcon />} sx={{ width: '400px' }} onChange={(e) => onChangeSearch(e)} />
-                </Box>
-                <Box className="col-3 text-end">
-                    <Button color='primary' startDecorator={<AddIcon />} onClick={() => navigate('/add-khach-hang')}>Thêm khách hàng</Button>
-                </Box>
+                <Typography level='h3'>Quản lý khách hàng</Typography>
+                <Typography
+                    color="primary"
+                    level="title-sm"
+                    variant="plain"
+                    startDecorator={<AddIcon />}
+                    sx={{ cursor: 'pointer' }}
+                    onClick={() => navigate('/add-khach-hang')}
+                >
+                    Thêm khách hàng
+                </Typography>
             </Box>
-            <Sheet sx={{ marginTop: 3 }}>
-                <Typography sx={{ marginBottom: 1 }} level='title-md'>Danh sách khách hàng</Typography>
+            <Box sx={{ marginTop: 3, display: 'flex', justifyContent: 'space-between', alignContent: 'center' }} >
+                <Stack sx={{
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}>
+                    <Input placeholder='Tìm kiếm theo tên đăng nhập, số điện thoại, ...' startDecorator={<SearchIcon />} sx={{ width: '400px' }} onChange={(e) => onChangeSearch(e)} />
+                </Stack>
+                <Stack
+                    spacing={1}
+                    direction="row"
+                    sx={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}
+                >
+                    <Typography color="neutral" level="title-md" noWrap variant="plain">
+                        Hiển thị:
+                    </Typography>
+                    <Select
+                        value={pageSize}
+                        sx={{ width: "80px" }}
+                        onChange={(event, value) => setPageSize(value)}
+                    >
+                        <Option value={5}>5</Option>
+                        <Option value={10}>10</Option>
+                        <Option value={25}>25</Option>
+                        <Option value={50}>50</Option>
+                        <Option value={100}>100</Option>
+                    </Select>
+                </Stack>
+            </Box>
+            <Sheet sx={{
+                marginTop: 2,
+                padding: "2px",
+                borderRadius: "5px",
+            }}>
                 <Table
-                    stickyHeader
-                    stripe="odd"
-                    variant="soft"
-                    border='both'
+                    borderAxis="x" size="lg" stickyHeader variant="outlined"
                 >
                     <thead>
                         <tr>
-                            <th className='text-center'>Tên đăng nhập</th>
-                            <th className='text-center'>Họ và tên</th>
-                            <th className='text-center'>Giới tính</th>
-                            <th className='text-center'>SĐT</th>
+                            <th>Tên đăng nhập</th>
+                            <th>Họ và tên</th>
+                            <th>Giới tính</th>
+                            <th>SĐT</th>
                             <th className='text-center'>Trạng thái</th>
                             <th className='text-center'>Thao tác</th>
                         </tr>
@@ -84,10 +121,10 @@ export const Customer = () => {
                         {
                             data && data?.data.map((value) => (
                                 <tr key={value.id}>
-                                    <td className='text-center'>{value.username}</td>
-                                    <td className='text-center'>{value.fullName}</td>
-                                    <td className='text-center'>{value.gender}</td>
-                                    <td className='text-center'>{value.phoneNumber}</td>
+                                    <td>{value.username}</td>
+                                    <td>{value.fullName}</td>
+                                    <td>{value.gender}</td>
+                                    <td>{value.phoneNumber}</td>
                                     <td className='text-center'><Switch checked={value.locked} onChange={() => handleUpdateStatus(value.id, !value.locked)
                                     } /></td>
                                     <td className='text-center'>
@@ -95,7 +132,7 @@ export const Customer = () => {
                                             title="Xem chi tiết"
                                             variant="plain"
                                         >
-                                            <IconButton color='primary'>
+                                            <IconButton color='warning' onClick={() => navigate(`/update-khach-hang/${value.id}`)}>
                                                 <VisibilityIcon />
                                             </IconButton>
                                         </Tooltip>
@@ -115,6 +152,6 @@ export const Customer = () => {
                     </Box>
                 )
             }
-        </Container>
+        </Container >
     )
 }   

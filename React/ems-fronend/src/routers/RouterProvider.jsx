@@ -25,11 +25,11 @@ import ListHoaDon from "../components/HoaDon/ListHoaDon";
 import HoaDonComponent from "../components/HoaDon/HoaDonComponent";
 import TaiKhoanComponent from "../components/taikhoan/TaiKhoanComponent";
 import KhachHangComponent from "../components/KhachHang/KhachHangComponent";
-import ListKhachHang from "../components/KhachHang/ListKhachHang";
 import ListTaiKhoan from "../components/taikhoan/ListTaiKhoan";
 import ListVaiTro from "../components/vaitro/ListVaiTro";
 import { Customer } from "../pages/customer/Customer";
 import { NewCustomer } from "../pages/customer/NewCustomer";
+import { DetailCustomer } from "../pages/customer/DetailCustomer";
 
 function RouterProvider() {
 
@@ -100,7 +100,8 @@ function RouterProvider() {
                 <Route path="/hoa-don" element={<ListHoaDon />} />
                 <Route path="/add-hoa-don" element={<HoaDonComponent />} />
                 <Route path="/add-taikhoan" element={<TaiKhoanComponent />} />
-                <Route path="/update-khach-hang/:id" element={<KhachHangComponent />} />
+                {/* <Route path="/update-khach-hang/:id" element={<KhachHangComponent />} /> */}
+                <Route path="/update-khach-hang/:id" element={<DetailCustomer />} />
                 {/* <Route path="/add-khach-hang" element={<KhachHangComponent />} /> */}
                 <Route path="/add-khach-hang" element={<NewCustomer />} />
                 {/* <Route path="/khach-hang" element={<ListKhachHang />} /> */}

@@ -1,8 +1,7 @@
 package com.example.datn.repository.customizeQuery;
 
 import com.example.datn.dto.request.customer.FilterRequest;
-import com.example.datn.dto.response.customer.BaseCustomerResponse;
-import com.example.datn.dto.response.customer.CustomerResponse;
+import com.example.datn.dto.response.customer.CustomerResponses;
 import com.example.datn.model.KhachHang;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -28,7 +27,7 @@ public class CustomerRepository {
 
     private static final String LIKE_FORMAT = "%%%s%%";
 
-    public BaseCustomerResponse getAllCustomers(FilterRequest request) {
+    public CustomerResponses.CustomerTemplate getAllCustomers(FilterRequest request) {
         if (request.getPageNo() < 1) {
             request.setPageNo(1);
         }
@@ -46,8 +45,8 @@ public class CustomerRepository {
         query.setMaxResults(request.getPageSize());
 
         List<KhachHang> resultList = query.getResultList();
-        List<CustomerResponse> data = resultList.stream().map(s ->
-                CustomerResponse.builder()
+        List<CustomerResponses.CustomerData> data = resultList.stream().map(s ->
+                CustomerResponses.CustomerData.builder()
                         .id(s.getId())
                         .fullName(String.format("%s %s", s.getHo(), s.getTen()))
                         .username(s.getTaiKhoan().getUsername())
@@ -67,7 +66,7 @@ public class CustomerRepository {
         Long totalElements = countQuery.getSingleResult();
         Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize());
         Page<?> page = new PageImpl<>(data, pageable, totalElements);
-        return BaseCustomerResponse.builder()
+        return CustomerResponses.CustomerTemplate.builder()
                 .totalPage(page.getTotalPages())
                 .pageNo(request.getPageNo())
                 .pageSize(request.getPageSize())

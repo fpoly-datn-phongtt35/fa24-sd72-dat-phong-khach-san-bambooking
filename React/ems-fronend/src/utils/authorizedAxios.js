@@ -43,7 +43,6 @@ authorizedAxiosInstance.interceptors.response.use(
       return refreshTokenAPI(refreshToken)
         .then((res) => {
           const access_token = res.data.accessToken;
-          console.log(access_token);
 
           localStorage.setItem("accessToken", access_token);
           authorizedAxiosInstance.defaults.headers.Authorization = `Bearer ${access_token}`;
