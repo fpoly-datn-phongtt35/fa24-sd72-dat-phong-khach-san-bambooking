@@ -43,13 +43,8 @@ public class HotelWebsiteController {
     HotelWebsiteService hotelWebsiteService;
 
     @GetMapping("/index")
-<<<<<<< HEAD
-    public ResponseEntity<?> DanhSachTienNghi(Pageable pageable) {
-        Page<LoaiPhongResponse> ti = phongServiceIMPL.getPage(pageable);
-=======
     public ResponseEntity<?> DanhSachTienNghi(Pageable pageable){
         Page<LoaiPhongResponse> ti = loaiPhongService.getPage(pageable);
->>>>>>> tuan_dat
         return ResponseEntity.ok(ti);
     }
 
@@ -63,15 +58,9 @@ public class HotelWebsiteController {
                 : LocalDate.now().atStartOfDay();
         LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(23, 59, 59)
                 : LocalDate.now().atTime(23, 59, 59);
-
-<<<<<<< HEAD
-        LoaiPhongKhaDungResponse p = loaiPhongServiceIMPL.LoaiPhongKhaDungByLoaiPhong(
-                ngayNhanPhongStart, ngayTraPhongEnd, idLoaiPhong);
-=======
         LoaiPhongKhaDungResponse p = loaiPhongService.LoaiPhongKhaDungByLoaiPhong(
                 ngayNhanPhongStart, ngayTraPhongEnd, idLoaiPhong
         );
->>>>>>> tuan_dat
 
         return ResponseEntity.ok(p);
     }

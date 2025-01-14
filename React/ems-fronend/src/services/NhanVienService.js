@@ -32,7 +32,7 @@
 
 
 import authorizedAxiosInstance from "../utils/authorizedAxios";
-import debounce from "lodash.debounce";
+import debounce from "lodash/debounce";
 
 const api = "http://localhost:8080/nhan-vien";
 

@@ -26,7 +26,6 @@ public class AppConfig {
 
     private final UserService userService;
     private final PrevFilter prevFilter;
-
     private final String[] WHILE_LIST = {"/api/auth/**"};
     private final String[] URI_ADMIN = {"/api/*/customer/**", "/xep-phong/**", "/ttdp/**", "/tra-phong/**",
             "/tien-ich-phong/**", "/tien-ich/**", "/thong-tin-hoa-don/**", "/phong/**", "/loai-phong/**",

@@ -18,7 +18,7 @@ import Phong from "../components/Phong/Phong";
 import ListImage from "../components/HinhAnh/ListImage";
 import HinhAnh from "../components/HinhAnh/HinhAnh";
 import QuanLyDatPhong from "../components/DatPhong/QuanLyDatPhong";
-import GiaoDienTaoDP from "../components/DatPhong/GiaoDienTaoDP";
+import BookingForm from "../components/DatPhong/BookingForm";
 import TaoDatPhong from "../components/DatPhong/TaoDatPhong";
 import ChiTietDatPhong from "../components/DatPhong/ChiTietDatPhong";
 import ListHoaDon from "../components/HoaDon/ListHoaDon";
@@ -77,8 +77,6 @@ function RouterProvider() {
             </Route>
 
             <Route element={<ProtectedRoutes />}>
-                <Route path="/TrangChu" element={<ViewPhong />} />
-                <Route path="/LoaiPhong" element={<LoaiPhong />} />
                 <Route path="/NhanVien" element={<ListNhanVien />} />
                 <Route path="/add-nhanvien" element={<NhanVienComponent />} />
                 <Route path="/LoaiPhong" element={<LoaiPhong />} />
@@ -94,7 +92,7 @@ function RouterProvider() {
                 <Route path="/add-hinh-anh" element={<HinhAnh />} />
                 <Route path="/TrangChu" element={<ViewPhong />} />
                 <Route path="/quan-ly-dat-phong" element={<QuanLyDatPhong />} />
-                <Route path="/giao-dien-tao-dp" element={<GiaoDienTaoDP />} />
+                <Route path="/giao-dien-tao-dp" element={<BookingForm />} />
                 <Route path="/tao-dat-phong" element={<TaoDatPhong />} />
                 <Route path="/thong-tin-dat-phong" element={<ChiTietDatPhong />} />
                 <Route path="/hoa-don" element={<ListHoaDon />} />

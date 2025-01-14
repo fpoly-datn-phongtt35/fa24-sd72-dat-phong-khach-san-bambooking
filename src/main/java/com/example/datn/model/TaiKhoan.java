@@ -21,10 +21,6 @@ public class TaiKhoan implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @JoinColumn(name = "id_vai_tro")
-    @ManyToOne
-    private VaiTro vaiTro;
-
     @Column(name = "ten_dang_nhap")
     private String tenDangNhap;
 

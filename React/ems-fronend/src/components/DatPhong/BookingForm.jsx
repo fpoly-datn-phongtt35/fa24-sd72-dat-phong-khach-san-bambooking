@@ -6,9 +6,9 @@ import ModalSelectedRoom from './ModalSelectedRoom'; // Import the new modal com
 import { addThongTinDatPhong, getLoaiPhongKhaDung } from '../../services/TTDP';
 import TaoDatPhong from './TaoDatPhong';
 // test 
-import Flatpickr from "react-flatpickr";
-import "flatpickr/dist/themes/material_blue.css"; // Chọn theme tùy thích
-import { Vietnamese } from "flatpickr/dist/l10n/vn.js";
+// import Flatpickr from "react-flatpickr";
+// import "flatpickr/dist/themes/material_blue.css"; // Chọn theme tùy thích
+// import { Vietnamese } from "flatpickr/dist/l10n/vn.js";
 const BookingForm = () => {
     const [datPhong, setDatPhong] = useState(null);
     const [ngayNhanPhong, setngayNhanPhong] = useState('');
@@ -201,7 +201,7 @@ const BookingForm = () => {
             <div className="booking-form-container">
                 <form className="search-form" onSubmit={handleSearch}>
                     <div className="form-row">
-                        <div className="form-group">
+                        {/* <div className="form-group">
                             <label htmlFor="formngayNhanPhong">Ngày nhận phòng</label>
                             <Flatpickr
                                 id="formngayNhanPhong"
@@ -247,7 +247,7 @@ const BookingForm = () => {
                                     minDate: ngayNhanPhong,
                                 }}
                             />
-                        </div>
+                        </div> */}
 
 
                         <div className="form-group">
