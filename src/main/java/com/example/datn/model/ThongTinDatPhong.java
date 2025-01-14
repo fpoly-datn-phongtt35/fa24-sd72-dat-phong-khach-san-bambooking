@@ -33,7 +33,8 @@ public class ThongTinDatPhong {
     private Integer soNguoi;
     @Column(name = "gia_dat")
     private Double giaDat;
+    @Column(name = "ghi_chu")
+    private String ghiChu;
     @Column(name = "trang_thai")
     private String trangThai;
-
 }

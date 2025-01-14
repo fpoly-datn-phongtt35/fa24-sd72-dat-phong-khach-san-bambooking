@@ -86,5 +86,8 @@ public class UploadFileController {
     public ResponseEntity<?> search(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(uploadImageFile.searchHinhAnh(keyword, pageable));
     }
-    
+    @GetMapping("/searchByIDPhong")
+    public ResponseEntity<?> searchByIDPhong(@RequestParam(value = "keyword", required = false) String keyword){
+        return ResponseEntity.status(HttpStatus.OK).body(uploadImageFile.searchHinhAnhByIDPhong(keyword));
+    }
 }

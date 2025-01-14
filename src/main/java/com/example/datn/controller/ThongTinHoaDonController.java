@@ -1,6 +1,7 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.ThongTinHoaDonRequest;
+import com.example.datn.model.TraPhong;
 import com.example.datn.service.ThongTinHoaDonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 //@CrossOrigin("*")
@@ -23,8 +26,15 @@ public class ThongTinHoaDonController {
         return ResponseEntity.ok(thongTinHoaDonService.getAllThongTinHoaDon(pageable));
     }
 
+    @GetMapping("/{idHoaDon}")
+    public ResponseEntity<?> findThongTinHoaDonByHoaDonId(@PathVariable("idHoaDon") Integer idHoaDon){
+        return ResponseEntity.status(HttpStatus.OK).body(thongTinHoaDonService.getThongTinHoaDonByHoaDonId(idHoaDon));
+    }
+
     @PostMapping
-    public ResponseEntity<?> createThongTinHoaDon(@RequestBody ThongTinHoaDonRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(thongTinHoaDonService.createThongTinHoaDon(request));
+    public ResponseEntity<?> createThongTinHoaDon(@RequestBody ThongTinHoaDonRequest tthdRequest) {
+        System.out.println(tthdRequest.getIdHoaDon());
+        System.out.println(tthdRequest.getListTraPhong());
+        return ResponseEntity.status(HttpStatus.CREATED).body(thongTinHoaDonService.createThongTinHoaDon(tthdRequest.getIdHoaDon(),tthdRequest.getListTraPhong()));
     }
 }

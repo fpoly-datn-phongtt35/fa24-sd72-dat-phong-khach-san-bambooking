@@ -1,13 +1,17 @@
 import axios from "axios";
 const apiAdd = "http://localhost:8080/xep-phong/add"
 const apiPDX = "http://localhost:8080/xep-phong/phong-da-xep"
+const apiCheckIn = "http://localhost:8080/xep-phong/check-in"
 export const addXepPhong = (XepPhongRequest) => {
     return axios.post(apiAdd, XepPhongRequest);
 };
-export const phongDaXep = (maTTDP) => {
+export const phongDaXep =(maThongTinDatPhong) => {
     return axios.get(apiPDX, {
         params: {
-            maTTDP: maTTDP
+            maThongTinDatPhong: maThongTinDatPhong
             }
     });
+};
+export const checkIn = (xepPhongRequest) => {
+    return axios.put(apiCheckIn, xepPhongRequest);
 };

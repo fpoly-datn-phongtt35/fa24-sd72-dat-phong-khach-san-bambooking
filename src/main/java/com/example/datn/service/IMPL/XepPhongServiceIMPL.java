@@ -11,6 +11,10 @@ import com.example.datn.service.XepPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 public class XepPhongServiceIMPL implements XepPhongService {
     @Autowired
@@ -23,43 +27,80 @@ public class XepPhongServiceIMPL implements XepPhongService {
     PhongRepository phongRepository;
 
     @Override
-    public XepPhong addXepPhong(XepPhongRequest xepPhongRequest) {
-        XepPhong xp = new XepPhong();
-        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
-        Phong p = phongRepository.getPhongById(xepPhongRequest.getPhong().getId());
-        xp.setPhong(xepPhongRequest.getPhong());
-        xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
-        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
-        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
-        xp.setTrangThai(xepPhongRequest.getTrangThai());
-
-        ttdp.setTrangThai("Đã xếp");
-        thongTinDatPhongRepository.save(ttdp);
-        p.setTinhTrang("occupied");
-        phongRepository.save(p);
-        return xepPhongRepository.save(xp);
+    public List<XepPhong> getAll() {
+        return xepPhongRepository.findAll();
     }
 
     @Override
-    public XepPhong updateXepPhong(XepPhongRequest xepPhongRequest) {
+    public XepPhong addXepPhong(XepPhongRequest xepPhongRequest) {
         XepPhong xp = new XepPhong();
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
-        Phong p = phongRepository.getPhongById(xepPhongRequest.getPhong().getId());
-        xp.setId(xepPhongRequest.getId());
         xp.setPhong(xepPhongRequest.getPhong());
         xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
-        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
-        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
+        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong().withHour(14).withMinute(0).withSecond(0).withNano(0));
+        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong().withHour(12).withMinute(0).withSecond(0).withNano(0));
         xp.setTrangThai(xepPhongRequest.getTrangThai());
-        ttdp.setTrangThai("Đã xếp");
+        ttdp.setTrangThai("Da xep");
         thongTinDatPhongRepository.save(ttdp);
-        p.setTinhTrang("occupied");
-        phongRepository.save(p);
+        return xepPhongRepository.save(xp);
+    }
+    @Override
+    public XepPhong updateXepPhong(XepPhongRequest xepPhongRequest) {
+        XepPhong xp = new XepPhong();
+//        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
+//        Phong p = phongRepository.getPhongById(xepPhongRequest.getPhong().getId());
+//        xp.setId(xepPhongRequest.getId());
+//        xp.setPhong(xepPhongRequest.getPhong());
+//        xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
+//        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
+//        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
+//        xp.setTrangThai(xepPhongRequest.getTrangThai());
+//        ttdp.setTrangThai("Da xep");
+//        thongTinDatPhongRepository.save(ttdp);
+//        p.setTinhTrang("occupied");
+//        phongRepository.save(p);
         return xepPhongRepository.save(xp);
     }
 
     @Override
     public XepPhong getByMaTTDP(String maTTDP) {
         return xepPhongRepository.getByMaTTDP(maTTDP);
+    }
+
+    @Override
+    public XepPhong checkIn(XepPhongRequest xepPhongRequest) {
+
+        try{
+            XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId()).orElse(null);
+            if(xp!=null){
+                ThongTinDatPhong ttdp = xp.getThongTinDatPhong();
+                Phong p = xp.getPhong();
+                ttdp.setTrangThai("Dang o");
+                p.setTinhTrang("occupied");
+                xp.setPhong(xp.getPhong());
+                xp.setThongTinDatPhong(ttdp);
+                xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
+                xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
+                xp.setTrangThai(true);
+                return xepPhongRepository.save(xp);
+            }else{
+                XepPhong xpNew = this.addXepPhong(xepPhongRequest);
+                ThongTinDatPhong ttdp = xpNew.getThongTinDatPhong();
+                Phong p = xpNew.getPhong();
+                ttdp.setTrangThai("Dang o");
+                p.setTinhTrang("occupied");
+                xpNew.setTrangThai(true);
+                return xepPhongRepository.save(xpNew);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Chưa được xếp phòng");
+        }
+        return null;
+    }
+
+    @Override
+    public List<XepPhong> findByKey(String key) {
+        return xepPhongRepository.findByKey(key);
     }
 }

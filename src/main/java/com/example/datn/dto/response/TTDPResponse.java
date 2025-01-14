@@ -15,11 +15,12 @@ import java.time.LocalDate;
 public class TTDPResponse {
     Integer id;
     String maDatPhong;
-    String maTTDP;
+    String maThongTinDatPhong;
     String tenKhachHang;
     Integer soNguoi;
     LoaiPhong loaiPhong;
     LocalDate ngayNhanPhong;
     LocalDate ngayTraPhong;
     Double donGia;
+    String ghiChu;
 }

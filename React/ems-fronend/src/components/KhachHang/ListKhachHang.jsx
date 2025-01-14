@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listKhachHang, deleteKhachHang } from '../../services/KhachHangService';
+import Swal from 'sweetalert2';
+
 
 const ListKhachHang = () => {
     const navigate = useNavigate();
@@ -33,14 +35,36 @@ const ListKhachHang = () => {
     }
 
     const handleDeleteKhachHang = (id) => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa khách hàng này?')) {
-            deleteKhachHang(id).then(() => {
-                getAllKhachHang();
-            }).catch((error) => {
-                console.log("Xóa khách hàng thất bại: " + error);
-            });
-        }
-    }
+        Swal.fire({
+            title: 'Bạn có chắc chắn?',
+            text: "Bạn không thể phục hồi khách hàng sau khi xóa!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Có, xóa!',
+            cancelButtonText: 'Không, hủy!',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteKhachHang(id)
+                    .then(() => {
+                        Swal.fire(
+                            'Đã xóa!',
+                            'Khách hàng đã được xóa thành công.',
+                            'success'
+                        );
+                        getAllKhachHang(); // Cập nhật lại danh sách khách hàng
+                    })
+                    .catch((error) => {
+                        console.log("Xóa khách hàng thất bại: " + error);
+                        Swal.fire(
+                            'Lỗi!',
+                            'Có lỗi xảy ra khi xóa khách hàng.',
+                            'error'
+                        );
+                    });
+            }
+        });
+    };
+    
 
     const handlePreviousPage = () => {
         if (currentPage > 0) {

@@ -3,6 +3,7 @@ import { DuLieu, XoaDichVu } from '../../services/DichVuService';
 import FormAdd from './FormAdd';
 import FormUpdate from './FormUpdate';
 import DetailDichVu from './DetailDichVu';
+import Swal from 'sweetalert2'; // down npm install sweetalert2
 
 const DanhSach = () => {
     const [dichVuList, setDichVuList] = useState([]);
@@ -72,15 +73,38 @@ const DanhSach = () => {
     };
 
     const handleDelete = (id) => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa dịch vụ này?")) {
-            XoaDichVu(id)
-                .then(() => {
-                    loadDichVu();
-                })
-                .catch(error => {
-                    console.error("Lỗi khi xóa dịch vụ:", error);
-                });
-        }
+        Swal.fire({
+            title: 'Bạn có chắc chắn muốn xóa dịch vụ này?',
+            text: "Hành động này không thể hoàn tác!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33', // Màu nút xác nhận
+            cancelButtonColor: '#3085d6', // Màu nút hủy
+            confirmButtonText: 'Xóa',
+            cancelButtonText: 'Hủy'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                XoaDichVu(id)
+                    .then(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Đã xóa!',
+                            text: 'Dịch vụ đã được xóa thành công.',
+                            confirmButtonColor: '#6a5acd' // Màu nút OK
+                        });
+                        loadDichVu();
+                    })
+                    .catch(error => {
+                        console.error("Lỗi khi xóa dịch vụ:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Lỗi',
+                            text: 'Không thể xóa dịch vụ. Vui lòng thử lại!',
+                            confirmButtonColor: '#d33'
+                        });
+                    });
+            }
+        });
     };
 
     const handleNextPage = () => {

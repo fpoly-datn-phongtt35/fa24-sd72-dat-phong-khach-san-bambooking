@@ -12,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/phong")
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class PhongController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<?> getOneRoom(@PathVariable("id") Integer id){
+    public ResponseEntity<?> getOneRoom(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(phongService.getOnePhong(id));
     }
 
@@ -47,11 +49,16 @@ public class PhongController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchPhong(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable){
+    public ResponseEntity<?> searchPhong(@RequestParam(value = "keyword", required = false) String keyword,
+            Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(phongService.searchPhong(keyword, pageable));
     }
+
     @GetMapping("/phong-kha-dung")
-    public ResponseEntity<?> searchPhongKhaDung(@RequestParam Integer idLoaiPhong) {
-        return ResponseEntity.status(HttpStatus.OK).body(phongServiceIMPL.searchPhongKhaDung(idLoaiPhong));
+    public ResponseEntity<?> searchPhongKhaDung(@RequestParam Integer idLoaiPhong,
+            @RequestParam LocalDateTime ngayNhanPhong,
+            @RequestParam LocalDateTime ngayTraPhong) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(phongServiceIMPL.searchPhongKhaDung(idLoaiPhong, ngayNhanPhong, ngayTraPhong));
     }
 }

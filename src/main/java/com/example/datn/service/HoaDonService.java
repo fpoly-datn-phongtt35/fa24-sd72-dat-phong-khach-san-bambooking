@@ -10,6 +10,7 @@ public interface HoaDonService {
     Page<HoaDonResponse> getHoaDonByTrangThai(String trangThai, String keyword, Pageable pageable);
 
     HoaDonResponse createHoaDon(HoaDonRequest request);
+    HoaDonResponse getOneHoaDon(Integer idHoaDon);
 
     void changeStatusHoaDon(Integer idHoaDon);
 

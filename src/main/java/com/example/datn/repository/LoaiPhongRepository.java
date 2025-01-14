@@ -27,13 +27,13 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
     Page<LoaiPhongResponse> LoaiPhong(Pageable pageable);
 
     @Query("SELECT lp FROM LoaiPhong lp " +
-            "WHERE (:tenLoaiPhong IS NULL OR lp.tenLoaiPhong LIKE %:tenLoaiPhong%)\n" +
-            "    AND (:dienTichMin IS NULL OR lp.dienTich >= :dienTichMin)\n" +
-            "    AND (:dienTichMax IS NULL OR lp.dienTich <= :dienTichMax )\n" +
-            "    AND (:soKhach IS NULL OR lp.soKhachToiDa >= :soKhach)\n" +
-            "    AND (:donGiaMin IS NULL OR lp.donGia >= :donGiaMin)\n" +
-            "    AND (:donGiaMax IS NULL OR lp.donGia <= :donGiaMax)\n" +
-            "    AND (:donGiaPhuThuMin IS NULL OR lp.donGiaPhuThu >=:donGiaPhuThuMin)\n" +
+            "WHERE (:tenLoaiPhong IS NULL OR lp.tenLoaiPhong LIKE %:tenLoaiPhong%)" +
+            "    AND (:dienTichMin IS NULL OR lp.dienTich >= :dienTichMin)" +
+            "    AND (:dienTichMax IS NULL OR lp.dienTich <= :dienTichMax )" +
+            "    AND (:soKhach IS NULL OR lp.soKhachToiDa >= :soKhach)" +
+            "    AND (:donGiaMin IS NULL OR lp.donGia >= :donGiaMin)" +
+            "    AND (:donGiaMax IS NULL OR lp.donGia <= :donGiaMax)" +
+            "    AND (:donGiaPhuThuMin IS NULL OR lp.donGiaPhuThu >=:donGiaPhuThuMin)" +
             "    AND (:donGiaPhuThuMax IS NULL OR lp.donGiaPhuThu <= :donGiaPhuThuMax)"
     )
     Page<LoaiPhong> filter (@Param("tenLoaiPhong") String tenLoaiPhong,
@@ -47,21 +47,75 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
                            Pageable pageable);
 
     @Query("SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
-            "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS tongSoPhong, " +
-            "SUM(CASE WHEN (xp.id IS NULL OR (xp.ngayTraPhong <= :ngayNhanPhong OR xp.ngayNhanPhong >= :ngayTraPhong)) " +
-            "AND (tp.id IS NULL OR (tp.ngayTraPhong < CAST(:ngayNhanPhong AS DATE) " +
-            "OR tp.ngayNhanPhong > CAST(:ngayTraPhong AS DATE))) THEN 1 ELSE 0 END) AS soPhongTrong) " +
+            "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, 0L AS soPhongKhaDung) " + // Để mặc định COUNT(p) là Long
             "FROM LoaiPhong lp " +
             "JOIN Phong p ON p.loaiPhong.id = lp.id " +
-            "LEFT JOIN XepPhong xp ON p.id = xp.phong.id " +
-            "LEFT JOIN ThongTinDatPhong tp ON tp.loaiPhong.id = lp.id " +
+            "WHERE lp.soKhachToiDa >= :soNguoi " +
+            "AND p.trangThai = true " +
+            "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa")
+    Page<LoaiPhongKhaDungResponse> findLoaiPhongWithTongSoPhong(
+            @Param("soNguoi") Integer soNguoi,
+            Pageable pageable);
+
+    @Query("SELECT lp.id AS loaiPhongId, " +
+            "(COUNT(p) - " +
+            " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong) - " +
+            " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            " AND CAST(tp.ngayNhanPhong AS LocalDate) <= CAST(:ngayTraPhong AS LocalDate) " +
+            " AND CAST(tp.ngayTraPhong AS LocalDate) >= CAST(:ngayNhanPhong AS LocalDate))" +
+            ") AS soPhongTrong " +
+            "FROM LoaiPhong lp " +
+            "JOIN Phong p ON p.loaiPhong.id = lp.id " +
             "WHERE p.trangThai = true " +
-            "AND lp.soKhachToiDa >= :soNguoi " +
-            "AND p.tinhTrang = 'available' " +
+            "GROUP BY lp.id")
+    List<Object[]> findSoPhongTrong(
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong);
+
+
+
+
+
+
+
+
+
+
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
+            "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
+            "(SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
+            " (SELECT COUNT(xp) " +
+            "  FROM XepPhong xp " +
+            "  WHERE xp.phong.loaiPhong.id = lp.id " +
+            "    AND xp.ngayNhanPhong < :ngayTraPhong " +
+            "    AND xp.ngayTraPhong > :ngayNhanPhong " +
+            "    AND xp.trangThai = true) -" +
+            " (SELECT COUNT(tp) " +
+            "  FROM ThongTinDatPhong tp " +
+            "  WHERE tp.loaiPhong.id = lp.id " +
+            "    AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            "    AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
+            "    AND tp.trangThai IN ('Chua xep'))" +
+            ") AS soPhongKhaDung) " +
+            "FROM LoaiPhong lp " +
+            "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+            "WHERE lp.soKhachToiDa >= :soNguoi " +
+            "AND p.trangThai = true " +
             "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa " +
-            "HAVING SUM(CASE WHEN (xp.id IS NULL OR (xp.ngayTraPhong <= :ngayNhanPhong OR xp.ngayNhanPhong >= :ngayTraPhong)) " +
-            "AND (tp.id IS NULL OR (tp.ngayTraPhong < CAST(:ngayNhanPhong AS DATE) " +
-            "OR tp.ngayNhanPhong > CAST(:ngayTraPhong AS DATE))) THEN 1 ELSE 0 END) > 0")
+            "HAVING (SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
+            " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
+            " AND xp.trangThai = true) - " +
+            " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            " AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            " AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate)" +
+            " AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o', 'Den han'))" +
+            ") > 0",
+            countQuery = "SELECT COUNT(DISTINCT lp.id) FROM LoaiPhong lp " +
+                    "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+                    "WHERE lp.soKhachToiDa >= :soNguoi " +
+                    "AND p.trangThai = true")
     Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(
             @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
@@ -70,12 +124,39 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
 
 
 
-
-
-
-
-
-
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
+            "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
+            "(COUNT(p) - " +
+            " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
+            " AND xp.trangThai = true) - " +
+            " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            " AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            " AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
+            " AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o', 'Den han'))" +
+            ") AS soPhongKhaDung) " +
+            "FROM LoaiPhong lp " +
+            "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+            "WHERE p.trangThai = true " +
+            "AND lp.id = :loaiPhongId " + // Điều kiện tìm theo ID loại phòng
+            "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa " +
+            "HAVING (COUNT(p) - " +
+            " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            " AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
+            " AND xp.trangThai = true) - " +
+            " (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            " AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            " AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate))" +
+            ") > 0",
+            countQuery = "SELECT COUNT(DISTINCT lp.id) FROM LoaiPhong lp " +
+                    "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+                    "WHERE p.trangThai = true " +
+                    "AND lp.id = :loaiPhongId") // Điều kiện tìm theo ID loại phòng
+    LoaiPhongKhaDungResponse LoaiPhongKhaDung1(
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
+            @Param("loaiPhongId") Integer idLoaiPhong // Tham số mới
+    );
 
 
 

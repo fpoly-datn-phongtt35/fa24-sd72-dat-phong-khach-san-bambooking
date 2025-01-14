@@ -13,4 +13,7 @@ public interface DichVuSuDungRepository extends JpaRepository<DichVuSuDung, Inte
     @Query("SELECT p FROM DichVuSuDung p WHERE p.dichVu.tenDichVu LIKE %:keyword%")
     List<DichVuSuDung> findByKeyword(@Param("keyword") String keyword);
     List<DichVuSuDung> findByXepPhongId(Integer id);
+
+    @Query("SELECT p FROM DichVuSuDung p WHERE p.trangThai = true and p.xepPhong.id = :idXepPhong")
+    public List<DichVuSuDung> getByIDXepPhong(Integer idXepPhong);
 }

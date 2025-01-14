@@ -1,9 +1,13 @@
 import axios from "axios";
 const apiDetailDP = "http://localhost:8080/ttdp/chi-tiet-dat-phong"
 const apiAdd = "http://localhost:8080/ttdp/them-moi"
+const apiUpdate = "http://localhost:8080/ttdp/sua"
 const apiHienThiQuanLy = "http://localhost:8080/ttdp/hien-thi-quan-ly"
 const apiLoaiPhongKhaDung = "http://localhost:8080/ttdp/loai-phong-kha-dung"
 const apiTimKiem = "http://localhost:8080/ttdp/tim-kiem"
+const apiHuyTTDP = "http://localhost:8080/ttdp/huy-ttdp"
+const apiGetTTDP = "http://localhost:8080/ttdp/detail-ttdp"
+
 export const getThongTinDatPhong = (idDP, pageable) => {
     return axios.get(apiTTDP, {
         params: {
@@ -47,6 +51,10 @@ export const HienThiQuanLy = (trangThai, pageable) => {
 export const addThongTinDatPhong = (TTDPRequest) => {
     return axios.post(apiAdd, TTDPRequest);
 };
+
+export const updateThongTinDatPhong = (TTDPRequest) => {
+    return axios.put(apiUpdate, TTDPRequest);
+};
 export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,soNguoi,pageable) => {
     return axios.get(apiLoaiPhongKhaDung, {
         params: {
@@ -55,6 +63,21 @@ export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,soNguoi,pageable)
             soNguoi:soNguoi,
             page: pageable.page, 
             size: pageable.size
+        }
+    });
+};
+export const huyTTDP = (maThongTinDatPhong) => {
+    return axios.get(apiHuyTTDP, {
+        params: {
+            maThongTinDatPhong:maThongTinDatPhong
+        }
+    });
+};
+
+export const getTTDPByMaTTDP = (maTTDP) => {
+    return axios.get(apiGetTTDP, {
+        params: {
+            maTTDP: maTTDP
         }
     });
 };

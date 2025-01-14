@@ -46,12 +46,13 @@ public class DatPhongServiceIMPL implements DatPhongService {
         String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
         datPhong.setMaDatPhong(codeDP);
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
-        datPhong.setGhiChu("");
+        datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTongTien(datPhongRequest.getTongTien());
         datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(LocalDate.now());
-        datPhong.setTrangThai("Pending");
+        datPhong.setTrangThai("Da xac nhan");
         DatPhong dp = datPhongRepository.save(datPhong);
+
         datPhongResponse.setId(dp.getId());
         datPhongResponse.setMaDatPhong(dp.getMaDatPhong());
         datPhongResponse.setKhachHang(dp.getKhachHang());
@@ -85,14 +86,11 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
     @Override
     public DatPhong updateDatPhong(DatPhongRequest datPhongRequest) {
-        DatPhong datPhong = new DatPhong();
-        datPhong.setId(datPhongRequest.getId());
-        datPhong.setMaDatPhong(datPhongRequest.getMaDatPhong());
+        DatPhong datPhong = datPhongRepository.findByMaDatPhong(datPhongRequest.getMaDatPhong());
+        datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTongTien(datPhongRequest.getTongTien());
         datPhong.setDatCoc(datPhongRequest.getDatCoc());
-        datPhong.setNgayDat(datPhongRequest.getNgayDat());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
-        datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         return datPhongRepository.save(datPhong);
     }
@@ -101,7 +99,6 @@ public class DatPhongServiceIMPL implements DatPhongService {
     public DatPhong findByMaDatPhong(String maDatPhong) {
         return datPhongRepository.findByMaDatPhong(maDatPhong);
     }
-
     @Override
     public Double sumTotalAmountByIDDatPhong(Integer idDP) {
         Double tongTien = 0.0;
@@ -121,4 +118,29 @@ public class DatPhongServiceIMPL implements DatPhongService {
         }
         return tongTien;
     }
+
+    @Override
+    public Page<DatPhongResponse> findAll(String keyword, Pageable pageable) {
+        return datPhongRepository.findAll(keyword, pageable);
+    }
+    public DatPhong addDatPhongNgay(DatPhongRequest datPhongRequest) {
+        DatPhong datPhong = new DatPhong();
+        UniqueDatPhongCode code = new UniqueDatPhongCode();
+        String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
+        datPhong.setMaDatPhong(codeDP);
+        datPhong.setTongTien(datPhongRequest.getTongTien());
+        datPhong.setDatCoc(datPhongRequest.getDatCoc());
+        datPhong.setNgayDat(datPhongRequest.getNgayDat());
+        datPhong.setGhiChu(datPhongRequest.getGhiChu());
+        datPhong.setKhachHang(datPhongRequest.getKhachHang());
+        datPhong.setTrangThai(datPhongRequest.getTrangThai());
+        return datPhongRepository.save(datPhong);
+    }
+
+    @Override
+    public Page<DatPhong> DSDatPhong(Pageable pageable) {
+        return  datPhongRepository.DSDatPhong(pageable);
+    }
+
+
 }

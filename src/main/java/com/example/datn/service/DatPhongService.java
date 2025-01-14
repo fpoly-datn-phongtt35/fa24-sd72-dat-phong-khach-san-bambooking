@@ -25,4 +25,12 @@ public interface DatPhongService {
 
     Double sumTotalAmountByIDDatPhong(Integer idDP);
 
+
+    //Gnut
+    Page<DatPhongResponse> findAll(String keyword, Pageable pageable);
+    DatPhong addDatPhongNgay(DatPhongRequest datPhongRequest);
+
+    Page<DatPhong> DSDatPhong (Pageable pageable);
+
+
 }

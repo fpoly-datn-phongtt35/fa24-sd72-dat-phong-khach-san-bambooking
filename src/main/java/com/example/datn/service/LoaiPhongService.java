@@ -40,8 +40,12 @@ public interface LoaiPhongService {
                             Double donGiaPhuThuMax,
                             Pageable pageable);
 
-    Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,Integer soNguoi, Pageable pageable);
+    Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
+                                                    Integer soNguoi,Pageable pageable);
+
+    LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
+                                                     Integer idLoaiPhong);
+
     LoaiPhong findByID(Integer idLoaiPhong);
 
-    DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest);
 }

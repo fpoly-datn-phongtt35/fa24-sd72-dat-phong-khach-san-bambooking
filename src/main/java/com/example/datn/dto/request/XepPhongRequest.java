@@ -1,5 +1,6 @@
 package com.example.datn.dto.request;
 
+import com.example.datn.model.KhachHang;
 import com.example.datn.model.Phong;
 import com.example.datn.model.ThongTinDatPhong;
 import jakarta.persistence.Column;

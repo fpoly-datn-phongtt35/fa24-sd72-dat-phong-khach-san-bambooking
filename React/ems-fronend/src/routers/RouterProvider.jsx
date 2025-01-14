@@ -22,11 +22,11 @@ import GiaoDienTaoDP from "../components/DatPhong/GiaoDienTaoDP";
 import TaoDatPhong from "../components/DatPhong/TaoDatPhong";
 import ChiTietDatPhong from "../components/DatPhong/ChiTietDatPhong";
 import ListHoaDon from "../components/HoaDon/ListHoaDon";
-import HoaDonComponent from "../components/HoaDon/HoaDonComponent";
+// import HoaDonComponent from "../components/HoaDon/HoaDonComponent";
 import TaiKhoanComponent from "../components/taikhoan/TaiKhoanComponent";
-import KhachHangComponent from "../components/KhachHang/KhachHangComponent";
+// import KhachHangComponent from "../components/KhachHang/KhachHangComponent";
 import ListTaiKhoan from "../components/taikhoan/ListTaiKhoan";
-import ListVaiTro from "../components/vaitro/ListVaiTro";
+// import ListVaiTro from "../components/vaitro/ListVaiTro";
 import { Customer } from "../pages/customer/Customer";
 import { NewCustomer } from "../pages/customer/NewCustomer";
 import { DetailCustomer } from "../pages/customer/DetailCustomer";
@@ -98,7 +98,7 @@ function RouterProvider() {
                 <Route path="/tao-dat-phong" element={<TaoDatPhong />} />
                 <Route path="/thong-tin-dat-phong" element={<ChiTietDatPhong />} />
                 <Route path="/hoa-don" element={<ListHoaDon />} />
-                <Route path="/add-hoa-don" element={<HoaDonComponent />} />
+                {/* <Route path="/add-hoa-don" element={<HoaDonComponent />} /> */}
                 <Route path="/add-taikhoan" element={<TaiKhoanComponent />} />
                 {/* <Route path="/update-khach-hang/:id" element={<KhachHangComponent />} /> */}
                 <Route path="/update-khach-hang/:id" element={<DetailCustomer />} />
@@ -107,7 +107,7 @@ function RouterProvider() {
                 {/* <Route path="/khach-hang" element={<ListKhachHang />} /> */}
                 <Route path="/khach-hang" element={<Customer />} />
                 <Route path="/TaiKhoan" element={<ListTaiKhoan />} />
-                <Route path="/VaiTro" element={<ListVaiTro />} />
+                {/* <Route path="/VaiTro" element={<ListVaiTro />} /> */}
                 <Route path="/" element={<ViewPhong />} />
 
             </Route>

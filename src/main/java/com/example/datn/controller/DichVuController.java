@@ -55,16 +55,12 @@ public class DichVuController {
                            @RequestParam("trangThai") String  trangThai
                            ) {
     try {
-            // Tạo đối tượng DichVu từ các tham số
             DichVu dichVu = new DichVu();
             dichVu.setTenDichVu(tenDichVu);
             dichVu.setDonGia(donGia);
             dichVu.setMoTa(moTa);
-            // Chuyển đổi từ String sang boolean
             boolean trangThaiBoolean = Boolean.parseBoolean(trangThai);
-            dichVu.setTrangThai(trangThaiBoolean); // Gán giá trị đã chuyển đổi
-
-            // Gọi service để thêm dịch vụ
+            dichVu.setTrangThai(trangThaiBoolean);
             DichVu savedDichVu = dichVuServiceIMPL.addDichVu(dichVu, file);
             return "Dịch vụ đã được tạo thành công: " + savedDichVu.getId();
         } catch (IOException e) {
@@ -72,10 +68,10 @@ public class DichVuController {
     }
     }
 
-    @DeleteMapping("/delete/{id}") // Thêm phương thức xóa
+    @DeleteMapping("/delete/{id}")
     public String delete(@PathVariable("id") Integer id) {
         dichVuServiceIMPL.deleteDichVu(id);
-        return "redirect:/dich-vu"; // Chuyển hướng sau khi xóa
+        return "redirect:/dich-vu";
     }
 
     @GetMapping("/dich-vu/detail/{id}")
@@ -89,7 +85,7 @@ public class DichVuController {
             @RequestParam("tenDichVu") String tenDichVu,
             @RequestParam("donGia") Double donGia,
             @RequestParam("moTa") String moTa,
-            @RequestParam("hinhAnh") MultipartFile file,
+            @RequestParam(value = "hinhAnh", required = false) MultipartFile file,
             @RequestParam("trangThai") String trangThai) {
         try {
             // Tìm dịch vụ hiện tại theo ID
@@ -103,17 +99,24 @@ public class DichVuController {
             existingDichVu.setTenDichVu(tenDichVu);
             existingDichVu.setDonGia(donGia);
             existingDichVu.setMoTa(moTa);
-            existingDichVu.setTrangThai(Boolean.parseBoolean(trangThai)); // Chuyển đổi từ String sang boolean
+            existingDichVu.setTrangThai(Boolean.parseBoolean(trangThai));
 
-            // Cập nhật dịch vụ, bao gồm hình ảnh nếu có
-            DichVu updatedDichVu = dichVuServiceIMPL.updateDichVu(existingDichVu, file);
-            return ResponseEntity.ok(updatedDichVu);
+            // Chỉ cập nhật hình ảnh nếu có file được gửi
+            if (file != null && !file.isEmpty()) {
+                // Gọi hàm cập nhật hình ảnh
+                existingDichVu = dichVuServiceIMPL.updateDichVu(existingDichVu, file);
+            } else {
+                // Không thay đổi hình ảnh, chỉ cần lưu lại thông tin đã cập nhật
+                // Ở đây bạn có thể sử dụng lại phương thức updateDichVu
+                existingDichVu = dichVuServiceIMPL.updateDichVu(existingDichVu, null); // Gửi null cho hình ảnh
+            }
+
+            return ResponseEntity.ok(existingDichVu);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Lỗi khi cập nhật dịch vụ: " + e.getMessage());
         }
     }
-
 
 
     @GetMapping("/dich-vu/status/{id}")

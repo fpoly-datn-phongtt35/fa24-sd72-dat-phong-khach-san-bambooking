@@ -25,4 +25,5 @@ public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
     Page<KhachHang> search(@Param("keyword") String keyword, Pageable pageable);
 
     Optional<KhachHang> findByEmail(String email);
+
 }

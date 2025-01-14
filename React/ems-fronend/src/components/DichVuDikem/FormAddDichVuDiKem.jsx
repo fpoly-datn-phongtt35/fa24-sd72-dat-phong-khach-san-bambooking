@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ThemDichVuDiKem, DanhSachDichVu, DanhSachLoaiPhong } from '../../services/DichVuDiKemService';
+import Swal from 'sweetalert2';
 
 const FormAddDichVuDiKem = ({ show, handleClose, refreshData }) => {
     const [formData, setFormData] = useState({
@@ -47,34 +48,49 @@ const FormAddDichVuDiKem = ({ show, handleClose, refreshData }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setErrorMessage(''); // Xóa thông báo lỗi trước khi gửi
-
+    
         ThemDichVuDiKem(formData)
             .then(response => {
-                console.log("Dịch vụ đi kèm đã được thêm thành công:", response.data);
+                // Hiển thị thông báo thành công với SweetAlert2
+                Swal.fire({
+                    title: 'Thành công!',
+                    text: 'Dịch vụ đi kèm đã được thêm thành công.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                });
+    
+                // Reset form
                 setFormData({
                     dichVu: null,
                     loaiPhong: null,
                     trangThai: true,
                 });
-
+    
+                // Làm mới dữ liệu và đóng modal
                 refreshData();
                 handleClose();
             })
             .catch(error => {
                 console.error("Lỗi khi thêm dịch vụ đi kèm:", error);
+    
+                let errorMsg = 'Đã xảy ra lỗi, vui lòng thử lại!';
                 if (error.response && error.response.data) {
-                    const errorMsg = error.response.data.message || 'Đã xảy ra lỗi, vui lòng thử lại!';
+                    errorMsg = error.response.data.message || errorMsg;
                     if (errorMsg.includes('UNIQUE KEY constraint')) {
-                        setErrorMessage('Dịch vụ và loại phòng đã tồn tại, vui lòng chọn khác!');
-                    } else {
-                        setErrorMessage(errorMsg);
+                        errorMsg = 'Dịch vụ và loại phòng đã tồn tại, vui lòng chọn khác!';
                     }
-                } else {
-                    setErrorMessage('Đã xảy ra lỗi không xác định, vui lòng thử lại!');
                 }
+    
+                // Hiển thị thông báo lỗi với SweetAlert2
+                Swal.fire({
+                    title: 'Lỗi!',
+                    text: errorMsg,
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                });
             });
     };
+    
 
     if (!show) return null;
 

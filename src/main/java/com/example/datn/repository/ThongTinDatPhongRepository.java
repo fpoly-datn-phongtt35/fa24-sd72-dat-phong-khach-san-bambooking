@@ -21,7 +21,7 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     @Query(
             "select new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong, " +
                     "CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong, " +
-                    "ttdp.giaDat) " +
+                    "ttdp.giaDat,ttdp.ghiChu) " +
                     "from ThongTinDatPhong ttdp " +
                     "where ttdp.trangThai = :trangThai " +
                     "order by ttdp.datPhong.ngayDat")
@@ -34,7 +34,7 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
 
     @Query("SELECT new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong," +
             " CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
-            " ttdp.giaDat) " +
+            " ttdp.giaDat,ttdp.ghiChu) " +
             "FROM ThongTinDatPhong ttdp " +
             "JOIN ttdp.loaiPhong lp " +
             "JOIN ttdp.datPhong dp " +
@@ -53,6 +53,13 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
 
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.id = :id")
     ThongTinDatPhong getTTDPById(@Param("id") Integer id);
+
+    @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.maThongTinDatPhong = :maTTDP")
+    ThongTinDatPhong getTTDPByMa(@Param("maTTDP") String maTTDP);
+
+
+    @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :idDatPhong")
+    List<ThongTinDatPhong> findByIDDatPhong(@Param("idDatPhong") Integer idDatPhong);
 
 }
 

@@ -19,9 +19,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -40,58 +45,159 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
     }
 
     @Override
-    public ThongTinHoaDonResponse createThongTinHoaDon(ThongTinHoaDonRequest request) {
-        TraPhong traPhong = traPhongRepository.findById(request.getIdTraPhong())
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy thông tin trả phòng phù hợp"));
-        HoaDon hoaDon = hoaDonRepository.findById(request.getIdHoaDon())
+    public List<ThongTinHoaDonResponse> getThongTinHoaDonByHoaDonId(Integer idHoaDon) {
+        List<ThongTinHoaDon> list = thongTinHoaDonRepository.findByHoaDonId(idHoaDon);
+        return list.stream().map(thongTinHoaDonMapper::toThongTinHoaDonResponse)
+                .toList();
+    }
+
+//    @Override
+//    public List<ThongTinHoaDon> createThongTinHoaDon(Integer idHD,List<TraPhong> listTraPhong) {
+//        List<ThongTinHoaDon> l = new ArrayList<>();
+//        HoaDon hoaDon = hoaDonRepository.findById(idHD)
+//                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn"));
+//        for(TraPhong traPhong:listTraPhong){
+//            // Tính tiền phòng
+//            LocalDateTime ngayNhanPhong = traPhong.getXepPhong().getNgayNhanPhong();
+//            LocalDateTime ngayTraThucTe = traPhong.getNgayTraThucTe();
+//            Duration duration = Duration.between(ngayNhanPhong, ngayTraThucTe);
+//
+//            long soNgay = duration.toDays();
+//            long gioCheckIn = ngayNhanPhong.getHour();
+//            double giaPhong = traPhong.getXepPhong().getThongTinDatPhong().getGiaDat();
+//            double tienPhong = 0;
+//
+//            if(gioCheckIn<6){
+//                soNgay +=1;
+//                tienPhong = giaPhong* soNgay;
+//            }else if(gioCheckIn>=6 && gioCheckIn<=12){
+//                tienPhong = giaPhong * soNgay + (0.5 * giaPhong);
+//            }else{
+//                tienPhong = giaPhong * soNgay;
+//            }
+//            System.out.println("Số ngày ở: " + soNgay);
+//            System.out.println("Giá phòng: " + giaPhong);
+//            System.out.println("Tiền phòng: " + tienPhong);
+//
+//
+//
+//            // Tính tiền phụ thu
+//            int soNguoiThucTe = traPhong.getXepPhong().getThongTinDatPhong().getSoNguoi();
+//            int soNguoiQuyDinh = traPhong.getXepPhong().getThongTinDatPhong().getLoaiPhong().getSoKhachToiDa();
+//            double donGiaPhuThu = traPhong.getXepPhong().getThongTinDatPhong().getLoaiPhong().getDonGiaPhuThu();
+//            int soNguoiVuotQua = soNguoiThucTe - soNguoiQuyDinh;
+//            double tienPhuThu = soNguoiVuotQua > 0 ? soNguoiVuotQua * donGiaPhuThu : 0;
+//            System.out.println("Tiền phụ thu: " + tienPhuThu);
+//
+//            // Tính tiền dịch vụ
+//            List<DichVuSuDung> dichVuSuDungList = dichVuSuDungRepository.findByXepPhongId(traPhong.getXepPhong().getId());
+//            double tienDichVu = dichVuSuDungList.stream()
+//                    .mapToDouble(dv -> dv.getGiaSuDung() * dv.getSoLuongSuDung())
+//                    .sum();
+//            System.out.println("Tiền dịch vụ: " + tienDichVu);
+//
+//            // Cập nhật chi tiết vào thông tin hóa đơn
+//            ThongTinHoaDon thongTinHoaDon = new ThongTinHoaDon();
+//            thongTinHoaDon.setHoaDon(hoaDon);
+//            thongTinHoaDon.setTraPhong(traPhong);
+//            thongTinHoaDon.setTienPhong(tienPhong);
+//            thongTinHoaDon.setTienPhuThu(tienPhuThu);
+//            thongTinHoaDon.setTienDichVu(tienDichVu);
+//            thongTinHoaDonRepository.save(thongTinHoaDon);
+//
+//            l.add(thongTinHoaDon);
+//        }
+////        tongTienHoaDon();
+//        return l;
+//    }
+
+    @Override
+    public List<ThongTinHoaDon> createThongTinHoaDon(Integer idHD, List<TraPhong> listTraPhong) {
+        List<ThongTinHoaDon> thongTinList = new ArrayList<>();
+        HoaDon hoaDon = hoaDonRepository.findById(idHD)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn"));
 
-        //Tính tiền phòng
-        LocalDate ngayNhanPhong = LocalDate.from(traPhong.getXepPhong().getNgayNhanPhong());
-        LocalDate ngayTraThucTe = traPhong.getNgayTraThucTe();
-        long soNgayO = ChronoUnit.DAYS.between(ngayNhanPhong, ngayTraThucTe);
-        double giaPhong = traPhong.getXepPhong().getThongTinDatPhong().getGiaDat();
-        double tienPhong = soNgayO * giaPhong;
-        System.out.println("Ngay nhan phong: " + ngayNhanPhong);
-        System.out.println("Ngay tra phong: " + ngayTraThucTe);
-        System.out.println("So ngay o: " + soNgayO);
-        System.out.println("Gia phong: " + giaPhong);
-        System.out.println("Tien phong: " + tienPhong);
+        double tongTien = hoaDon.getTongTien() != null ? hoaDon.getTongTien() : 0.0;
 
-        //Tính tiền phụ thu
+        for (TraPhong traPhong : listTraPhong) {
+            double tienPhong = tinhTienPhong(traPhong);
+            double tienPhuThu = tinhTienPhuThu(traPhong);
+            double tienDichVu = tinhTienDichVu(traPhong);
+
+            ThongTinHoaDon thongTinHoaDon = new ThongTinHoaDon();
+            thongTinHoaDon.setHoaDon(hoaDon);
+            thongTinHoaDon.setTraPhong(traPhong);
+            thongTinHoaDon.setTienPhong(tienPhong);
+            thongTinHoaDon.setTienPhuThu(tienPhuThu);
+            thongTinHoaDon.setTienDichVu(tienDichVu);
+
+            thongTinList.add(thongTinHoaDon);
+
+            // Tổng tiền
+            tongTien += tienPhong + tienPhuThu + tienDichVu;
+        }
+
+        // Lưu danh sách thông tin hóa đơn và cập nhật tổng tiền
+        thongTinHoaDonRepository.saveAll(thongTinList);
+        hoaDon.setTongTien(tongTien);
+        hoaDonRepository.save(hoaDon);
+
+        System.out.println("Tổng tiền của hóa đơn ID " + idHD + " là: " + tongTien);
+        return thongTinList;
+    }
+
+    private double tinhTienPhong(TraPhong traPhong) {
+        LocalDateTime ngayNhanPhong = traPhong.getXepPhong().getNgayNhanPhong();
+        LocalDateTime ngayTraThucTe = traPhong.getNgayTraThucTe();
+        Duration duration = Duration.between(ngayNhanPhong, ngayTraThucTe);
+
+        long soNgay = duration.toDays();
+        long gioCheckIn = ngayNhanPhong.getHour();
+        double giaPhong = traPhong.getXepPhong().getThongTinDatPhong().getGiaDat();
+        double tienPhong = 0;
+
+        if (gioCheckIn < 6) {
+            soNgay += 1;
+            tienPhong = giaPhong * soNgay;
+        } else if (gioCheckIn >= 6 && gioCheckIn <= 12) {
+            tienPhong = giaPhong * soNgay + (0.5 * giaPhong);
+        } else {
+            tienPhong = giaPhong * soNgay;
+        }
+
+        return tienPhong;
+    }
+
+    private double tinhTienPhuThu(TraPhong traPhong) {
         int soNguoiThucTe = traPhong.getXepPhong().getThongTinDatPhong().getSoNguoi();
         int soNguoiQuyDinh = traPhong.getXepPhong().getThongTinDatPhong().getLoaiPhong().getSoKhachToiDa();
-        double donGiaPhuThu = traPhong.getXepPhong().getThongTinDatPhong().getLoaiPhong().getDonGia();
+        double donGiaPhuThu = traPhong.getXepPhong().getThongTinDatPhong().getLoaiPhong().getDonGiaPhuThu();
         int soNguoiVuotQua = soNguoiThucTe - soNguoiQuyDinh;
-        double tienPhuThu = soNguoiVuotQua > 0 ? soNguoiVuotQua * donGiaPhuThu : 0;
-        System.out.println("So nguoi o thuc te: " + soNguoiThucTe);
-        System.out.println("So nguoi o theo quy dinh: " + soNguoiQuyDinh);
-        System.out.println("So nguoi o vuot qua: " + soNguoiVuotQua);
-        System.out.println("Tien phu thu: " + tienPhuThu);
 
-        //Tính tiền dịch vụ
+        return soNguoiVuotQua > 0 ? soNguoiVuotQua * donGiaPhuThu : 0;
+    }
+
+    private double tinhTienDichVu(TraPhong traPhong) {
         List<DichVuSuDung> dichVuSuDungList = dichVuSuDungRepository.findByXepPhongId(traPhong.getXepPhong().getId());
-        double tienDichVu = dichVuSuDungList.stream()
+        return dichVuSuDungList.stream()
                 .mapToDouble(dv -> dv.getGiaSuDung() * dv.getSoLuongSuDung())
                 .sum();
-        System.out.println("Tien dich vu: " + tienDichVu);
-
-        //Cập nhật chi tiết vào thông tin hóa đơn
-        ThongTinHoaDon thongTinHoaDon = thongTinHoaDonMapper.toThongTinHoaDon(request, traPhong, hoaDon);
-        thongTinHoaDon.setTienPhong(tienPhong);
-        thongTinHoaDon.setTienPhuThu(tienPhuThu);
-        thongTinHoaDon.setTienDichVu(tienDichVu);
-
-        //Lưu tổng tiền vào hóa đơn
-        tinhTongTien(hoaDon, tienPhong, tienDichVu, tienPhuThu);
-
-        return thongTinHoaDonMapper.toThongTinHoaDonResponse(thongTinHoaDonRepository.save(thongTinHoaDon));
     }
 
-    private void tinhTongTien(HoaDon hoaDon, double tienPhong, double tienDichVu, double tienPhuThu){
-        double tongTien = tienPhong + tienDichVu + tienPhuThu;
-        hoaDon.setTongTien(tongTien);
-        System.out.println("Tong tien: " + tongTien);
-        hoaDonRepository.save(hoaDon);
-    }
+//    @Override
+//    public void tongTienHoaDon() {
+//
+//        List<HoaDon> hds = hoaDonRepository.findAll();
+//        for(HoaDon hd:hds){
+//            double tongTien = 0.0;
+//            List<ThongTinHoaDon> tthds = thongTinHoaDonRepository.findByHoaDonId(hd.getId());
+//            for(ThongTinHoaDon tthd:tthds){
+//                tongTien+= tthd.getTienDichVu()+tthd.getTienPhong()+tthd.getTienPhuThu();
+//            }
+//            hd.setTongTien(tongTien);
+//            hoaDonRepository.save(hd);
+//            System.out.println("Tổng tiền: " + tongTien);
+//        }
+//
+//    }
 }

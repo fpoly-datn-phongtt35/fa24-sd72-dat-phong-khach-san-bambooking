@@ -16,8 +16,12 @@ public interface KhachHangService {
     KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request);
 
     CustomerResponses.CustomerTemplate getCustomers(FilterRequest request);
+
     void updateStatus(int id, boolean status);
+
     int storeCustomer(CustomerRequests.CustomerStore request);
+
     CustomerResponses.CustomerResponseBase getCustomer(Integer id);
+
     void updateCustomer(CustomerRequests.CustomerUpdate request, int id);
 }

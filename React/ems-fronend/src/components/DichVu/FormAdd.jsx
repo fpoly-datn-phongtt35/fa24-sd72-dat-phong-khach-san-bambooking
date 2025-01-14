@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './FormAdd.css'; // CSS cho modal
 import { ThemDichVu } from '../../services/DichVuService'; // Import API service
+import Swal from 'sweetalert2'; // down npm install sweetalert2
 
 const FormAdd = ({ show, handleClose, refreshData }) => {
     // State để lưu trữ dữ liệu form
@@ -54,8 +55,15 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
         // Gọi API ThemDichVu để thêm dịch vụ
         ThemDichVu(data)
             .then(response => {
-                console.log("Dịch vụ đã được thêm thành công:", response.data);
-                // Reset form sau khi thêm thành công
+                 // Hiển thị thông báo thành công khi thêm dịch vụ
+                 Swal.fire({
+                    icon: 'success',
+                    title: 'Thành công',
+                    text: 'Thêm thành công',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#6a5acd' // Màu nút "OK"
+                });
+
                 setFormData({
                     tenDichVu: '',
                     donGia: '',
@@ -135,8 +143,8 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
                         </select>
                     </div>
                     <div className="modal-actions">
-                        <button type="submit">Lưu</button>
                         <button type="button" onClick={handleClose}>Đóng</button>
+                        <button type="submit">Lưu</button>
                     </div>
                 </form>
             </div>

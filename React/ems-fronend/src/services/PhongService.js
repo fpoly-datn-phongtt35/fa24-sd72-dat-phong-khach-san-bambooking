@@ -24,10 +24,12 @@ export const updateStatus = (phongId) => {
 export const getLoaiPhong = () => {
     return axios.get(apiLoaiPhong);
 }
-export const getPhongKhaDung = (idLoaiPhong) => {
+export const getPhongKhaDung = (idLoaiPhong,ngayNhanPhong,ngayTraPhong) => {
     return axios.get(apiPhongKhaDung, {
         params: {
-            idLoaiPhong: idLoaiPhong
+            idLoaiPhong: idLoaiPhong,
+            ngayNhanPhong:ngayNhanPhong,
+            ngayTraPhong:ngayTraPhong
         }
     });
 };

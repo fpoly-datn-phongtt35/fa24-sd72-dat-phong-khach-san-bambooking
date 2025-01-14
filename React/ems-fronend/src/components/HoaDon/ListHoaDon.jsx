@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { listHoaDon } from '../../services/HoaDonService';
+import { listHoaDon } from '../../services/HoaDonService'; // Chỉ cần dùng listHoaDon để lấy danh sách hóa đơn
+import FormDetail from './FormDetailHD';
+import FormAddHoaDon from './FormAddHoaDon';
 
 const ListHoaDon = () => {
     const navigate = useNavigate();
@@ -9,6 +11,9 @@ const ListHoaDon = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [trangThai, setTrangThai] = useState("");
     const [keyword, setKeyword] = useState("");
+    const [selectedHoaDon, setSelectedHoaDon] = useState(null);
+    const [showDetailForm, setShowDetailForm] = useState(false);
+    const [showAddForm, setShowAddForm] = useState(false);  // State to control Add form visibility
     const itemsPerPage = 5;
 
     const getAllHoaDon = () => {
@@ -30,12 +35,8 @@ const ListHoaDon = () => {
         getAllHoaDon();
     }, [currentPage, trangThai, keyword]);
 
-    const createHoaDon = () => {
-        navigate('/add-hoa-don');
-    };
-
     const handleSearch = (e) => {
-        setKeyword(e.target.value.trim())
+        setKeyword(e.target.value.trim());
         setCurrentPage(0);
         getAllHoaDon();
     };
@@ -57,6 +58,25 @@ const ListHoaDon = () => {
         setCurrentPage(0);
     };
 
+    const handleOpenFormDetail = (hoaDonId) => {
+        const selectedInvoice = hoaDon.find(item => item.id === hoaDonId);
+        setSelectedHoaDon(selectedInvoice);
+        setShowDetailForm(true);
+    };
+
+    const handleCloseFormDetail = () => {
+        setShowDetailForm(false);
+        setSelectedHoaDon(null);
+    };
+
+    const handleOpenAddForm = () => {
+        setShowAddForm(true);  // Open the Add form modal
+    };
+    
+    const handleCloseAddForm = () => {
+        setShowAddForm(false);  // Close the Add form modal
+    };
+
     return (
         <div className='container'>
             <div className='card'>
@@ -64,7 +84,7 @@ const ListHoaDon = () => {
                     <div className='d-flex justify-content-between mb-3'>
                         <button
                             className='btn btn-outline-success btn-lg fs-6'
-                            onClick={createHoaDon} >
+                            onClick={handleOpenAddForm} >
                             <i className='bi bi-plus-circle'></i> Thêm
                         </button>
                         <div className="input-group ms-2 w-25">
@@ -77,46 +97,8 @@ const ListHoaDon = () => {
                             />
                         </div>
                     </div>
-                    <div className="mb-3">
-                        <label className='form-label'>Trạng thái</label>
-                        <div className="form-check form-check-inline">
-                            <input
-                                className="form-check-input"
-                                type="radio"
-                                name="trangThai"
-                                id="tatCa"
-                                value=""
-                                checked={trangThai === ""}
-                                onChange={handleTrangThaiChange}
-                            />
-                            <label className="form-check-label" htmlFor="tatCa"> Tất cả</label>
-                        </div>
-                        <div className="form-check form-check-inline">
-                            <input
-                                className="form-check-input"
-                                type="radio"
-                                name="trangThai"
-                                id="chuaThanhToan"
-                                value="Chưa thanh toán"
-                                checked={trangThai === "Chưa thanh toán"}
-                                onChange={handleTrangThaiChange}
-                            />
-                            <label className="form-check-label" htmlFor="chuaThanhToan">Chưa thanh toán</label>
-                        </div>
-                        <div className="form-check form-check-inline">
-                            <input
-                                className="form-check-input"
-                                type="radio"
-                                name="trangThai"
-                                id="daThanhToan"
-                                value="Đã thanh toán"
-                                checked={trangThai === "Đã thanh toán"}
-                                onChange={handleTrangThaiChange}
-                            />
-                            <label className="form-check-label" htmlFor="daThanhToan">Đã thanh toán</label>
-                        </div>
-                    </div>
 
+                    {/* Table for displaying invoices */}
                     <table className='table table-hover'>
                         <thead>
                             <tr>
@@ -132,20 +114,23 @@ const ListHoaDon = () => {
                         <tbody>
                             {
                                 hoaDon.map(item =>
-                                    <tr key={item.id}>
+                                    <tr key={item.id} onClick={() => handleOpenFormDetail(item.id)}>
                                         <td>{item.maHoaDon}</td>
                                         <td>{item.hoTenNhanVien}</td>
                                         <td>{item.maDatPhong}</td>
                                         <td>{item.ngayTao}</td>
                                         <td>{item.tongTien}</td>
                                         <td>{item.trangThai}</td>
+                                        <td>
+                                            <button className="btn btn-info btn-sm">Chi tiết</button>
+                                        </td>
                                     </tr>
                                 )
                             }
                         </tbody>
                     </table>
 
-                    {/* Phân trang */}
+                    {/* Pagination */}
                     <div className='d-flex justify-content-center my-3'>
                         <button
                             className='btn btn-outline-primary me-2'
@@ -167,8 +152,24 @@ const ListHoaDon = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Modal for viewing details */}
+            {showDetailForm && selectedHoaDon && (
+                <FormDetail
+                    hoaDon={selectedHoaDon}
+                    handleClose={handleCloseFormDetail}
+                />
+            )}
+
+            {/* Modal for adding Hoa Don */}
+            {showAddForm && (
+                <FormAddHoaDon
+                    handleClose={handleCloseAddForm}
+                />
+            )}
         </div>
     );
 };
 
 export default ListHoaDon;
+

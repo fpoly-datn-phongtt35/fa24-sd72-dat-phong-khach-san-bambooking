@@ -47,7 +47,6 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
     CustomerRepository customerRepository;
 
-
     @Override
     public KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request) {
         KhachHang khachHang = new KhachHang();
@@ -55,10 +54,14 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setHo(request.getHo());
         khachHang.setSdt(request.getSdt());
         khachHang.setEmail(request.getEmail());
+        khachHang.setGioiTinh(request.getGioiTinh());
+        khachHang.setDiaChi(request.getDiaChi());
+//        khachHang.setMatKhau(request.getMatKhau());
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
-        khachHang.setTrangThai(false);
+        khachHang.setTrangThai(request.getTrangThai());
         return khachHangRepository.save(khachHang);
+
     }
 
     @Override
@@ -68,7 +71,8 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
     @Override
     public void updateStatus(int id, boolean status) {
-        KhachHang khachHang = this.khachHangRepository.findById(id).orElseThrow(() -> new EntityNotFountException("Customer not found!"));
+        KhachHang khachHang = this.khachHangRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
         TaiKhoan taiKhoan = khachHang.getTaiKhoan();
         taiKhoan.setTrangThai(status);
         taiKhoanRepository.save(taiKhoan);
@@ -77,17 +81,18 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
     @Override
     public int storeCustomer(CustomerRequests.CustomerStore request) {
-        if(this.taiKhoanRepository.findByTenDangNhap(request.getUsername()).isPresent()){
+        if (this.taiKhoanRepository.findByTenDangNhap(request.getUsername()).isPresent()) {
             throw new InvalidDataException("Tài khoản đã tồn tại!");
         }
         TaiKhoan taiKhoan = TaiKhoan.builder()
                 .tenDangNhap(request.getUsername())
                 .matKhau(passwordEncoder.encode(request.getPassword()))
-                .idVaiTro(this.vaiTroRepository.findById(2).orElseThrow(() -> new EntityNotFountException("Role not found!")))
+                .idVaiTro(this.vaiTroRepository.findById(2)
+                        .orElseThrow(() -> new EntityNotFountException("Role not found!")))
                 .trangThai(true)
                 .build();
 
-        KhachHang khachHang =KhachHang.builder()
+        KhachHang khachHang = KhachHang.builder()
                 .taiKhoan(this.taiKhoanRepository.save(taiKhoan))
                 .cmnd(request.getIdCard())
                 .ho(request.getLastName())
@@ -109,7 +114,8 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
     @Override
     public void updateCustomer(CustomerRequests.CustomerUpdate request, int id) {
-        KhachHang customer = this.khachHangRepository.findById(id).orElseThrow(() -> new EntityNotFountException("Customer not found!"));
+        KhachHang customer = this.khachHangRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
         customer.setHo(request.getLastName());
         customer.setTen(request.getFirstName());
         customer.setEmail(request.getEmail());
@@ -121,7 +127,8 @@ public class KhachHangServiceIMPL implements KhachHangService {
     }
 
     private CustomerResponses.CustomerResponseBase getCustomerById(Integer id) {
-        KhachHang khachHang = this.khachHangRepository.findById(id).orElseThrow(() -> new EntityNotFountException("Customer not found!"));
+        KhachHang khachHang = this.khachHangRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
         return CustomerResponses.CustomerResponseBase.builder()
                 .id(khachHang.getId())
                 .username(khachHang.getTaiKhoan().getTenDangNhap())
