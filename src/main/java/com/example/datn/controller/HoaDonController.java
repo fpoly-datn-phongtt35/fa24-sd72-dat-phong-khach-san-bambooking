@@ -48,14 +48,4 @@ public class HoaDonController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
-//    @GetMapping("/search")
-//    public ResponseEntity<?> getTenDangNhap(@RequestParam(value = "tenDangNhap") String tenDangNhap) {
-//        try {
-//            return ResponseEntity.ok(hoaDonService.searchNhanVienByTenDangNhap(tenDangNhap));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body("K lấy được tên đăng nhập");
-//        }
-//    }
-
 }

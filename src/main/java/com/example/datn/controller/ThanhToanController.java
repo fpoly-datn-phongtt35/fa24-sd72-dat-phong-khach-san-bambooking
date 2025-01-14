@@ -2,6 +2,7 @@ package com.example.datn.controller;
 
 import com.example.datn.dto.request.ThanhToanRequest;
 import com.example.datn.service.ThanhToanService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,7 +19,7 @@ public class ThanhToanController {
     ThanhToanService thanhToanService;
 
     @PostMapping
-    public ResponseEntity<?> createThanhToan(@RequestBody ThanhToanRequest request) {
+    public ResponseEntity<?> createThanhToan(@RequestBody @Valid ThanhToanRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(thanhToanService.createThanhToan(request));
     }
 
