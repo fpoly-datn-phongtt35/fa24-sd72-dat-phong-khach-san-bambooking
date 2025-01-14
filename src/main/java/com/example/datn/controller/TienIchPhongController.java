@@ -1,7 +1,7 @@
 package com.example.datn.controller;
 
-import com.example.datn.dto.request.TienIchPhongRequest;
-import com.example.datn.dto.response.TienIchPhongResponse;
+import com.example.datn.dto.request.VatTuLoaiPhongRequest;
+import com.example.datn.dto.response.VatTuLoaiPhongPhongResponse;
 import com.example.datn.model.VatTu;
 import com.example.datn.repository.TienIchRepository;
 import com.example.datn.service.IMPL.TienIchPhongServiceIMPL;
@@ -47,8 +47,8 @@ public class TienIchPhongController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> add(@RequestBody TienIchPhongRequest tienIchPhongRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(tienNghiServiceIMPL.add(tienIchPhongRequest));
+    public ResponseEntity<?> add(@RequestBody VatTuLoaiPhongRequest vatTuLoaiPhongRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(tienNghiServiceIMPL.add(vatTuLoaiPhongRequest));
     }
 
 
@@ -69,14 +69,14 @@ public class TienIchPhongController {
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> update(@RequestBody TienIchPhongRequest tienIch) {
+    public ResponseEntity<?> update(@RequestBody VatTuLoaiPhongRequest tienIch) {
         tienNghiServiceIMPL.update(tienIch);
         return ResponseEntity.status(HttpStatus.CREATED).body(tienNghiServiceIMPL.update(tienIch));
     }
 
     @GetMapping("/findByIDLoaiPhong/{idLoaiPhong}")
     public ResponseEntity<?> findByIDLoaiPhong(@PathVariable int idLoaiPhong, Pageable pageable) {
-        Page<TienIchPhongResponse> ti = tienNghiServiceIMPL.findByIDLoaiPhong(idLoaiPhong, pageable);
+        Page<VatTuLoaiPhongPhongResponse> ti = tienNghiServiceIMPL.findByIDLoaiPhong(idLoaiPhong, pageable);
         return ResponseEntity.ok(ti);
     }
 

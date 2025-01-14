@@ -45,20 +45,23 @@ public class DatPhongServiceIMPL implements DatPhongService {
         UniqueDatPhongCode code = new UniqueDatPhongCode();
         String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
         datPhong.setMaDatPhong(codeDP);
+        datPhong.setSoPhong(datPhongRequest.getSoPhong());
+        datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTongTien(datPhongRequest.getTongTien());
-        datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(LocalDate.now());
-        datPhong.setTrangThai("Da xac nhan");
+        datPhong.setTrangThai("Chua xac nhan");
         DatPhong dp = datPhongRepository.save(datPhong);
+
 
         datPhongResponse.setId(dp.getId());
         datPhongResponse.setMaDatPhong(dp.getMaDatPhong());
+        datPhongResponse.setSoPhong(dp.getSoPhong());
+        datPhongResponse.setSoNguoi(dp.getSoNguoi());
         datPhongResponse.setKhachHang(dp.getKhachHang());
         datPhongResponse.setTongTien(dp.getTongTien());
         datPhongResponse.setNgayDat(dp.getNgayDat());
-        datPhongResponse.setDatCoc(dp.getDatCoc());
         datPhongResponse.setGhiChu(dp.getGhiChu());
         datPhongResponse.setTrangThai(dp.getTrangThai());
         return datPhongResponse;
@@ -87,9 +90,10 @@ public class DatPhongServiceIMPL implements DatPhongService {
     @Override
     public DatPhong updateDatPhong(DatPhongRequest datPhongRequest) {
         DatPhong datPhong = datPhongRepository.findByMaDatPhong(datPhongRequest.getMaDatPhong());
+        datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
+        datPhong.setSoPhong(datPhongRequest.getSoPhong());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTongTien(datPhongRequest.getTongTien());
-        datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         return datPhongRepository.save(datPhong);
@@ -129,7 +133,6 @@ public class DatPhongServiceIMPL implements DatPhongService {
         String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
         datPhong.setMaDatPhong(codeDP);
         datPhong.setTongTien(datPhongRequest.getTongTien());
-        datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(datPhongRequest.getNgayDat());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());

@@ -1,7 +1,7 @@
 package com.example.datn.service.IMPL;
 
-import com.example.datn.dto.request.TienIchPhongRequest;
-import com.example.datn.dto.response.TienIchPhongResponse;
+import com.example.datn.dto.request.VatTuLoaiPhongRequest;
+import com.example.datn.dto.response.VatTuLoaiPhongPhongResponse;
 import com.example.datn.model.VatTu;
 import com.example.datn.model.VatTuLoaiPhong;
 import com.example.datn.repository.TienIchPhongRepository;
@@ -18,7 +18,7 @@ public class TienIchPhongServiceIMPL implements TienIchPhongService {
     @Autowired
     TienIchPhongRepository tienIchPhongRepository;
     @Override
-    public Page<TienIchPhongResponse> getPage( Pageable pageable) {
+    public Page<VatTuLoaiPhongPhongResponse> getPage(Pageable pageable) {
         return tienIchPhongRepository.TienIchPhong(pageable);
     }
 
@@ -26,12 +26,12 @@ public class TienIchPhongServiceIMPL implements TienIchPhongService {
 
 
     @Override
-    public VatTuLoaiPhong add(TienIchPhongRequest tienIchPhongRequest) {
-        System.out.println(tienIchPhongRequest.getVatTu());
-        System.out.println(tienIchPhongRequest.getLoaiPhong());
+    public VatTuLoaiPhong add(VatTuLoaiPhongRequest vatTuLoaiPhongRequest) {
+        System.out.println(vatTuLoaiPhongRequest.getVatTu());
+        System.out.println(vatTuLoaiPhongRequest.getLoaiPhong());
         VatTuLoaiPhong vatTuLoaiPhong = new VatTuLoaiPhong();
-        vatTuLoaiPhong.setVatTu(tienIchPhongRequest.getVatTu());
-        vatTuLoaiPhong.setLoaiPhong(tienIchPhongRequest.getLoaiPhong());
+        vatTuLoaiPhong.setVatTu(vatTuLoaiPhongRequest.getVatTu());
+        vatTuLoaiPhong.setLoaiPhong(vatTuLoaiPhongRequest.getLoaiPhong());
         return tienIchPhongRepository.save(vatTuLoaiPhong);
     }
 
@@ -46,17 +46,17 @@ public class TienIchPhongServiceIMPL implements TienIchPhongService {
     }
 
     @Override
-    public VatTuLoaiPhong update(TienIchPhongRequest tienIchPhongRequest) {
-        Optional<VatTuLoaiPhong> tienIchPhong = tienIchPhongRepository.findById(tienIchPhongRequest.getId());
+    public VatTuLoaiPhong update(VatTuLoaiPhongRequest vatTuLoaiPhongRequest) {
+        Optional<VatTuLoaiPhong> tienIchPhong = tienIchPhongRepository.findById(vatTuLoaiPhongRequest.getId());
 //        TienIchPhong tienIchPhong = new TienIchPhong();
-        tienIchPhong.get().setId(tienIchPhongRequest.getId());
-        tienIchPhong.get().setVatTu(tienIchPhongRequest.getVatTu());
-        tienIchPhong.get().setLoaiPhong(tienIchPhongRequest.getLoaiPhong());
+        tienIchPhong.get().setId(vatTuLoaiPhongRequest.getId());
+        tienIchPhong.get().setVatTu(vatTuLoaiPhongRequest.getVatTu());
+        tienIchPhong.get().setLoaiPhong(vatTuLoaiPhongRequest.getLoaiPhong());
         return tienIchPhongRepository.save(tienIchPhong.get());
     }
 
     @Override
-    public Page<TienIchPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
+    public Page<VatTuLoaiPhongPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
         return tienIchPhongRepository.findByIDLoaiPhong(idLoaiPhong,pageable);
     }
 

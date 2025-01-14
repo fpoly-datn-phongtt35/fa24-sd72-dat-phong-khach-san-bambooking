@@ -5,10 +5,11 @@ import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.model.LoaiPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+@Service
 public interface LoaiPhongService {
 
     List<LoaiPhong> getAllLoaiPhong();
@@ -34,7 +35,7 @@ public interface LoaiPhongService {
                             Pageable pageable);
 
     Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
-                                                    Integer soNguoi,Pageable pageable);
+                                                    Integer soNguoi,Integer soPhong,Pageable pageable);
 
     LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
                                                      Integer idLoaiPhong);

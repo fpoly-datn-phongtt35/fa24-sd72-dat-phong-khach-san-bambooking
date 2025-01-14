@@ -1,24 +1,24 @@
 package com.example.datn.service;
 
-import com.example.datn.dto.request.TienIchPhongRequest;
-import com.example.datn.dto.response.TienIchPhongResponse;
+import com.example.datn.dto.request.VatTuLoaiPhongRequest;
+import com.example.datn.dto.response.VatTuLoaiPhongPhongResponse;
 import com.example.datn.model.VatTu;
 import com.example.datn.model.VatTuLoaiPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface TienIchPhongService {
-    Page<TienIchPhongResponse> getPage( Pageable pageable);
+    Page<VatTuLoaiPhongPhongResponse> getPage(Pageable pageable);
 
-    public VatTuLoaiPhong add(TienIchPhongRequest tienIch);
+    public VatTuLoaiPhong add(VatTuLoaiPhongRequest tienIch);
 
     public VatTu detail(Integer id);
 
     public void delete(Integer id);
 
-    VatTuLoaiPhong update(TienIchPhongRequest tienIchPhongRequest);
+    VatTuLoaiPhong update(VatTuLoaiPhongRequest vatTuLoaiPhongRequest);
 
-    Page<TienIchPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong,Pageable pageable);
+    Page<VatTuLoaiPhongPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable);
 
     Page<Object> ListTienIchFindByIDLoaiPhong (Integer idLoaiPhong,Pageable pageable);
 }

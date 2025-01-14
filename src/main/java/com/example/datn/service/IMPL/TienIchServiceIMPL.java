@@ -19,8 +19,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import com.example.datn.dto.request.TienIchRequest;
-import com.example.datn.dto.response.TienIchResponse;
+import com.example.datn.dto.request.VatTuRequest;
+import com.example.datn.dto.response.VatTuResponse;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +43,7 @@ public class TienIchServiceIMPL implements TienIchService {
         return tienIchRepository.findAll();
     }
     @Override
-    public Page<TienIchResponse> getPage(Pageable pageable) {
+    public Page<VatTuResponse> getPage(Pageable pageable) {
 
         return tienIchRepository.TienIch(pageable);
     }
@@ -55,7 +55,7 @@ public class TienIchServiceIMPL implements TienIchService {
 
 
     @Override
-    public TienIchResponse add(TienIchRequest tienIchRequest, MultipartFile file) throws IOException {
+    public VatTuResponse add(VatTuRequest vatTuRequest, MultipartFile file) throws IOException {
         if (file.isEmpty() || file.getOriginalFilename() == null) {
             throw new IllegalArgumentException("File rỗng hoặc tên file không hợp lệ");
         }
@@ -79,13 +79,13 @@ public class TienIchServiceIMPL implements TienIchService {
         cleanDisk(fileUpload);
 
         VatTu vatTu = new VatTu();
-        vatTu.setTenTienIch(tienIchRequest.getTenTienIch());
+        vatTu.setTenVatTu(vatTuRequest.getTenTienIch());
         vatTu.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
         tienIchRepository.save(vatTu);
 
-        TienIchResponse response = new TienIchResponse();
+        VatTuResponse response = new VatTuResponse();
         response.setId(vatTu.getId());
-        response.setTenTienIch(vatTu.getTenTienIch());
+        response.setTenTienIch(vatTu.getTenVatTu());
         response.setHinhAnh(vatTu.getHinhAnh());
         return response;
     }
@@ -101,9 +101,9 @@ public class TienIchServiceIMPL implements TienIchService {
     }
 
     @Override
-    public TienIchResponse update(TienIchRequest tienIchRequest, MultipartFile file) throws IOException {
+    public VatTuResponse update(VatTuRequest vatTuRequest, MultipartFile file) throws IOException {
         // Tìm tiện ích theo ID
-        VatTu vatTu = tienIchRepository.findById(tienIchRequest.getId())
+        VatTu vatTu = tienIchRepository.findById(vatTuRequest.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tiện ích với ID này"));
 
         // Kiểm tra nếu có file mới, chỉ xử lý upload khi file không rỗng
@@ -129,13 +129,13 @@ public class TienIchServiceIMPL implements TienIchService {
         }
 
         // Cập nhật tên tiện ích
-        vatTu.setTenTienIch(tienIchRequest.getTenTienIch());
+        vatTu.setTenVatTu(vatTuRequest.getTenTienIch());
         tienIchRepository.save(vatTu);
 
         // Tạo response sau khi cập nhật thành công
-        TienIchResponse response = new TienIchResponse();
+        VatTuResponse response = new VatTuResponse();
         response.setId(vatTu.getId());
-        response.setTenTienIch(vatTu.getTenTienIch());
+        response.setTenTienIch(vatTu.getTenVatTu());
         response.setHinhAnh(vatTu.getHinhAnh());  // Giữ nguyên ảnh cũ nếu không upload ảnh mới
         return response;
     }

@@ -55,12 +55,13 @@ export const addThongTinDatPhong = (TTDPRequest) => {
 export const updateThongTinDatPhong = (TTDPRequest) => {
     return axios.put(apiUpdate, TTDPRequest);
 };
-export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,soNguoi,pageable) => {
+export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pageable) => {
     return axios.get(apiLoaiPhongKhaDung, {
         params: {
             ngayNhanPhong: ngayNhanPhong,
             ngayTraPhong: ngayTraPhong,
             soNguoi:soNguoi,
+            soPhong: soPhong,
             page: pageable.page, 
             size: pageable.size
         }
