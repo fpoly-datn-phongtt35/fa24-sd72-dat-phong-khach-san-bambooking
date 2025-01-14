@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin("*")
+//@CrossOrigin("*")
 @RequiredArgsConstructor
 @RequestMapping("/thong-tin-hoa-don")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)

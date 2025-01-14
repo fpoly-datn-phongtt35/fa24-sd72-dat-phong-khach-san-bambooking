@@ -12,6 +12,7 @@ import PaymentPage from './pages/PaymentPage';
 import './App.css';
 import AboutPage from './pages/AboutPage';
 import HotelRules from './pages/HotelRules';
+import BookingConfirmation from './pages/BookingConfirmation';
 import DatPhong from './pages/DatPhong';
 import LichSuDatPhong from './pages/LichSuDatPhong'
 
@@ -54,6 +55,7 @@ export default function App() {
               <Route path="/contact" element={<PaymentPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/rules" element={<HotelRules />} />
+              <Route path="/confirmation" element={<BookingConfirmation />} />
               <Route path="/datphong" element={<DatPhong />} />
               <Route path="/histories" element={<LichSuDatPhong />} />
               <Route
@@ -70,7 +72,7 @@ export default function App() {
                   <Profile />
                 } />
               <Route path="*" element={<h1>404 - Không tìm thấy trang</h1>} />
-              
+
             </Routes>
             <Footer />
           </div>

@@ -28,9 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
 public class HotelWebsiteController {
@@ -46,7 +44,7 @@ public class HotelWebsiteController {
     HotelWebsiteService hotelWebsiteService;
 
     @GetMapping("/index")
-    public ResponseEntity<?> DanhSachTienNghi(Pageable pageable){
+    public ResponseEntity<?> DanhSachTienNghi(Pageable pageable) {
         Page<LoaiPhongResponse> ti = phongServiceIMPL.getPage(pageable);
         return ResponseEntity.ok(ti);
     }
@@ -55,21 +53,21 @@ public class HotelWebsiteController {
     public ResponseEntity<?> loaiPhongKhaDung(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
-            @RequestParam(required = false) Integer idLoaiPhong
-            ) {
+            @RequestParam(required = false) Integer idLoaiPhong) {
 
-        LocalDateTime ngayNhanPhongStart = (ngayNhanPhong != null) ? ngayNhanPhong.atStartOfDay() : LocalDate.now().atStartOfDay();
-        LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(23, 59, 59) : LocalDate.now().atTime(23, 59, 59);
+        LocalDateTime ngayNhanPhongStart = (ngayNhanPhong != null) ? ngayNhanPhong.atStartOfDay()
+                : LocalDate.now().atStartOfDay();
+        LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(23, 59, 59)
+                : LocalDate.now().atTime(23, 59, 59);
 
         LoaiPhongKhaDungResponse p = loaiPhongServiceIMPL.LoaiPhongKhaDungByLoaiPhong(
-                ngayNhanPhongStart, ngayTraPhongEnd, idLoaiPhong
-        );
+                ngayNhanPhongStart, ngayTraPhongEnd, idLoaiPhong);
 
         return ResponseEntity.ok(p);
     }
 
     @PostMapping("/create-kh-dp")
-    public ResponseEntity<?> createKhachHangDatPhong(@RequestBody KhachHangDatPhongRequest request){
+    public ResponseEntity<?> createKhachHangDatPhong(@RequestBody KhachHangDatPhongRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(hotelWebsiteService.createKhachHangDatPhong(request));
     }
 

@@ -14,6 +14,7 @@ import PaymentPage from './pages/PaymentPage';
 import Contact from './pages/Contact';
 import AboutPage from './pages/AboutPage';
 import HotelRules from './pages/HotelRules';
+import BookingConfirmation from './pages/BookingConfirmation';
 import DatPhong from './pages/DatPhong';
 import TaoDatPhong from './pages/TaoDatPhong';
 import LichSuDatPhong  from './pages/LichSuDatPhong';
@@ -34,6 +35,7 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/rules" element={<HotelRules />} />
+            <Route path="/confirmation" element={<BookingConfirmation />} />
             <Route path="/datphong" element={<DatPhong />} />
             <Route path="/tao-dat-phong" element={<TaoDatPhong />} />
             <Route path="/histories" element={<LichSuDatPhong />} />
