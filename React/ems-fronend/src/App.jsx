@@ -23,7 +23,7 @@ import ViewPhong from './components/TrangChu/ViewPhong';
 import DanhSachDichVuSuDung from './components/DichVuSuDung/DanhSachDichVuSuDung.jsx';
 import LoaiPhong from './components/LoaiPhong/LoaiPhong';
 import TaoDatPhong from './components/DatPhong/TaoDatPhong.jsx';
-import GiaoDienTaoDP from './components/DatPhong/GiaoDienTaoDP.jsx'
+import BookingForm from './components/DatPhong/BookingForm.jsx';
 import QuanLyDatPhong from './components/DatPhong/QuanLyDatPhong.jsx';
 import ListHoaDon from './components/HoaDon/ListHoaDon.jsx';
 import RoomDetail from './components/TrangChu/RoomDetail.jsx';
@@ -109,7 +109,7 @@ function App() {
             <Route path="/add-hinh-anh" element={<RequireAuth><HinhAnh /></RequireAuth>} />
             <Route path="/TrangChu" element={<RequireAuth><ViewPhong /></RequireAuth>} />
             <Route path="/quan-ly-dat-phong" element={<RequireAuth> <QuanLyDatPhong /> </RequireAuth>} />
-            <Route path="/giao-dien-tao-dp" element={<RequireAuth> <GiaoDienTaoDP /> </RequireAuth>} />
+            <Route path="/giao-dien-tao-dp" element={<RequireAuth> <BookingForm /> </RequireAuth>} />
             <Route path="/tao-dat-phong" element={<RequireAuth> <TaoDatPhong /> </RequireAuth>} />
             <Route path="/thong-tin-dat-phong" element={<RequireAuth> <ChiTietDatPhong /> </RequireAuth>} />
 

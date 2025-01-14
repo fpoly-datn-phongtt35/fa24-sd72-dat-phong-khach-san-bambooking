@@ -101,9 +101,9 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     public Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
                                                            Integer soNguoi, Integer soPhong, Pageable pageable) {
 
-            Pageable pageable1 = PageRequest.of(pageable.getPageNumber(),3);
-            Page<LoaiPhongKhaDungResponse> pageLPKD = loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pageable1);
-            return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pageable1);
+            Pageable pg = PageRequest.of(pageable.getPageNumber(),3);
+            Page<LoaiPhongKhaDungResponse> pageLPKD = loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pg);
+            return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pg);
 
     }
 
