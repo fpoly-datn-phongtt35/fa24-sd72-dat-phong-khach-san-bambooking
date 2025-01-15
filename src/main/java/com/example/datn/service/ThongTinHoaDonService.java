@@ -1,6 +1,6 @@
 package com.example.datn.service;
 
-import com.example.datn.dto.request.ThongTinHoaDonRequest;
+import com.example.datn.dto.response.DichVuSuDungResponse;
 import com.example.datn.dto.response.ThongTinHoaDonResponse;
 import com.example.datn.model.ThongTinHoaDon;
 import com.example.datn.model.TraPhong;
@@ -13,5 +13,5 @@ public interface ThongTinHoaDonService {
     Page<ThongTinHoaDonResponse> getAllThongTinHoaDon(Pageable pageable);
     List<ThongTinHoaDonResponse> getThongTinHoaDonByHoaDonId(Integer idHoaDon);
     List<ThongTinHoaDon> createThongTinHoaDon(Integer idHD, List<TraPhong> listTraPhong);
-//    void tongTienHoaDon();
+    List<DichVuSuDungResponse> getDichVuSuDung(Integer idHoaDon);
 }

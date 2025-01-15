@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,6 +39,12 @@ public class HoaDon {
             return "Nhân viên không hợp lệ";
         }
         return nhanVien.getTaiKhoan() != null ? nhanVien.getTaiKhoan().getTenDangNhap() : "Chưa có thông tin nhân viên";
+    }
+    public String getTenNhanVien(){
+        if (nhanVien != null){
+            return nhanVien.getHo() + " " + nhanVien.getTen();
+        }
+        return null;
     }
 
 }

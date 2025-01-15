@@ -21,7 +21,7 @@
                 display: flex;
                 align-items: center;
                 gap: 1rem;
-                width: 40%;
+                width: 60%;
 
                 .input-field {
                     padding: 0.5rem;
@@ -43,6 +43,32 @@
                         background-color: #0056b3;
                     }
                 }
+                .checkout-section {
+                    width: 20%;
+                    display: flex;
+                    justify-content: center;
+            
+                    .confirm-checkout-button {
+                        padding: 0.5rem 1rem;
+                        background-color: #28a745;
+                        color: #fff;
+                        border: none;
+                        border-radius: 4px;
+                        font-size: 1rem;
+                        cursor: pointer;
+                        transition: background-color 0.3s, transform 0.2s;
+            
+                        &:hover {
+                            background-color: #218838;
+                            transform: translateY(-2px);
+                        }
+            
+                        &:active {
+                            background-color: #1e7e34;
+                            transform: translateY(0);
+                        }
+                    }
+                }
             }
 
             .room-info {
@@ -58,7 +84,7 @@
                         padding: 1rem;
                         border-radius: 8px;
                         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-                        position: relative;  // Thêm để định vị nút xóa
+                        position: relative; // Thêm để định vị nút xóa
                         width: calc(33.333% - 1rem);
 
                         .remove-button {
@@ -93,31 +119,5 @@
         }
     }
 
-    .checkout-section {
-        margin-top: 2rem;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-
-        .confirm-checkout-button {
-            padding: 0.75rem 1.5rem;
-            background-color: #28a745;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-
-            &:hover {
-                background-color: #218838;
-                transform: translateY(-2px);
-            }
-
-            &:active {
-                background-color: #1e7e34;
-                transform: translateY(0);
-            }
-        }
-    }
+    
 }

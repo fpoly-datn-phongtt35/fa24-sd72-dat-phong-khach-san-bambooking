@@ -1,4 +1,5 @@
 package com.example.datn.dto.request;
+import com.example.datn.model.Phong;
 import com.example.datn.model.TraPhong;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ public class ThongTinHoaDonRequest {
 
     Integer idHoaDon;
     List<TraPhong> listTraPhong;
+    List<Phong> listPhong;
     Double tienDichVu;
     Double tienPhong;
     Double tienPhuThu;

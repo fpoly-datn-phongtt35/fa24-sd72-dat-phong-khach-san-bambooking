@@ -41,11 +41,23 @@ const Demo = () => {
         setTraPhong(traPhong.filter((item) => item.id !== id));
     };
 
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+        const date = new Date(dateString);
+        return date.toLocaleString('vi-VN', options);
+    };
+
+    const formatDateTime = (dateString) => {
+        const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        const date = new Date(dateString);
+        return date.toLocaleString('vi-VN', options);
+    };
+
     return (
         <div className="demo-container">
             <div className="card">
                 <div className="card-body">
-                    <h5>Demo</h5>
+                    <h5>Tìm kiếm thông tin trả phòng</h5>
                     <div className="input-section">
                         <input
                             type="text"
@@ -56,10 +68,22 @@ const Demo = () => {
                         />
                         <button
                             className="checkout-button"
+                            style={{ width: '120px' }}
                             onClick={() => FindCheckOut(key)}
                         >
-                            Tìm thông tin phòng
+                            Tìm kiếm
                         </button>
+
+                        {traPhong.length > 0 && (
+                            <div className="checkout-section">
+                                <button
+                                    className="confirm-checkout-button"
+                                    onClick={CheckOut}
+                                    style={{ width: '150px' }}
+                                >Trả phòng
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {traPhong.length > 0 && (
@@ -74,8 +98,8 @@ const Demo = () => {
                                             </button>
                                             <h6 className="room-title">Phòng: {item.xepPhong.phong.tenPhong}</h6>
                                             <p className="room-details">
-                                                <strong>Ngày checkin:</strong> {item.xepPhong.ngayNhanPhong}<br />
-                                                <strong>Ngày checkout:</strong> {item.ngayTraThucTe}<br />
+                                                <strong>Ngày checkin:</strong> {formatDate(item.xepPhong.ngayNhanPhong)}<br />
+                                                <strong>Ngày checkout:</strong> {formatDateTime(item.ngayTraThucTe)}<br />
                                             </p>
                                         </div>
                                     </div>
@@ -85,13 +109,7 @@ const Demo = () => {
                     )}
                 </div>
             </div>
-            {traPhong.length > 0 && (
-                <div className="checkout-section">
-                    <button className="confirm-checkout-button" onClick={CheckOut}>
-                        Xác nhận Checkout và xuất hóa đơn
-                    </button>
-                </div>
-            )}
+
         </div>
     );
 };

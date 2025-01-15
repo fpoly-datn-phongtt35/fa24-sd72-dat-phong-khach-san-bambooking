@@ -30,7 +30,7 @@ public class AppConfig {
     private final String[] URI_ADMIN = {"/api/*/customer/**", "/xep-phong/**", "/ttdp/**", "/tra-phong/**",
             "/tien-ich-phong/**", "/tien-ich/**", "/thong-tin-hoa-don/**", "/phong/**", "/loai-phong/**",
             "/khach-hang-checkin/**", "/hoa-don/**", "/dich_vu_su_dung/**", "/dich_vu_di_kem/**", "/dich_vu/**",
-            "/dat-phong/**", };
+            "/dat-phong/**", "thanh-toan/**"};
 
     @Bean
     public PasswordEncoder passwordEncoder() {
