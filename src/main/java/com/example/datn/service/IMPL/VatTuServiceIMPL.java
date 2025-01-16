@@ -1,10 +1,9 @@
 package com.example.datn.service.IMPL;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.example.datn.model.HinhAnh;
-import com.example.datn.model.TienIch;
-import com.example.datn.repository.TienIchRepository;
-import com.example.datn.service.TienIchService;
+import com.example.datn.model.VatTu;
+import com.example.datn.repository.VatTuRepository;
+import com.example.datn.service.VatTuService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,48 +18,44 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import com.example.datn.dto.request.TienIchPhongRequest;
-import com.example.datn.dto.request.TienIchRequest;
-import com.example.datn.dto.response.TienIchPhongResponse;
-import com.example.datn.dto.response.TienIchResponse;
+
+import com.example.datn.dto.request.VatTuRequest;
+import com.example.datn.dto.response.VatTuResponse;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class TienIchServiceIMPL implements TienIchService {
+public class VatTuServiceIMPL implements VatTuService {
     @Autowired
-    TienIchRepository tienIchRepository;
+    VatTuRepository vatTuRepository;
 
     Cloudinary cloudinary;
 
     @Override
-    public List<TienIch> getAll() {
-        return tienIchRepository.findAll();
+    public List<VatTu> getAll() {
+        return vatTuRepository.findAll();
     }
     @Override
-    public Page<TienIchResponse> getPage(Pageable pageable) {
+    public Page<VatTuResponse> getPage(Pageable pageable) {
 
-        return tienIchRepository.TienIch(pageable);
+        return vatTuRepository.VatTu(pageable);
     }
     @Override
-    public Page<TienIch> getAllTienIch(Pageable pageable) {
-        return tienIchRepository.findAll(pageable);
+    public Page<VatTu> getAllVatTu(Pageable pageable) {
+        return vatTuRepository.findAll(pageable);
     }
 
 
 
     @Override
-    public TienIchResponse add(TienIchRequest tienIchRequest, MultipartFile file) throws IOException {
+    public VatTuResponse add(VatTuRequest vatTuRequest, MultipartFile file) throws IOException {
         if (file.isEmpty() || file.getOriginalFilename() == null) {
             throw new IllegalArgumentException("File rỗng hoặc tên file không hợp lệ");
         }
@@ -83,32 +78,34 @@ public class TienIchServiceIMPL implements TienIchService {
         }
         cleanDisk(fileUpload);
 
-        TienIch tienIch = new TienIch();
-        tienIch.setTenTienIch(tienIchRequest.getTenTienIch());
-        tienIch.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
-        tienIchRepository.save(tienIch);
+        VatTu vatTu = new VatTu();
+        vatTu.setTenVatTu(vatTuRequest.getTenVatTu());
+        vatTu.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
+        vatTu.setGia(vatTuRequest.getGia());
+        vatTuRepository.save(vatTu);
 
-        TienIchResponse response = new TienIchResponse();
-        response.setId(tienIch.getId());
-        response.setTenTienIch(tienIch.getTenTienIch());
-        response.setHinhAnh(tienIch.getHinhAnh());
+        VatTuResponse response = new VatTuResponse();
+        response.setId(vatTu.getId());
+        response.setTenVatTu(vatTu.getTenVatTu());
+        response.setHinhAnh(vatTu.getHinhAnh());
+        response.setGia(vatTu.getGia());
         return response;
     }
 
     @Override
-    public TienIch detail(Integer id) {
-        return tienIchRepository.findById(id).get();
+    public VatTu detail(Integer id) {
+        return vatTuRepository.findById(id).get();
     }
 
     @Override
     public void delete(Integer id) {
-        tienIchRepository.deleteById(id);
+        vatTuRepository.deleteById(id);
     }
 
     @Override
-    public TienIchResponse update(TienIchRequest tienIchRequest, MultipartFile file) throws IOException {
+    public VatTuResponse update(VatTuRequest vatTuRequest, MultipartFile file) throws IOException {
         // Tìm tiện ích theo ID
-        TienIch tienIch = tienIchRepository.findById(tienIchRequest.getId())
+        VatTu vatTu = vatTuRepository.findById(vatTuRequest.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tiện ích với ID này"));
 
         // Kiểm tra nếu có file mới, chỉ xử lý upload khi file không rỗng
@@ -126,7 +123,7 @@ public class TienIchServiceIMPL implements TienIchService {
             // Upload file lên Cloudinary
             try {
                 cloudinary.uploader().upload(fileUpload, ObjectUtils.asMap("public_id", publicValue));
-                tienIch.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
+                vatTu.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
             } catch (Exception e) {
                 throw new IOException("Lỗi khi upload lên Cloudinary: " + e.getMessage());
             }
@@ -134,25 +131,27 @@ public class TienIchServiceIMPL implements TienIchService {
         }
 
         // Cập nhật tên tiện ích
-        tienIch.setTenTienIch(tienIchRequest.getTenTienIch());
-        tienIchRepository.save(tienIch);
+        vatTu.setTenVatTu(vatTuRequest.getTenVatTu());
+        vatTu.setGia(vatTuRequest.getGia());
+        vatTuRepository.save(vatTu);
 
         // Tạo response sau khi cập nhật thành công
-        TienIchResponse response = new TienIchResponse();
-        response.setId(tienIch.getId());
-        response.setTenTienIch(tienIch.getTenTienIch());
-        response.setHinhAnh(tienIch.getHinhAnh());  // Giữ nguyên ảnh cũ nếu không upload ảnh mới
+        VatTuResponse response = new VatTuResponse();
+        response.setId(vatTu.getId());
+        response.setTenVatTu(vatTu.getTenVatTu());
+        response.setGia(vatTu.getGia());
+        response.setHinhAnh(vatTu.getHinhAnh());  // Giữ nguyên ảnh cũ nếu không upload ảnh mới
         return response;
     }
 
 
     @Override
-    public  Page<TienIch> search(String tenTienIch,Pageable pageable) {
-        return tienIchRepository.search(tenTienIch,pageable);
+    public  Page<VatTu> search(String tenTienIch, Pageable pageable) {
+        return vatTuRepository.search(tenTienIch,pageable);
     }
     @Override
-    public Page<TienIch> searchTienIch(String keyword, Pageable pageable) {
-        return tienIchRepository.search(keyword, pageable);
+    public Page<VatTu> searchVatTu(String keyword, Pageable pageable) {
+        return vatTuRepository.search(keyword, pageable);
     }
 
     public String[] getFileName(String originalName) {

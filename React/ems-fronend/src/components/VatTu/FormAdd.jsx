@@ -1,32 +1,32 @@
 import React, { useState } from 'react';
-import { addTienIch } from '../../services/TienIchService';
+import { addVatTu } from '../../services/VatTuService';
 import Swal from 'sweetalert2';
 
 
 const FormAdd = ({ show, handleClose }) => {
-    const [tenTienIch, setTenTienIch] = useState('');
+    const [tenVatTu, setTenVatTu] = useState('');
+    const [gia, setGia] = useState(0);
     const [file, setFile] = useState(null);
 
-    // const [formData, setFormData] = useState({
-    //     tenTienIch: '',  // Giá trị ban đầu là rỗng
-    //     hinhAnh: '',     // Giá trị ban đầu là rỗng
-    // });
-    // const [imagePreview, setImagePreview] = useState(''); // State để lưu URL tạm thời của ảnh
-
     // Hàm xử lý thay đổi giá trị input
-    const handleTenTienIchChange = (e) => {
-        setTenTienIch(e.target.value);
+    const handleTenVatTuChange = (e) => {
+        setTenVatTu(e.target.value);
     };
+
+    const handleGiaChange = (e) => {
+        setGia(e.target.value);
+    };
+
 
     // Hàm xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('tenTienIch', tenTienIch);
-    
-        // Gọi API thêm mới tiện ích với formData, trong đó hinhAnh chỉ là tên file
-        addTienIch(formData)
+        formData.append('tenVatTu', tenVatTu);
+        formData.append('gia', gia);
+        // Gọi API thêm mới vật tư với formData, trong đó hinhAnh chỉ là tên file
+        addVatTu(formData)
             .then(response => {
                 console.log("Thêm mới thành công:", response.data);
     
@@ -34,7 +34,7 @@ const FormAdd = ({ show, handleClose }) => {
                 Swal.fire({
                     icon: 'success',
                     title: 'Thành công',
-                    text: 'Tiện ích đã được thêm mới thành công!',
+                    text: 'Vật tư đã được thêm mới thành công!',
                     confirmButtonText: 'OK'
                 }).then(() => {
                     handleClose(); // Đóng modal sau khi thêm thành công
@@ -47,7 +47,7 @@ const FormAdd = ({ show, handleClose }) => {
                 Swal.fire({
                     icon: 'error',
                     title: 'Thất bại',
-                    text: 'Đã xảy ra lỗi khi thêm mới tiện ích. Vui lòng thử lại!',
+                    text: 'Đã xảy ra lỗi khi thêm mới vật tư. Vui lòng thử lại!',
                     confirmButtonText: 'OK'
                 });
             });
@@ -63,15 +63,21 @@ const FormAdd = ({ show, handleClose }) => {
             <div className="modal-dialog modal-lg" role="document">
                 <div className="modal-content">
                     <div className="modal-header">
-                        <h5 className="modal-title">Thêm tiện ích</h5>
+                        <h5 className="modal-title">Thêm vật tư</h5>
                         <button type="button" className="btn-close" onClick={handleClose}></button>
                     </div>
                     <div className="modal-body">
                         <form onSubmit={handleSubmit}>
-                            {/* Tên tiện ích */}
+                            {/* Tên vật tư */}
                             <div className="mb-3">
-                                <label htmlFor="tenTienIch" className="form-label">Tên tiện ích</label>
-                                <input type="text" className="form-control" id="tenTienIch" name="tenTienIch" value={tenTienIch} onChange={handleTenTienIchChange} required />
+                                <label htmlFor="tenVatTu" className="form-label">Tên vật tư</label>
+                                <input type="text" className="form-control" id="tenVatTu" name="tenVatTu" value={tenVatTu} onChange={handleTenVatTuChange} required />
+                            </div>
+
+                            {/* Giá */}
+                            <div className="mb-3">
+                                <label htmlFor="gia" className="form-label">Giá</label>
+                                <input type="number" className="form-control" id="gia" name="gia" value={gia} onChange={handleGiaChange} required />
                             </div>
 
                             {/* Hình ảnh (chỉ lấy tên file) */}

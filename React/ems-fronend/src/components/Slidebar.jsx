@@ -38,10 +38,10 @@ function Sidebar({ isAuthenticated, onLogout }) {
                   <Link className="nav-link" to="/LoaiPhong">Loại phòng</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/TienNghi">Tiện nghi phòng</Link>
+                  <Link className="nav-link" to="/VatTuLoaiPhong">Vật tư loại phòng</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/TienIch">Tiện ích</Link>
+                  <Link className="nav-link" to="/VatTu">Vật tư</Link>
                 </li>
               </ul>
             </li>

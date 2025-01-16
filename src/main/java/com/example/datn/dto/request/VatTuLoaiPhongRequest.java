@@ -1,5 +1,7 @@
 package com.example.datn.dto.request;
 
+import com.example.datn.model.LoaiPhong;
+import com.example.datn.model.VatTu;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,8 +11,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TienIchRequest {
+public class VatTuLoaiPhongRequest {
     private Integer id;
-    private String tenTienIch;
-    private String hinhAnh;
+    private LoaiPhong loaiPhong;
+    private VatTu vatTu;
+
+    private Integer soLuong;
 }

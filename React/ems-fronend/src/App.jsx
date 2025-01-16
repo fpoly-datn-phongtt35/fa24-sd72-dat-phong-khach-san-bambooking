@@ -11,7 +11,7 @@ import ListPhong from './components/Phong/ListPhong';
 import Phong from './components/Phong/Phong';
 import ListImage from './components/HinhAnh/ListImage';
 import HinhAnh from './components/HinhAnh/HinhAnh';
-import TienIch from './components/TienIch/TienIch';
+import VatTu from './components/VatTu/VatTu';
 import Login from './components/login/Login';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -99,7 +99,7 @@ function App() {
             <Route path="/add-nhanvien" element={<RequireAuth><NhanVienComponent /></RequireAuth>} />
             <Route path="/add-taikhoan" element={<RequireAuth><TaiKhoanComponent /></RequireAuth>} />
             <Route path="/update-nhan-vien/:id" element={<RequireAuth><NhanVienComponent /></RequireAuth>} />
-            <Route path="/TienIch" element={<RequireAuth><TienIch /></RequireAuth>} />
+            <Route path="/VatTu" element={<RequireAuth><VatTu /></RequireAuth>} />
             <Route path="/phong" element={<RequireAuth><ListPhong /></RequireAuth>} />
             <Route path="/add-phong" element={<RequireAuth><Phong /></RequireAuth>} />
             <Route path="/update-phong/:id" element={<RequireAuth><Phong /></RequireAuth>} />

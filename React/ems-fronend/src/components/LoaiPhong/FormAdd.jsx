@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 const FormAdd = ({ show, handleClose }) => {
     const [formData, setFormData] = useState({
         tenLoaiPhong: '', 
+        maLoaiPhong: '', 
         dienTich: '',   
         soKhachToiDa: '',   
         donGia: '',   
@@ -77,6 +78,11 @@ const FormAdd = ({ show, handleClose }) => {
                             <div className="mb-3">
                                 <label htmlFor="tenLoaiPhong" className="form-label">Tên Loại Phòng</label>
                                 <input type="text" className="form-control" id="tenLoaiPhong" name="tenLoaiPhong" value={formData.tenLoaiPhong} onChange={handleInputChange} required />
+                            </div>
+
+                            <div className="mb-3">
+                                <label htmlFor="maLoaiPhong" className="form-label">Mã Loại Phòng</label>
+                                <input type="text" className="form-control" id="maLoaiPhong" name="maLoaiPhong" value={formData.maLoaiPhong} onChange={handleInputChange} required />
                             </div>
 
                             <div className="mb-3">

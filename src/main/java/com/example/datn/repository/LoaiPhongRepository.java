@@ -2,22 +2,20 @@ package com.example.datn.repository;
 
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
-import com.example.datn.dto.response.TienIchResponse;
 import com.example.datn.model.LoaiPhong;
-import com.example.datn.model.TienIch;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
     @Query("select new com.example.datn.dto.response.LoaiPhongResponse(lp.id," +
             "lp.tenLoaiPhong," +
+            "lp.maLoaiPhong," +
             "lp.dienTich," +
             "lp.soKhachToiDa," +
             "lp.donGia," +
@@ -46,7 +44,7 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
                            @Param("donGiaPhuThuMax") Double donGiaPhuThuMax,
                            Pageable pageable);
 
-    @Query("SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
+    @Query("SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.maLoaiPhong,lp.dienTich, " +
             "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, 0L AS soPhongKhaDung) " + // Để mặc định COUNT(p) là Long
             "FROM LoaiPhong lp " +
             "JOIN Phong p ON p.loaiPhong.id = lp.id " +
@@ -75,14 +73,7 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
 
 
 
-
-
-
-
-
-
-
-    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, " +
             "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
             "(COUNT(p) - " +
             " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
@@ -115,35 +106,6 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
             @Param("soNguoi") Integer soNguoi,
             Pageable pageable);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     LoaiPhong findLoaiPhongById(@Param("idLoaiPhong") Integer idLoaiPhong);
 
 }

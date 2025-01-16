@@ -20,6 +20,9 @@ public class LoaiPhong {
     @Column(name = "ten_loai_phong")
     private String tenLoaiPhong;
 
+    @Column(name = "ma_loai_phong")
+    private String maLoaiPhong;
+
     @Column(name = "dien_tich")
     private Integer dienTich;
 

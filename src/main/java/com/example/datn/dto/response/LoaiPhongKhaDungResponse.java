@@ -10,6 +10,7 @@ import lombok.Setter;
 public class LoaiPhongKhaDungResponse {
     private Integer id;
     private String tenLoaiPhong;
+    private String maLoaiPhong;
     private Integer dienTich;
     private Integer soKhachToiDa;
     private Double donGia;
@@ -18,10 +19,12 @@ public class LoaiPhongKhaDungResponse {
     private Long soLuongPhong;
     private Long soPhongKhaDung;
 
-    public LoaiPhongKhaDungResponse(Integer id, String tenLoaiPhong, Integer dienTich, Integer soKhachToiDa,
-                                    Double donGia, Double donGiaPhuThu, String moTa, Long soLuongPhong, Long soPhongKhaDung) {
+    public LoaiPhongKhaDungResponse(Integer id, String tenLoaiPhong, String maLoaiPhong, Integer dienTich,
+                                    Integer soKhachToiDa, Double donGia, Double donGiaPhuThu, String moTa,
+                                    Long soLuongPhong, Long soPhongKhaDung) {
         this.id = id;
         this.tenLoaiPhong = tenLoaiPhong;
+        this.maLoaiPhong = maLoaiPhong;
         this.dienTich = dienTich;
         this.soKhachToiDa = soKhachToiDa;
         this.donGia = donGia;

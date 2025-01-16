@@ -11,9 +11,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "tien_ich_phong")
+@Table(name = "vat_tu_loai_phong")
 
-public class TienIchPhong {
+public class VatTuLoaiPhong {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -22,8 +22,11 @@ public class TienIchPhong {
     @JoinColumn(name = "id_loai_phong")
     private LoaiPhong loaiPhong;
 
-    @JoinColumn(name = "id_tien_ich")
+    @JoinColumn(name = "id_vat_tu")
     @ManyToOne
-    private TienIch tienIch;
+    private VatTu vatTu;
+
+    @JoinColumn(name = "so_luong")
+    private Integer soLuong;
 
 }

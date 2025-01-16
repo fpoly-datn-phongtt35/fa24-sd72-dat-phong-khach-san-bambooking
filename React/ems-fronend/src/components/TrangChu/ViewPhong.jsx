@@ -1,202 +1,245 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { searchRooms } from '../../services/ViewPhong';
-import { useNavigate } from 'react-router-dom';
-import { searchByIDPhong } from '../../services/ImageService';
-import { getRoomDetail } from '../../services/ViewPhong';
+import React, { useState, useEffect, useRef } from "react";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/themes/material_blue.css"; // Giao diện của Flatpickr
+import { searchRooms } from "../../services/ViewPhong";
+import { FaCalendarAlt } from "react-icons/fa"; // Import biểu tượng lịch
+import "./ViewPhong.css"; // CSS để quản lý cuộn
 
 const ViewPhong = () => {
   const [rooms, setRooms] = useState([]);
-  const [tinhTrang, setTinhTrang] = useState(null);
-  const [giaMin, setGiaMin] = useState(null);
-  const [giaMax, setGiaMax] = useState(null);
-  const [keyword, setKeyword] = useState('');
-  const [listImage, setlistImage] = useState('');
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  ); // Ngày được chọn mặc định
+  const [status, setStatus] = useState({}); // Trạng thái phòng
 
-  const navigate = useNavigate();
+  const generateHours = () => Array.from({ length: 24 }, (_, i) => (i < 10 ? `0${i}:00` : `${i}:00`));
 
-  const handleSearch = useCallback(() => {
-    const min = giaMin !== null ? Number(giaMin) : null;
-    const max = giaMax !== null ? Number(giaMax) : null;
+  const generateDates = (startDate) =>
+    Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      return date.toLocaleDateString("en-CA"); // Định dạng YYYY-MM-DD theo múi giờ trình duyệt
+    });
 
-    searchRooms(tinhTrang, min, max, keyword)
-      .then(async roomList => {
-        if (Array.isArray(roomList)) {
-          setRooms(roomList);
+  const [dates, setDates] = useState(generateDates(new Date()));
+  const [hours] = useState(generateHours()); // Danh sách giờ cố định
 
-          // Sử dụng Promise.all để đợi tất cả các yêu cầu ảnh hoàn tất
-          const images = await Promise.all(
-            roomList.map(room => searchByIDPhong(room.id).then(response => ({ id: room.id, data: response.data })))
-          );
-
-          // Cập nhật listImage theo đúng định dạng { [room.id]: response.data }
-          const imageMap = images.reduce((acc, img) => {
-            acc[img.id] = img.data;
-            return acc;
-          }, {});
-
-          setlistImage(imageMap);
-        } else {
-          console.error("Dữ liệu trả về không phải là mảng:", roomList);
-          setRooms([]);
-        }
-      })
-      .catch(error => {
-        console.error("Không thể tìm kiếm phòng:", error);
-        setRooms([]);
-      });
-  }, [tinhTrang, giaMin, giaMax, keyword]);
+  const scrollContainerRef = useRef(null); // Tham chiếu đến container cuộn chính
 
   useEffect(() => {
-    handleSearch();
-  }, [tinhTrang, giaMin, giaMax, keyword]);
+    const fetchRooms = async () => {
+      const result = await searchRooms(); // Giả định trả về [{ id: "P101", name: "Phòng 101" }, ...]
+      setRooms(result);
+    };
 
-  const handleStatusChange = (e) => {
-    const value = e.target.value;
-    setTinhTrang(value === 'all' ? null : value);
-    console.log('Tình trạng phòng đã chọn:', value);
+    fetchRooms();
+  }, []);
+
+  const handleDateChange = (date) => {
+    if (date && date.length > 0) {
+      const newDate = date[0].toLocaleDateString("en-CA"); // Định dạng YYYY-MM-DD theo múi giờ trình duyệt
+
+      setSelectedDate(newDate);
+      setDates(generateDates(new Date(newDate)));
+    }
   };
 
-  const handlePriceChange = () => {
-    handleSearch(); // Gọi lại hàm tìm kiếm khi giá thay đổi
-  };
+  const handleWheel = (e) => {
+    if (e.target.closest(".scrollable-content")) {
+      e.preventDefault();
+      const container = scrollContainerRef.current;
+      container.scrollLeft += e.deltaY * 0.5;
 
-  // Hàm để điều hướng đến trang chi tiết
-  const handleViewDetail = (roomId) => {
-    getRoomDetail(roomId)
-      .then((response) => {
-        if (!response) {
-          throw new Error("Không có thông tin chi tiết phòng.");
-        } else {
-          const ngayNhanPhong = new Date(response.thongTinDatPhong.ngayNhanPhong); // Ngày nhận phòng
-          const ngayHienTai = new Date(); // Ngày hiện tại
-
-          // So sánh timestamp
-          if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
-            alert(`Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`);
-          } else {
-            navigate(`/api/RoomDetail/${roomId}`); // Điều hướng đến trang chi tiết
+      const maxScrollLeft = container.scrollWidth - container.clientWidth;
+      if (container.scrollLeft >= maxScrollLeft && e.deltaY > 0) {
+        // Thêm delay trước khi chuyển ngày
+        setTimeout(() => {
+          const currentIndex = dates.findIndex((date) => date === selectedDate);
+          if (currentIndex < dates.length - 1) {
+            const nextDate = dates[currentIndex + 1];
+            setSelectedDate(nextDate);
+            container.scrollLeft = 0; // Quay lại mốc thời gian 0h
           }
-        }
-      })
-      .catch(() => {
-        alert("Chưa có xếp phòng, không thể xem chi tiết.");
-      });
+        }, 500); // Thời gian delay 500ms
+      }
+    }
   };
-
 
   return (
-    <div className='container d-flex'>
-      <div className='card' style={{ width: '20%', marginRight: '20px', alignSelf: 'flex-start', marginTop: '10px' }}>
-        <div className='card-body'>
-          <div className='search-bar mb-3'>
-            <input
-              type='text'
-              className='form-control'
-              placeholder='Tìm kiếm tên phòng...'
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyUp={handleSearch}
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", width: "100%" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <h2>Quản lý tình trạng phòng</h2>
+
+        {/* Hàng đầu tiên - Chọn ngày */}
+        <div
+          style={{
+            display: "flex",
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
+            backgroundColor: "#007BFF",
+            color: "#fff",
+            textAlign: "center",
+            padding: "10px",
+            fontWeight: "bold",
+            width: "100%",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "#fff",
+              color: "#007BFF",
+              padding: "5px",
+              borderRadius: "50%",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "40px",
+              height: "40px",
+            }}
+          >
+            <Flatpickr
+              value={selectedDate}
+              onChange={handleDateChange}
+              options={{
+                dateFormat: "Y-m-d",
+              }}
+              render={({ defaultValue, ...props }, ref) => (
+                <div
+                  {...props}
+                  ref={ref}
+                  style={{ cursor: "pointer" }}
+                >
+                  <FaCalendarAlt size={20} color="#007BFF" />
+                </div>
+              )}
             />
           </div>
-          <div className='filter-price mb-3'>
-            <label>Tìm theo khoảng giá:</label>
-            <div className='d-flex align-items-center'>
-              <span>Giá min</span>
-              <input
-                type='number'
-                className='form-control mx-2'
-                min='0'
-                value={giaMin !== null ? giaMin : ''}
-                onChange={(e) => setGiaMin(e.target.value ? Number(e.target.value) : null)}
-                onBlur={handlePriceChange}
-                style={{ width: '70%' }}
-              />
-            </div>
-            <div className='d-flex align-items-center' style={{ marginTop: '10px' }}>
-              <span>Giá max</span>
-              <input
-                type='number'
-                className='form-control mx-2'
-                value={giaMax !== null ? giaMax : ''}
-                onChange={(e) => setGiaMax(e.target.value ? Number(e.target.value) : null)}
-                onBlur={handlePriceChange}
-                style={{ width: '70%' }}
-              />
-            </div>
-          </div>
-          <div className='filter-status'>
-            <label>Tình trạng phòng:</label>
-            <div>
-              <div className='form-check mb-1'>
-                <input
-                  type='radio'
-                  name='tinhTrang'
-                  value='all'
-                  className='form-check-input'
-                  checked={tinhTrang === null}
-                  onChange={handleStatusChange}
-                />
-                <label className='form-check-label'>Tất cả</label>
-              </div>
-              <div className='form-check mb-1'>
-                <input
-                  type='radio'
-                  name='tinhTrang'
-                  value='Available'
-                  className='form-check-input'
-                  checked={tinhTrang === 'Available'}
-                  onChange={handleStatusChange}
-                />
-                <label className='form-check-label'>Available</label>
-              </div>
-              <div className='form-check'>
-                <input
-                  type='radio'
-                  name='tinhTrang'
-                  value='Occupied'
-                  className='form-check-input'
-                  checked={tinhTrang === 'Occupied'}
-                  onChange={handleStatusChange}
-                />
-                <label className='form-check-label'>Occupied</label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className='d-flex flex-wrap' style={{ width: '70%' }}>
-        {Array.isArray(rooms) && rooms.length > 0 ? (
-          rooms.map(room => (
-            <div key={room.id} className='card' style={{ width: '30%', margin: '10px' }}>
-              <div className='card-body'>
-                {listImage[room.id] ? (
-                  <img
-                    src={listImage[room.id]?.[0]?.duongDan} // Lấy ảnh đầu tiên trong mảng
-                    alt='Phòng'
-                    className='img-fluid'
-                    style={{ width: '100%', height: '200px', objectFit: 'cover' }}
-                  />
 
-                ) : (
-                  <span>Không có hình ảnh</span>
-                )}
-              </div>
-              <div className='card-footer'>
-                <p>Tên phòng: {room.tenPhong}</p>
-                <p>Tình trạng: {room.tinhTrang}</p>
-                <p>Giá: {room.loaiPhong.donGia} VND</p>
-                <button
-                  className='btn btn-primary'
-                  onClick={() => handleViewDetail(room.id)} // Gọi hàm để xử lý chi tiết
-                >
-                  Chi tiết
-                </button>
-              </div>
+          {dates.map((date, index) => (
+            <div
+              key={index}
+              style={{
+                backgroundColor: date === selectedDate ? "#f39c12" : "#d3f9d8",
+                padding: "5px 10px",
+                borderRadius: "5px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+              onClick={() => setSelectedDate(date)}
+            >
+              {date}
             </div>
-          ))
-        ) : (
-          <p>Không tìm thấy phòng nào.</p>
-        )}
+          ))}
+        </div>
+
+        {/* Bảng chính */}
+        <div
+          ref={scrollContainerRef} // Gắn tham chiếu cuộn ngang
+          onWheel={handleWheel} // Gắn sự kiện lăn chuột
+          style={{
+            display: "grid",
+            gridTemplateColumns: "150px repeat(24, 80px)",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            marginTop: "0px", // Sát với hàng chọn ngày
+            width: "100%",
+            overflow: "hidden", // Cho phép cuộn ngang
+          }}
+        >
+          {/* Hàng thứ hai - Hiển thị giờ */}
+          <div
+            className="scrollable-content"
+            style={{
+              position: "sticky",
+              top: "0px", // Điều chỉnh để không bị chèn xuống các ô bên dưới
+              backgroundColor: "#f0f0f0",
+              gridColumn: "1 / span 25",
+              display: "grid",
+              gridTemplateColumns: "150px repeat(24, 80px)",
+              zIndex: 9,
+              borderBottom: "1px solid #ddd",
+            }}
+          >
+            <div
+              style={{
+                textAlign: "center",
+                fontWeight: "bold",
+                padding: "10px",
+                position: "sticky",
+                left: 0,
+                backgroundColor: "#f0f0f0",
+                zIndex: 10,
+              }}
+            >
+              Chọn phòng
+            </div>
+            {hours.map((hour) => (
+              <div
+                key={hour}
+                style={{
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  padding: "10px",
+                }}
+              >
+                {hour}
+              </div>
+            ))}
+          </div>
+
+          {/* Các phòng */}
+          {rooms.map((room) => (
+            <React.Fragment key={room.id}>
+              {/* Cột đầu tiên */}
+              <div
+                style={{
+                  position: "sticky",
+                  left: 0,
+                  zIndex: 5,
+                  backgroundColor: "#f8f9fa",
+                  textAlign: "center",
+                  padding: "20px",
+                  borderRight: "1px solid #ddd",
+                }}
+              >
+                {room.name}
+              </div>
+
+              <div
+                className="scrollable-content"
+                style={{
+                  display: "flex",
+                  gridColumn: "2 / span 24",
+                }}
+              >
+                {hours.map((hour) => {
+                  const key = `${room.id}_${selectedDate}_${hour}`;
+                  return (
+                    <div
+                      key={key}
+                      title={status[key] === "Occupied" ? "Occupied" : "Empty"}
+                      onClick={() => handleStatusChange(room.id, hour)}
+                      style={{
+                        flex: "0 0 80px",
+                        backgroundColor:
+                          status[key] === "Occupied"
+                            ? "#90ee90"
+                            : "#ffcccb",
+                        textAlign: "center",
+                        cursor: "pointer",
+                        border: "1px solid #ddd",
+                      }}
+                    ></div>
+                  );
+                })}
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
       </div>
     </div>
   );

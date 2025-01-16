@@ -7,14 +7,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TienIchResponse {
+public class VatTuResponse {
     private Integer id;
-    private String tenTienIch;
+    private String tenVatTu;
     private String hinhAnh;
+    private Double gia;
 
-    public TienIchResponse(Integer id,String tenTienIch,String hinhAnh){
+    public VatTuResponse(Integer id, String tenVatTu, String hinhAnh, Double gia) {
         this.id = id;
-        this.tenTienIch = tenTienIch;
+        this.tenVatTu = tenVatTu;
         this.hinhAnh = hinhAnh;
+        this.gia = gia;
     }
 }

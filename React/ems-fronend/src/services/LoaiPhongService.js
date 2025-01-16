@@ -23,8 +23,8 @@ export const listLoaiPhong = (pageable) => {
 
 
 // Service call trong frontend
-export const DanhSachTienIchPhong = (idLoaiPhong, pageable) => {
-    return axios.get(`http://localhost:8080/tien-ich-phong/findByIDLoaiPhong/${idLoaiPhong}`, {
+export const DanhSachVatTuLoaiPhong = (idLoaiPhong, pageable) => {
+    return axios.get(`http://localhost:8080/vat-tu-loai-phong/findByIDLoaiPhong/${idLoaiPhong}`, {
         params: {
             page: pageable.page,
             size: pageable.size,
