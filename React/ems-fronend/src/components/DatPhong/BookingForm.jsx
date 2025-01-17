@@ -9,10 +9,19 @@ import TaoDatPhong from './TaoDatPhong';
 // import Flatpickr from "react-flatpickr";
 // import "flatpickr/dist/themes/material_blue.css"; // Chọn theme tùy thích
 // import { Vietnamese } from "flatpickr/dist/l10n/vn.js";
+
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import IconButton from '@mui/material/IconButton';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import dayjs from 'dayjs';
+
+
 const BookingForm = () => {
     const [datPhong, setDatPhong] = useState(null);
-    const [ngayNhanPhong, setngayNhanPhong] = useState('');
-    const [ngayTraPhong, setngayTraPhong] = useState('');
+    const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs());
+    const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, 'day'));
     const [soPhong, setSoPhong] = useState('');
     const [soNguoi, setsoNguoi] = useState(2);
     const [children, setChildren] = useState(0);
@@ -182,11 +191,6 @@ const BookingForm = () => {
     // };
 
     // const { minDate, maxDate } = getMinMaxDates();
-    setTimeout(() => {
-        const picker = document.getElementById("formngayNhanPhong")._flatpickr;
-        picker.set("minDate", new Date()); // Ép minDate thành ngày hiện tại
-    }, 100);
-
     return (
         <div className='booking-form'>
             <div className="vertical-bar">
@@ -201,53 +205,39 @@ const BookingForm = () => {
             <div className="booking-form-container">
                 <form className="search-form" onSubmit={handleSearch}>
                     <div className="form-row">
-                        {/* <div className="form-group">
-                            <label htmlFor="formngayNhanPhong">Ngày nhận phòng</label>
-                            <Flatpickr
-                                id="formngayNhanPhong"
-                                onChange={(selectedDates) => {
-                                    const selectedDate = selectedDates[0];
-                                    setngayNhanPhong(selectedDate);
-                                    if (selectedDate > ngayTraPhong) {
-                                        setngayTraPhong(selectedDate);
-                                    }
-                                }}
-                                required
-                                className="form-control"
-                                placeholder="Chọn ngày"
-                                options={{
-                                    enableTime: true,
-                                    dateFormat: "d/m/Y H:i",
-                                    time_24hr: true,
-                                    locale: Vietnamese,
-                                    minDate: getTodayDate(),
-                                }}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="formngayNhanPhong">Ngày trả phòng</label>
-                            <Flatpickr
-                                id="formngayTraPhong"
-                                value={ngayTraPhong}
-                                onChange={(selectedDates) => {
-                                    const selectedDate = selectedDates[0];
-                                    setngayNhanPhong(selectedDate);
-                                    if (selectedDate > ngayTraPhong) {
-                                        setngayTraPhong(selectedDate);
-                                    }
-                                }}
-                                required
-                                className="form-control"
-                                placeholder='Chọn ngày'
-                                options={{
-                                    enableTime: true, // Cho phép chọn giờ
-                                    dateFormat: "d/m/Y H:i", // Định dạng ngày giờ
-                                    time_24hr: true, // Hiển thị định dạng 24 giờ
-                                    locale: Vietnamese, // Ngôn ngữ tiếng Việt
-                                    minDate: ngayNhanPhong,
-                                }}
-                            />
-                        </div> */}
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <div className="form-group">
+                                <label htmlFor="formngayNhanPhong">Ngày nhận phòng</label>
+                                <DateTimePicker
+                                    id="formngayNhanPhong"
+                                    value={ngayNhanPhong}
+                                    onChange={(selectedDate) => {
+                                        console.log("Selected Date:", selectedDate.format("DD/MM/YYYY HH:mm"));
+                                        setNgayNhanPhong(selectedDate);
+                                        if (selectedDate.isAfter(ngayTraPhong)) {
+                                            setNgayTraPhong(selectedDate);
+                                        }
+                                    }}
+                                    minDateTime={dayjs()} // Không cho phép chọn ngày quá khứ
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="formngayTraPhong">Ngày trả phòng</label>
+                                <div className='date-time-ficker'>
+                                    <DateTimePicker
+                                        id="formngayTraPhong"
+                                        value={ngayTraPhong}
+                                        onChange={(selectedDate) => {
+                                            setNgayTraPhong(selectedDate);
+                                            console.log("Selected Date:", selectedDate.format("DD/MM/YYYY HH:mm"));
+                                        }}
+                                        renderInput={() => null} // Không render ô input
+                                    />
+                                </div>
+                            </div>
+                        </LocalizationProvider>
+
 
 
                         <div className="form-group">

@@ -1,6 +1,5 @@
 import axios from 'axios';
 import authorizedAxiosInstance from '../utils/authorizedAxios';
-
 const apiKhachHang = 'http://localhost:8080/khach-hang';
 
 export const listKhachHang = (pageable, searchQuery = '') => {

@@ -178,10 +178,6 @@ $hover-bg-color: #e0e0e0;
                             cursor: pointer;
                             transition: background 0.3s;
 
-                            &:hover {
-                                background-color: darken($primary-color, 10%);
-                            }
-
                             &:disabled {
                                 background-color: #ccc;
                                 cursor: not-allowed;

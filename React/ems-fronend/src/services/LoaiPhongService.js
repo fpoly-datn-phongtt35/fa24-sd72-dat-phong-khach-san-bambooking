@@ -1,4 +1,5 @@
 import axios from "axios";
+import authorizedAxiosInstance from '../utils/authorizedAxios';
 const api = "http://localhost:8080/loai-phong/index";
 const apiadd = "http://localhost:8080/loai-phong/add";
 const apiUD = "http://localhost:8080/loai-phong/update";
@@ -24,7 +25,7 @@ export const listLoaiPhong = (pageable) => {
 
 // Service call trong frontend
 export const DanhSachTienIchPhong = (idLoaiPhong, pageable) => {
-    return axios.get(`http://localhost:8080/tien-ich-phong/findByIDLoaiPhong/${idLoaiPhong}`, {
+    return authorizedAxiosInstance.get(`http://localhost:8080/tien-ich-phong/findByIDLoaiPhong/${idLoaiPhong}`, {
         params: {
             page: pageable.page,
             size: pageable.size,
@@ -44,7 +45,7 @@ export const DanhSachDichVuDiKem = (idLoaiPhong, pageable) => {
 
 
 export const addLoaiPhong = (loaiPhongRequest) => {
-    return axios.post(apiadd, loaiPhongRequest);
+    return authorizedAxiosInstance.post(apiadd, loaiPhongRequest);
 };
 
 export const updateLoaiPhong = (loaiPhongRequest) => {
@@ -89,7 +90,7 @@ export const filterLoaiPhong = (tenLoaiPhong, dienTichMin, dienTichMax, soKhach,
     });
 
     // Gọi API filter với các params hợp lệ
-    return axios.get(apiFilter, { params });
+    return authorizedAxiosInstance.get(apiFilter, { params });
 };
 
 
