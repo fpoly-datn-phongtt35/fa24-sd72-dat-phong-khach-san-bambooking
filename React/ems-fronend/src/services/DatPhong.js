@@ -1,4 +1,3 @@
-import axios from "axios";
 import authorizedAxiosInstance from '../utils/authorizedAxios';
 const apiDP = "http://localhost:8080/dat-phong/hien-thi";
 const apiDPAdd = "http://localhost:8080/dat-phong/them-moi";
@@ -63,6 +62,7 @@ export const HienThiTheoLoc = (pageable, trangThai) => {
     
     return authorizedAxiosInstance.get(apiLoc, { params: params });
 };
+
 export const ThemKhachHangDatPhong = (khachHangRequest) => {
     return authorizedAxiosInstance.post(apiCreateKH, khachHangRequest);
 };

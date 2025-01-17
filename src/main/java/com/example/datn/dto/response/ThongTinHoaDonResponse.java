@@ -16,4 +16,8 @@ public class ThongTinHoaDonResponse {
     Double tienDichVu;
     Double tienPhong;
     Double tienPhuThu;
+    String tenPhong;
+    String ngayNhanPhong;
+    String ngayTraPhong;
+    Double giaPhong;
 }

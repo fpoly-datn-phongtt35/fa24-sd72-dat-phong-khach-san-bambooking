@@ -1,11 +1,11 @@
-import axios from "axios";
+import authorizedAxiosInstance from "../utils/authorizedAxios";
 
 const apiImage = 'http://localhost:8080/image';
 const apiPhong = 'http://localhost:8080/phong';
 const apiSearchdImg = 'http://localhost:8080/image/searchByIDPhong';
 
 export const listImage = (pageable, searchQuery = '') => {
-    return axios.get(apiImage + '/search', {
+    return authorizedAxiosInstance.get(apiImage + '/search', {
         params: {
             page: pageable.page,
             size: pageable.size,
@@ -15,7 +15,7 @@ export const listImage = (pageable, searchQuery = '') => {
 };
 
 export const searchByIDPhong = (idPhong) => {
-    return axios.get(apiSearchdImg, {
+    return authorizedAxiosInstance.get(apiSearchdImg, {
         params: {
             keyword: idPhong
         }
@@ -24,11 +24,11 @@ export const searchByIDPhong = (idPhong) => {
 
 
 export const getPhong = () => {
-    return axios.get(apiPhong);
+    return authorizedAxiosInstance.get(apiPhong);
 }
 
 export const uploadImage = (formData) => {
-    return axios.post(`${apiImage}/upload`, formData, {
+    return authorizedAxiosInstance.post(`${apiImage}/upload`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
@@ -36,10 +36,10 @@ export const uploadImage = (formData) => {
 };
 
 export const getImageUrl = (id) => {
-    return axios.get(`${apiImage}/${id}/url`);
+    return authorizedAxiosInstance.get(`${apiImage}/${id}/url`);
 };
 
 export const deleteImage = (id) => {
-    return axios.delete(`${apiImage}/${id}`);
+    return authorizedAxiosInstance.delete(`${apiImage}/${id}`);
 };
 

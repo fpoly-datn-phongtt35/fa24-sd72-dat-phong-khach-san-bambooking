@@ -9,12 +9,12 @@ const apiFilter = "http://localhost:8080/loai-phong/filter";
 
 const apiAdd = "http://localhost:8080/dich_vu_di_kem/add";
 export const ThemDichVuDiKem = (dvDiKem) => {
-    return axios.post(apiAdd, dvDiKem);
+    return authorizedAxiosInstance.post(apiAdd, dvDiKem);
 };
 // export const listTienNghi = () => axios.get(api);
 
 export const listLoaiPhong = (pageable) => {
-    return axios.get(api, {
+    return authorizedAxiosInstance.get(api, {
         params: {
             page: pageable.page,
             size: pageable.size
@@ -34,7 +34,7 @@ export const DanhSachTienIchPhong = (idLoaiPhong, pageable) => {
 };
 // Service call trong frontend
 export const DanhSachDichVuDiKem = (idLoaiPhong, pageable) => {
-    return axios.get(`http://localhost:8080/dich_vu_di_kem/findByIDLoaiPhong/${idLoaiPhong}`, {
+    return authorizedAxiosInstance.get(`http://localhost:8080/dich_vu_di_kem/findByIDLoaiPhong/${idLoaiPhong}`, {
         params: {
             page: pageable.page,
             size: pageable.size,
@@ -49,16 +49,16 @@ export const addLoaiPhong = (loaiPhongRequest) => {
 };
 
 export const updateLoaiPhong = (loaiPhongRequest) => {
-    return axios.post(apiUD, loaiPhongRequest);
+    return authorizedAxiosInstance.post(apiUD, loaiPhongRequest);
 };
 
 // Thay đổi hàm delete để truyền vào id và sử dụng phương thức DELETE
 export const deleteLoaiPhong = (id) => {
-    return axios.delete(`${apiDE}/${id}`);
+    return authorizedAxiosInstance.delete(`${apiDE}/${id}`);
 };
 
 export const TienIchPhongByIDLoaiPhong = (idLoaiPhong, pageable) => {
-    return axios.get(`${apiTi}/${idLoaiPhong}`, {
+    return authorizedAxiosInstance.get(`${apiTi}/${idLoaiPhong}`, {
         params: {
             page: pageable.page,
             size: pageable.size,

@@ -30,6 +30,10 @@ import ListTaiKhoan from "../components/taikhoan/ListTaiKhoan";
 import { Customer } from "../pages/customer/Customer";
 import { NewCustomer } from "../pages/customer/NewCustomer";
 import { DetailCustomer } from "../pages/customer/DetailCustomer";
+import ThanhToanComponent from "../components/ThanhToan/ThanhToanComponent";
+import InfoHoaDon from "../components/HoaDon/InfoHoaDon";
+import DemoTaoHoaDon from "../components/HoaDon/DemoTaoHoaDon"
+import Demo from "../components/HoaDon/Demo"
 
 function RouterProvider() {
 
@@ -108,6 +112,12 @@ function RouterProvider() {
                 {/* <Route path="/VaiTro" element={<ListVaiTro />} /> */}
                 <Route path="/" element={<ViewPhong />} />
 
+                {/* Thanh toán */}
+                <Route path="thanh-toan/:idHoaDon" element={<ThanhToanComponent />} />
+                {/* Hóa đơn */}
+                <Route path="/hoa-don/:id" element={<InfoHoaDon />} />
+                <Route path="/demo-tao-hoa-don" element={<DemoTaoHoaDon />} />
+                <Route path="/demo" element={<Demo />} />
             </Route>
         </Routes>
     )

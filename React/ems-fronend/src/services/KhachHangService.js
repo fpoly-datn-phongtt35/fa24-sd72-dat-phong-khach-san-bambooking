@@ -1,4 +1,3 @@
-import axios from 'axios';
 import authorizedAxiosInstance from '../utils/authorizedAxios';
 const apiKhachHang = 'http://localhost:8080/khach-hang';
 
@@ -12,10 +11,10 @@ export const listKhachHang = (pageable, searchQuery = '') => {
     });
 };
 
-export const createKhachHang = (khachHang) => axios.post(apiKhachHang, khachHang);
+export const createKhachHang = (khachHang) => authorizedAxiosInstance.post(apiKhachHang, khachHang);
 
-export const getOneKhachHang = (khachHangId) => axios.get(`${apiKhachHang}/${khachHangId}`);
+export const getOneKhachHang = (khachHangId) => authorizedAxiosInstance.get(`${apiKhachHang}/${khachHangId}`);
 
-export const updateKhachHang = (khachHangId, khachHang) => axios.put(`${apiKhachHang}/${khachHangId}`, khachHang);
+export const updateKhachHang = (khachHangId, khachHang) => authorizedAxiosInstance.put(`${apiKhachHang}/${khachHangId}`, khachHang);
 
-export const deleteKhachHang = (khachHangId) => axios.delete(`${apiKhachHang}/${khachHangId}`);
+export const deleteKhachHang = (khachHangId) => authorizedAxiosInstance.delete(`${apiKhachHang}/${khachHangId}`);

@@ -1,4 +1,5 @@
-import axios from "axios";
+import authorizedAxiosInstance from "../utils/authorizedAxios";
+
 const api = "http://localhost:8080/tien-ich-phong/index";
 const apiadd = "http://localhost:8080/tien-ich-phong/add";
 const apiTI = "http://localhost:8080/tien-ich/home";
@@ -9,27 +10,27 @@ const apiDE = "http://localhost:8080/tien-ich-phong/delete";
 // export const listTienNghi = () => axios.get(api);
 
 export const listTienIchPhong = () => {
-    return axios.get(api);
+    return authorizedAxiosInstance.get(api);
 };
 
 export const addTienIchPhong = (tienIchPhongRequest) => {
-    return axios.post(apiadd, tienIchPhongRequest);
+    return authorizedAxiosInstance.post(apiadd, tienIchPhongRequest);
 };
 
 export const DSTienIch = () => {
-    return axios.get(apiTI);
+    return authorizedAxiosInstance.get(apiTI);
 };
 
 // Hàm lấy danh sách loại phòng
 export const DSLoaiPhong = () => {
-    return axios.get(apiLP);
+    return authorizedAxiosInstance.get(apiLP);
 };
 
 export const updateTienIchPhong = (tienIchPhongRequest) => {
-    return axios.post(apiUD, tienIchPhongRequest);
+    return authorizedAxiosInstance.post(apiUD, tienIchPhongRequest);
 };
 
 // Thay đổi hàm delete để truyền vào id và sử dụng phương thức DELETE
 export const deleteTienNghiPhong = (id) => {
-    return axios.delete(`${apiDE}/${id}`);
+    return authorizedAxiosInstance.delete(`${apiDE}/${id}`);
 };
