@@ -31,8 +31,8 @@ public class KhachHang {
     private String sdt;
     @Column(name = "email", unique = true, nullable = false)
     private String email;
-    @Column(name = "mat_khau")
-    private String matKhau;
+//    @Column(name = "mat_khau")
+//    private String matKhau;
     @Column(name = "ngay_tao")
     private LocalDateTime ngayTao;
     @Column(name = "ngay_sua")
@@ -41,9 +41,8 @@ public class KhachHang {
     @Column(name = "trang_thai")
     private boolean trangThai;
 
-    public KhachHang(String email, String matKhau, boolean trangThai) {
+    public KhachHang(String email, boolean trangThai) {
         this.email = email;
-        this.matKhau = matKhau;
         this.trangThai = trangThai;
     }
 

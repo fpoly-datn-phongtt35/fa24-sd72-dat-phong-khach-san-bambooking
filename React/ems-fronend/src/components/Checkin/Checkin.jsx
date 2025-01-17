@@ -4,6 +4,7 @@ import { checkIn, phongDaXep } from '../../services/XepPhongService';
 const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
     const [ngayNhanPhong, setNgayNhanPhong] = useState('');
     const [ngayTraPhong, setNgayTraPhong] = useState('');
+
     const handleCheckin = async () => {
         console.log(thongTinDatPhong)
         const xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
@@ -27,6 +28,7 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
         }
 
     }
+    
     const handleNgayNhanPhongChange = (event) => {
         // Retrieve the date part from thongTinDatPhong
         const ngayNhanPhongDate = thongTinDatPhong.getNgayNhanPhong();

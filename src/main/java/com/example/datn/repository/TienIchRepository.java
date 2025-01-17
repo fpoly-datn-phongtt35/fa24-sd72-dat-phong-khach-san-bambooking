@@ -13,13 +13,14 @@ import java.util.List;
 
 public interface TienIchRepository extends JpaRepository<TienIch,Integer> {
     @Query("select new com.example.datn.dto.response.TienIchResponse(ti.id," +
-            "ti.tenTienIch," +
+            "ti.tenVatTu," +
+            "ti.gia," +
             "ti.hinhAnh)" +
             "from TienIch ti")
     Page<TienIchResponse> TienIch(Pageable pageable);
 
     @Query("SELECT tn FROM TienIch tn " +
-            "WHERE tn.tenTienIch LIKE %:tenTienIch% "
+            "WHERE tn.tenVatTu LIKE %:tenTienIch% "
     )
     Page<TienIch> search(@Param("tenTienIch") String keyword,Pageable pageable);
 

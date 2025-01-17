@@ -13,6 +13,6 @@ public interface EmailService {
                            String maThongTinDatPhong,
                            long soDem,
                            Double tienPhuThu,
-                           Double tongTien,
-                           Double tienDatCoc);
+                           Double tongTien
+                           );
 }

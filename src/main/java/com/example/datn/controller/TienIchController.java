@@ -50,7 +50,7 @@ public class TienIchController {
     public ResponseEntity<?> add(@RequestParam("tenTienIch") String tenTienIch,
             @RequestParam("file") MultipartFile file) {
             TienIchRequest tienIchRequest = new TienIchRequest();
-            tienIchRequest.setTenTienIch(tenTienIch);
+            tienIchRequest.setTenVatTu(tenTienIch);
         try {
             TienIchResponse response = tienIchServiceIMPL.add(tienIchRequest,file);
             return ResponseEntity.ok(response);
@@ -73,7 +73,7 @@ public class TienIchController {
                                     @RequestParam(value = "file", required = false) MultipartFile file) {
         TienIchRequest tienIchRequest = new TienIchRequest();
         tienIchRequest.setId(id);
-        tienIchRequest.setTenTienIch(tenTienIch);
+        tienIchRequest.setTenVatTu(tenTienIch);
         try {
             TienIchResponse response = tienIchServiceIMPL.update(tienIchRequest,file);
             return ResponseEntity.ok(response);
@@ -101,7 +101,7 @@ public class TienIchController {
         Page<TienIchResponse> responsePage = imagesPage.map(image -> {
             TienIchResponse response = new TienIchResponse();
             response.setId(image.getId());
-            response.setTenTienIch(image.getTenTienIch());
+            response.setTenVatTu(image.getTenVatTu());
             response.setHinhAnh(image.getHinhAnh());
             return response;
         });

@@ -84,13 +84,13 @@ public class TienIchServiceIMPL implements TienIchService {
         cleanDisk(fileUpload);
 
         TienIch tienIch = new TienIch();
-        tienIch.setTenTienIch(tienIchRequest.getTenTienIch());
+        tienIch.setTenVatTu(tienIchRequest.getTenVatTu());
         tienIch.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
         tienIchRepository.save(tienIch);
 
         TienIchResponse response = new TienIchResponse();
         response.setId(tienIch.getId());
-        response.setTenTienIch(tienIch.getTenTienIch());
+        response.setTenVatTu(tienIch.getTenVatTu());
         response.setHinhAnh(tienIch.getHinhAnh());
         return response;
     }
@@ -134,13 +134,13 @@ public class TienIchServiceIMPL implements TienIchService {
         }
 
         // Cập nhật tên tiện ích
-        tienIch.setTenTienIch(tienIchRequest.getTenTienIch());
+        tienIch.setTenVatTu(tienIchRequest.getTenVatTu());
         tienIchRepository.save(tienIch);
 
         // Tạo response sau khi cập nhật thành công
         TienIchResponse response = new TienIchResponse();
         response.setId(tienIch.getId());
-        response.setTenTienIch(tienIch.getTenTienIch());
+        response.setTenVatTu(tienIch.getTenVatTu());
         response.setHinhAnh(tienIch.getHinhAnh());  // Giữ nguyên ảnh cũ nếu không upload ảnh mới
         return response;
     }

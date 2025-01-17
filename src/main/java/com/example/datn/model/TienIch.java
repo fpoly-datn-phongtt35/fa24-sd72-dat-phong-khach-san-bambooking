@@ -12,13 +12,16 @@ import lombok.Setter;
 @Setter
 
 @Entity
-@Table(name = "tien_ich")
+@Table(name = "vat_tu")
 public class TienIch {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "ten_tien_ich")
-    private String tenTienIch;
+    @Column(name = "ten_vat_tu")
+    private String tenVatTu;
+
+    @Column(name = "gia")
+    private Double gia;
 
     @Column(name = "hinh_anh")
     private String hinhAnh;

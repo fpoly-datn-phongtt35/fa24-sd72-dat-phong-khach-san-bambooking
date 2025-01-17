@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import '../styles/Home.css';
 import { listLoaiPhong } from '../api/datphong';
 import { getLoaiPhongKhaDung, ThemMoiDatPhong, ThemKhachHangDatPhong, addThongTinDatPhong } from '../api/datphong';
+import { addDatPhongNgay } from '../DatPhong';
+import { useNavigate } from 'react-router-dom';
 
 export default function Home({ user }) {
+  const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loaiPhongList, setLoaiPhongList] = useState([]);
   const [pageable, setPageable] = useState({ page: 0, size: 1 });
@@ -21,6 +24,12 @@ export default function Home({ user }) {
     ten: '',
     email: '',
     sdt: '',
+  });
+
+  const [bookingDetails, setBookingDetails] = useState({
+    ngayNhanPhong: '',
+    ngayTraPhong: '',
+    soNguoi: 1,
   });
 
   const images = [
@@ -210,24 +219,77 @@ export default function Home({ user }) {
       alert('Đã xảy ra lỗi: ' + (error.response?.data?.message || 'Không rõ lỗi'));
     }
   };
+  // code long
+  const handleInputChange2 = (e) => {
+    const { name, value } = e.target;
+    setBookingDetails({ ...bookingDetails, [name]: value });
+  };
 
+  const handleBookNow = () => {
+    const phong = {
+      khachHang: user,
+      maDatPhong: '',
+      ngayDat: getTodayDate(),
+      tongTien: 0,
+      datCoc: 0,
+      ghiChu: "",
+      trangThai: "Cho xac nhan",
+    }
+    addDatPhongNgay(phong)
+      .then((response) => {
+        const newId = response; // Lấy ID từ API trả về
+        console.log('ID của đối tượng mới:', newId);
+        navigate('/datphong', {
+          state: {
+            startDate: bookingDetails.ngayNhanPhong,
+            endDate: bookingDetails.ngayTraPhong,
+            guests: bookingDetails.soNguoi,
+            id: newId,
+          },
+        });
+      })
+      .catch((error) => {
+        console.error("Lỗi khi thêm mới đặt phòng:", error);
+      });
+
+  };
 
   return (
     <div className="home-page">
       <div className="container">
-        <div className="card shadow-lg p-4">
-          <h2 className="text-center mb-4">Chào mừng đến với khách sạn Bam</h2>
-          <p className="text-styling">
-            Khách sạn Bam cung cấp các phòng nghỉ, với tiện nghi hiện đại, mang đến không gian nghỉ dưỡng lý tưởng cho du khách.
-          </p>
-          <p className="text-styling">
-            Khách sạn cung cấp nhiều tiện ích từ nhà hàng ẩm thực, phòng gym, spa đến các dịch vụ tham quan thành phố.
-            Hãy đến và cảm nhận sự hiếu khách, thoải mái để biến kỳ nghỉ của quý khách trở nên trọn vẹn và đáng nhớ.
-          </p>
-          <p className="text-styling font-italic text-center">
-            Khách sạn Bam – Sự lựa chọn hoàn hảo cho những hành trình sang trọng và thư giãn.
-          </p>
-        </div>
+          <div className="booking-form">
+            <div className="form-item">
+              <label>Ngày check-in:</label>
+              <input
+                type="date"
+                name="ngayNhanPhong"
+                value={bookingDetails.ngayNhanPhong}
+                onChange={handleInputChange2}
+              />
+            </div>
+            <div className="form-item">
+              <label>Ngày check-out:</label>
+              <input
+                type="date"
+                name="ngayTraPhong"
+                value={bookingDetails.ngayTraPhong}
+                onChange={handleInputChange2}
+              />
+            </div>
+            <div className="form-item">
+              <label>Số người:</label>
+              <input
+                type="number"
+                name="soNguoi"
+                min="1"
+                value={bookingDetails.soNguoi}
+                onChange={handleInputChange2}
+              />
+            </div>
+            <button onClick={handleBookNow} className="confirm-button">
+              Xác nhận
+            </button>
+          </div>
       </div>
 
       <div className="slide-show">

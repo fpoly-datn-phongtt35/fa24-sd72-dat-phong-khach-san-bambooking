@@ -48,7 +48,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTongTien(datPhongRequest.getTongTien());
-        datPhong.setDatCoc(datPhongRequest.getDatCoc());
+        //datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(LocalDate.now());
         datPhong.setTrangThai("Da xac nhan");
         DatPhong dp = datPhongRepository.save(datPhong);
@@ -58,7 +58,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhongResponse.setKhachHang(dp.getKhachHang());
         datPhongResponse.setTongTien(dp.getTongTien());
         datPhongResponse.setNgayDat(dp.getNgayDat());
-        datPhongResponse.setDatCoc(dp.getDatCoc());
+        //datPhongResponse.setDatCoc(dp.getDatCoc());
         datPhongResponse.setGhiChu(dp.getGhiChu());
         datPhongResponse.setTrangThai(dp.getTrangThai());
         return datPhongResponse;
@@ -89,7 +89,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         DatPhong datPhong = datPhongRepository.findByMaDatPhong(datPhongRequest.getMaDatPhong());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTongTien(datPhongRequest.getTongTien());
-        datPhong.setDatCoc(datPhongRequest.getDatCoc());
+        //datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         return datPhongRepository.save(datPhong);
@@ -129,7 +129,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         String codeDP = code.generateUniqueCode(datPhongRepository.findAll());
         datPhong.setMaDatPhong(codeDP);
         datPhong.setTongTien(datPhongRequest.getTongTien());
-        datPhong.setDatCoc(datPhongRequest.getDatCoc());
+        //datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(datPhongRequest.getNgayDat());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());

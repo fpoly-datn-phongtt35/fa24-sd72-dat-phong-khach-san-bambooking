@@ -15,14 +15,14 @@ import java.util.Objects;
 
 public interface TienIchPhongRepository extends JpaRepository<TienIchPhong,Integer> {
     @Query("select new com.example.datn.dto.response.TienIchPhongResponse(ti.id," +
-            "ti.tienIch.tenTienIch," +
+            "ti.tienIch.tenVatTu," +
             "ti.tienIch.hinhAnh," +
             "ti.loaiPhong.tenLoaiPhong)" +
             "from TienIchPhong ti")
     Page<TienIchPhongResponse> TienIchPhong( Pageable pageable);
 
     @Query("select new com.example.datn.dto.response.TienIchPhongResponse(ti.id," +
-            "ti.tienIch.tenTienIch," +
+            "ti.tienIch.tenVatTu," +
             "ti.tienIch.hinhAnh," +
             "ti.loaiPhong.tenLoaiPhong)" +
             "from TienIchPhong ti WHERE ti.loaiPhong.id = :idLoaiPhong ")

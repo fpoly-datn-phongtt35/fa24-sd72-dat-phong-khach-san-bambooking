@@ -93,7 +93,7 @@ public class KhachHangController {
         // Lưu mật khẩu tạm thời vào cơ sở dữ liệu (tạo trước đối tượng nhưng chưa kích hoạt)
         KhachHang newCustomer = new KhachHang();
         newCustomer.setEmail(request.getEmail());
-        newCustomer.setMatKhau(tempPassword);
+        //newCustomer.setMatKhau(tempPassword);
         newCustomer.setTrangThai(false);  // Chưa kích hoạt tài khoản
         newCustomer.setNgayTao(LocalDateTime.now());
         newCustomer.setNgaySua(LocalDateTime.now());
@@ -114,7 +114,7 @@ public class KhachHangController {
 
         // Cập nhật mật khẩu mới và kích hoạt tài khoản
         KhachHang customer = existingCustomer.get();
-        customer.setMatKhau(request.getMatKhau());
+        //customer.setMatKhau(request.getMatKhau());
         customer.setTrangThai(true);  // Kích hoạt tài khoản
         customer.setNgaySua(LocalDateTime.now());
 

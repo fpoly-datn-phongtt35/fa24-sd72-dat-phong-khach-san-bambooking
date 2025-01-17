@@ -9,12 +9,14 @@ import lombok.Setter;
 @Setter
 public class TienIchResponse {
     private Integer id;
-    private String tenTienIch;
+    private String tenVatTu;
+    private Double gia;
     private String hinhAnh;
 
-    public TienIchResponse(Integer id,String tenTienIch,String hinhAnh){
+    public TienIchResponse(Integer id,String tenVatTu,Double gia,String hinhAnh){
         this.id = id;
-        this.tenTienIch = tenTienIch;
+        this.tenVatTu = tenVatTu;
+        this.gia= gia;
         this.hinhAnh = hinhAnh;
     }
 }

@@ -65,7 +65,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setGhiChu("");
         datPhong.setTongTien(datPhongRequest.getTongTien());
-        datPhong.setDatCoc(datPhongRequest.getDatCoc());
+        //datPhong.setDatCoc(datPhongRequest.getDatCoc());
         datPhong.setNgayDat(LocalDate.now());
         datPhong.setTrangThai("Pending");
         DatPhong dp = datPhongRepository.save(datPhong);
@@ -74,7 +74,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
         datPhongResponse.setKhachHang(dp.getKhachHang());
         datPhongResponse.setTongTien(dp.getTongTien());
         datPhongResponse.setNgayDat(dp.getNgayDat());
-        datPhongResponse.setDatCoc(dp.getDatCoc());
+        //datPhongResponse.setDatCoc(dp.getDatCoc());
         datPhongResponse.setGhiChu(dp.getGhiChu());
         datPhongResponse.setTrangThai(dp.getTrangThai());
         return datPhongResponse;
@@ -101,7 +101,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
         // Cập nhật thông tin đặt phòng
         DatPhong dp = request.getDatPhong();
         dp.setTongTien(dp.getTongTien() + tienPhong + tienPhuThu);
-        dp.setDatCoc(dp.getTongTien() * 0.1);
+        //dp.setDatCoc(dp.getTongTien() * 0.1);
 
         // Thiết lập các thông tin cho ThongTinDatPhong
         ttdp.setDatPhong(dp);
@@ -132,7 +132,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
 
                 // Thông tin thêm
                 Double tongTien = dp.getTongTien();
-                Double tienDatCoc = dp.getDatCoc();
+               // Double tienDatCoc = dp.getDatCoc();
 
                 emailService.sendThankYouEmail(
                         savedTTDP.getDatPhong().getKhachHang().getEmail(),
@@ -145,8 +145,8 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                         maThongTinDatPhong,
                         soDem,
                         finalTienPhuThu,
-                        tongTien,
-                        tienDatCoc
+                        tongTien
+                        //tienDatCoc
                 );
             } catch (Exception e) {
                 System.err.println("Lỗi khi gửi email: " + e.getMessage());
