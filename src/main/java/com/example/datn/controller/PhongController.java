@@ -59,4 +59,9 @@ public class PhongController {
                                                 @RequestParam LocalDateTime ngayTraPhong) {
         return ResponseEntity.status(HttpStatus.OK).body(phongServiceIMPL.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong));
     }
+
+    @GetMapping("/dsphong")
+    public ResponseEntity<?> dsPhong(@RequestParam(value = "keyword", required = false) String keyword){
+        return ResponseEntity.status(HttpStatus.OK).body(phongService.DSPhong(keyword));
+    }
 }

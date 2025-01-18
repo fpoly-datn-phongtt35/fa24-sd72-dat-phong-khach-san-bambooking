@@ -15,7 +15,7 @@ import java.util.List;
 @Repository
 public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, " +
-            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.ghiChu, dp.trangThai) " +
             "FROM DatPhong dp " +
             "WHERE (:trangThai IS NULL OR :trangThai = '' OR dp.trangThai = :trangThai) " +
             "ORDER BY dp.ngayDat DESC")
@@ -23,28 +23,28 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
 
 
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, " +
-            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien,  dp.ghiChu, dp.trangThai) " +
             " FROM DatPhong dp " +
             " WHERE dp.id = :id" +
             " ORDER BY dp.ngayDat DESC")
     DatPhongResponse findByIdDatPhong(@Param("id") Integer id);
 
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, " +
-            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien,  dp.ghiChu, dp.trangThai) " +
             " FROM DatPhong dp " +
             " WHERE dp.trangThai IN :trangThai" +
             " ORDER BY dp.ngayDat DESC")
     Page<DatPhongResponse> DatPhongTheoTrangThai(@Param("trangThai") List<String> trangThai, Pageable pageable);
 
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, " +
-            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.ghiChu, dp.trangThai) " +
             " FROM DatPhong dp" +
             " ORDER BY dp.ngayDat DESC")
     Page<DatPhongResponse> findAllDP(Pageable pageable);
 
 
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, " +
-            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien,  dp.ghiChu, dp.trangThai) " +
             " FROM DatPhong dp " +
             " WHERE (:keyword IS NULL OR dp.trangThai LIKE %:keyword%" +
             " OR CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten) LIKE %:keyword%" +
@@ -68,7 +68,7 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
     List<DatPhong> findByIdKhachHang(@Param("idKhachHang") Integer idKhachHang);
 
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, " +
-            "dp.maDatPhong, dp.ngayDat , dp.tongTien, dp.datCoc, dp.ghiChu, dp.trangThai) " +
+            "dp.maDatPhong, dp.ngayDat , dp.tongTien,  dp.ghiChu, dp.trangThai) " +
             "FROM DatPhong dp " +
             "ORDER BY dp.ngayDat DESC")
     Page<DatPhong> DSDatPhong(Pageable pageable);

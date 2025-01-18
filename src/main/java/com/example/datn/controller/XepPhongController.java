@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin("*")
+//@CrossOrigin("*")
 @RequestMapping("xep-phong")
 public class XepPhongController {
     @Autowired
@@ -32,8 +32,19 @@ public class XepPhongController {
         return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.getByMaTTDP(maThongTinDatPhong));
     }
 
-    @GetMapping("check-in")
-    public ResponseEntity<XepPhong> checkIn(@RequestParam("maThongTinDatPhong") String maThongTinDatPhong){
-        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.checkIn(maThongTinDatPhong));
+    @PutMapping("check-in")
+    public ResponseEntity<XepPhong> checkIn(@RequestBody XepPhongRequest xepPhongRequest){
+        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.checkIn(xepPhongRequest));
+    }
+
+    @GetMapping("test")
+    public ResponseEntity<List<XepPhong>> tesst(@RequestParam("key") String key){
+        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.findByKey(key));
+
+    }
+
+    @GetMapping("thong-tin-xep-phong")
+    public ResponseEntity<?> ttXepPhong(){
+        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.getAll());
     }
 }

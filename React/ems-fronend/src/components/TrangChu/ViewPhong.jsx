@@ -3,6 +3,8 @@ import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_blue.css"; // Giao diện của Flatpickr
 import { searchRooms } from "../../services/ViewPhong";
 import { FaCalendarAlt } from "react-icons/fa"; // Import biểu tượng lịch
+import { dsPhong } from '../../services/PhongService';
+import { ttXepPhong } from '../../services/XepPhongService';
 import "./ViewPhong.css"; // CSS để quản lý cuộn
 
 const ViewPhong = () => {
@@ -27,13 +29,26 @@ const ViewPhong = () => {
   const scrollContainerRef = useRef(null); // Tham chiếu đến container cuộn chính
 
   useEffect(() => {
-    const fetchRooms = async () => {
-      const result = await searchRooms(); // Giả định trả về [{ id: "P101", name: "Phòng 101" }, ...]
-      setRooms(result);
+    const fetchRooms = async (searchQuery = "") => {
+      try {
+        const response = await dsPhong(searchQuery);
+        setRooms(response.data);
+        console.log(response.data)
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách phòng:", error);
+      }
+
+      ttXepPhong().then((response) => {
+        console.log(response.data);
+    });
     };
 
+
+    // Lấy danh sách phòng ban đầu (không có keyword)
     fetchRooms();
   }, []);
+
+
 
   const handleDateChange = (date) => {
     if (date && date.length > 0) {
@@ -120,8 +135,7 @@ const ViewPhong = () => {
           </div>
 
           {dates.map((date, index) => (
-            <div
-              key={index}
+            <div key={index}
               style={{
                 backgroundColor: date === selectedDate ? "#f39c12" : "#d3f9d8",
                 padding: "5px 10px",
@@ -137,8 +151,7 @@ const ViewPhong = () => {
         </div>
 
         {/* Bảng chính */}
-        <div
-          ref={scrollContainerRef} // Gắn tham chiếu cuộn ngang
+        <div ref={scrollContainerRef} // Gắn tham chiếu cuộn ngang
           onWheel={handleWheel} // Gắn sự kiện lăn chuột
           style={{
             display: "grid",
@@ -151,30 +164,11 @@ const ViewPhong = () => {
           }}
         >
           {/* Hàng thứ hai - Hiển thị giờ */}
-          <div
-            className="scrollable-content"
-            style={{
-              position: "sticky",
-              top: "0px", // Điều chỉnh để không bị chèn xuống các ô bên dưới
-              backgroundColor: "#f0f0f0",
-              gridColumn: "1 / span 25",
-              display: "grid",
-              gridTemplateColumns: "150px repeat(24, 80px)",
-              zIndex: 9,
-              borderBottom: "1px solid #ddd",
-            }}
-          >
-            <div
-              style={{
-                textAlign: "center",
-                fontWeight: "bold",
-                padding: "10px",
-                position: "sticky",
-                left: 0,
-                backgroundColor: "#f0f0f0",
-                zIndex: 10,
-              }}
-            >
+          <div className="scrollable-content" style={{
+            position: "sticky", top: "0px", backgroundColor: "#f0f0f0", gridColumn: "1 / span 25",
+            display: "grid", gridTemplateColumns: "150px repeat(24, 80px)", zIndex: 9, borderBottom: "1px solid #ddd",}}>
+
+            <div style={{ textAlign: "center", fontWeight: "bold", padding: "10px", position: "sticky", left: 0, backgroundColor: "#f0f0f0", zIndex: 10, }}>
               Chọn phòng
             </div>
             {hours.map((hour) => (
@@ -195,18 +189,8 @@ const ViewPhong = () => {
           {rooms.map((room) => (
             <React.Fragment key={room.id}>
               {/* Cột đầu tiên */}
-              <div
-                style={{
-                  position: "sticky",
-                  left: 0,
-                  zIndex: 5,
-                  backgroundColor: "#f8f9fa",
-                  textAlign: "center",
-                  padding: "20px",
-                  borderRight: "1px solid #ddd",
-                }}
-              >
-                {room.name}
+              <div style={{ position: "sticky", left: 0, zIndex: 5, backgroundColor: "#f8f9fa", textAlign: "center", padding: "20px", borderRight: "1px solid #ddd", }}>
+                {room.maPhong}
               </div>
 
               <div
