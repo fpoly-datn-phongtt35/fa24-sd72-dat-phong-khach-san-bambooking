@@ -7,6 +7,7 @@ const apiLoaiPhongKhaDung = "http://localhost:8080/ttdp/loai-phong-kha-dung"
 const apiTimKiem = "http://localhost:8080/ttdp/tim-kiem"
 const apiHuyTTDP = "http://localhost:8080/ttdp/huy-ttdp"
 const apiGetTTDP = "http://localhost:8080/ttdp/detail-ttdp"
+const apiTimLoaiPhong = "http://localhost:8080/ttdp/tim-kiem-loai-phong"
 
 export const getThongTinDatPhong = (idDP, pageable) => {
     return authorizedAxiosInstance.get(apiTTDP, {
@@ -83,6 +84,16 @@ export const getTTDPByMaTTDP = (maTTDP) => {
     return authorizedAxiosInstance.get(apiGetTTDP, {
         params: {
             maTTDP: maTTDP
+        }
+    });
+};
+export const getTimKiemLoaiPhong = (ngayNhanPhong,ngayTraPhong,soNguoi,soPhong) => {
+    return authorizedAxiosInstance.get(apiLoaiPhongKhaDung, {
+        params: {
+            ngayNhanPhong: ngayNhanPhong,
+            ngayTraPhong: ngayTraPhong,
+            soNguoi:soNguoi,
+            soPhong: soPhong
         }
     });
 };

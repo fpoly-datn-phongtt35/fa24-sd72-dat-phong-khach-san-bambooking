@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Form, Row, Col, Button, Dropdown, DropdownButton, Card } from 'react-bootstrap';
 import './BookingForm.scss'; // Import file CSS
 import ModalSelectedRoom from './ModalSelectedRoom'; // Import the new modal component
-import { addThongTinDatPhong, getLoaiPhongKhaDung } from '../../services/TTDP';
+import { addThongTinDatPhong, getLoaiPhongKhaDung, getTimKiemLoaiPhong } from '../../services/TTDP';
 import TaoDatPhong from './TaoDatPhong';
 // test 
 // import Flatpickr from "react-flatpickr";
@@ -32,7 +32,7 @@ const BookingForm = () => {
     const [selectedRooms, setSelectedRooms] = useState([]); // Mảng chứa các phòng đã chọn
     const navigate = useNavigate();
     const LoaiPhongKhaDung = (ngayNhanPhong, ngayTraPhong, soNguoi, soPhong) => {
-        getLoaiPhongKhaDung(convertToISO(ngayNhanPhong), convertToISO(ngayTraPhong), soNguoi, soPhong, { page: currentPage })
+        getTimKiemLoaiPhong(convertToISO(ngayNhanPhong), convertToISO(ngayTraPhong), soNguoi, soPhong)
             .then((response) => {
                 setLoaiPhongKhaDung(response.data.content);
                 console.log(response.data);
@@ -173,35 +173,8 @@ const BookingForm = () => {
             return updatedRooms;
         });
     };
-    // const getMinMaxDates = () => {
-    //     if (selectedRooms.length === 0) return { minDate: '', maxDate: '' };
-
-    //     const dates = selectedRooms.map(room => ({
-    //         start: new Date(room.ngayNhanPhong),
-    //         end: new Date(room.ngayTraPhong)
-    //     }));
-
-    //     const minDate = new Date(Math.min(...dates.map(date => date.start)));
-    //     const maxDate = new Date(Math.max(...dates.map(date => date.end)));
-
-    //     return {
-    //         minDate: minDate.toISOString().split('T')[0], // Định dạng lại nếu cần
-    //         maxDate: maxDate.toISOString().split('T')[0]
-    //     };
-    // };
-
-    // const { minDate, maxDate } = getMinMaxDates();
     return (
         <div className='booking-form'>
-            <div className="vertical-bar">
-                <label for="myList">Khách hàng:</label>
-                <select id="myList" name="customers">
-                    <option value="1">Nguyễn Văn A</option>
-                    <option value="2">Nguyễn Văn B</option>
-
-                </select>
-                <button>Thêm khách hàng</button>
-            </div>
             <div className="booking-form-container">
                 <form className="search-form" onSubmit={handleSearch}>
                     <div className="form-row">
@@ -232,7 +205,7 @@ const BookingForm = () => {
                                             setNgayTraPhong(selectedDate);
                                             console.log("Selected Date:", selectedDate.format("DD/MM/YYYY HH:mm"));
                                         }}
-                                        renderInput={() => null} // Không render ô input
+                                        minDateTime={ngayNhanPhong}
                                     />
                                 </div>
                             </div>
@@ -321,8 +294,11 @@ const BookingForm = () => {
                                         <span>Đơn giá: </span>
                                         <strong>{lp.donGia.toLocaleString()} VND</strong>
                                     </div>
+                                    <div className="detail-item">
+                                        <span>Mô tả: </span>
+                                        <strong>{lp.moTa}</strong>
+                                    </div>
                                 </div>
-                                <p className="description">Mô tả: {lp.moTa}</p>
                                 <p className="total-price">
                                     Thành tiền: <strong>{calculateTotalPrice(lp.donGia, ngayNhanPhong, ngayTraPhong).toLocaleString()} VND</strong>
                                 </p>
@@ -357,8 +333,8 @@ const BookingForm = () => {
                                 showModal={showModal}
                                 handleCloseModal={handleCloseModal}
                                 selectedRooms={selectedRooms}
-                                ngayNhanPhong={minDate}
-                                ngayTraPhong={maxDate}
+                                ngayNhanPhong={ngayNhanPhong}
+                                ngayTraPhong={ngayTraPhong}
                                 soNguoi={soNguoi}
                                 handleRemoveRoom={handleRemoveRoom}
                             />

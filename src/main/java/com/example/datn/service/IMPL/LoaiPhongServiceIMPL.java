@@ -2,8 +2,10 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.DichVuDikemRequest;
 import com.example.datn.dto.request.LoaiPhongRequest;
+import com.example.datn.dto.response.ChiaPhongResponse;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
+import com.example.datn.dto.response.SearchResultResponse;
 import com.example.datn.model.DichVuDiKem;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.repository.DichVuDiKemRepository;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -105,6 +108,34 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
             Page<LoaiPhongKhaDungResponse> pageLPKD = loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pg);
             return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pg);
 
+    }
+
+    @Override
+    public SearchResultResponse searchLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi, Integer soPhong) {
+        // Lấy danh sách tất cả các loại phòng khả dụng
+        List<LoaiPhongKhaDungResponse> allLoaiPhong = loaiPhongRepository.findLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi);
+
+        // Danh sách các cách chia phòng
+        List<ChiaPhongResponse> chiaPhongCach = new ArrayList<>();
+
+        // Lọc và gợi ý cách chia phòng
+        for (LoaiPhongKhaDungResponse loaiPhong : allLoaiPhong) {
+            int soKhachToiDa = loaiPhong.getSoKhachToiDa();
+            int soPhongCan = (int) Math.ceil((double) soNguoi / soKhachToiDa); // Tính số phòng cần cho loại này
+
+            if (soPhongCan <= loaiPhong.getSoPhongKhaDung()) {
+                chiaPhongCach.add(new ChiaPhongResponse(
+                        loaiPhong.getId(),
+                        loaiPhong.getTenLoaiPhong(),
+                        soPhongCan,
+                        soKhachToiDa,
+                        loaiPhong.getDonGia() * soPhongCan // Tổng giá tiền
+                ));
+            }
+        }
+
+        // Trả về kết quả tìm kiếm
+        return new SearchResultResponse(allLoaiPhong, chiaPhongCach);
     }
 
     @Override

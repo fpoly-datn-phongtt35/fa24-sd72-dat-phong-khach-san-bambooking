@@ -3,6 +3,7 @@ package com.example.datn.controller;
 import com.example.datn.dto.request.TTDPRequest;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
+import com.example.datn.dto.response.SearchResultResponse;
 import com.example.datn.dto.response.TTDPResponse;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
@@ -76,6 +77,16 @@ public class TTDPController {
 //        LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(12, 00,00) : LocalDate.now().atTime(12, 00,00);
         Page<LoaiPhongKhaDungResponse> p = loaiPhongService.LoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong, pageable);
         return ResponseEntity.ok(p);
+    }
+
+    @GetMapping("/tim-kiem-loai-phong")
+    public ResponseEntity<SearchResultResponse> searchLoaiPhong(
+            @RequestParam("ngayNhanPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
+            @RequestParam("ngayTraPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
+            @RequestParam("soNguoi") Integer soNguoi,
+            @RequestParam("soPhong") Integer soPhong) {
+        SearchResultResponse result = loaiPhongService.searchLoaiPhong(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("chi-tiet-dat-phong")

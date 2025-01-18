@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "tien_ich_phong")
+@Table(name = "vat_tu_loai_phong")
 
 public class VatTuLoaiPhong {
     @Id

@@ -120,6 +120,35 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             @Param("soPhong") Integer soPhong,
             Pageable pageable);
 
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
+            "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
+            "(SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
+            "(SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            "AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
+            "AND xp.trangThai = true) - " +
+            "(SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            "AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            "AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
+            "AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o', 'Den han'))" +
+            ") AS soPhongKhaDung) " +
+            "FROM LoaiPhong lp " +
+            "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+            "WHERE lp.soKhachToiDa >= :soKhach " + // Lọc dựa trên số khách tối đa
+            "AND p.trangThai = true " +
+            "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa " +
+            "HAVING (SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
+            "(SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            "AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
+            "AND xp.trangThai = true) - " +
+            "(SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            "AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            "AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
+            "AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o', 'Den han'))" +
+            ") >= 1")
+    List<LoaiPhongKhaDungResponse> findLoaiPhongKhaDung(
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
+            @Param("soKhach") Integer soKhach);
 
 
 
