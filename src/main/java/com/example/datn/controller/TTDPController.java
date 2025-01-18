@@ -84,8 +84,9 @@ public class TTDPController {
             @RequestParam("ngayNhanPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
             @RequestParam("ngayTraPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
             @RequestParam("soNguoi") Integer soNguoi,
-            @RequestParam("soPhong") Integer soPhong) {
-        SearchResultResponse result = loaiPhongService.searchLoaiPhong(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong);
+            @RequestParam("soPhong") Integer soPhong,
+            Pageable pageable) {
+        SearchResultResponse result = loaiPhongService.searchLoaiPhong(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong,pageable);
         return ResponseEntity.ok(result);
     }
 

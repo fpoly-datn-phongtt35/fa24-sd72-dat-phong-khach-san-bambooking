@@ -21,10 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 @Service
 public class LoaiPhongServiceIMPL implements LoaiPhongService {
@@ -111,28 +108,30 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     @Override
-    public SearchResultResponse searchLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi, Integer soPhong) {
+    public SearchResultResponse searchLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi, Integer soPhong,Pageable pageable) {
         // Lấy danh sách tất cả các loại phòng khả dụng
-        List<LoaiPhongKhaDungResponse> allLoaiPhong = loaiPhongRepository.findLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi);
+        Page<LoaiPhongKhaDungResponse> allLoaiPhong = loaiPhongRepository.findLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi, pageable);
 
-        // Danh sách các cách chia phòng
-        List<ChiaPhongResponse> chiaPhongCach = new ArrayList<>();
+        // Sử dụng Stream API để xây dựng danh sách gợi ý cách chia phòng
+        List<ChiaPhongResponse> chiaPhongCach = allLoaiPhong.stream()
+                .map(loaiPhong -> {
+                    int soKhachToiDa = loaiPhong.getSoKhachToiDa();
+                    int soPhongCan = (int) Math.ceil((double) soNguoi / soKhachToiDa); // Tính số phòng cần
 
-        // Lọc và gợi ý cách chia phòng
-        for (LoaiPhongKhaDungResponse loaiPhong : allLoaiPhong) {
-            int soKhachToiDa = loaiPhong.getSoKhachToiDa();
-            int soPhongCan = (int) Math.ceil((double) soNguoi / soKhachToiDa); // Tính số phòng cần cho loại này
-
-            if (soPhongCan <= loaiPhong.getSoPhongKhaDung()) {
-                chiaPhongCach.add(new ChiaPhongResponse(
-                        loaiPhong.getId(),
-                        loaiPhong.getTenLoaiPhong(),
-                        soPhongCan,
-                        soKhachToiDa,
-                        loaiPhong.getDonGia() * soPhongCan // Tổng giá tiền
-                ));
-            }
-        }
+                    // Kiểm tra nếu số phòng cần thiết <= số phòng khả dụng
+                    if (soPhongCan <= loaiPhong.getSoPhongKhaDung()) {
+                        return new ChiaPhongResponse(
+                                loaiPhong.getId(),
+                                loaiPhong.getTenLoaiPhong(),
+                                soPhongCan,
+                                soKhachToiDa,
+                                loaiPhong.getDonGia() * soPhongCan // Tổng giá tiền
+                        );
+                    }
+                    return null; // Không thêm nếu không đủ phòng
+                })
+                .filter(Objects::nonNull) // Loại bỏ các kết quả null
+                .collect(Collectors.toList());
 
         // Trả về kết quả tìm kiếm
         return new SearchResultResponse(allLoaiPhong, chiaPhongCach);

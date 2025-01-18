@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 @AllArgsConstructor
@@ -11,6 +12,6 @@ import java.util.List;
 @Setter
 @Getter
 public class SearchResultResponse {
-    private List<LoaiPhongKhaDungResponse> danhSachLoaiPhong;
+    private Page<LoaiPhongKhaDungResponse> danhSachLoaiPhong;
     private List<ChiaPhongResponse> danhSachCachChia;
 }

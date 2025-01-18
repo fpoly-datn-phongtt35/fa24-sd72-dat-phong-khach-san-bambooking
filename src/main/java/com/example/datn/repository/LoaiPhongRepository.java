@@ -133,7 +133,7 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             ") AS soPhongKhaDung) " +
             "FROM LoaiPhong lp " +
             "JOIN Phong p ON p.loaiPhong.id = lp.id " +
-            "WHERE lp.soKhachToiDa >= :soKhach " + // Lọc dựa trên số khách tối đa
+            "WHERE lp.soKhachToiDa >= :soKhach " +
             "AND p.trangThai = true " +
             "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa " +
             "HAVING (SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
@@ -145,10 +145,12 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             "AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
             "AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o', 'Den han'))" +
             ") >= 1")
-    List<LoaiPhongKhaDungResponse> findLoaiPhongKhaDung(
+    Page<LoaiPhongKhaDungResponse> findLoaiPhongKhaDung(
             @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
-            @Param("soKhach") Integer soKhach);
+            @Param("soKhach") Integer soKhach,
+            Pageable pageable);
+
 
 
 

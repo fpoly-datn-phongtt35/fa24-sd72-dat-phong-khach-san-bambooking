@@ -39,7 +39,7 @@ public interface LoaiPhongService {
                                                     Integer soNguoi,Integer soPhong,Pageable pageable);
 
     SearchResultResponse searchLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi,
-                                         Integer soPhong);
+                                         Integer soPhong,Pageable pageable);
     LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
                                                      Integer idLoaiPhong);
 
