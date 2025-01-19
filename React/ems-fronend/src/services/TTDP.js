@@ -87,13 +87,15 @@ export const getTTDPByMaTTDP = (maTTDP) => {
         }
     });
 };
-export const getTimKiemLoaiPhong = (ngayNhanPhong,ngayTraPhong,soNguoi,soPhong) => {
-    return authorizedAxiosInstance.get(apiLoaiPhongKhaDung, {
+export const getTimKiemLoaiPhong = (ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pageable) => {
+    return authorizedAxiosInstance.get(apiTimLoaiPhong, {
         params: {
             ngayNhanPhong: ngayNhanPhong,
             ngayTraPhong: ngayTraPhong,
             soNguoi:soNguoi,
-            soPhong: soPhong
+            soPhong: soPhong,
+            page: pageable.page, 
+            size: pageable.size
         }
     });
 };

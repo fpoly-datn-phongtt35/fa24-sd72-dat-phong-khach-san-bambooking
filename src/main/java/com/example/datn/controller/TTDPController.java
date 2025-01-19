@@ -12,6 +12,7 @@ import com.example.datn.service.LoaiPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -85,7 +86,8 @@ public class TTDPController {
             @RequestParam("ngayTraPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
             @RequestParam("soNguoi") Integer soNguoi,
             @RequestParam("soPhong") Integer soPhong,
-            Pageable pageable) {
+            @PageableDefault(size = 5) Pageable pageable) {
+
         SearchResultResponse result = loaiPhongService.searchLoaiPhong(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong,pageable);
         return ResponseEntity.ok(result);
     }
