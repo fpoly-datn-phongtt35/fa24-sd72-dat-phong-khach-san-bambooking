@@ -5,19 +5,10 @@ import './ThanhToanModal.css';
 const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
     const [phuongThucThanhToan, setPhuongThucThanhToan] = useState(false); // Mặc định là "Tiền mặt"
     const [tienThanhToan, setTienThanhToan] = useState(thanhToan?.tienThanhToan || 0);
-    const [idNhanVien, setIdNhanVien] = useState('');
+    // const [idNhanVien, setIdNhanVien] = useState('');
     const [hoaDon, setHoaDonLocal] = useState(thanhToan?.hoaDon || null);
 
     if (!show) return null;
-
-    useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user && user.id) {
-            setIdNhanVien(user.id);
-        } else {
-            console.warn("Tên đăng nhập không tồn tại hoặc user là null.", user.id, user.tenDangNhap);
-        }
-    }, []);
 
     useEffect(() => {
         const fetchHoaDon = async () => {
@@ -53,7 +44,7 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
         try {
             const data = {
                 id: thanhToan.id,
-                idNhanVien: idNhanVien,
+                // idNhanVien: idNhanVien,
                 idHoaDon: thanhToan.hoaDon.id,
                 tienThanhToan: Number(tienThanhToan),
                 phuongThucThanhToan: phuongThucThanhToan

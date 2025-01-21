@@ -19,20 +19,6 @@ const ThanhToanComponent = () => {
         }
     }, [idHoaDon]);
 
-    useEffect(() => {
-        return () => thanhToanRef.current = false;
-    }, []);
-
-
-    useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user && user.id) {
-            setIdNhanVien(user.id);
-        } else {
-            console.warn("Nhân viên không tồn tại hoặc user là null");
-        }
-    }, []);
-
     const fetchHoaDon = async (idHoaDon) => {
         try {
             const response = await getHoaDonById(idHoaDon);
@@ -49,9 +35,9 @@ const ThanhToanComponent = () => {
 
         try {
             const thanhToanRequest = {
-                idNhanVien: idNhanVien,
                 idHoaDon: idHoaDon
             };
+            console.log("Dữ liệu gửi đi:", thanhToanRequest);
             const response = await createThanhToan(thanhToanRequest);
             setThanhToan(response.data);
             setShowModal(true);

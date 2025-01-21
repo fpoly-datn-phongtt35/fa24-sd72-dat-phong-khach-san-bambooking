@@ -58,7 +58,7 @@ const InfoHoaDon = () => {
                     </div>
                     <div className="row">
                         <div className="col-md-6">
-                            <p><b>Ngày tạo:</b> {new Date(hoaDon.ngayTao).toLocaleDateString("vi-VN")}</p>
+                            <p><b>Ngày tạo:</b> {hoaDon.ngayTao}</p>
                         </div>
                         <div className="col-md-6">
                             <p>

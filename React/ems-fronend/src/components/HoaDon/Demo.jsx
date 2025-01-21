@@ -34,7 +34,7 @@ const Demo = () => {
         // Lưu danh sách traPhong vào localStorage
         localStorage.setItem('traPhong', JSON.stringify(traPhong));
         // Điều hướng sang trang demo-tao-hoa-don
-        navigate('/demo-tao-hoa-don');
+        navigate('/tao-hoa-don');
     };
 
     const removeTraPhong = (id) => {

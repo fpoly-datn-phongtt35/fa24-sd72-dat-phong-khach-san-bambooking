@@ -11,11 +11,10 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ThanhToanRequest {
-    @NotNull(message = "ID nhân viên không được trống")
     Integer idNhanVien;
     @NotNull(message = "ID hóa đơn không được trống")
     Integer idHoaDon;
-    @NotNull(message = "Tiền thanh toán không được trống")
+//    @NotNull(message = "Tiền thanh toán không được trống")
     @Positive(message = "Tiền thanh toán phải là số dương")
     Double tienThanhToan;
     Double tienThua;

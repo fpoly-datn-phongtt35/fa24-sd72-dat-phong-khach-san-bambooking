@@ -1,6 +1,5 @@
 package com.example.datn.mapper;
 
-import com.example.datn.dto.request.ThanhToanRequest;
 import com.example.datn.dto.response.ThanhToanResponse;
 import com.example.datn.model.HoaDon;
 import com.example.datn.model.NhanVien;
@@ -12,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 public class ThanhToanMapper {
-    public ThanhToan toThanhToan(ThanhToanRequest request, NhanVien nhanVien, HoaDon hoaDon) {
+    public ThanhToan toThanhToan(NhanVien nhanVien, HoaDon hoaDon) {
         ThanhToan thanhToan = new ThanhToan();
         thanhToan.setNhanVien(nhanVien);
         thanhToan.setHoaDon(hoaDon);

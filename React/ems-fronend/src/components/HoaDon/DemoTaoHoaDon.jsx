@@ -23,21 +23,16 @@ const DemoTaoHoaDon = () => {
             setTraPhong(parsedData);
         }
 
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user && user.tenDangNhap) {
-            setTenDangNhap(user.tenDangNhap);
-
-            if (!hoaDonDaTaoRef.current) {
-                createHoaDon(user.tenDangNhap);
-                hoaDonDaTaoRef.current = true;
-            }
+        if (!hoaDonDaTaoRef.current) {
+            createHoaDon();
+            hoaDonDaTaoRef.current = true;
         }
+
     }, []);
 
-    const createHoaDon = async (username) => {
+    const createHoaDon = async () => {
         try {
-            const hoaDonRequest = { tenDangNhap: username };
-            const hdResponse = await taoHoaDon(hoaDonRequest);
+            const hdResponse = await taoHoaDon();
             console.log(hdResponse);
             setIdHoaDon(hdResponse.id);
             alert('Hóa đơn đã được tạo thành công!');
@@ -49,13 +44,8 @@ const DemoTaoHoaDon = () => {
                         listTraPhong: JSON.parse(localStorage.getItem('traPhong'))
                     };
 
-                    console.log(tthdRequest);
                     const response = await createThongTinHoaDon(tthdRequest);
                     setThongTinHoaDon((prev) => [...prev, ...response.data]);
-
-                    response.data.forEach((thongTin) => {
-                        console.log(`Tiền phòng: ${thongTin.tienPhong}, Tiền phụ thu: ${thongTin.tienPhuThu}, Tiền dịch vụ: ${thongTin.tienDichVu}`);
-                    });
                 }
             }
         } catch (error) {
@@ -69,27 +59,6 @@ const DemoTaoHoaDon = () => {
             style: 'currency',
             currency: 'VND',
         }).format(amount);
-    };
-
-    const calculateStayDays = (ngayNhanPhong, ngayTraThucTe) => {
-        const startDate = new Date(ngayNhanPhong);
-        const endDate = new Date(ngayTraThucTe);
-
-        const checkOutHour = endDate.getHours();
-        const checkOutMinute = endDate.getMinutes();
-
-        let timeDifference = endDate - startDate;
-        let dayDifference = timeDifference / (1000 * 3600 * 24);
-
-        if (checkOutHour < 6 || (checkOutHour === 6 && checkOutMinute === 0)) {
-            dayDifference -= 1;
-        }
-
-        if (dayDifference <= 0) {
-            dayDifference = 1;
-        }
-
-        return Math.ceil(dayDifference);
     };
 
     const totalAmount = useMemo(() => {
@@ -136,8 +105,8 @@ const DemoTaoHoaDon = () => {
                     </table>
                     <div className="total-section">
                         <p className="total-amount"><b>Tổng tiền:</b> {isNaN(totalAmount) ? formatCurrency(0) : formatCurrency(totalAmount)}</p>
-                        <button 
-                            style={{width:'180px'}}
+                        <button
+                            style={{ width: '180px' }}
                             onClick={() => navigate(`/thanh-toan/${idHoaDon}`)}>
                             Thanh toán
                         </button>
