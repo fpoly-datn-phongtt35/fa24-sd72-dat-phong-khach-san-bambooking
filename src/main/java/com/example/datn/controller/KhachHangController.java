@@ -6,6 +6,7 @@ import com.example.datn.model.KhachHang;
 import com.example.datn.model.KhachHangRegister;
 import com.example.datn.repository.KhachHangRepository;
 import com.example.datn.service.KhachHangService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -74,10 +75,25 @@ public class KhachHangController {
 //        return ResponseEntity.status(HttpStatus.OK).body(khachHangService.searchKhachHang(keyword, pageable));
 //    }
 //
-//    @PostMapping("/create-kh-dp")
-//    public ResponseEntity<?> createKhachHangDatPhong(@RequestBody KhachHangDatPhongRequest request){
-//        return ResponseEntity.status(HttpStatus.CREATED).body(khachHangService.createKhachHangDatPhong(request));
-//    }
+    @PostMapping("/create-kh-dp")
+    public ResponseEntity<?> createKhachHangDatPhong(@RequestBody KhachHangDatPhongRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(khachHangService.createKhachHangDatPhong(request));
+    }
+
+    @DeleteMapping("delete-kh-dp")
+    public ResponseEntity<?> deleteKhachHangDatPhong(@RequestParam Integer kh) {
+        try {
+            khachHangService.deleteKhachHangDatPhong(kh);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Khách hàng không tồn tại.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi trong quá trình xóa khách hàng.");
+        }
+    }
+
 //    @PostMapping("/send-email")
 //    public ResponseEntity<String> sendVerificationEmail(@RequestBody KhachHangRegister request) {
 //        // Kiểm tra xem email đã tồn tại chưa

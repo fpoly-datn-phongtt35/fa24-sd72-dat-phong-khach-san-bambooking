@@ -5,8 +5,10 @@ const apiDPUpdate = "http://localhost:8080/dat-phong/cap-nhat";
 const apiNV = "http://localhost:8080/nhan-vien/hien-thi";
 const apiKH = "http://localhost:8080/khach-hang/hien-thi";
 const apiLoc = "http://localhost:8080/dat-phong/bo-loc";
-const apiCreateKH = "http://localhost:8080/khach-hang/create-kh-dp";
+const apiCreateKHDP = "http://localhost:8080/khach-hang/create-kh-dp";
 const apiDetailDP = "http://localhost:8080/dat-phong/chi-tiet-dat-phong";
+const apiDeleteKHDP = "http://localhost:8080/khach-hang/delete-kh-dp";
+const apiXoaDatPhong = "http://localhost:8080/dat-phong/xoa";
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
     return authorizedAxiosInstance.get(apiDP, {
@@ -64,5 +66,13 @@ export const HienThiTheoLoc = (pageable, trangThai) => {
 };
 
 export const ThemKhachHangDatPhong = (khachHangRequest) => {
-    return authorizedAxiosInstance.post(apiCreateKH, khachHangRequest);
+    return authorizedAxiosInstance.post(apiCreateKHDP, khachHangRequest);
 };
+
+export const XoaKhachHangDatPhong = (khachHang) => {
+    return authorizedAxiosInstance.delete(apiDeleteKHDP, khachHang);
+};
+export const XoaDatPhong = (iddp) => {
+    return authorizedAxiosInstance.delete(apiXoaDatPhong, iddp);
+};
+

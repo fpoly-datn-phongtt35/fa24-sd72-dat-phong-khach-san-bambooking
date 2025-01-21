@@ -68,6 +68,7 @@ const BookingForm = () => {
   };
 
   const handleCreateBooking = (room) => {
+    console.log(ngayNhanPhong,ngayTraPhong);
     navigate("/tao-dat-phong", {
       state: {
         selectedRooms: [room],

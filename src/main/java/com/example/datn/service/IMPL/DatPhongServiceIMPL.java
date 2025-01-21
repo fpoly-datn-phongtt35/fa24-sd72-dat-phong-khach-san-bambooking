@@ -145,5 +145,10 @@ public class DatPhongServiceIMPL implements DatPhongService {
         return  datPhongRepository.DSDatPhong(pageable);
     }
 
+    @Override
+    public void xoaDatPhong(Integer iddp) {
+        datPhongRepository.deleteById(iddp);
+    }
+
 
 }

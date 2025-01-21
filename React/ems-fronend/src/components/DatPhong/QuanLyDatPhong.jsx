@@ -228,7 +228,7 @@ function QuanLyDatPhong() {
                                     <td>{ttdp.soNguoi}</td>
                                     <td>
                                         {['Da xep', 'Dang o', 'Den han','Da tra phong'].includes(currentStatus)
-                                            ? (phongData[ttdp.maThongTinDatPhong]?.phong.tenPhong || "Đang tải...")
+                                            ? (phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong || "Đang tải...")
                                             : ttdp.loaiPhong.tenLoaiPhong}
                                     </td>
                                     <td>{isToday(ttdp.ngayNhanPhong) ? 'Hôm nay' : ttdp.ngayNhanPhong}</td>
