@@ -14,12 +14,12 @@ public class PhuThuServiceIMPL implements PhuThuService {
 
     @Override
     public PhuThu addPhuThu(PhuThuRequest phuThuRequest) {
-        PhuThu phuThu= new PhuThu();
+        PhuThu phuThu = new PhuThu();
         phuThu.setXepPhong(phuThuRequest.getXepPhong());
         phuThu.setTenPhuThu(phuThuRequest.getTenPhuThu());
         phuThu.setTienPhuThu(phuThuRequest.getTienPhuThu());
-        phuThu.setSoLuong(phuThuRequest.getSoLuong());
-        phuThu.setTrangThai(phuThuRequest.getTrangThai());
+        phuThu.setSoLuong(phuThuRequest.getSoLuong() != null ? phuThuRequest.getSoLuong() : 1);
+        phuThu.setTrangThai(phuThuRequest.getTrangThai() != null ? phuThuRequest.getTrangThai() : false);
         return phuThuRepository.save(phuThu);
     }
 }
