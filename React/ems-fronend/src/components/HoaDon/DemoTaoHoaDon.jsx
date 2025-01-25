@@ -1,55 +1,36 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { taoHoaDon } from '../../services/HoaDonService';
 import { createThongTinHoaDon } from '../../services/HoaDonDat';
-import { useNavigate } from 'react-router-dom';
-import './DemoTaoHoaDon.css';
+import { Box, Container, Table, Typography, Button, Sheet } from '@mui/joy';
 
 const DemoTaoHoaDon = () => {
-    const [traPhong, setTraPhong] = useState([]);
-    const [tenDangNhap, setTenDangNhap] = useState('');
-    const hoaDonDaTaoRef = useRef(false); // Hóa đơn tạo 1 lần
-
     const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
-
     const [idHoaDon, setIdHoaDon] = useState(null);
-
+    const hoaDonDaTaoRef = useRef(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const storedTraPhong = localStorage.getItem('traPhong');
-        if (storedTraPhong) {
-            const parsedData = JSON.parse(storedTraPhong);
-            console.log("Dữ liệu sau khi parse:", parsedData);
-            setTraPhong(parsedData);
-        }
-
         if (!hoaDonDaTaoRef.current) {
             createHoaDon();
             hoaDonDaTaoRef.current = true;
         }
-
     }, []);
 
     const createHoaDon = async () => {
         try {
             const hdResponse = await taoHoaDon();
-            console.log(hdResponse);
             setIdHoaDon(hdResponse.id);
-            alert('Hóa đơn đã được tạo thành công!');
 
-            if (hoaDonDaTaoRef.current === true) {
-                if (hdResponse) {
-                    const tthdRequest = {
-                        idHoaDon: hdResponse.id,
-                        listTraPhong: JSON.parse(localStorage.getItem('traPhong'))
-                    };
+            const traPhongData = JSON.parse(localStorage.getItem('traPhong')) || [];
+            const tthdRequest = {
+                idHoaDon: hdResponse.id,
+                listTraPhong: traPhongData,
+            };
 
-                    const response = await createThongTinHoaDon(tthdRequest);
-                    setThongTinHoaDon((prev) => [...prev, ...response.data]);
-                }
-            }
+            const response = await createThongTinHoaDon(tthdRequest);
+            setThongTinHoaDon(response.data || []);
         } catch (error) {
-            alert('Lỗi khi tạo hóa đơn.');
             console.error('Lỗi tạo hóa đơn:', error);
         }
     };
@@ -62,58 +43,70 @@ const DemoTaoHoaDon = () => {
     };
 
     const totalAmount = useMemo(() => {
-        return thongTinHoaDon.reduce((total, item) => total + item.tienPhong + item.tienPhuThu + item.tienDichVu, 0);
+        return thongTinHoaDon.reduce(
+            (total, item) => total + item.tienPhong + item.tienPhuThu + item.tienDichVu,
+            0
+        );
     }, [thongTinHoaDon]);
 
     return (
-        <div className="container">
-            <div className="card mt-4">
-                <div className="card-body">
-                    <h5>Thông Tin Hóa Đơn</h5>
-                    <table className="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Mã Hóa Đơn</th>
-                                <th>ID Trả phòng</th>
-                                <th>Phòng</th>
-                                <th>Tiền Phòng</th>
-                                <th>Tiền Phụ Thu</th>
-                                <th>Tiền Dịch Vụ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {thongTinHoaDon.length > 0 ? (
-                                thongTinHoaDon.map((item, index) => (
-                                    <tr key={index}>
-                                        <td>{item.id}</td>
-                                        <td>{item.hoaDon.maHoaDon}</td>
-                                        <td>{item.traPhong.id}</td>
-                                        <td>{item.traPhong.xepPhong.phong.tenPhong}</td>
-                                        <td>{formatCurrency(item.tienPhong)}</td>
-                                        <td>{formatCurrency(item.tienPhuThu)}</td>
-                                        <td>{formatCurrency(item.tienDichVu)}</td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="7" className="text-center">Chưa có thông tin hóa đơn.</td>
-                                </tr>
-                            )}
-                        </tbody>
+        <Container>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 3 }}>
+                <Typography level="h4">Thông tin chi tiết hóa đơn</Typography>
+            </Box>
 
-                    </table>
-                    <div className="total-section">
-                        <p className="total-amount"><b>Tổng tiền:</b> {isNaN(totalAmount) ? formatCurrency(0) : formatCurrency(totalAmount)}</p>
-                        <button
-                            style={{ width: '180px' }}
-                            onClick={() => navigate(`/thanh-toan/${idHoaDon}`)}>
-                            Thanh toán
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <Sheet
+                sx={{
+                    marginTop: 2,
+                    padding: "2px",
+                    borderRadius: "5px",
+                }}
+            >
+                <Table borderAxis="x" size="lg" stickyHeader variant="outlined">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Mã Hóa Đơn</th>
+                            <th>ID Trả phòng</th>
+                            <th>Phòng</th>
+                            <th>Tiền Phòng</th>
+                            <th>Tiền Phụ Thu</th>
+                            <th>Tiền Dịch Vụ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {thongTinHoaDon.length > 0 ? (
+                            thongTinHoaDon.map((item, index) => (
+                                <tr key={index}>
+                                    <td>{item.id}</td>
+                                    <td>{item.hoaDon?.maHoaDon}</td>
+                                    <td>{item.traPhong?.id}</td>
+                                    <td>{item.traPhong?.xepPhong?.phong?.tenPhong}</td>
+                                    <td>{formatCurrency(item.tienPhong)}</td>
+                                    <td>{formatCurrency(item.tienPhuThu)}</td>
+                                    <td>{formatCurrency(item.tienDichVu)}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan={7} align="center">
+                                    Không tìm thấy dữ liệu.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </Table>
+            </Sheet>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3 }}>
+                <Typography level="h6">
+                    <b>Tổng tiền:</b> {isNaN(totalAmount) ? formatCurrency(0) : formatCurrency(totalAmount)}
+                </Typography>
+                <Button color="primary" variant='soft' onClick={() => navigate(`/thanh-toan/${idHoaDon}`)}>
+                    Thanh toán
+                </Button>
+            </Box>
+        </Container>
     );
 };
 
