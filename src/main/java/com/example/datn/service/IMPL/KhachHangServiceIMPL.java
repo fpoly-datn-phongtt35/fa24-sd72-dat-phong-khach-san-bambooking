@@ -1,15 +1,11 @@
 package com.example.datn.service.IMPL;
 
-import com.example.datn.config.PasswordGenerator;
 import com.example.datn.dto.request.KhachHangDatPhongRequest;
-import com.example.datn.dto.request.KhachHangRequest;
 import com.example.datn.dto.request.customer.CustomerRequests;
 import com.example.datn.dto.request.customer.FilterRequest;
-import com.example.datn.dto.response.KhachHangResponse;
 import com.example.datn.dto.response.customer.CustomerResponses;
 import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.exception.InvalidDataException;
-import com.example.datn.mapper.KhachHangMapper;
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.KhachHangRepository;
@@ -21,14 +17,9 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
 @Service

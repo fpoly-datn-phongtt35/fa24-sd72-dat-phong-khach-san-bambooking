@@ -1,20 +1,21 @@
 package com.example.datn.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
-
+import java.time.LocalDate;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-@Builder
 @Table(name = "nhan_vien")
-public class NhanVien implements Serializable {
+public class Employee implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -32,13 +33,6 @@ public class NhanVien implements Serializable {
     @Column(name = "ten")
     private String ten;
 
-    @Transient // Đảm bảo trường này không được ánh xạ trực tiếp với cơ sở dữ liệu
-    private String hoTenNhanVien;
-
-    public String getHoTenNhanVien() {
-        return ho + " " + ten;
-    }
-
     @Column(name = "gioi_tinh")
     private String gioiTinh;
 
@@ -50,16 +44,13 @@ public class NhanVien implements Serializable {
 
     @Column(name = "email")
     private String email;
+
     @Column(name = "ngay_tao")
-    private LocalDateTime ngayTao;
+    private LocalDate ngayTao;
 
     @Column(name = "ngay_sua")
-    private LocalDateTime ngaySua;
+    private LocalDate ngaySua;
 
     @Column(name = "trang_thai")
     private Boolean trangThai;
-
-    public String getHoTen() {
-        return ho + " " + ten;
-    }
 }

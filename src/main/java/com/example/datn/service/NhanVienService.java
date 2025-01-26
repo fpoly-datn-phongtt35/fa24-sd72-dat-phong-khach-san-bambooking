@@ -1,6 +1,12 @@
 package com.example.datn.service;
 
 import com.example.datn.dto.request.NhanVienRequest;
+import com.example.datn.dto.request.customer.CustomerRequests;
+import com.example.datn.dto.request.customer.FilterRequest;
+import com.example.datn.dto.request.employee.EmployeeFilterRequest;
+import com.example.datn.dto.request.employee.EmployeeRequests;
+import com.example.datn.dto.response.customer.CustomerResponses;
+import com.example.datn.dto.response.employee.EmployeeResponses;
 import com.example.datn.model.NhanVien;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,16 +15,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface NhanVienService {
-    Page<NhanVien> getAll(Pageable pageable);
-    public NhanVien create(NhanVien nhanVien);
-    public NhanVien update(NhanVien nhanVien);
+    EmployeeResponses.EmployeeTemplate getEmployees(EmployeeFilterRequest request);
 
-    public void deleteNhanVien(Integer id);
+    void updateStatus(int id, boolean status);
 
-    Page<NhanVien> searchNhanVien(String keyword, Pageable pageable);
-    Optional<NhanVien> findBySdt(String sdt);
+    int storeEmployee(EmployeeRequests.EmployeeStore request);
 
-    NhanVien getNhanVienById(Integer id);
+    EmployeeResponses.EmployeeResponseBase getEmployee(Integer id);
 
-    NhanVien createNhanVien(NhanVienRequest request);
+    void updateEmployee(EmployeeRequests.EmployeeUpdate request, int id);
 }

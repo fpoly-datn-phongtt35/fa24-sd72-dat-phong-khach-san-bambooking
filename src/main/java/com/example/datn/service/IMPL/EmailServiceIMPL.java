@@ -1,19 +1,16 @@
 package com.example.datn.service.IMPL;
 
 import com.example.datn.service.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
 public class EmailServiceIMPL implements EmailService {
-    @Autowired
-    private JavaMailSender mailSender;
+
 
     @Override
     public void sendThankYouEmail(String email,
@@ -56,7 +53,7 @@ public class EmailServiceIMPL implements EmailService {
             message.setText(emailContent);
 
             // Gửi email
-            mailSender.send(message);
+//            mailSender.send(message);
         } catch (Exception e) {
             // Log lỗi gửi email nếu có
             System.err.println("Lỗi khi gửi email chúc mừng: " + e.getMessage());
