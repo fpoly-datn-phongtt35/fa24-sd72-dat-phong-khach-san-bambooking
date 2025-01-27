@@ -22,22 +22,22 @@ export const fetchAllEmployee = async (param) => {
     .then((res) => res.data);
 };
 
-// export const getCustomerById = async (id) => {
-//   return await authorizedAxiosInstance
-//     .get(`${API_ROOT}/api/v1/customer/${id}`)
-//     .then((res) => res.data);
-// };
+export const getEmployeeById = async (id) => {
+  return await authorizedAxiosInstance
+    .get(`${API_ROOT}/api/v1/employee/${id}`)
+    .then((res) => res.data);
+};
 
-// export const updatStatus = async (id, status) => {
-//   await authorizedAxiosInstance.patch(
-//     `${API_ROOT}/api/v1/customer/update-status/${id}?status=${status}`
-//   );
-// };
+export const updateStatus = async (id, status) => {
+  await authorizedAxiosInstance.patch(
+    `${API_ROOT}/api/v1/employee/update-status/${id}?status=${status}`
+  );
+};
 
 export const newEmployee = async (data) => {
   await authorizedAxiosInstance.post(`${API_ROOT}/api/v1/employee`, data);
 };
 
-// export const updateCustomer = async (data, id) => {
-//   await authorizedAxiosInstance.put(`${API_ROOT}/api/v1/customer/${id}`, data);
-// };
+export const updateEmployee = async (data, id) => {
+  await authorizedAxiosInstance.put(`${API_ROOT}/api/v1/employee/${id}`, data);
+};

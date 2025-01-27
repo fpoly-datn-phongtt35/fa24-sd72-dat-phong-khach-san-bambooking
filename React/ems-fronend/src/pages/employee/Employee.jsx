@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
-import { fetchAllEmployee } from '../../apis/employeeApi';
+import { fetchAllEmployee, updateStatus } from '../../apis/employeeApi';
 
 export const Employee = () => {
     const [data, setData] = useState(null);
@@ -30,9 +30,9 @@ export const Employee = () => {
     }
 
     const handleUpdateStatus = async (id, status) => {
-        // await updatStatus(id, status).then(() => {
-        //     handleFetchData();
-        // })
+        await updateStatus(id, status).then(() => {
+            handleFetchData();
+        })
     }
 
     const handlePageChange = (event, value) => {

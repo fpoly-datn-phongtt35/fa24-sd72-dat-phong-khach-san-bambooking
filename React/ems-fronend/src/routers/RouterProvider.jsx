@@ -28,6 +28,7 @@ import { NewCustomer } from "../pages/customer/NewCustomer";
 import { DetailCustomer } from "../pages/customer/DetailCustomer";
 import { Employee } from "../pages/employee/Employee";
 import { NewEmployee } from "../pages/employee/NewEmployee";
+import { DetailEmployee } from "../pages/employee/DetailEmployee";
 
 
 function RouterProvider() {
@@ -80,6 +81,7 @@ function RouterProvider() {
                 <Route path="/LoaiPhong" element={<LoaiPhong />} />
                 <Route path="/NhanVien" element={<Employee />} />
                 <Route path="/add-nhan-vien" element={<NewEmployee />} />
+                <Route path="/update-nhan-vien/:id" element={<DetailEmployee />} />
                 <Route path="/LoaiPhong" element={<LoaiPhong />} />
                 <Route path="/DichVuDikem" element={<XoaDichVuDiKem />} />
                 <Route path="/DichVu" element={<DanhSach />} />

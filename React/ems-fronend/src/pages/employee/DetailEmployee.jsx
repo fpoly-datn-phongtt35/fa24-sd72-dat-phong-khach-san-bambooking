@@ -2,8 +2,9 @@ import { Avatar, Box, Button, Container, FormControl, FormHelperText, FormLabel,
 import SvgIcon from '@mui/joy/SvgIcon';
 import { styled } from '@mui/joy';
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { newEmployee } from "../../apis/employeeApi";
+import { useNavigate, useParams } from "react-router-dom";
+import { getEmployeeById, updateEmployee } from "../../apis/employeeApi";
+import { useEffect, useState } from "react";
 
 const VisuallyHiddenInput = styled('input')`
   clip: rect(0 0 0 0);
@@ -16,28 +17,62 @@ const VisuallyHiddenInput = styled('input')`
   white-space: nowrap;
   width: 1px;
 `;
-export const NewEmployee = () => {
+export const DetailEmployee = () => {
+    const [employee, setEmployee] = useState(null);
+
     const navigate = useNavigate();
+    const { id } = useParams();
 
     const {
         register,
         handleSubmit,
+        reset,
+        watch,
+        setValue,
         formState: { errors },
-    } = useForm();
+    } = useForm({
+        defaultValues: {
+            gender: "Nam",
+        },
+    });
+
+    useEffect(() => {
+        getEmployee();
+    }, []);
+
+    useEffect(() => {
+        if (employee) {
+            reset({
+                firstName: employee?.firstName || '',
+                lastName: employee?.lastName || '',
+                phoneNumber: employee?.phoneNumber || '',
+                address: employee?.address || '',
+                gender: employee?.gender || 'Nam',
+                email: employee?.email || '',
+            });
+        }
+    }, [employee, reset]);
+
+    const getEmployee = async () => {
+        await getEmployeeById(id).then((res) => {
+            setEmployee(res.data);
+        })
+    }
+
+    const gender = watch("gender");
 
     const onSubmit = async (data) => {
+        console.log(data);
+
         const formData = new FormData();
-        formData.append('username', data.username)
         formData.append('firstName', data.firstName)
         formData.append('lastName', data.lastName)
         formData.append('phoneNumber', data.phoneNumber)
         formData.append('address', data.address)
-        formData.append('idCard', data.idCard)
         formData.append('gender', data.gender)
-        formData.append('password', data.password)
         formData.append('email', data.email)
 
-        await newEmployee(formData).then(() => {
+        await updateEmployee(formData, id).then(() => {
             navigate('/NhanVien')
         })
     };
@@ -82,26 +117,20 @@ export const NewEmployee = () => {
                         </Box>
                     </Grid>
                     <Grid xs={9} sx={{ border: '0.1px solid #d9d9d9', padding: 2 }}>
-                        <Typography level="h4" sx={{ marginBottom: 2 }}>Thêm nhân viên</Typography>
+                        <Typography level="h4" sx={{ marginBottom: 2 }}>Chi tiết nhân viênviên</Typography>
                         <Grid container spacing={2}>
 
                             <Grid container spacing={2} sx={{ width: '100%' }}>
                                 <Grid xs={6}>
-                                    <FormControl sx={{ width: '100%' }} error={!!errors?.username}>
+                                    <FormControl sx={{ width: '100%' }}>
                                         <FormLabel required>Tên tài khoản</FormLabel>
-                                        <Input placeholder="Nhập tên tài khoản..." sx={{ width: '400px' }} {...register("username", { required: "Tên tài khoản không được để trống" })} />
-                                        {errors.username && (
-                                            <FormHelperText>{errors.username.message}</FormHelperText>
-                                        )}
+                                        <Input placeholder="Nhập tên tài khoản..." sx={{ width: '400px' }} value={employee?.username || ''} disabled />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
-                                    <FormControl sx={{ width: '100%' }} error={!!errors?.password}>
+                                    <FormControl sx={{ width: '100%' }}>
                                         <FormLabel required >Mật khẩu</FormLabel>
-                                        <Input type="password" placeholder="Nhập mật khẩu..." sx={{ width: '400px' }}  {...register("password", { required: "Mật khẩu không được để trống" })} />
-                                        {errors.password && (
-                                            <FormHelperText>{errors.password.message}</FormHelperText>
-                                        )}
+                                        <Input type="password" placeholder="Nhập mật khẩu..." sx={{ width: '400px' }} value="cannot change" disabled />
                                     </FormControl>
                                 </Grid>
                             </Grid>
@@ -119,7 +148,7 @@ export const NewEmployee = () => {
                                 <Grid xs={6}>
                                     <FormControl sx={{ width: '100%' }} error={!!errors?.firstName}>
                                         <FormLabel required>Tên</FormLabel>
-                                        <Input placeholder="Nhập tên..." sx={{ width: '400px' }}  {...register("firstName", { required: "Tên không được để trống" })} />
+                                        <Input placeholder="Nhập tên..." sx={{ width: '400px' }} {...register("firstName", { required: "Tên không được để trống" })} />
                                         {errors.firstName && (
                                             <FormHelperText>{errors.firstName.message}</FormHelperText>
                                         )}
@@ -129,12 +158,9 @@ export const NewEmployee = () => {
 
                             <Grid container spacing={2}>
                                 <Grid xs={6}>
-                                    <FormControl sx={{ width: '100%' }} error={!!errors?.idCard}>
+                                    <FormControl sx={{ width: '100%' }} >
                                         <FormLabel required>Chứng minh nhân dân</FormLabel>
-                                        <Input placeholder="Nhập số chứng minh nhân dân..." sx={{ width: '400px' }} {...register("idCard", { required: "Vui lòng nhập số CMND" })} />
-                                        {errors.idCard && (
-                                            <FormHelperText>{errors.idCard.message}</FormHelperText>
-                                        )}
+                                        <Input placeholder="Nhập số chứng minh nhân dân..." sx={{ width: '400px' }} value={employee?.idCard || ''} disabled />
                                     </FormControl>
                                 </Grid>
                                 <Grid xs={6}>
@@ -149,24 +175,20 @@ export const NewEmployee = () => {
                                                 alignItems: "center",
                                                 gap: 2,
                                             }}
+                                            value={gender}
+                                            onChange={(e) => setValue("gender", e.target.value)}
                                         >
                                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                                 <Radio
                                                     value="Nam"
-                                                    slotProps={{ input: { "aria-label": "MALE" } }}
-                                                    {...register("gender", {
-                                                        required: "Giới tính không được để trống",
-                                                    })}
+                                                    slotProps={{ input: { "aria-label": "Nam" } }}
                                                 />
                                                 <Typography>Nam</Typography>
                                             </Box>
                                             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                                 <Radio
                                                     value="Nữ"
-                                                    slotProps={{ input: { "aria-label": "FEMALE" } }}
-                                                    {...register("gender", {
-                                                        required: "Giới tính không được để trống",
-                                                    })}
+                                                    slotProps={{ input: { "aria-label": "Nữ" } }}
                                                 />
                                                 <Typography>Nữ</Typography>
                                             </Box>
