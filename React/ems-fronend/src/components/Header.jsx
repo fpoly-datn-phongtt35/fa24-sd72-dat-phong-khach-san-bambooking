@@ -50,7 +50,6 @@ const Header = ({ isAuthenticated }) => {
                         {/* Avatar hình tròn */}
                         <div className="user-avatar" onClick={toggleUserInfo}>
                             <img
-                                src="https://via.placeholder.com/40"
                                 alt="User Avatar"
                                 className="avatar-img"
                             />

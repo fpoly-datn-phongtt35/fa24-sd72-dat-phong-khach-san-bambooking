@@ -21,6 +21,7 @@ import QuanLyDatPhong from "../components/DatPhong/QuanLyDatPhong";
 import BookingForm from "../components/DatPhong/BookingForm";
 import TaoDatPhong from "../components/DatPhong/TaoDatPhong";
 import ChiTietDatPhong from "../components/DatPhong/ChiTietDatPhong";
+import ChiTietTTDP from "../components/DatPhong/ChiTietTTDP";
 import ListHoaDon from "../components/HoaDon/ListHoaDon";
 // import HoaDonComponent from "../components/HoaDon/HoaDonComponent";
 import TaiKhoanComponent from "../components/taikhoan/TaiKhoanComponent";
@@ -34,7 +35,8 @@ import ThanhToanComponent from "../components/ThanhToan/ThanhToanComponent";
 import InfoHoaDon from "../components/HoaDon/InfoHoaDon";
 import DemoTaoHoaDon from "../components/HoaDon/DemoTaoHoaDon"
 import Demo from "../components/HoaDon/Demo"
-
+import UploadQR from "../components/UploadQR";
+import QRScannerManual from "../components/QRScannerManual";
 function RouterProvider() {
 
     const UnauthorizedRoutes = () => {
@@ -99,6 +101,8 @@ function RouterProvider() {
                 <Route path="/giao-dien-tao-dp" element={<BookingForm />} />
                 <Route path="/tao-dat-phong" element={<TaoDatPhong />} />
                 <Route path="/thong-tin-dat-phong" element={<ChiTietDatPhong />} />
+                <Route path="/chi-tiet-ttdp" element={<ChiTietTTDP />} />
+                
                 <Route path="/hoa-don" element={<ListHoaDon />} />
                 {/* <Route path="/add-hoa-don" element={<HoaDonComponent />} /> */}
                 <Route path="/add-taikhoan" element={<TaiKhoanComponent />} />
@@ -111,7 +115,8 @@ function RouterProvider() {
                 <Route path="/TaiKhoan" element={<ListTaiKhoan />} />
                 {/* <Route path="/VaiTro" element={<ListVaiTro />} /> */}
                 <Route path="/" element={<ViewPhong />} />
-
+                <Route path="/test" element={<QRScannerManual />} />
+                <Route path="/upload" element={<UploadQR />} />
                 {/* Thanh toán */}
                 <Route path="thanh-toan/:idHoaDon" element={<ThanhToanComponent />} />
                 {/* Hóa đơn */}
