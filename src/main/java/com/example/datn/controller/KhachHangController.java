@@ -31,7 +31,6 @@ import java.util.Optional;
 public class KhachHangController {
     @Autowired
     KhachHangRepository khachHangRepository;
-
     KhachHangService khachHangService;
 //    @PostMapping("/login")
 //    public ResponseEntity<String> login(@RequestBody KhachHangRegister request) {

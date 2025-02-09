@@ -6,6 +6,7 @@ const UploadQR = ({ setQRData }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const imgRef = useRef(null);
   const canvasRef = useRef(null);
+  const codeReader = useRef(new BrowserQRCodeReader());
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -17,31 +18,53 @@ const UploadQR = ({ setQRData }) => {
 
   useEffect(() => {
     if (imagePreview && imgRef.current) {
-      imgRef.current.onload = async () => {
-        try {
-          const canvas = canvasRef.current;
-          const ctx = canvas.getContext("2d");
+      imgRef.current.onload = () => {
+        setTimeout(async () => {  // ⚡ Thêm độ trễ để đảm bảo ảnh đã render xong
+          try {
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext("2d");
 
-          // **Giảm kích thước ảnh xuống 50% để dễ quét hơn**
-          const scaleFactor = 0.5; // Điều chỉnh nếu cần
-          const newWidth = imgRef.current.width * scaleFactor;
-          const newHeight = imgRef.current.height * scaleFactor;
+            // Đảm bảo modal đã render xong trước khi quét
+            if (!canvas || !ctx || !imgRef.current) {
+              console.error("Canvas hoặc imgRef chưa sẵn sàng.");
+              return;
+            }
 
-          canvas.width = newWidth;
-          canvas.height = newHeight;
-          ctx.drawImage(imgRef.current, 0, 0, newWidth, newHeight);
+            // Resize ảnh để tăng khả năng nhận diện
+            const scaleFactor = 0.5;
+            const newWidth = imgRef.current.width * scaleFactor;
+            const newHeight = imgRef.current.height * scaleFactor;
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            ctx.drawImage(imgRef.current, 0, 0, newWidth, newHeight);
 
-          // Quét QR Code từ canvas (ảnh đã giảm kích thước)
-          const codeReader = new BrowserQRCodeReader();
-          const result = await codeReader.decodeFromCanvas(canvas);
+            // Chuyển ảnh sang grayscale
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < imageData.data.length; i += 4) {
+              const avg = (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
+              imageData.data[i] = avg; // Red
+              imageData.data[i + 1] = avg; // Green
+              imageData.data[i + 2] = avg; // Blue
+            }
+            ctx.putImageData(imageData, 0, 0);
 
-          setQrResult(result.getText());
-          setQRData=result.getText(); 
-        } catch (error) {
-          console.error("Không thể quét QR Code:", error);
-          setQrResult("Không phát hiện QR Code. Hãy thử ảnh khác.");
-          setQRData=("Không phát hiện QR Code. Hãy thử ảnh khác.")
-        }
+            // ⚡ Thử quét trực tiếp từ ảnh thay vì canvas nếu quét thất bại
+            let result;
+            try {
+              result = await codeReader.current.decodeFromCanvas(canvas);
+            } catch (error) {
+              console.warn("Quét từ canvas thất bại, thử quét từ ảnh...");
+              result = await codeReader.current.decodeFromImageElement(imgRef.current);
+            }
+
+            setQrResult(result.getText());
+            setQRData=(result.getText());
+          } catch (error) {
+            console.error("Không thể quét QR Code:", error);
+            setQrResult("Không phát hiện QR Code. Hãy thử ảnh khác.");
+            setQRData=("Không phát hiện QR Code. Hãy thử ảnh khác.");
+          }
+        }, 300); // 🕒 Độ trễ 300ms để đảm bảo modal render hoàn tất
       };
     }
   }, [imagePreview]);
