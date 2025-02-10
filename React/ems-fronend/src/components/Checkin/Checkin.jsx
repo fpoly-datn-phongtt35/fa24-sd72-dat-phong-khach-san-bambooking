@@ -48,24 +48,24 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
             const gio14Chieu = new Date(ngayNhanPhongXepPhong);
             gio14Chieu.setHours(14, 0, 0, 0);
 
-            // Kiểm tra nếu ngày nhận phòng > 14h00 chiều
-            if (ngayNhanPhongXepPhong > gio14Chieu) {
+            // Kiểm tra nếu ngày nhận phòng < 14h00 chiều (nhận phòng sớm)
+            if (ngayNhanPhongXepPhong < gio14Chieu) {
                 const phuThuRequest = {
                     xepPhong: { id: xepPhong.id },
-                    tenPhuThu: 'Phụ thu do nhận phòng trễ',
+                    tenPhuThu: 'Phụ thu do nhận phòng sớm',
                     tienPhuThu: 50000,
                     soLuong: 1,
                     trangThai: true,
                 };
 
-                console.log('Đang thêm phụ thu do nhận phòng trễ:', phuThuRequest);
+                console.log('Đang thêm phụ thu do nhận phòng sớm:', phuThuRequest);
 
                 // Thực hiện thêm phụ thu
                 const phuThuResponse = await ThemPhuThu(phuThuRequest);
-                console.log('Phụ thu do nhận phòng trễ thành công:', phuThuResponse.data);
-                alert('Phụ thu do nhận phòng trễ đã được thêm.');
+                console.log('Phụ thu do nhận phòng sớm thành công:', phuThuResponse.data);
+                alert('Phụ thu do nhận phòng sớm đã được thêm.');
             } else {
-                console.log('Không cần phụ thu: Ngày nhận phòng trước 14h chiều.');
+                console.log('Không cần phụ thu: Ngày nhận phòng sau 14h chiều.');
             }
         } catch (error) {
             console.error('Lỗi xảy ra:', error);
