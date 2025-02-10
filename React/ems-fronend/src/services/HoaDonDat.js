@@ -12,6 +12,7 @@ export const findCheckOut = (key) => {
         }
     });
 };
+
 export const checkOut = (idTraPhong) => {
     return authorizedAxiosInstance.get(apiCheckOut, {
         params: {
@@ -19,6 +20,7 @@ export const checkOut = (idTraPhong) => {
         }
     });
 };
+
 export const getDatPhong = (maDatPhong) => {
     return authorizedAxiosInstance.get(apiGetDatPhong, {
         params: {
@@ -26,10 +28,7 @@ export const getDatPhong = (maDatPhong) => {
         }
     });
 };
+
 export const createThongTinHoaDon = (tthdRequest) => {
-    return authorizedAxiosInstance.post(apiCreateTTHD, tthdRequest, {
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    });
+    return authorizedAxiosInstance.post(apiCreateTTHD, tthdRequest);
 };

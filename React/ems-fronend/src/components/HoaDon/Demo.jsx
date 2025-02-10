@@ -1,40 +1,39 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { findCheckOut, checkOut } from '../../services/HoaDonDat';
-import './Demo.scss';  // Import tập tin SCSS tùy chỉnh
+import {Box, Button, Card, Container, IconButton, Input, Stack, Typography} from '@mui/joy';
+import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 
 const Demo = () => {
     const [key, setKey] = useState('');
     const [traPhong, setTraPhong] = useState([]);
-    const navigate = useNavigate(); // Khai báo useNavigate để điều hướng
+    const navigate = useNavigate();
 
     const FindCheckOut = (key) => {
         findCheckOut(key)
-            .then(response => {
+            .then((response) => {
                 console.log(response.data);
                 setTraPhong(response.data);
             })
-            .catch(error => {
-                console.log("Lỗi khi tìm kiếm thông tin phòng", error);
+            .catch((error) => {
+                console.log('Lỗi khi tìm kiếm thông tin phòng', error);
             });
     };
 
     const CheckOut = () => {
         traPhong.forEach((item) => {
             checkOut(item.id)
-                .then(response => {
+                .then((response) => {
                     console.log(`Checkout thành công cho phòng ID: ${item.id}`);
-                    console.log(response.data);
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.log(`Lỗi khi checkout phòng ID: ${item.id}`, error);
                 });
         });
 
-        // Lưu danh sách traPhong vào localStorage
         localStorage.setItem('traPhong', JSON.stringify(traPhong));
-        // Điều hướng sang trang demo-tao-hoa-don
-        navigate('/demo-tao-hoa-don');
+        navigate('/tao-hoa-don');
     };
 
     const removeTraPhong = (id) => {
@@ -48,69 +47,119 @@ const Demo = () => {
     };
 
     const formatDateTime = (dateString) => {
-        const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+        const options = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+        };
         const date = new Date(dateString);
         return date.toLocaleString('vi-VN', options);
     };
 
     return (
-        <div className="demo-container">
-            <div className="card">
-                <div className="card-body">
-                    <h5>Tìm kiếm thông tin trả phòng</h5>
-                    <div className="input-section">
-                        <input
-                            type="text"
-                            className="input-field"
-                            id="key"
+        <Container>
+            <Box sx={{ padding: 3 }}>
+                {/* Tìm kiếm */}
+                <Box sx={{ maxWidth: 600, margin: '0 auto', textAlign: 'center' }}>
+                    <Typography level="h4" sx={{ marginBottom: 2 }}>
+                        Tìm kiếm thông tin trả phòng
+                    </Typography>
+                    <Stack direction="row" spacing={2} alignItems="center" justifyContent="center">
+                        <Input
+                            fullWidth
+                            placeholder="Nhập mã hoặc từ khóa..."
                             value={key}
                             onChange={(e) => setKey(e.target.value)}
+                            startDecorator={<SearchIcon />}
+                            sx={{ maxWidth: 400 }}
                         />
-                        <button
-                            className="checkout-button"
-                            style={{ width: '120px' }}
+                        <Button
+                            variant="solid"
+                            color="primary"
                             onClick={() => FindCheckOut(key)}
                         >
                             Tìm kiếm
-                        </button>
+                        </Button>
+                    </Stack>
+                </Box>
 
-                        {traPhong.length > 0 && (
-                            <div className="checkout-section">
-                                <button
-                                    className="confirm-checkout-button"
+                {/* Hiển thị danh sách trả phòng */}
+                <Box sx={{ marginTop: 4 }}>
+                    {traPhong.length === 0 ? (
+                        <Box sx={{ textAlign: 'center', marginTop: 4 }}>
+                            <Typography level="body1" sx={{ marginBottom: 2 }}>
+                                Không có thông tin trả phòng được tìm thấy.
+                            </Typography>
+                            <Typography level="body2" color="neutral">
+                                Hãy thử tìm kiếm lại bằng mã hoặc từ khóa khác.
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Stack spacing={2}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: 2,
+                                }}
+                            >
+                                <Typography level="h4">Chi tiết trả phòng</Typography>
+                                <Button
+                                    variant="solid"
+                                    color="success"
                                     onClick={CheckOut}
-                                    style={{ width: '150px' }}
-                                >Trả phòng
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                                >
+                                    Trả phòng
+                                </Button>
+                            </Box>
 
-                    {traPhong.length > 0 && (
-                        <div className="room-info">
-                            <h5>Thông tin trả phòng</h5>
-                            <div className="card-list">
-                                {traPhong.map((item, index) => (
-                                    <div className="room-card" key={index}>
-                                        <div className="card-content">
-                                            <button className="remove-button" onClick={() => removeTraPhong(item.id)}>
-                                                &times;
-                                            </button>
-                                            <h6 className="room-title">Phòng: {item.xepPhong.phong.tenPhong}</h6>
-                                            <p className="room-details">
-                                                <strong>Ngày checkin:</strong> {formatDate(item.xepPhong.ngayNhanPhong)}<br />
-                                                <strong>Ngày checkout:</strong> {formatDateTime(item.ngayTraThucTe)}<br />
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                            {traPhong.map((item, index) => (
+                                <Card
+                                    key={index}
+                                    variant="outlined"
+                                    sx={{
+                                        position: 'relative',
+                                        padding: 3,
+                                        gap: 2,
+                                        maxWidth: 300,
+                                        margin: '0 auto',
+                                        textAlign: 'center',
+                                        boxShadow: 'sm',
+                                    }}>
+                                    <IconButton
+                                        color="danger"
+                                        onClick={() => removeTraPhong(item.id)}
+                                        size="sm"
+                                        sx={{
+                                            position: 'absolute',
+                                            top: 8,
+                                            right: 8,
+                                        }}
+                                    >
+                                        <CloseIcon />
+                                    </IconButton>
+
+                                    <Box>
+                                        <Typography level="h6" sx={{ fontSize: '1rem' }}>
+                                            Tên phòng: {item.xepPhong.phong.tenPhong}
+                                        </Typography>
+                                        <Typography level="body2" sx={{ fontSize: '0.85rem' }}>
+                                            <strong>Ngày nhận phòng:</strong> {formatDate(item.xepPhong.ngayNhanPhong)} <br />
+                                            <strong>Ngày trả phòng:</strong> {formatDateTime(item.ngayTraThucTe)}
+                                        </Typography>
+                                    </Box>
+                                </Card>
+
+                            ))}
+                        </Stack>
                     )}
-                </div>
-            </div>
+                </Box>
+            </Box>
+        </Container>
 
-        </div>
     );
 };
 

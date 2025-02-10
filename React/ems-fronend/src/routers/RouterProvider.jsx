@@ -119,10 +119,12 @@ function RouterProvider() {
                 <Route path="/upload" element={<UploadQR />} />
                 {/* Thanh toán */}
                 <Route path="thanh-toan/:idHoaDon" element={<ThanhToanComponent />} />
+                
                 {/* Hóa đơn */}
+                <Route path="/tra-phong" element={<Demo />} />
                 <Route path="/hoa-don/:id" element={<InfoHoaDon />} />
-                <Route path="/demo-tao-hoa-don" element={<DemoTaoHoaDon />} />
-                <Route path="/demo" element={<Demo />} />
+                <Route path="/tao-hoa-don" element={<DemoTaoHoaDon />} />
+                
             </Route>
         </Routes>
     )

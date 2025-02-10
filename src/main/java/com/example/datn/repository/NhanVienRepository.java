@@ -25,5 +25,16 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
 
     Page<NhanVien> searchByName(@Param("keyword") String keyword, Pageable pageable);
     Optional<NhanVien> findBySdt(String sdt);
+
+    @Query("FROM NhanVien WHERE taiKhoan.tenDangNhap = :username")
+    Optional<NhanVien> findByUsername(String username);
+
+    @Query("""
+            SELECT nv.id
+            FROM NhanVien nv
+            JOIN TaiKhoan tk ON nv.taiKhoan.id = tk.id
+            WHERE tk.tenDangNhap = :username
+            """)
+    Optional<Integer> findByIdEmployee(String username);
 }
 

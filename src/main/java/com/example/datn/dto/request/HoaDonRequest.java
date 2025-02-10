@@ -9,5 +9,5 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class HoaDonRequest {
     String tenDangNhap;
-    Integer idDatPhong;
+//    Integer idDatPhong;
 }

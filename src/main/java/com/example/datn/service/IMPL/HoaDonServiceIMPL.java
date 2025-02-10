@@ -2,14 +2,20 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.HoaDonRequest;
 import com.example.datn.dto.response.HoaDonResponse;
+import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.mapper.HoaDonMapper;
 import com.example.datn.model.HoaDon;
 import com.example.datn.model.NhanVien;
 import com.example.datn.repository.HoaDonRepository;
+import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.service.HoaDonService;
+import com.example.datn.service.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,12 +25,19 @@ import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.Locale;
 
+import static com.example.datn.common.TokenType.ACCESS_TOKEN;
+
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class HoaDonServiceIMPL implements HoaDonService {
     HoaDonRepository hoaDonRepository;
     HoaDonMapper hoaDonMapper;
+
+    NhanVienRepository nhanVienRepository;
+
+    JwtService jwtService;
 
     private static final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int code_length = 6;
@@ -57,7 +70,7 @@ public class HoaDonServiceIMPL implements HoaDonService {
     }
 
     @Override
-    public HoaDonResponse createHoaDon(HoaDonRequest request) {
+    public HoaDonResponse createHoaDon(HttpServletRequest request) {
         // Check trùng mã hóa đơn
         String maHoaDon;
 
@@ -65,7 +78,10 @@ public class HoaDonServiceIMPL implements HoaDonService {
             maHoaDon = generateMaaHoaDon();
         } while (isMaHoaDonExists(maHoaDon));
 
-        NhanVien nhanVien = hoaDonRepository.searchTenDangNhap(request.getTenDangNhap());
+        String username = this.jwtService.extractUsername(request.getHeader(HttpHeaders.AUTHORIZATION).substring("Bearer ".length()), ACCESS_TOKEN); // Boc tach token => username
+        log.info("Username {}", username);
+        NhanVien nhanVien = this.nhanVienRepository.findByUsername(username).orElseThrow(() -> new EntityNotFountException("User name not found!!"));
+
         HoaDon hoaDon = new HoaDon();
         hoaDon.setMaHoaDon(maHoaDon);
         hoaDon.setNhanVien(nhanVien);
@@ -73,6 +89,7 @@ public class HoaDonServiceIMPL implements HoaDonService {
         hoaDon.setTongTien(0.0);
         hoaDon.setNgayTao(LocalDateTime.now());
         hoaDon.setTrangThai("Chưa thanh toán");
+
         double tongTien = hoaDon.getTongTien();
         String formattedTongTien = formatCurrency(tongTien);
 

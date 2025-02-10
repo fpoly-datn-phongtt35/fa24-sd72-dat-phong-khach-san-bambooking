@@ -16,9 +16,9 @@ export const listHoaDon = (pageable, trangThai = "", keyword = "") => {
 };
 
 
-export const taoHoaDon = async (hoaDon) => {
+export const taoHoaDon = async () => {
     try {
-        const response = await authorizedAxiosInstance.post(`${apiHoaDon}/tao-hoa-don`, hoaDon);
+        const response = await authorizedAxiosInstance.post(`${apiHoaDon}/tao-hoa-don`);
         console.log("Tạo hóa đơn thành công:", response.data);
         return response.data;
     } catch (error) {

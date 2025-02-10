@@ -3,9 +3,11 @@ package com.example.datn.controller;
 import com.example.datn.dto.request.HoaDonRequest;
 import com.example.datn.dto.response.HoaDonResponse;
 import com.example.datn.service.HoaDonService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -13,10 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-//@CrossOrigin("*")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/hoa-don")
+@Slf4j
 public class HoaDonController {
     HoaDonService hoaDonService;
 
@@ -29,8 +31,9 @@ public class HoaDonController {
         return ResponseEntity.ok(hoaDonResponses);
     }
 
-    @PostMapping("tao-hoa-don")
-    public ResponseEntity<?> createHoaDon(@RequestBody HoaDonRequest request) {
+    @PostMapping("/tao-hoa-don")
+    public ResponseEntity<?> createHoaDon( HttpServletRequest request) { // can username thi add HttpServletRequest
+        log.info("POST/tao-hoa-don");
         return ResponseEntity.status(HttpStatus.CREATED).body(hoaDonService.createHoaDon(request));
     }
 

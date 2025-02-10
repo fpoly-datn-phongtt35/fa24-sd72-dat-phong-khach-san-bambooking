@@ -1,23 +1,31 @@
 import React, { useEffect, useState } from 'react';
+import {
+    Dialog,
+    DialogTitle,
+    DialogActions,
+    Typography,
+    Button,
+    TextField,
+    ToggleButtonGroup,
+    ToggleButton,
+    Box,
+    Chip,
+    Stack,
+    Divider,
+    Paper,
+    DialogContent,
+    FormControl,
+    OutlinedInput,
+    InputAdornment,
+    FormHelperText,
+    Input
+} from '@mui/material';
 import { getHoaDonById, updateThanhToan } from '../../services/ThanhToanService';
-import './ThanhToanModal.css';
 
 const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
     const [phuongThucThanhToan, setPhuongThucThanhToan] = useState(false); // Mặc định là "Tiền mặt"
     const [tienThanhToan, setTienThanhToan] = useState(thanhToan?.tienThanhToan || 0);
-    const [idNhanVien, setIdNhanVien] = useState('');
     const [hoaDon, setHoaDonLocal] = useState(thanhToan?.hoaDon || null);
-
-    if (!show) return null;
-
-    useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user && user.id) {
-            setIdNhanVien(user.id);
-        } else {
-            console.warn("Tên đăng nhập không tồn tại hoặc user là null.", user.id, user.tenDangNhap);
-        }
-    }, []);
 
     useEffect(() => {
         const fetchHoaDon = async () => {
@@ -27,9 +35,9 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
         };
 
         if (thanhToan?.hoaDon?.id) {
-            fetchHoaDon();  // Gọi API khi có id hóa đơn
+            fetchHoaDon();
         }
-    }, [thanhToan, setHoaDon]);  // Thêm setHoaDon để sử dụng khi cần cập nhật từ bên ngoài
+    }, [thanhToan, setHoaDon]);
 
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
@@ -43,17 +51,14 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
 
     const handleTienThanhToanChange = (event) => {
         const value = event.target.value;
-        let numericValue = value.replace(/[^0-9]/g, ''); // Loại bỏ ký tự không phải số và dấu phẩy
+        let numericValue = value.replace(/[^0-9]/g, '');
         setTienThanhToan(numericValue);
     };
-
-    const formattedTienThanhToan = formatCurrency(Number(tienThanhToan));
 
     const handleUpdateTienThanhToan = async () => {
         try {
             const data = {
                 id: thanhToan.id,
-                idNhanVien: idNhanVien,
                 idHoaDon: thanhToan.hoaDon.id,
                 tienThanhToan: Number(tienThanhToan),
                 phuongThucThanhToan: phuongThucThanhToan
@@ -61,87 +66,114 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
 
             await updateThanhToan(thanhToan.id, data);
 
-            // Cập nhật lại hóa đơn mới sau khi thanh toán thành công
             const updatedHoaDon = await getHoaDonById(thanhToan.hoaDon.id);
-            setHoaDonLocal(updatedHoaDon.data);  // Cập nhật dữ liệu mới vào local state
-            setHoaDon(updatedHoaDon.data);  // Cập nhật dữ liệu hóa đơn trong component cha
+            setHoaDonLocal(updatedHoaDon.data);
+            setHoaDon(updatedHoaDon.data);
 
-            alert("Thanh toán thành công");
+            alert('Thanh toán thành công');
             onClose();
         } catch (error) {
-            console.error("Lỗi khi thực hiện thanh toán: ", error);
-            const errorMessage = error.response?.data?.message || "Có lỗi xảy ra khi thanh toán, vui lòng thử lại.";
+            console.error('Lỗi khi thực hiện thanh toán: ', error);
+            const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi thanh toán, vui lòng thử lại.';
             alert(errorMessage);
         }
     };
 
     return (
-        <div className={`modal ${show ? 'show' : ''}`}>
-            <div className="modal-content">
-                <h5><b>THANH TOÁN</b></h5>
-                <div className="button-group">
-                    <button
-                        style={{ width: '150px' }}
-                        className={phuongThucThanhToan === false ? "active" : ""}
-                        onClick={() => setPhuongThucThanhToan(false)}
+        <Dialog open={show} onClose={onClose} maxWidth="sm" fullWidth sx={{ marginLeft: 18 }}>
+            <DialogTitle>
+                <Typography variant="h5" fontWeight="bold" align="center" gutterBottom>
+                    Thanh Toán
+                </Typography>
+            </DialogTitle>
+            <DialogContent>
+                <Stack spacing={4}>
+                    <ToggleButtonGroup
+                        value={phuongThucThanhToan}
+                        exclusive
+                        onChange={(e, value) => setPhuongThucThanhToan(value)}
+                        fullWidth
+                        color="primary"
                     >
-                        Tiền mặt
-                    </button>
-                    <button
-                        style={{ width: '150px' }}
-                        className={phuongThucThanhToan === true ? "active" : ""}
-                        onClick={() => setPhuongThucThanhToan(true)}
-                    >
-                        Chuyển khoản
-                    </button>
-                </div>
+                        <ToggleButton value={false} sx={{ textTransform: 'none', fontSize: '1rem' }}>
+                            Tiền mặt
+                        </ToggleButton>
+                        <ToggleButton value={true} sx={{ textTransform: 'none', fontSize: '1rem' }}>
+                            Chuyển khoản
+                        </ToggleButton>
+                    </ToggleButtonGroup>
 
-                <div className="content mt-3">
                     {phuongThucThanhToan === false ? (
                         hoaDon ? (
-                            <>
-                                <p><b>Ngày thanh toán:</b> {thanhToan.ngayThanhToan ? formatDate(thanhToan.ngayThanhToan) : 'Chưa có ngày thanh toán'}</p>
-                                <p><b>Tổng tiền:</b>
-                                    <span className={`badge bg-success text-white ms-1 fs-6`}>
-                                        {formatCurrency(hoaDon.tongTien)}
-                                    </span>
-                                </p>
-                                <div className="input-group">
-                                    <p><b>Tiền thanh toán:</b></p>
-                                    <input
-                                        type="text"
-                                        value={formattedTienThanhToan}
-                                        onChange={handleTienThanhToanChange}
-                                        className="input-tien-thanh-toan"
-                                    />
-                                </div>
-                                <p><b>Tiền thừa:</b>
-                                    <span className={`badge bg-warning text-black ms-1 fs-6`}>
-                                        {formatCurrency(tienThanhToan - hoaDon.tongTien)}
-                                    </span>
-                                </p>
-                                <div className="btn-control">
-                                    {tienThanhToan > 0 && (
-                                        <button className='btn-payment' onClick={handleUpdateTienThanhToan}>Thanh Toán</button>
-                                    )}
-                                    <button onClick={onClose} className='btn-cancel'>Hủy</button>
-                                </div>
-                            </>
+                            <Paper elevation={2} sx={{ paddingLeft: 13, paddingTop: 5, paddingBottom: 4, backgroundColor: '#f9f9f9' }}>
+                                <Stack spacing={3}>
+                                    <Typography>
+                                        <b>Ngày thanh toán:</b>{' '}
+                                        {thanhToan.ngayThanhToan
+                                            ? formatDate(thanhToan.ngayThanhToan)
+                                            : 'Chưa có ngày thanh toán'}
+                                    </Typography>
+                                    <Typography>
+                                        <b>Tổng tiền:</b>{' '}
+                                        <Chip
+                                            label={formatCurrency(hoaDon.tongTien)}
+                                            color="success"
+                                            variant="outlined"
+                                            sx={{ fontSize: '16px' }}
+                                        />
+                                    </Typography>
+                                    <Box display="flex" alignItems="center" gap={1}>
+                                        <Typography><b>Tiền thanh toán:</b></Typography>
+                                        <FormControl variant="standard" sx={{ width: '15ch' }}>
+                                            <Input
+                                                type="text"
+                                                value={tienThanhToan}
+                                                onChange={handleTienThanhToanChange}
+                                                endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
+                                                aria-describedby="standard-weight-helper-text"
+                                            />
+                                        </FormControl>
+                                    </Box>
+                                    <Typography>
+                                        <b>Tiền thừa:</b>{' '}
+                                        <Chip
+                                            label={formatCurrency(tienThanhToan - hoaDon.tongTien)}
+                                            color={tienThanhToan - hoaDon.tongTien >= 0 ? 'warning' : 'error'}
+                                            variant='outlined'
+                                            sx={{ fontSize: '16px' }}
+                                        />
+                                    </Typography>
+                                </Stack>
+                            </Paper>
                         ) : (
-                            <p>Không có thông tin thanh toán tiền mặt.</p>
+                            <Typography align="center">Không có thông tin thanh toán tiền mặt.</Typography>
                         )
                     ) : (
                         hoaDon ? (
-                            <>
-                                <h6><b>Chuyển Khoản</b></h6>
-                            </>
+                            <Typography variant="h6" align="center" fontWeight="bold">
+                                Chuyển Khoản
+                            </Typography>
                         ) : (
-                            <p>Không có thông tin thanh toán chuyển khoản.</p>
+                            <Typography align="center">Không có thông tin thanh toán chuyển khoản.</Typography>
                         )
                     )}
-                </div>
-            </div>
-        </div>
+                </Stack>
+            </DialogContent>
+
+            <DialogActions sx={{ justifyContent: 'flex-end', p: 3, pt: 1 }}>
+                <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleUpdateTienThanhToan}
+                    disabled={tienThanhToan <= 0}
+                >
+                    Thanh Toán
+                </Button>
+                <Button variant="outlined" color="error" onClick={onClose}>
+                    Hủy
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 };
 

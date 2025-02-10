@@ -1,5 +1,6 @@
 package com.example.datn.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,6 +36,7 @@ public class TaiKhoan implements UserDetails {
     private VaiTro idVaiTro;
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(this.idVaiTro.getTenVaiTro()));
     }
