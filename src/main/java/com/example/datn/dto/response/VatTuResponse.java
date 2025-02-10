@@ -9,12 +9,14 @@ import lombok.Setter;
 @Setter
 public class VatTuResponse {
     private Integer id;
-    private String tenTienIch;
+    private String tenVatTu;
+    private Double gia;
     private String hinhAnh;
 
     public VatTuResponse(Integer id, String tenTienIch, String hinhAnh){
         this.id = id;
-        this.tenTienIch = tenTienIch;
+        this.tenVatTu = tenVatTu;
+        this.gia= gia;
         this.hinhAnh = hinhAnh;
     }
 }
