@@ -25,6 +25,7 @@ public abstract class CustomerResponses {
         private String gender;
         private String phoneNumber;
         private boolean isLocked;
+        private String avatar;
     }
 
     @Getter
@@ -39,5 +40,6 @@ public abstract class CustomerResponses {
         private String address;
         private String idCard;
         private String gender;
+        private String avatar;
     }
 }

@@ -5,7 +5,6 @@ import com.example.datn.dto.request.employee.EmployeeRequests;
 import com.example.datn.dto.response.employee.EmployeeResponses;
 import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.exception.InvalidDataException;
-import com.example.datn.model.KhachHang;
 import com.example.datn.model.NhanVien;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.NhanVienRepository;
@@ -40,7 +39,12 @@ public class NhanVienServiceIMPL implements NhanVienService{
 
     @Override
     public void updateStatus(int id, boolean status) {
-
+        NhanVien nhanVien = this.nhanVienRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Employee not found!"));
+        TaiKhoan taiKhoan = nhanVien.getTaiKhoan();
+        taiKhoan.setTrangThai(status);
+        taiKhoanRepository.save(taiKhoan);
+        log.info("Update status successfully");
     }
 
     @Override
@@ -67,17 +71,43 @@ public class NhanVienServiceIMPL implements NhanVienService{
                 .sdt(request.getPhoneNumber())
                 .ngaySua(LocalDateTime.now())
                 .ngayTao(LocalDateTime.now())
+                .trangThai(true)
                 .build();
         return this.nhanVienRepository.save(nhanVien).getId();
     }
 
     @Override
     public EmployeeResponses.EmployeeResponseBase getEmployee(Integer id) {
-        return null;
+        return getEmployeeById(id);
+    }
+
+    private EmployeeResponses.EmployeeResponseBase getEmployeeById(Integer id) {
+        NhanVien nhanVien = this.nhanVienRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Employee not found!"));
+        return EmployeeResponses.EmployeeResponseBase.builder()
+                .id(nhanVien.getId())
+                .username(nhanVien.getTaiKhoan().getTenDangNhap())
+                .firstName(nhanVien.getTen())
+                .lastName(nhanVien.getHo())
+                .idCard(nhanVien.getCmnd())
+                .email(nhanVien.getEmail())
+                .address(nhanVien.getDiaChi())
+                .phoneNumber(nhanVien.getSdt())
+                .gender(nhanVien.getGioiTinh())
+                .build();
     }
 
     @Override
     public void updateEmployee(EmployeeRequests.EmployeeUpdate request, int id) {
-
+        NhanVien nhanVien = this.nhanVienRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
+        nhanVien.setHo(request.getLastName());
+        nhanVien.setTen(request.getFirstName());
+        nhanVien.setEmail(request.getEmail());
+        nhanVien.setGioiTinh(request.getGender());
+        nhanVien.setDiaChi(request.getAddress());
+        nhanVien.setSdt(request.getPhoneNumber());
+        nhanVien.setNgaySua(LocalDateTime.now());
+        this.nhanVienRepository.save(nhanVien);
     }
 }

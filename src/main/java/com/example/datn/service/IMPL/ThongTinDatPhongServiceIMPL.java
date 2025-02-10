@@ -14,10 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
@@ -62,7 +60,6 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setNgayTraPhong(request.getNgayTraPhong());
         ttdp.setSoNguoi(request.getSoNguoi());
         ttdp.setTrangThai(request.getTrangThai());
-//        ttdp.setGhiChu(request.getGhiChu());
         datPhongRepository.save(dp);
         return thongTinDatPhongRepository.save(ttdp);
     }

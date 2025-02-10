@@ -58,7 +58,11 @@ public class NhanVien implements Serializable {
 
     @Column(name = "trang_thai")
     private Boolean trangThai;
+    @Column(name = "avatar")
+    private String avatar;
 
+    @Column(name = "public_id")
+    private String public_id;
     public String getHoTen() {
         return ho + " " + ten;
     }
