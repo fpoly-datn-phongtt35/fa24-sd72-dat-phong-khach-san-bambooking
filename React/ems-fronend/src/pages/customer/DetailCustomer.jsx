@@ -18,6 +18,11 @@ const VisuallyHiddenInput = styled('input')`
   width: 1px;
 `;
 export const DetailCustomer = () => {
+
+    const [imagePreview, setImagePreview] = useState(null);
+    const [imageObject, setImageObject] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
     const [customer, setCustomer] = useState(null);
 
     const navigate = useNavigate();
@@ -40,6 +45,14 @@ export const DetailCustomer = () => {
         getCustomer();
     }, []);
 
+
+    const handleImageChange = (event) => {
+        var file = event.target.files[0];
+        var url = URL.createObjectURL(file)
+        setImagePreview(url)
+        setImageObject(file)
+    }
+
     useEffect(() => {
         if (customer) {
             reset({
@@ -50,6 +63,7 @@ export const DetailCustomer = () => {
                 gender: customer?.gender || 'Nam',
                 email: customer?.email || '',
             });
+            setImagePreview(customer?.avatar)
         }
     }, [customer, reset]);
 
@@ -71,7 +85,10 @@ export const DetailCustomer = () => {
         formData.append('address', data.address)
         formData.append('gender', data.gender)
         formData.append('email', data.email)
+        if (imageObject) {
+            formData.append('avatar', imageObject)
 
+        }
         await updateCustomer(formData, id).then(() => {
             navigate('/khach-hang')
         })
@@ -83,7 +100,7 @@ export const DetailCustomer = () => {
                     <Grid xs={3} sx={{ border: '0.5px solid #d9d9d9' }}>
                         <Box sx={{ marginTop: 5 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                                <Avatar sx={{ width: 150, height: 150 }} variant="soft" />
+                                <Avatar sx={{ width: 150, height: 150 }} variant="soft" src={imagePreview} />
                             </Box>
                             <Box sx={{ marginTop: 2, display: 'flex', justifyContent: 'center' }}>
                                 <Button
@@ -111,7 +128,7 @@ export const DetailCustomer = () => {
                                     }
                                 >
                                     Upload a file
-                                    <VisuallyHiddenInput type="file" />
+                                    <VisuallyHiddenInput type="file" onChange={handleImageChange} />
                                 </Button>
                             </Box>
                         </Box>
