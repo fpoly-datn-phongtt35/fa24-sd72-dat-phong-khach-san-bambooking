@@ -12,6 +12,7 @@ import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.repository.VaiTroRepository;
 import com.example.datn.repository.customizeQuery.EmployeeRepository;
 import com.example.datn.service.NhanVienService;
+import com.example.datn.utilities.CloudinaryUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class NhanVienServiceIMPL implements NhanVienService{
     NhanVienRepository nhanVienRepository;
     TaiKhoanRepository taiKhoanRepository;
     VaiTroRepository vaiTroRepository;
+    private final CloudinaryUtils cloudinary;
 
     @Override
     public EmployeeResponses.EmployeeTemplate getEmployees(EmployeeFilterRequest request) {
@@ -73,6 +76,12 @@ public class NhanVienServiceIMPL implements NhanVienService{
                 .ngayTao(LocalDateTime.now())
                 .trangThai(true)
                 .build();
+
+        if (request.getAvatar() != null) {
+            Map<String, String> upload = this.cloudinary.upload(request.getAvatar());
+            nhanVien.setAvatar(upload.get("url"));
+            nhanVien.setPublic_id(upload.get("publicId"));
+        }
         return this.nhanVienRepository.save(nhanVien).getId();
     }
 
@@ -84,6 +93,8 @@ public class NhanVienServiceIMPL implements NhanVienService{
     private EmployeeResponses.EmployeeResponseBase getEmployeeById(Integer id) {
         NhanVien nhanVien = this.nhanVienRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFountException("Employee not found!"));
+
+
         return EmployeeResponses.EmployeeResponseBase.builder()
                 .id(nhanVien.getId())
                 .username(nhanVien.getTaiKhoan().getTenDangNhap())
@@ -94,6 +105,7 @@ public class NhanVienServiceIMPL implements NhanVienService{
                 .address(nhanVien.getDiaChi())
                 .phoneNumber(nhanVien.getSdt())
                 .gender(nhanVien.getGioiTinh())
+                .avatar(nhanVien.getAvatar())
                 .build();
     }
 
@@ -101,6 +113,15 @@ public class NhanVienServiceIMPL implements NhanVienService{
     public void updateEmployee(EmployeeRequests.EmployeeUpdate request, int id) {
         NhanVien nhanVien = this.nhanVienRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
+
+        if (request.getAvatar() != null) {
+            if (nhanVien.getPublic_id() != null) {
+                this.cloudinary.removeByPublicId(nhanVien.getPublic_id());
+            }
+            Map<String, String> upload = this.cloudinary.upload(request.getAvatar());
+            nhanVien.setAvatar(upload.get("url"));
+            nhanVien.setPublic_id(upload.get("publicId"));
+        }
         nhanVien.setHo(request.getLastName());
         nhanVien.setTen(request.getFirstName());
         nhanVien.setEmail(request.getEmail());

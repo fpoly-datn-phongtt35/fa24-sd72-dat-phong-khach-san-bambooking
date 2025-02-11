@@ -52,6 +52,7 @@ public class EmployeeRepository {
                         .gender(s.getGioiTinh())
                         .phoneNumber(s.getSdt())
                         .isLocked(s.getTaiKhoan().getTrangThai())
+                        .avatar(s.getAvatar())
                         .build()
         ).toList();
         StringBuilder sqlCountPage = new StringBuilder("SELECT count(e) FROM Employee e");

@@ -1,4 +1,4 @@
-import { Box, Container, Input, Option, Select, Sheet, Switch, Table, Tooltip, Typography } from '@mui/joy'
+import { Box, Container, Input, Option, Select, Sheet, Switch, Table, Tooltip, Typography, Avatar } from '@mui/joy'
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -110,6 +110,7 @@ export const Employee = () => {
                 >
                     <thead>
                         <tr>
+                            <th>Avatar</th>
                             <th>Tên đăng nhập</th>
                             <th>Họ và tên</th>
                             <th>Giới tính</th>
@@ -122,6 +123,9 @@ export const Employee = () => {
                         {
                             data && data?.data.map((value) => (
                                 <tr key={value.id}>
+                                     <td>
+                                        <Avatar src={value?.avatar}/>
+                                    </td>
                                     <td>{value.username}</td>
                                     <td>{value.fullName}</td>
                                     <td>{value.gender}</td>

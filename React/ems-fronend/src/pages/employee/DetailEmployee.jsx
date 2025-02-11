@@ -18,6 +18,10 @@ const VisuallyHiddenInput = styled('input')`
   width: 1px;
 `;
 export const DetailEmployee = () => {
+    const [imagePreview, setImagePreview] = useState(null);
+    const [imageObject, setImageObject] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
     const [employee, setEmployee] = useState(null);
 
     const navigate = useNavigate();
@@ -40,6 +44,13 @@ export const DetailEmployee = () => {
         getEmployee();
     }, []);
 
+    const handleImageChange = (event) => {
+        var file = event.target.files[0];
+        var url = URL.createObjectURL(file)
+        setImagePreview(url)
+        setImageObject(file)
+    }
+
     useEffect(() => {
         if (employee) {
             reset({
@@ -50,6 +61,7 @@ export const DetailEmployee = () => {
                 gender: employee?.gender || 'Nam',
                 email: employee?.email || '',
             });
+            setImagePreview(employee?.avatar)
         }
     }, [employee, reset]);
 
@@ -71,10 +83,14 @@ export const DetailEmployee = () => {
         formData.append('address', data.address)
         formData.append('gender', data.gender)
         formData.append('email', data.email)
+        if (imageObject) {
+            formData.append('avatar', imageObject)
 
+        }
+        setIsLoading(true);
         await updateEmployee(formData, id).then(() => {
             navigate('/NhanVien')
-        })
+        }).finally(() => { setIsLoading(false) })
     };
     return (
         <Container>
@@ -83,7 +99,7 @@ export const DetailEmployee = () => {
                     <Grid xs={3} sx={{ border: '0.5px solid #d9d9d9' }}>
                         <Box sx={{ marginTop: 5 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                                <Avatar sx={{ width: 150, height: 150 }} variant="soft" />
+                                <Avatar sx={{ width: 150, height: 150 }} variant="soft" src={imagePreview} />
                             </Box>
                             <Box sx={{ marginTop: 2, display: 'flex', justifyContent: 'center' }}>
                                 <Button
@@ -111,7 +127,7 @@ export const DetailEmployee = () => {
                                     }
                                 >
                                     Upload a file
-                                    <VisuallyHiddenInput type="file" />
+                                    <VisuallyHiddenInput type="file" onChange={handleImageChange} />
                                 </Button>
                             </Box>
                         </Box>
@@ -248,8 +264,8 @@ export const DetailEmployee = () => {
                             </Grid>
 
                             <Box sx={{ marginTop: 2 }}>
-                                <Button color="danger" sx={{ marginRight: 2 }} type="button" onClick={() => navigate('/NhanVien')}>Hủy</Button>
-                                <Button type="submit">Lưu thông tin</Button>
+                                <Button loading={isLoading} color="danger" sx={{ marginRight: 2 }} type="button" onClick={() => navigate('/NhanVien')}>Hủy</Button>
+                                <Button loading={isLoading} type="submit">Lưu thông tin</Button>
                             </Box>
                         </Grid>
                     </Grid>
