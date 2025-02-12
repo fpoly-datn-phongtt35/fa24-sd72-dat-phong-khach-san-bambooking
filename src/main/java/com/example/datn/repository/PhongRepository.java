@@ -48,17 +48,20 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong
     );
 
-
-
     @Query("SELECT p FROM Phong p WHERE p.id = :id")
     Phong getPhongById(@Param("id") Integer id);
 
-
-
-
-
-
-
     //
     Phong findById(int id);
+
+    @Query("""
+            select p
+            from Phong p
+            where p.maPhong like %:keyword%
+            or p.tenPhong like %:keyword%
+            or p.loaiPhong.tenLoaiPhong like %:keyword%
+            or p.tinhTrang like %:keyword%
+            or p.trangThai = TRUE
+            """)
+    List<Phong> DSPhong(@Param("keyword") String keyword);
 }

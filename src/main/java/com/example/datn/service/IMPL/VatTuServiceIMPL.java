@@ -2,8 +2,8 @@ package com.example.datn.service.IMPL;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.datn.model.VatTu;
-import com.example.datn.repository.TienIchRepository;
-import com.example.datn.service.TienIchService;
+import com.example.datn.repository.VatTuRepository;
+import com.example.datn.service.VatTuService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,24 +32,24 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class TienIchServiceIMPL implements TienIchService {
+public class VatTuServiceIMPL implements VatTuService {
     @Autowired
-    TienIchRepository tienIchRepository;
+    VatTuRepository vatTuRepository;
 
     Cloudinary cloudinary;
 
     @Override
     public List<VatTu> getAll() {
-        return tienIchRepository.findAll();
+        return vatTuRepository.findAll();
     }
     @Override
     public Page<VatTuResponse> getPage(Pageable pageable) {
 
-        return tienIchRepository.TienIch(pageable);
+        return vatTuRepository.VatTu(pageable);
     }
     @Override
-    public Page<VatTu> getAllTienIch(Pageable pageable) {
-        return tienIchRepository.findAll(pageable);
+    public Page<VatTu> getAllVatTu(Pageable pageable) {
+        return vatTuRepository.findAll(pageable);
     }
 
 
@@ -81,29 +81,31 @@ public class TienIchServiceIMPL implements TienIchService {
         VatTu vatTu = new VatTu();
         vatTu.setTenVatTu(vatTuRequest.getTenVatTu());
         vatTu.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
-        tienIchRepository.save(vatTu);
+        vatTu.setGia(vatTuRequest.getGia());
+        vatTuRepository.save(vatTu);
 
         VatTuResponse response = new VatTuResponse();
         response.setId(vatTu.getId());
         response.setTenVatTu(vatTu.getTenVatTu());
         response.setHinhAnh(vatTu.getHinhAnh());
+        response.setGia(vatTu.getGia());
         return response;
     }
 
     @Override
     public VatTu detail(Integer id) {
-        return tienIchRepository.findById(id).get();
+        return vatTuRepository.findById(id).get();
     }
 
     @Override
     public void delete(Integer id) {
-        tienIchRepository.deleteById(id);
+        vatTuRepository.deleteById(id);
     }
 
     @Override
     public VatTuResponse update(VatTuRequest vatTuRequest, MultipartFile file) throws IOException {
         // Tìm tiện ích theo ID
-        VatTu vatTu = tienIchRepository.findById(vatTuRequest.getId())
+        VatTu vatTu = vatTuRepository.findById(vatTuRequest.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy tiện ích với ID này"));
 
         // Kiểm tra nếu có file mới, chỉ xử lý upload khi file không rỗng
@@ -130,12 +132,14 @@ public class TienIchServiceIMPL implements TienIchService {
 
         // Cập nhật tên tiện ích
         vatTu.setTenVatTu(vatTuRequest.getTenVatTu());
-        tienIchRepository.save(vatTu);
+        vatTu.setGia(vatTuRequest.getGia());
+        vatTuRepository.save(vatTu);
 
         // Tạo response sau khi cập nhật thành công
         VatTuResponse response = new VatTuResponse();
         response.setId(vatTu.getId());
         response.setTenVatTu(vatTu.getTenVatTu());
+        response.setGia(vatTu.getGia());
         response.setHinhAnh(vatTu.getHinhAnh());  // Giữ nguyên ảnh cũ nếu không upload ảnh mới
         return response;
     }
@@ -143,11 +147,11 @@ public class TienIchServiceIMPL implements TienIchService {
 
     @Override
     public  Page<VatTu> search(String tenTienIch, Pageable pageable) {
-        return tienIchRepository.search(tenTienIch,pageable);
+        return vatTuRepository.search(tenTienIch,pageable);
     }
     @Override
-    public Page<VatTu> searchTienIch(String keyword, Pageable pageable) {
-        return tienIchRepository.search(keyword, pageable);
+    public Page<VatTu> searchVatTu(String keyword, Pageable pageable) {
+        return vatTuRepository.search(keyword, pageable);
     }
 
     public String[] getFileName(String originalName) {

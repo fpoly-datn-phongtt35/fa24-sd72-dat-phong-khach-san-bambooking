@@ -53,4 +53,9 @@ public class TraPhongController {
     public ResponseEntity<TraPhong> checkOut(@RequestParam("idTraPhong") Integer idTraPhong) {
         return ResponseEntity.status(HttpStatus.OK).body(traPhongService.CheckOut(idTraPhong));
     }
+
+    @GetMapping("thong-tin-tra-phong")
+    public ResponseEntity<?> DSTraPhong () {
+        return ResponseEntity.ok(traPhongService.DSTraPhong());
+    }
 }

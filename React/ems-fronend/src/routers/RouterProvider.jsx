@@ -12,7 +12,7 @@ import { XoaDichVuDiKem } from "../services/DichVuDiKemService";
 import DanhSach from "../components/DichVu/DanhSach";
 import DanhSachDichVuDiKem from "../components/DichVuDikem/DanhSachDichVuDiKem";
 import DanhSachDichVuSuDung from "../components/DichVuSuDung/DanhSachDichVuSuDung";
-import TienIch from "../components/TienIch/TienIch";
+import VatTu from "../components/VatTu/VatTu";
 import ListPhong from "../components/Phong/ListPhong";
 import Phong from "../components/Phong/Phong";
 import ListImage from "../components/HinhAnh/ListImage";
@@ -90,7 +90,7 @@ function RouterProvider() {
                 <Route path="/DichVu" element={<DanhSach />} />
                 <Route path="/DichVuDiKem" element={<DanhSachDichVuDiKem />} />
                 <Route path="/DichVuSuDung" element={<DanhSachDichVuSuDung />} />
-                <Route path="/TienIch" element={<TienIch />} />
+                <Route path="/VatTu" element={<VatTu />} />
                 <Route path="/phong" element={<ListPhong />} />
                 <Route path="/add-phong" element={<Phong />} />
                 <Route path="/update-phong/:id" element={<Phong />} />

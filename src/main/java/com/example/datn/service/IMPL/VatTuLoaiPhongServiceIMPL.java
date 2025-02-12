@@ -1,11 +1,11 @@
 package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.VatTuLoaiPhongRequest;
-import com.example.datn.dto.response.VatTuLoaiPhongPhongResponse;
+import com.example.datn.dto.response.VatTuLoaiPhongResponse;
 import com.example.datn.model.VatTu;
 import com.example.datn.model.VatTuLoaiPhong;
-import com.example.datn.repository.TienIchPhongRepository;
-import com.example.datn.service.TienIchPhongService;
+import com.example.datn.repository.VatTuLoaiPhongRepository;
+import com.example.datn.service.VatTuLoaiPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,12 +14,12 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class TienIchPhongServiceIMPL implements TienIchPhongService {
+public class VatTuLoaiPhongServiceIMPL implements VatTuLoaiPhongService {
     @Autowired
-    TienIchPhongRepository tienIchPhongRepository;
+    VatTuLoaiPhongRepository vatTuLoaiPhongRepository;
     @Override
-    public Page<VatTuLoaiPhongPhongResponse> getPage(Pageable pageable) {
-        return tienIchPhongRepository.TienIchPhong(pageable);
+    public Page<VatTuLoaiPhongResponse> getPage(Pageable pageable) {
+        return vatTuLoaiPhongRepository.VatTuLoaiPhong(pageable);
     }
 
 
@@ -27,12 +27,11 @@ public class TienIchPhongServiceIMPL implements TienIchPhongService {
 
     @Override
     public VatTuLoaiPhong add(VatTuLoaiPhongRequest vatTuLoaiPhongRequest) {
-        System.out.println(vatTuLoaiPhongRequest.getVatTu());
-        System.out.println(vatTuLoaiPhongRequest.getLoaiPhong());
         VatTuLoaiPhong vatTuLoaiPhong = new VatTuLoaiPhong();
         vatTuLoaiPhong.setVatTu(vatTuLoaiPhongRequest.getVatTu());
         vatTuLoaiPhong.setLoaiPhong(vatTuLoaiPhongRequest.getLoaiPhong());
-        return tienIchPhongRepository.save(vatTuLoaiPhong);
+        vatTuLoaiPhong.setSoLuong(vatTuLoaiPhongRequest.getSoLuong());
+        return vatTuLoaiPhongRepository.save(vatTuLoaiPhong);
     }
 
     @Override
@@ -42,27 +41,28 @@ public class TienIchPhongServiceIMPL implements TienIchPhongService {
 
     @Override
     public void delete(Integer id) {
-        tienIchPhongRepository.deleteById(id);
+        vatTuLoaiPhongRepository.deleteById(id);
     }
 
     @Override
     public VatTuLoaiPhong update(VatTuLoaiPhongRequest vatTuLoaiPhongRequest) {
-        Optional<VatTuLoaiPhong> tienIchPhong = tienIchPhongRepository.findById(vatTuLoaiPhongRequest.getId());
+        Optional<VatTuLoaiPhong> vatTuLoaiPhong = vatTuLoaiPhongRepository.findById(vatTuLoaiPhongRequest.getId());
 //        TienIchPhong tienIchPhong = new TienIchPhong();
-        tienIchPhong.get().setId(vatTuLoaiPhongRequest.getId());
-        tienIchPhong.get().setVatTu(vatTuLoaiPhongRequest.getVatTu());
-        tienIchPhong.get().setLoaiPhong(vatTuLoaiPhongRequest.getLoaiPhong());
-        return tienIchPhongRepository.save(tienIchPhong.get());
+        vatTuLoaiPhong.get().setId(vatTuLoaiPhongRequest.getId());
+        vatTuLoaiPhong.get().setVatTu(vatTuLoaiPhongRequest.getVatTu());
+        vatTuLoaiPhong.get().setLoaiPhong(vatTuLoaiPhongRequest.getLoaiPhong());
+        vatTuLoaiPhong.get().setSoLuong(vatTuLoaiPhongRequest.getSoLuong());
+        return vatTuLoaiPhongRepository.save(vatTuLoaiPhong.get());
     }
 
     @Override
-    public Page<VatTuLoaiPhongPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
-        return tienIchPhongRepository.findByIDLoaiPhong(idLoaiPhong,pageable);
+    public Page<VatTuLoaiPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
+        return vatTuLoaiPhongRepository.findByIDLoaiPhong(idLoaiPhong,pageable);
     }
 
     @Override
-    public Page<Object> ListTienIchFindByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
-        return tienIchPhongRepository.ListTienIchFindByIDLoaiPhong(idLoaiPhong,pageable);
+    public Page<Object> ListVatTuFindByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
+        return vatTuLoaiPhongRepository.ListVatTuFindByIDLoaiPhong(idLoaiPhong,pageable);
     }
 
 //    @Override

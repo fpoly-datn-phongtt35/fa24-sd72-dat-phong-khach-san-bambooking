@@ -83,4 +83,3 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
             "ORDER BY dp.ngayDat DESC")
     Page<DatPhong> DSDatPhong(Pageable pageable);
 }
-

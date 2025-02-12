@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { listTienNghi } from '../../services/TienIchPhongService';
+import { listTienNghi } from '../../services/VatTuLoaiPhong';
 import FormAdd from './FormAdd';
 import FormDetail from './FormDetail';
 
-const TienNghi = () => {
+const VatTuLoaiPhong = () => {
     const [data, setData] = useState([]); // Dữ liệu tiện ích
     const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
     const [totalPages, setTotalPages] = useState(0); // Tổng số trang
@@ -110,4 +110,4 @@ const TienNghi = () => {
     )
 }
 
-export default TienNghi;
+export default VatTuLoaiPhong;

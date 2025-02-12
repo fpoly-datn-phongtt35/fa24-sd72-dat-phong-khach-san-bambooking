@@ -15,6 +15,7 @@ import java.util.List;
 public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
     @Query("select new com.example.datn.dto.response.LoaiPhongResponse(lp.id," +
             "lp.tenLoaiPhong," +
+            "lp.maLoaiPhong," +
             "lp.dienTich," +
             "lp.soKhachToiDa," +
             "lp.donGia," +
@@ -43,7 +44,7 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
                            @Param("donGiaPhuThuMax") Double donGiaPhuThuMax,
                            Pageable pageable);
 
-    @Query("SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
+    @Query("SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.maLoaiPhong,lp.dienTich, " +
             "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, 0L AS soPhongKhaDung) " + // Để mặc định COUNT(p) là Long
             "FROM LoaiPhong lp " +
             "JOIN Phong p ON p.loaiPhong.id = lp.id " +
@@ -72,14 +73,7 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
 
 
 
-
-
-
-
-
-
-
-    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, " +
             "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
             "(SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
             " (SELECT COUNT(xp) " +
@@ -120,8 +114,9 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             @Param("soPhong") Integer soPhong,
             Pageable pageable);
 
-    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
-            "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(" +
+            "lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, lp.soKhachToiDa, " +
+            "lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
             "(SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
             "(SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
             "AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
@@ -135,7 +130,7 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             "JOIN Phong p ON p.loaiPhong.id = lp.id " +
             "WHERE lp.soKhachToiDa >= :soKhach " +
             "AND p.trangThai = true " +
-            "GROUP BY lp.id, lp.tenLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa " +
+            "GROUP BY lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa " +
             "HAVING (SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
             "(SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
             "AND xp.ngayNhanPhong < :ngayTraPhong AND xp.ngayTraPhong > :ngayNhanPhong " +
@@ -154,7 +149,8 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
 
 
 
-    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong, lp.dienTich, " +
+
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong,lp.maLoaiPhong, lp.dienTich, " +
             "lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
             "(COUNT(p) - " +
             " (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +

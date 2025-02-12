@@ -14,7 +14,7 @@ public class LoaiPhongRequest {
     private Integer id;
 
     private String tenLoaiPhong;
-
+    private String maLoaiPhong;
     private Integer dienTich;
 
     private Integer soKhachToiDa;

@@ -51,6 +51,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     public LoaiPhong add(LoaiPhongRequest loaiPhongRequest) {
         LoaiPhong loaiPhong = new LoaiPhong();
         loaiPhong.setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
+        loaiPhong.setMaLoaiPhong(loaiPhongRequest.getMaLoaiPhong());
         loaiPhong.setDienTich(loaiPhongRequest.getDienTich());
         loaiPhong.setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
         loaiPhong.setDonGiaPhuThu(loaiPhongRequest.getDonGiaPhuThu());
@@ -75,6 +76,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         Optional<LoaiPhong> loaiPhong = loaiPhongRepository.findById(loaiPhongRequest.getId());
         loaiPhong.get().setId(loaiPhongRequest.getId());
         loaiPhong.get().setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
+        loaiPhong.get().setMaLoaiPhong(loaiPhongRequest.getMaLoaiPhong());
         loaiPhong.get().setDienTich(loaiPhongRequest.getDienTich());
         loaiPhong.get().setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
         loaiPhong.get().setDonGia(loaiPhongRequest.getDonGia());
