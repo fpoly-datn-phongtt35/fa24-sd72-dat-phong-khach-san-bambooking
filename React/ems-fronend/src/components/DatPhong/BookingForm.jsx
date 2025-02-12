@@ -80,7 +80,7 @@ const BookingForm = () => {
   };
 
   return (
-    <Container>
+    <Container sx={{ minWidth: '1300px' }}>
       <Box
         sx={{ padding: 3, backgroundColor: "#f5f5f5", borderRadius: 2, mb: 3 }}
       >
