@@ -6,6 +6,8 @@ import { ThemPhuThu } from '../../services/PhuThuService';
 const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
     const [ngayNhanPhong, setNgayNhanPhong] = useState('');
     const [ngayTraPhong, setNgayTraPhong] = useState('');
+    const [ngayNhanPhongTime, setNgayNhanPhongTime] = useState('');
+    const [ngayTraPhongTime, setNgayTraPhongTime] = useState('');
     const handleCheckin = async () => {
         console.log(thongTinDatPhong);
 
