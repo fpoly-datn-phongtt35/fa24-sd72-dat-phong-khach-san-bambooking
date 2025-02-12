@@ -37,6 +37,7 @@ import DemoTaoHoaDon from "../components/HoaDon/DemoTaoHoaDon"
 import Demo from "../components/HoaDon/Demo"
 import UploadQR from "../components/UploadQR";
 import QRScannerManual from "../components/QRScannerManual";
+import QuanLyPhong from "../components/QuanLyPhong/ViewPhong";
 function RouterProvider() {
 
     const UnauthorizedRoutes = () => {
@@ -117,6 +118,7 @@ function RouterProvider() {
                 <Route path="/" element={<ViewPhong />} />
                 <Route path="/test" element={<QRScannerManual />} />
                 <Route path="/upload" element={<UploadQR />} />
+                <Route path="/quan-ly-phong" element={<QuanLyPhong />} />
                 {/* Thanh toán */}
                 <Route path="thanh-toan/:idHoaDon" element={<ThanhToanComponent />} />
                 
