@@ -3,8 +3,8 @@ import './ChiTietDatPhong.scss';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { findTTDPByMaDatPhong } from '../../services/TTDP';
 import { findDatPhongByMaDatPhong, CapNhatDatPhong } from '../../services/DatPhong';
-import { addXepPhong, phongDaXep } from '../../services/XepPhongService';
-import XepPhong from './XepPhong';
+import { phongDaXep } from '../../services/XepPhongService';
+import XepPhong from '../XepPhong/XepPhong';
 const ChiTietDatPhong = () => {
     const [datPhong, setDatPhong] = useState();
     const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
@@ -38,7 +38,7 @@ const ChiTietDatPhong = () => {
             console.error("maThongTinDatPhong is undefined or null");
             return;
         }
-    
+
         phongDaXep(maThongTinDatPhong)
             .then(response => {
                 console.log("Dữ liệu phòng đã xếp:", response.data); // Kiểm tra dữ liệu trả về từ API
@@ -51,9 +51,9 @@ const ChiTietDatPhong = () => {
                 console.log("Lỗi khi lấy phòng đã xếp:", error);
             });
     };
-    
 
-    
+
+
 
     const openXepPhongModal = (ttdp) => {
         setSelectedTTDPs([ttdp]);
@@ -83,7 +83,7 @@ const ChiTietDatPhong = () => {
             getDetailDatPhong(maDatPhong);
         }
     }, [maDatPhong]);
-    
+
     const calculateDays = (start, end) => {
         const startDate = new Date(start);
         const endDate = new Date(end);
@@ -129,6 +129,9 @@ const ChiTietDatPhong = () => {
         console.log(selectedTTDPs);
     };
 
+    const handleTTDPClick = (maThongTinDatPhong) => {
+        navigate('/chi-tiet-ttdp', { state: { maThongTinDatPhong } });
+    };
     return (
         <div className="booking-info-container">
             {/* Các box chính nằm trên cùng một dòng */}
@@ -137,15 +140,15 @@ const ChiTietDatPhong = () => {
                     <h3>Thông tin người đặt</h3>
                     <div className="info-item">
                         <label>Tên khách đặt</label>
-                        <span>{datPhong?.khachHang?.ho + ' ' + datPhong?.khachHang?.ten || "N/A"}</span>
+                        <span>{datPhong?.khachHang?.ho && datPhong?.khachHang?.ten ? `${datPhong.khachHang.ho} ${datPhong.khachHang.ten}` : "Không có thông tin"}</span>
                     </div>
                     <div className="info-item">
                         <label>Địa chỉ Email</label>
-                        <span>{datPhong?.khachHang?.email || "N/A"}</span>
+                        <span>{datPhong?.khachHang?.email || "Không có thông tin"}</span>
                     </div>
                     <div className="info-item">
                         <label>Số điện thoại</label>
-                        <span>{datPhong?.khachHang?.sdt || "N/A"}</span>
+                        <span>{datPhong?.khachHang?.sdt || "Không có thông tin"}</span>
                     </div>
                 </div>
 
@@ -164,6 +167,10 @@ const ChiTietDatPhong = () => {
                         <span>{calculateTotalGuests()}</span>
                     </div>
                     <div className="info-item">
+                        <label>Đặt cọc</label>
+                        <span className="highlight">{datPhong?.datCoc}</span>
+                    </div>
+                    <div className="info-item">
                         <label>Tổng tiền</label>
                         <span className="highlight">{datPhong?.tongTien}</span>
                     </div>
@@ -171,7 +178,11 @@ const ChiTietDatPhong = () => {
 
                 <div className="box booker-comment">
                     <h3>Ghi chú</h3>
-                    <input type="text-area" value={datPhong?.ghiChu} placeholder="Nhập ghi chú ở đây..." />
+                    <textarea
+                        value={datPhong?.ghiChu || ""}
+                        placeholder="Nhập ghi chú ở đây..."
+                        onChange={(e) => setDatPhong({ ...datPhong, ghiChu: e.target.value })}
+                    />
                 </div>
             </div>
 
@@ -185,7 +196,7 @@ const ChiTietDatPhong = () => {
                             <th>Thông tin đặt phòng</th>
                             <th>Tên khách hàng</th>
                             <th>Số người</th>
-                            <th>Loại phòng</th>
+                            <th>Phòng</th>
                             <th>Ngày nhận phòng</th>
                             <th>Ngày trả phòng</th>
                             <th>Tiền phòng</th>
@@ -203,7 +214,9 @@ const ChiTietDatPhong = () => {
                                             onChange={() => handleCheckboxChange(ttdp)}
                                         />
                                     </td>
-                                    <td>{ttdp.maThongTinDatPhong}</td>
+                                    <td onClick={() => handleTTDPClick(ttdp.maThongTinDatPhong)} style={{ cursor: 'pointer', color: 'blue' }}>
+                                        {ttdp.maThongTinDatPhong}
+                                    </td>
                                     <td>{ttdp?.datPhong?.khachHang?.ho + ' ' + ttdp?.datPhong?.khachHang?.ten}</td>
                                     <td>{ttdp.soNguoi}</td>
 
@@ -216,7 +229,9 @@ const ChiTietDatPhong = () => {
                                     <td>{ttdp.ngayTraPhong}</td>
                                     <td>{calculateTotalPrice(ttdp.giaDat, ttdp.ngayNhanPhong, ttdp.ngayTraPhong).toLocaleString()}</td>
                                     <td>
-                                        <button onClick={() => openXepPhongModal(ttdp)}>Assign</button>
+                                        {!phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong && (
+                                            <button onClick={() => openXepPhongModal(ttdp)}>Assign</button>
+                                        )}
                                     </td>
                                 </tr>
                             ))
@@ -227,8 +242,8 @@ const ChiTietDatPhong = () => {
 
                 </table>
                 <div className="button-container">
-                    <button className="button-save" onClick={() => CapNhatDatPhong(datPhong)}>Lưu</button>
-                    <button className="button-checkin">Checkin</button> 
+                    <button className="button-save" onClick={updateDatPhong}>Lưu</button>
+                    <button className="button-checkin">Checkin</button>
                     <button className="button-checkin" onClick={openModal}>Assign</button>
 
                 </div>

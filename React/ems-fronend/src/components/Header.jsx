@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../assets/Header.css';
 
-const Header = ({ isAuthenticated, onLogout }) => {
+const Header = ({ isAuthenticated }) => {
     const [showUserInfo, setShowUserInfo] = useState(false);
     const [userInfo, setUserInfo] = useState(null);
+
+    const navigate = useNavigate();
 
     // Lấy thông tin người dùng từ localStorage khi component được mount
     useEffect(() => {
         if (isAuthenticated) {
-            const user = JSON.parse(localStorage.getItem('user'));
+            const user = localStorage.getItem('user');
             if (user) {
                 setUserInfo(user); // Cập nhật thông tin người dùng nếu tồn tại
             }
@@ -25,11 +27,10 @@ const Header = ({ isAuthenticated, onLogout }) => {
 
     // Hàm xử lý đăng xuất
     const handleLogoutClick = () => {
-        if (onLogout) {
-            onLogout(); // Gọi hàm onLogout được truyền từ props
-        }
+        localStorage.removeItem('accessToken');
         localStorage.removeItem('user'); // Xóa thông tin user khỏi localStorage khi đăng xuất
         setUserInfo(null); // Xóa user info khỏi state
+        navigate("/login")
     };
 
     return (
@@ -58,8 +59,8 @@ const Header = ({ isAuthenticated, onLogout }) => {
                         {/* Dropdown thông tin tài khoản */}
                         {showUserInfo && (
                             <div className="user-info-dropdown">
-                                <p>Tài khoản: {userInfo.tenDangNhap}</p>
-                                <p>Trạng thái: {userInfo.trangThai}</p>
+                                <p>Tài khoản: {userInfo}</p>
+                                <p>Trạng thái: Đang hoạt động</p>
                                 <button onClick={handleLogoutClick} className="logout-button">
                                     Đăng Xuất
                                 </button>

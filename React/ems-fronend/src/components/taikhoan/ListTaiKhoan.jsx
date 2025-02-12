@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listTaiKhoan, deleteTaiKhoan, updateTaiKhoan } from '../../services/TaiKhoanService'; // Giả sử bạn có API service này
-import Modal from 'react-bootstrap/Modal'; // Thư viện Modal
-import Button from 'react-bootstrap/Button'; // Thư viện Button
-import Swal from 'sweetalert2';
 
 
 const ListTaiKhoan = () => {
@@ -53,42 +50,16 @@ const ListTaiKhoan = () => {
     };
 
     const handleDeleteTaiKhoan = (id) => {
-        Swal.fire({
-            title: 'Bạn có chắc chắn muốn xóa tài khoản này không?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Xóa',
-            cancelButtonText: 'Hủy',
-            reverseButtons: true,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                deleteTaiKhoan(id)
-                    .then(() => {
-                        Swal.fire(
-                            'Đã xóa!',
-                            'Tài khoản đã được xóa thành công.',
-                            'success'
-                        );
-                        getAllTaiKhoan(); // Cập nhật lại danh sách tài khoản sau khi xóa
-                    })
-                    .catch((error) => {
-                        console.error('Lỗi khi xóa tài khoản: ', error);
-                        Swal.fire(
-                            'Lỗi!',
-                            'Có lỗi xảy ra khi xóa tài khoản. Vui lòng thử lại.',
-                            'error'
-                        );
-                    });
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                Swal.fire(
-                    'Đã hủy',
-                    'Tài khoản không bị xóa.',
-                    'info'
-                );
-            }
-        });
+        if (window.confirm('Bạn có chắc chắn muốn xóa tài khoản này không?')) {
+            deleteTaiKhoan(id)
+                .then(() => {
+                    getAllTaiKhoan();
+                })
+                .catch((error) => {
+                    console.error('Lỗi khi xóa tài khoản: ', error);
+                });
+        }
     };
-    
 
     const handleDetailClick = (taiKhoan) => {
         setSelectedTaiKhoan(taiKhoan);
@@ -102,29 +73,18 @@ const ListTaiKhoan = () => {
             matKhau: selectedTaiKhoan.matKhau,
             trangThai: selectedTaiKhoan.trangThai, // Kiểm tra giá trị có đúng không
         };
-    
+
         console.log("Payload gửi đi:", updatedTaiKhoan); // Debug payload
-    
+
         updateTaiKhoan(updatedTaiKhoan)
             .then(() => {
-                Swal.fire(
-                    'Cập nhật thành công!',
-                    'Tài khoản đã được cập nhật thành công.',
-                    'success'
-                );
                 setShowModal(false);
                 getAllTaiKhoan();
             })
             .catch((error) => {
                 console.error("Lỗi khi cập nhật tài khoản: ", error);
-                Swal.fire(
-                    'Lỗi!',
-                    'Có lỗi xảy ra khi cập nhật tài khoản. Vui lòng thử lại.',
-                    'error'
-                );
             });
     };
-    
 
 
     return (

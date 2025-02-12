@@ -25,10 +25,6 @@ public class DanhGia {
     @JoinColumn(name = "id_khach_hang")
     private KhachHang khachHang;
 
-    @ManyToOne
-    @JoinColumn(name = "id_loai_phong")
-    private LoaiPhong loaiPhong;
-
     @Column(name = "stars")
     private Integer stars;
 

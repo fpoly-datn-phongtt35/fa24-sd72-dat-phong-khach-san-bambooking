@@ -6,9 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,7 +16,7 @@ import java.util.Date;
 @Setter
 @Entity
 @Table(name = "nhan_vien")
-public class NhanVien {
+public class NhanVien implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -25,10 +25,9 @@ public class NhanVien {
     @ManyToOne
     private TaiKhoan taiKhoan;
 
-    @JoinColumn(name = "id_vai_tro")
-    @ManyToOne
-    private VaiTro vaiTro;
-
+    @Column(name = "cmnd")
+    private String cmnd;
+    
     @Column(name = "ho")
     private String ho;
 

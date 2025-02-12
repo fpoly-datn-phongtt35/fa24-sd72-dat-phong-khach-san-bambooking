@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../assets/Slidebar.css'; // File CSS cho Sidebar
 
-function Sidebar({ isAuthenticated, onLogout }) {
+function Sidebar() {
   const [activeSubmenu, setActiveSubmenu] = useState(null);
 
   const toggleSubmenu = (id) => {
@@ -11,18 +11,17 @@ function Sidebar({ isAuthenticated, onLogout }) {
 
   return (
     <div className="sidebar">
-      {isAuthenticated ? (
-        <>
-          <ul>
-            <li className="nav-item">
-              <Link className="nav-link" to="/TrangChu">Trang chủ</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/giao-dien-tao-dp">Đặt phòng</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/quan-ly-dat-phong">Quản lý đặt phòng</Link>
-            </li>
+      <>
+        <ul>
+          <li className="nav-item">
+            <Link className="nav-link" to="/TrangChu">Trang chủ</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/giao-dien-tao-dp">Đặt phòng</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/quan-ly-dat-phong">Quản lý đặt phòng</Link>
+          </li>
 
             {/* Quản lý phòng với submenu */}
             <li
@@ -46,36 +45,45 @@ function Sidebar({ isAuthenticated, onLogout }) {
               </ul>
             </li>
 
-          </ul>
+        </ul>
 
-          <ul>
-            <li className="nav-item">
-              <Link className="nav-link" to="/DichVu">Dịch vụ</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/hinh-anh">Hình ảnh</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/hoa-don">Hóa đơn</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/NhanVien">Nhân viên</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/TaiKhoan">Tài Khoản</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/VaiTro">Vai Trò</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to="/khach-hang">Khách hàng</Link>
-            </li>
-          </ul>
-        </>
-      ) : (
-        // Nội dung trống khi chưa đăng nhập
-        <div className="empty-sidebar"></div>
-      )}
+        <ul>
+          <li className="nav-item">
+            <Link className="nav-link" to="/DichVu">Dịch vụ</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/hinh-anh">Hình ảnh</Link>
+          </li>
+
+          <li
+            className={`nav-item has-submenu quan-ly-phong ${activeSubmenu === 2 ? 'active' : ''}`}
+            onClick={() => toggleSubmenu(2)}
+          >
+            <div className="nav-link">Hóa đơn</div>
+            <ul className={`submenu ${activeSubmenu === 2 ? 'open' : ''}`}>
+              <li className="nav-item">
+                <Link className="nav-link" to="/demo">Trả phòng</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/hoa-don">Quản lý hóa đơn</Link>
+              </li>
+            </ul>
+          </li>
+
+          <li className="nav-item">
+            <Link className="nav-link" to="/NhanVien">Nhân viên</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/TaiKhoan">Tài Khoản</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/VaiTro">Vai Trò</Link>
+          </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/khach-hang">Khách hàng</Link>
+          </li>
+        </ul>
+      </>
     </div>
   );
 }

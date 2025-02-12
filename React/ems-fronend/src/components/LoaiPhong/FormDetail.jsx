@@ -462,13 +462,6 @@ const FormDetail = ({ show, handleClose, data }) => {
                                 {/* <button type="button" className="add-button" onClick={handleAddTienIch}>Thêm tiện ích</button> */}
                             </div>
                         </div>
-
-
-                        <div className="pagination">
-                            <button className="pagination-button" onClick={handlePreviousPage}>Trang trước</button>
-                            <span>Trang {currentPage + 1} / {totalPages}</span>
-                            <button className="pagination-button" onClick={handleNextPage}>Trang sau</button>
-                        </div>
                     </div>
                 </div>
             </div>

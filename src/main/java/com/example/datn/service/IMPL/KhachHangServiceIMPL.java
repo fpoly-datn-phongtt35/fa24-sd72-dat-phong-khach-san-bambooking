@@ -3,157 +3,49 @@ package com.example.datn.service.IMPL;
 import com.example.datn.config.PasswordGenerator;
 import com.example.datn.dto.request.KhachHangDatPhongRequest;
 import com.example.datn.dto.request.KhachHangRequest;
+import com.example.datn.dto.request.customer.CustomerRequests;
+import com.example.datn.dto.request.customer.FilterRequest;
 import com.example.datn.dto.response.KhachHangResponse;
+import com.example.datn.dto.response.customer.CustomerResponses;
+import com.example.datn.exception.EntityNotFountException;
+import com.example.datn.exception.InvalidDataException;
 import com.example.datn.mapper.KhachHangMapper;
 import com.example.datn.model.KhachHang;
-import com.example.datn.model.KhachHangRegister;
+import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.KhachHangRepository;
+import com.example.datn.repository.TaiKhoanRepository;
+import com.example.datn.repository.VaiTroRepository;
+import com.example.datn.repository.customizeQuery.CustomerRepository;
 import com.example.datn.service.KhachHangService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class KhachHangServiceIMPL implements KhachHangService {
+
     KhachHangRepository khachHangRepository;
-    KhachHangMapper khachHangMapper;
-    @Autowired
-    JavaMailSender mailSender;
 
-    @Override
-    public Page<KhachHang> getAllKhachHang(Pageable pageable) {
-        return khachHangRepository.findAll(pageable);
-    }
+    TaiKhoanRepository taiKhoanRepository;
 
-    @Override
-    public KhachHang createKhachHang(KhachHangRequest request) {
-        // Tạo mật khẩu ngẫu nhiên
-        String generatedPassword = PasswordGenerator.generateRandomPassword();
+    VaiTroRepository vaiTroRepository;
 
-        // Tạo đối tượng KhachHang và gán thông tin
-        KhachHang khachHang = khachHangMapper.toKhachHang(request);
-        khachHang.setEmail(request.getEmail());
-        khachHang.setMatKhau(generatedPassword); // Lưu mật khẩu vào bảng KhachHang
-        khachHang.setNgayTao(LocalDateTime.now());
-        khachHang.setNgaySua(LocalDateTime.now());
-        khachHang.setTrangThai(false); // Tài khoản chưa kích hoạt
+    PasswordEncoder passwordEncoder;
 
-        // Lưu khách hàng vào cơ sở dữ liệu
-        KhachHang savedKhachHang = khachHangRepository.save(khachHang);
-
-        // Gửi mật khẩu qua email
-        sendPasswordEmail(request.getEmail(), generatedPassword);
-
-        return savedKhachHang;
-    }
-
-    @Override
-    public KhachHang createKhachHangRegister(KhachHangRegister request) {
-        String generatedPassword = PasswordGenerator.generateRandomPassword();
-
-        // Tạo đối tượng KhachHang và gán thông tin
-        KhachHang khachHang = new KhachHang();
-        khachHang.setEmail(request.getEmail());
-        khachHang.setMatKhau(generatedPassword); // Lưu mật khẩu vào DB
-        khachHang.setNgayTao(LocalDateTime.now());
-        khachHang.setNgaySua(LocalDateTime.now());
-        khachHang.setTrangThai(true);
-
-        // Lưu vào DB
-        KhachHang savedKhachHang = khachHangRepository.save(khachHang);
-
-        // Gửi mật khẩu qua email
-        sendPasswordEmail(request.getEmail(), generatedPassword);
-
-        return savedKhachHang;
-    }
-
-
-    @Override
-    public KhachHangResponse getOneKhachHang(Integer id) {
-        KhachHang khachHang = khachHangRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ID khach hang not found: " + id));
-
-        return khachHangMapper.toKhachHangResponse(khachHang);
-    }
-
-    @Override
-    public KhachHangResponse updateKhachHang(Integer id, KhachHangRequest request) {
-        KhachHang khachHang = khachHangRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ID khach hang not found: " + id));
-        khachHang.setHo(request.getHo());
-        khachHang.setTen(request.getTen());
-        khachHang.setGioiTinh(request.getGioiTinh());
-        khachHang.setDiaChi(request.getDiaChi());
-        khachHang.setSdt(request.getSdt());
-        khachHang.setEmail(request.getEmail());
-        khachHang.setTrangThai(request.isTrangThai());
-        khachHang.setNgaySua(LocalDateTime.now());
-
-        KhachHang updateKH = khachHangRepository.save(khachHang);
-
-        return khachHangMapper.toKhachHangResponse(updateKH);
-    }
-
-    @Override
-    public void deleteKhachHang(Integer id) {
-        KhachHang khachHang = khachHangRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("ID khach hang not found: " + id));
-
-        khachHangRepository.delete(khachHang);
-    }
-
-    @Override
-    public Page<KhachHang> searchKhachHang(String keyword, Pageable pageable) {
-        return khachHangRepository.search(keyword, pageable);
-    }
-
-    @Override
-    public void sendPasswordEmail(String email, String generatedPassword) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(email);  // Gửi tới email người dùng nhập
-        message.setSubject("Mật khẩu đăng ký của bạn");
-        message.setText("Mật khẩu của bạn là: " + generatedPassword);
-
-        try {
-            mailSender.send(message);
-            System.out.println("Email đã được gửi thành công tới: " + email);
-        } catch (Exception e) {
-            System.err.println("Lỗi khi gửi email: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public String generatePassword() {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        SecureRandom random = new SecureRandom();
-        StringBuilder password = new StringBuilder();
-
-        for (int i = 0; i < 8; i++) {
-            int index = random.nextInt(characters.length());
-            password.append(characters.charAt(index));  // Thêm ký tự ngẫu nhiên vào mật khẩu
-        }
-
-        return password.toString();
-    }
-
-    @Override
-    public boolean checkLogin(String email, String matKhau) {
-        Optional<KhachHang> khachHang = khachHangRepository.findByEmail(email);
-        return khachHang.isPresent() && khachHang.get().getMatKhau().equals(matKhau);
-    }
+    CustomerRepository customerRepository;
 
     @Override
     public KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request) {
@@ -162,15 +54,91 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setHo(request.getHo());
         khachHang.setSdt(request.getSdt());
         khachHang.setEmail(request.getEmail());
+        khachHang.setGioiTinh(request.getGioiTinh());
+        khachHang.setDiaChi(request.getDiaChi());
+//        khachHang.setMatKhau(request.getMatKhau());
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
-        khachHang.setTrangThai(false);
+        khachHang.setTrangThai(request.getTrangThai());
         return khachHangRepository.save(khachHang);
+
     }
 
     @Override
-    public Optional<KhachHang> KhachHangLogin(String email) {
-        Optional<KhachHang> khachHang = khachHangRepository.findByEmail(email);
-        return khachHang;
+    public CustomerResponses.CustomerTemplate getCustomers(FilterRequest request) {
+        return this.customerRepository.getAllCustomers(request);
+    }
+
+    @Override
+    public void updateStatus(int id, boolean status) {
+        KhachHang khachHang = this.khachHangRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
+        TaiKhoan taiKhoan = khachHang.getTaiKhoan();
+        taiKhoan.setTrangThai(status);
+        taiKhoanRepository.save(taiKhoan);
+        log.info("Update status successfully");
+    }
+
+    @Override
+    public int storeCustomer(CustomerRequests.CustomerStore request) {
+        if (this.taiKhoanRepository.findByTenDangNhap(request.getUsername()).isPresent()) {
+            throw new InvalidDataException("Tài khoản đã tồn tại!");
+        }
+        TaiKhoan taiKhoan = TaiKhoan.builder()
+                .tenDangNhap(request.getUsername())
+                .matKhau(passwordEncoder.encode(request.getPassword()))
+                .idVaiTro(this.vaiTroRepository.findById(2)
+                        .orElseThrow(() -> new EntityNotFountException("Role not found!")))
+                .trangThai(true)
+                .build();
+
+        KhachHang khachHang = KhachHang.builder()
+                .taiKhoan(this.taiKhoanRepository.save(taiKhoan))
+                .cmnd(request.getIdCard())
+                .ho(request.getLastName())
+                .ten(request.getFirstName())
+                .gioiTinh(request.getGender())
+                .diaChi(request.getAddress())
+                .email(request.getEmail())
+                .sdt(request.getPhoneNumber())
+                .ngaySua(LocalDateTime.now())
+                .ngayTao(LocalDateTime.now())
+                .build();
+        return this.khachHangRepository.save(khachHang).getId();
+    }
+
+    @Override
+    public CustomerResponses.CustomerResponseBase getCustomer(Integer id) {
+        return getCustomerById(id);
+    }
+
+    @Override
+    public void updateCustomer(CustomerRequests.CustomerUpdate request, int id) {
+        KhachHang customer = this.khachHangRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
+        customer.setHo(request.getLastName());
+        customer.setTen(request.getFirstName());
+        customer.setEmail(request.getEmail());
+        customer.setGioiTinh(request.getGender());
+        customer.setDiaChi(request.getAddress());
+        customer.setSdt(request.getPhoneNumber());
+        customer.setNgaySua(LocalDateTime.now());
+        this.khachHangRepository.save(customer);
+    }
+
+    private CustomerResponses.CustomerResponseBase getCustomerById(Integer id) {
+        KhachHang khachHang = this.khachHangRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
+        return CustomerResponses.CustomerResponseBase.builder()
+                .id(khachHang.getId())
+                .username(khachHang.getTaiKhoan().getTenDangNhap())
+                .firstName(khachHang.getTen())
+                .lastName(khachHang.getHo())
+                .idCard(khachHang.getCmnd())
+                .email(khachHang.getEmail())
+                .address(khachHang.getDiaChi())
+                .phoneNumber(khachHang.getSdt())
+                .gender(khachHang.getGioiTinh())
+                .build();
     }
 }

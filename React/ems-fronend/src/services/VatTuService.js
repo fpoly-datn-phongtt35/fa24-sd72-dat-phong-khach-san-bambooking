@@ -40,7 +40,7 @@ export const deleteVatTu = (id) => {
 
 
 export const searchTienIch = (tenTienIch, pageable) => {
-    return axios.get(apiSE, {
+    return authorizedAxiosInstance.get(apiSE, {
         params: {
             tenTienIch, // Truyền tham số vào params
             page: pageable.page,
@@ -50,7 +50,7 @@ export const searchTienIch = (tenTienIch, pageable) => {
 };
 
 export const listImage = (pageable, searchQuery = '') => {
-    return axios.get(apiImage + '/search', {
+    return authorizedAxiosInstance.get(apiImage + '/search', {
         params: {
             page: pageable.page,
             size: pageable.size,

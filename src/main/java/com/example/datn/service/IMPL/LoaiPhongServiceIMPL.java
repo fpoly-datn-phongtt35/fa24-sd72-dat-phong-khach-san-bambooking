@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 @Service
 public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
@@ -102,11 +101,18 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
     @Override
     public Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
-                                                           Integer soNguoi, Pageable pageable) {
+                                                           Integer soNguoi, Integer soPhong, Pageable pageable) {
 
-            Pageable pageable1 = PageRequest.of(pageable.getPageNumber(),3);
-            return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,pageable1);
+            Pageable pg = PageRequest.of(pageable.getPageNumber(),3);
+            Page<LoaiPhongKhaDungResponse> pageLPKD = loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pg);
+            return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pg);
 
+    }
+
+    @Override
+    public LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong
+            ,Integer idLoaiPhong) {
+        return loaiPhongRepository.LoaiPhongKhaDung1(ngayNhanPhong,ngayTraPhong,idLoaiPhong);
     }
 
 

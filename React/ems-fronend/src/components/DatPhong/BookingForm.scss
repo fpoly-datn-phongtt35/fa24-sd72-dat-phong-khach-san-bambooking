@@ -1,9 +1,33 @@
+.booking-form {
+    display: flex;
+}
+
+.vertical-bar {
+    width: 15%;
+    background-color: #f9f9f9;
+
+    input,
+    select,
+    textarea {
+        margin-bottom: 15px;
+        /* Khoảng cách giữa các input */
+        width: 100%;
+        /* Full chiều ngang */
+        padding: 10px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        width: 100px;
+        margin-right: 10px;
+    }
+}
+
 .booking-form-container {
-    border: 1px solid #ddd;
-    border-radius: 8px;
     background-color: #f9f9f9;
     padding: 10px;
-    width: 98%;
+    width: 85%;
 }
 
 .search-form {
@@ -13,20 +37,24 @@
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 8px;
-    align-items: center; /* Căn giữa theo trục dọc */
-    justify-content: space-between; /* Căn đều các phần tử theo trục ngang */
+    align-items: center;
+    /* Căn giữa theo trục dọc */
+    justify-content: space-between;
+    /* Căn đều các phần tử theo trục ngang */
 
     .form-row {
         display: flex;
         flex-wrap: wrap;
         width: 100%;
-        align-items: center; /* Căn giữa các form-group theo chiều dọc */
-        justify-content: space-between; /* Tạo khoảng cách đều giữa các phần tử */
+        align-items: center;
+        /* Căn giữa các form-group theo chiều dọc */
+        justify-content: space-between;
+        /* Tạo khoảng cách đều giữa các phần tử */
     }
 
     .form-group {
         flex: 1;
-        min-width: 160px;
+        min-width: 60px;
         display: flex;
         flex-direction: column;
         gap: 8px;
@@ -50,6 +78,11 @@
                 border-color: #007bff;
             }
         }
+        // .date-time-ficker{
+        //     width: 0px;
+        //     background-color: red;
+        //     display: flex;
+        // }
     }
 
     .dropdown {
@@ -323,9 +356,11 @@
         flex-direction: row;
         justify-content: space-between;
     }
+
     .form-group {
         width: 100%;
     }
+
     .search-form {
         flex-direction: column;
         align-items: flex-start;

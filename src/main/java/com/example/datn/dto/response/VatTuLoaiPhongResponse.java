@@ -7,7 +7,9 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @Getter
 @Setter
+
 public class VatTuLoaiPhongResponse {
+
     private Integer id;
     private String tenLoaiPhong;
     private String tenVatTu;
@@ -15,7 +17,9 @@ public class VatTuLoaiPhongResponse {
     private Double gia;
     private Integer soLuong;
 
+
     public VatTuLoaiPhongResponse(Integer id, String tenLoaiPhong, String tenVatTu, String hinhAnh, Double gia, Integer soLuong) {
+
         this.id = id;
         this.tenLoaiPhong = tenLoaiPhong;
         this.tenVatTu = tenVatTu;

@@ -1,229 +1,282 @@
 import React, { useState, useEffect, useRef } from "react";
-import Flatpickr from "react-flatpickr";
-import "flatpickr/dist/themes/material_blue.css"; // Giao diện của Flatpickr
-import { searchRooms } from "../../services/ViewPhong";
-import { FaCalendarAlt } from "react-icons/fa"; // Import biểu tượng lịch
 import { dsPhong } from '../../services/PhongService';
 import { ttXepPhong } from '../../services/XepPhongService';
-import "./ViewPhong.css"; // CSS để quản lý cuộn
+import { dsTraPhong } from "../../services/TraPhong";
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import Popper from '@mui/material/Popper';
+import IconButton from '@mui/material/IconButton';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const ViewPhong = () => {
   const [rooms, setRooms] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  ); // Ngày được chọn mặc định
-  const [status, setStatus] = useState({}); // Trạng thái phòng
+  const [selectedDate, setSelectedDate] = useState(dayjs().format("YYYY-MM-DD"));
+  const [status, setStatus] = useState({});
+  const [openDatePicker, setOpenDatePicker] = useState(false);
+  const calendarAnchorRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+  const [viewDays, setViewDays] = useState(7);
 
-  const generateHours = () => Array.from({ length: 24 }, (_, i) => (i < 10 ? `0${i}:00` : `${i}:00`));
+  const generateDates = (startDate, numDays = viewDays) => {
+    return Array.from({ length: numDays }, (_, i) =>
+      dayjs(startDate).add(i, 'day').format("YYYY-MM-DD")
+    );
+  };
 
-  const generateDates = (startDate) =>
-    Array.from({ length: 7 }, (_, i) => {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
-      return date.toLocaleDateString("en-CA"); // Định dạng YYYY-MM-DD theo múi giờ trình duyệt
-    });
 
-  const [dates, setDates] = useState(generateDates(new Date()));
-  const [hours] = useState(generateHours()); // Danh sách giờ cố định
 
-  const scrollContainerRef = useRef(null); // Tham chiếu đến container cuộn chính
+  const [dates, setDates] = useState(generateDates(dayjs()));
+
+  const toggleDatePicker = () => {
+    setOpenDatePicker((prev) => !prev);
+  };
 
   useEffect(() => {
-    const fetchRooms = async (searchQuery = "") => {
+    const fetchRooms = async () => {
       try {
-        const response = await dsPhong(searchQuery);
+        const response = await dsPhong();
         setRooms(response.data);
-        console.log(response.data)
       } catch (error) {
         console.error("Lỗi khi lấy danh sách phòng:", error);
       }
+    };
+    fetchRooms();
+  }, []);
 
-      ttXepPhong().then((response) => {
-        console.log(response.data);
-    });
+  useEffect(() => {
+    setDates(generateDates(dayjs(selectedDate), viewDays));
+  }, [viewDays, selectedDate]); // Cập nhật khi `viewDays` hoặc `selectedDate` thay đổi
+
+
+
+  useEffect(() => {
+    const fetchRoomStatus = async () => {
+      try {
+        const [responseXepPhong, responseTraPhong] = await Promise.all([ttXepPhong(), dsTraPhong()]);
+        const statusData = responseXepPhong.data; // Danh sách xếp phòng
+        const traPhongData = responseTraPhong.data; // Danh sách trả phòng
+        const newStatus = {};
+
+        // Tạo danh sách các idXepPhong đã trả phòng
+        const traPhongIds = new Set(traPhongData.map(tp => tp.xepPhong.id));
+
+        // Duyệt danh sách đặt phòng
+        statusData.forEach((item) => {
+          const { ngayNhanPhong, ngayTraPhong, phong, idXepPhong } = item;
+          const startDate = dayjs(ngayNhanPhong).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
+          const endDate = dayjs(ngayTraPhong).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
+          const roomId = phong.id;
+
+          // Kiểm tra xem xếp phòng này có trong danh sách trả phòng không
+          const isReturned = traPhongIds.has(item.id);
+
+          let currentDate = dayjs(startDate);
+          while (currentDate.isBefore(dayjs(endDate)) || currentDate.isSame(dayjs(endDate))) {
+            const dateKey = currentDate.format('YYYY-MM-DD');
+            const key = `${roomId}_${dateKey}`;
+
+            newStatus[key] = {
+              status: isReturned? "Vacant": "Occupied",
+              ngayNhanPhong: startDate
+            }
+
+            currentDate = currentDate.add(1, 'day');
+          }
+        });
+
+        setStatus(newStatus);
+        console.log(status)
+      } catch (error) {
+        console.error("Lỗi khi lấy trạng thái phòng:", error);
+      }
     };
 
-
-    // Lấy danh sách phòng ban đầu (không có keyword)
-    fetchRooms();
+    fetchRoomStatus();
   }, []);
 
 
 
-  const handleDateChange = (date) => {
-    if (date && date.length > 0) {
-      const newDate = date[0].toLocaleDateString("en-CA"); // Định dạng YYYY-MM-DD theo múi giờ trình duyệt
-
-      setSelectedDate(newDate);
-      setDates(generateDates(new Date(newDate)));
-    }
+  const handleDateChange = (newValue) => {
+    const newDate = newValue.format("YYYY-MM-DD");
+    setSelectedDate(newDate);
+    setDates(generateDates(dayjs(newDate)));
+    setOpenDatePicker(false);
   };
 
   const handleWheel = (e) => {
-    if (e.target.closest(".scrollable-content")) {
+    if (scrollContainerRef.current) {
       e.preventDefault();
-      const container = scrollContainerRef.current;
-      container.scrollLeft += e.deltaY * 0.5;
+      const direction = e.deltaY > 0 ? 1 : -1; // Xác định hướng lăn
 
-      const maxScrollLeft = container.scrollWidth - container.clientWidth;
-      if (container.scrollLeft >= maxScrollLeft && e.deltaY > 0) {
-        // Thêm delay trước khi chuyển ngày
-        setTimeout(() => {
-          const currentIndex = dates.findIndex((date) => date === selectedDate);
-          if (currentIndex < dates.length - 1) {
-            const nextDate = dates[currentIndex + 1];
-            setSelectedDate(nextDate);
-            container.scrollLeft = 0; // Quay lại mốc thời gian 0h
-          }
-        }, 500); // Thời gian delay 500ms
-      }
+      setDates((prevDates) => {
+        const firstDate = dayjs(prevDates[0]);
+        const newStartDate = direction > 0 ? firstDate.add(1, "day") : firstDate.subtract(1, "day");
+        return generateDates(newStartDate, viewDays);
+      });
     }
   };
 
+
+
+
+
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", width: "100%" }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <h2>Quản lý tình trạng phòng</h2>
+      <h2 style={{ textAlign: "center" }}>Quản lý tình trạng phòng</h2>
 
-        {/* Hàng đầu tiên - Chọn ngày */}
+      {/* Khu vực chứa thanh cuộn */}
+      <div
+        ref={scrollContainerRef}
+        style={{
+          overflowX: "auto",
+          whiteSpace: "nowrap",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none"
+        }}
+        onWheel={handleWheel}
+      >
+        {/* Bộ chọn ngày */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", backgroundColor: "#007BFF", color: "#fff", padding: "10px" }}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <IconButton onClick={toggleDatePicker} ref={calendarAnchorRef} style={{ backgroundColor: "#fff", color: "#007BFF", padding: "5px" }}>
+              <CalendarMonthIcon />
+            </IconButton>
+            <Popper open={openDatePicker} anchorEl={calendarAnchorRef.current} placement="bottom-start">
+              <div style={{ backgroundColor: "#fff", border: "1px solid #ccc", padding: "10px" }}>
+                <DateCalendar value={dayjs(selectedDate)} onChange={(newValue) => handleDateChange(newValue)} />
+              </div>
+            </Popper>
+          </LocalizationProvider>
+
+          <div style={{ marginBottom: "10px", marginLeft: "auto" }}>
+            <label htmlFor="viewDays" style={{ fontWeight: "bold", marginRight: "10px" }}>Chế độ xem:</label>
+            <select
+              id="viewDays"
+              value={viewDays}
+              onChange={(e) => setViewDays(Number(e.target.value))}
+              style={{ padding: "5px", borderRadius: "5px" }}
+            >
+              <option value={7}>Xem 7 ngày</option>
+              <option value={14}>Xem 14 ngày</option>
+            </select>
+          </div>
+
+        </div>
+
+
+        {/* Bảng hiển thị phòng */}
         <div
           style={{
-            display: "flex",
-            position: "sticky",
-            top: 0,
-            zIndex: 10,
-            backgroundColor: "#007BFF",
-            color: "#fff",
-            textAlign: "center",
-            padding: "10px",
-            fontWeight: "bold",
+            display: "grid",
+            gridTemplateColumns: `150px repeat(${viewDays}, 1fr)`,
+            border: "1px solid #ddd",
+            borderRadius: "8px",
             width: "100%",
-            alignItems: "center",
-            gap: "10px",
+
           }}
         >
           <div
             style={{
-              backgroundColor: "#fff",
-              color: "#007BFF",
-              padding: "5px",
-              borderRadius: "50%",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "40px",
-              height: "40px",
+              backgroundColor: "#f0f0f0",
+              fontWeight: "bold",
+              padding: "10px",
+              fontSize: "16px",
+              textAlign: "center",
             }}
           >
-            <Flatpickr
-              value={selectedDate}
-              onChange={handleDateChange}
-              options={{
-                dateFormat: "Y-m-d",
-              }}
-              render={({ defaultValue, ...props }, ref) => (
-                <div
-                  {...props}
-                  ref={ref}
-                  style={{ cursor: "pointer" }}
-                >
-                  <FaCalendarAlt size={20} color="#007BFF" />
-                </div>
-              )}
-            />
+            Phòng
           </div>
-
-          {dates.map((date, index) => (
-            <div key={index}
+          {dates.map((date) => (
+            <div
+              key={date}
               style={{
-                backgroundColor: date === selectedDate ? "#f39c12" : "#d3f9d8",
-                padding: "5px 10px",
-                borderRadius: "5px",
+                backgroundColor: "#f0f0f0",
                 fontWeight: "bold",
-                cursor: "pointer",
+                padding: "10px",
+                fontSize: "16px",
               }}
-              onClick={() => setSelectedDate(date)}
             >
               {date}
             </div>
           ))}
-        </div>
+          {rooms.map((room) => {
+            let isOccupiedChain = false; // Theo dõi chuỗi ngày đã nhận phòng
+            console.log(status)
+            return (
+              <React.Fragment key={room.id}>
+                <div
+                  style={{
+                    backgroundColor: "#f8f9fa",
+                    padding: "10px",
+                    fontWeight: "bold",
+                    fontSize: "16px",
+                    textAlign: "center",
 
-        {/* Bảng chính */}
-        <div ref={scrollContainerRef} // Gắn tham chiếu cuộn ngang
-          onWheel={handleWheel} // Gắn sự kiện lăn chuột
-          style={{
-            display: "grid",
-            gridTemplateColumns: "150px repeat(24, 80px)",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            marginTop: "0px", // Sát với hàng chọn ngày
-            width: "100%",
-            overflow: "hidden", // Cho phép cuộn ngang
-          }}
-        >
-          {/* Hàng thứ hai - Hiển thị giờ */}
-          <div className="scrollable-content" style={{
-            position: "sticky", top: "0px", backgroundColor: "#f0f0f0", gridColumn: "1 / span 25",
-            display: "grid", gridTemplateColumns: "150px repeat(24, 80px)", zIndex: 9, borderBottom: "1px solid #ddd",}}>
+                  }}
+                >
+                  {room.maPhong}
+                </div>
+                {dates.map((date) => {
+                  const key = `${room.id}_${date}`;
+                  const isOccupied = status[key]?.status === "Occupied";
+                  const today = dayjs().format("YYYY-MM-DD");
+                  const isVacant = status[key]?.status === "Vacant";
+                  let bgColor = "#B7B7B7"; // Mặc định phòng trống (màu đỏ)
 
-            <div style={{ textAlign: "center", fontWeight: "bold", padding: "10px", position: "sticky", left: 0, backgroundColor: "#f0f0f0", zIndex: 10, }}>
-              Chọn phòng
-            </div>
-            {hours.map((hour) => (
-              <div
-                key={hour}
-                style={{
-                  textAlign: "center",
-                  fontWeight: "bold",
-                  padding: "10px",
-                }}
-              >
-                {hour}
-              </div>
-            ))}
-          </div>
+                  if (isOccupied) {
+                    const {  ngayNhanPhong } = status[key];
+                    bgColor = ngayNhanPhong <= today ? "#00FF33" : "#00B2BF";
+                  } else {
+                    isOccupiedChain = false; // Nếu gặp ô trống, reset trạng thái
+                  } if (isVacant) {
+                    bgColor = "#FF6699"; // Phòng đã được trả
+                  }
 
-          {/* Các phòng */}
-          {rooms.map((room) => (
-            <React.Fragment key={room.id}>
-              {/* Cột đầu tiên */}
-              <div style={{ position: "sticky", left: 0, zIndex: 5, backgroundColor: "#f8f9fa", textAlign: "center", padding: "20px", borderRight: "1px solid #ddd", }}>
-                {room.maPhong}
-              </div>
-
-              <div
-                className="scrollable-content"
-                style={{
-                  display: "flex",
-                  gridColumn: "2 / span 24",
-                }}
-              >
-                {hours.map((hour) => {
-                  const key = `${room.id}_${selectedDate}_${hour}`;
                   return (
                     <div
                       key={key}
-                      title={status[key] === "Occupied" ? "Occupied" : "Empty"}
-                      onClick={() => handleStatusChange(room.id, hour)}
                       style={{
-                        flex: "0 0 80px",
-                        backgroundColor:
-                          status[key] === "Occupied"
-                            ? "#90ee90"
-                            : "#ffcccb",
-                        textAlign: "center",
-                        cursor: "pointer",
-                        border: "1px solid #ddd",
+                        backgroundColor: bgColor,
+                        margin: "15px 0px 12px 0px",
                       }}
+
                     ></div>
                   );
                 })}
-              </div>
-            </React.Fragment>
-          ))}
+              </React.Fragment>
+            );
+          })}
         </div>
+        {/* Chú thích trạng thái phòng */}
+        <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <div style={{ width: "20px", height: "20px", backgroundColor: "#00FF33", border: "1px solid #000" }}></div>
+            <span>Phòng đang ở</span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <div style={{ width: "20px", height: "20px", backgroundColor: "#00B2BF", border: "1px solid #000" }}></div>
+            <span>Phòng đã được đặt</span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <div style={{ width: "20px", height: "20px", backgroundColor: "#FF6699", border: "1px solid #000" }}></div>
+            <span>Đã trả phòng</span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <div style={{ width: "20px", height: "20px", backgroundColor: "#B7B7B7", border: "1px solid #000" }}></div>
+            <span>Phòng trống</span>
+          </div>
+        </div>
+
       </div>
     </div>
   );

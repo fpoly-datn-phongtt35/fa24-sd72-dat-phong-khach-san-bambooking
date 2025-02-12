@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 // import React, { useState, useEffect } from 'react';
 // import { useLocation, useNavigate } from 'react-router-dom';
 // import '../styles/BookingPage.css';
@@ -183,7 +185,8 @@
 //   );
 // }
 
-
+// khi nhấn book now
+>>>>>>> 83a89bcf7bdf3eacad5e866eb651eef41612f0b8
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../styles/BookingPage.css';

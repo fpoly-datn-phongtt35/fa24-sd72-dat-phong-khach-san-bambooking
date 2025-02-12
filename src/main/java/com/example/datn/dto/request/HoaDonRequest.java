@@ -8,10 +8,6 @@ import lombok.experimental.FieldDefaults;
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class HoaDonRequest {
-    String maHoaDon;
-    Integer idHoaDon;
     String tenDangNhap;
     Integer idDatPhong;
-    Double tongTien;
-
 }

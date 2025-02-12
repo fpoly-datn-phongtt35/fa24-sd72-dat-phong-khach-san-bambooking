@@ -7,6 +7,7 @@ import com.example.datn.dto.response.TTDPResponse;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
+import com.example.datn.service.LoaiPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@CrossOrigin("*")
+//@CrossOrigin("*")
 @RestController
 @RequestMapping("/ttdp")
 public class TTDPController {
@@ -27,7 +28,7 @@ public class TTDPController {
     ThongTinDatPhongServiceIMPL thongTinDatPhongServiceIMPL;
 
     @Autowired
-    LoaiPhongServiceIMPL loaiPhongServiceIMPL;
+    LoaiPhongService loaiPhongService;
 
     @GetMapping("all")
     public Page<ThongTinDatPhong> all(Pageable pageable) {
@@ -54,14 +55,26 @@ public class TTDPController {
         }
     }
 
+    @PutMapping("sua")
+    public ResponseEntity<ThongTinDatPhong> updateDatPhong(@RequestBody TTDPRequest request) {
+        ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.update(request);
+        if (ttdp != null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(ttdp);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+    }
+
+
     @GetMapping("loai-phong-kha-dung")
-    public ResponseEntity<?> loaiPhongKhaDung(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
-                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
+    public ResponseEntity<?> loaiPhongKhaDung(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
+                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
                                               @RequestParam(required = false) Integer soNguoi,
+                                              @RequestParam(required = false) Integer soPhong,
                                               Pageable pageable) {
-        LocalDateTime ngayNhanPhongStart = (ngayNhanPhong != null) ? ngayNhanPhong.atStartOfDay() : LocalDate.now().atStartOfDay();
-        LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(23, 59, 59) : LocalDate.now().atTime(23, 59, 59);
-        Page<LoaiPhongKhaDungResponse> p = loaiPhongServiceIMPL.LoaiPhongKhaDung(ngayNhanPhongStart, ngayTraPhongEnd, soNguoi, pageable);
+//        LocalDateTime ngayNhanPhongStart = (ngayNhanPhong != null) ? ngayNhanPhong.atTime(14, 00,00) : LocalDate.now().atTime(14, 00,00);
+//        LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(12, 00,00) : LocalDate.now().atTime(12, 00,00);
+        Page<LoaiPhongKhaDungResponse> p = loaiPhongService.LoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong, pageable);
         return ResponseEntity.ok(p);
     }
 
@@ -69,6 +82,7 @@ public class TTDPController {
     public ResponseEntity<?> chiTietDatPhong(@RequestParam String maDatPhong) {
         List<ThongTinDatPhong> ttdps = thongTinDatPhongServiceIMPL.findByMaDatPhong(maDatPhong);
         return ResponseEntity.ok(ttdps);
+
     }
 
     @GetMapping("/tim-kiem")
@@ -78,7 +92,6 @@ public class TTDPController {
             @RequestParam(required = false) String key,
             @RequestParam(required = false) String trangThai,
             Pageable pageable) {
-        thongTinDatPhongServiceIMPL.kiemTraDenHan(thongTinDatPhongServiceIMPL.getAll());
         return thongTinDatPhongServiceIMPL.findByDateRangeAndKey(startDate, endDate, key, trangThai, pageable);
     }
 
@@ -87,6 +100,11 @@ public class TTDPController {
         return thongTinDatPhongServiceIMPL.huyTTDP(maThongTinDatPhong);
     }
 
+    @GetMapping("detail-ttdp")
+    public ResponseEntity<?> chiTietTTDP(@RequestParam String maTTDP){
+        ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.getByMaTTDP(maTTDP);
+        return ResponseEntity.ok(ttdp);
+    }
     @GetMapping("list-gio-hang")
     public List<ThongTinDatPhong> getGioHang(@RequestParam(value = "idDatPhong") Integer idDatPhong) {
         return thongTinDatPhongServiceIMPL.getGioHang(idDatPhong);
@@ -103,5 +121,4 @@ public class TTDPController {
         ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.update(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ttdp);
     }
-
 }

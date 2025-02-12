@@ -4,17 +4,16 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 @Setter
 @Getter
 @Data
 public class HoaDonResponse {
     Integer id;
     String maHoaDon;
-    String hoTenNhanVien;
+    String tenDangNhap;
+    String tenNhanVien;
     String maDatPhong;
     Double tongTien;
-    LocalDate ngayTao;
+    String ngayTao;
     String trangThai;
 }

@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -23,6 +25,10 @@ public class DatPhong {
     private KhachHang khachHang;
     @Column(name = "ma_dat_phong")
     private String maDatPhong;
+    @Column(name = "so_nguoi")
+    private Integer soNguoi;
+    @Column(name = "so_phong")
+    private Integer soPhong;
     @Column(name = "ngay_dat")
     private LocalDate ngayDat;
     @Column(name = "tong_tien")
@@ -31,4 +37,6 @@ public class DatPhong {
     private String ghiChu;
     @Column(name = "trang_thai")
     private String trangThai;
+
+
 }

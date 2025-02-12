@@ -1,29 +1,28 @@
-import axios from "axios";
-
+import authorizedAxiosInstance from "../utils/authorizedAxios";
 const apiHoaDon = "http://localhost:8080/hoa-don"
-const apiAdd = "http://localhost:8080/hoa-don/add";
-const apiNhanVien = "http://localhost:8080/nhan-vien";
-const apiDatPhong = "http://localhost:8080/dat-phong";
 
 export const listHoaDon = (pageable, trangThai = "", keyword = "") => {
-    return axios.get(apiHoaDon, {
+    return authorizedAxiosInstance.get(apiHoaDon, {
         params: {
             page: pageable.page,
             size: pageable.size,
             trangThai: trangThai || undefined,
-            keyword: keyword || undefined
-        }
+            keyword: keyword || undefined,
+        },
+    }).catch((error) => {
+        console.error("Lỗi khi gọi API:", error);
+        throw error;
     });
 };
 
-export const createHoaDon = (hd) => {
-    return axios.post(apiAdd, hd);
-};
 
-export const DanhSachNhanVien = () => {
-    return axios.get(apiNhanVien);
-};
-
-export const DanhSachDatPhong = () => {
-    return axios.get(apiDatPhong);
+export const taoHoaDon = async (hoaDon) => {
+    try {
+        const response = await authorizedAxiosInstance.post(`${apiHoaDon}/tao-hoa-don`, hoaDon);
+        console.log("Tạo hóa đơn thành công:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi tạo hóa đơn:", error.response?.data || "Không xác định", error.message);
+        throw error;
+    }
 };

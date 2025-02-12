@@ -1,12 +1,15 @@
-import axios from "axios";
+import authorizedAxiosInstance from '../utils/authorizedAxios';
 const apiDetailDP = "http://localhost:8080/ttdp/chi-tiet-dat-phong"
 const apiAdd = "http://localhost:8080/ttdp/them-moi"
+const apiUpdate = "http://localhost:8080/ttdp/sua"
 const apiHienThiQuanLy = "http://localhost:8080/ttdp/hien-thi-quan-ly"
 const apiLoaiPhongKhaDung = "http://localhost:8080/ttdp/loai-phong-kha-dung"
 const apiTimKiem = "http://localhost:8080/ttdp/tim-kiem"
 const apiHuyTTDP = "http://localhost:8080/ttdp/huy-ttdp"
+const apiGetTTDP = "http://localhost:8080/ttdp/detail-ttdp"
+
 export const getThongTinDatPhong = (idDP, pageable) => {
-    return axios.get(apiTTDP, {
+    return authorizedAxiosInstance.get(apiTTDP, {
         params: {
             idDP: idDP,
             page: pageable.page, 
@@ -14,6 +17,7 @@ export const getThongTinDatPhong = (idDP, pageable) => {
         }
     });
 };
+
 export const findTTDPS = (startDate, endDate, key, trangThai, pageable) => {
     const params = {
         trangThai: trangThai || '',
@@ -25,19 +29,19 @@ export const findTTDPS = (startDate, endDate, key, trangThai, pageable) => {
     if (endDate) params.endDate = endDate;
     if (key) params.key = key;
 
-    return axios.get(apiTimKiem, { params });
+    return authorizedAxiosInstance.get(apiTimKiem, { params });
 };
 
-
 export const findTTDPByMaDatPhong = (maDatPhong) => {
-    return axios.get(apiDetailDP, {
+    return authorizedAxiosInstance.get(apiDetailDP, {
         params: {
             maDatPhong: maDatPhong
         }
     });
 };
+
 export const HienThiQuanLy = (trangThai, pageable) => {
-    return axios.get(apiHienThiQuanLy, {
+    return authorizedAxiosInstance.get(apiHienThiQuanLy, {
         params: {
             trangThai: trangThai,
             page: pageable.page, 
@@ -45,24 +49,40 @@ export const HienThiQuanLy = (trangThai, pageable) => {
         }
     });
 };
+
 export const addThongTinDatPhong = (TTDPRequest) => {
-    return axios.post(apiAdd, TTDPRequest);
+    return authorizedAxiosInstance.post(apiAdd, TTDPRequest);
 };
-export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,soNguoi,pageable) => {
-    return axios.get(apiLoaiPhongKhaDung, {
+
+export const updateThongTinDatPhong = (TTDPRequest) => {
+    return authorizedAxiosInstance.put(apiUpdate, TTDPRequest);
+};
+
+export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pageable) => {
+    return authorizedAxiosInstance.get(apiLoaiPhongKhaDung, {
         params: {
             ngayNhanPhong: ngayNhanPhong,
             ngayTraPhong: ngayTraPhong,
             soNguoi:soNguoi,
+            soPhong: soPhong,
             page: pageable.page, 
             size: pageable.size
         }
     });
 };
+
 export const huyTTDP = (maThongTinDatPhong) => {
-    return axios.get(apiHuyTTDP, {
+    return authorizedAxiosInstance.get(apiHuyTTDP, {
         params: {
             maThongTinDatPhong:maThongTinDatPhong
+        }
+    });
+};
+
+export const getTTDPByMaTTDP = (maTTDP) => {
+    return authorizedAxiosInstance.get(apiGetTTDP, {
+        params: {
+            maTTDP: maTTDP
         }
     });
 };

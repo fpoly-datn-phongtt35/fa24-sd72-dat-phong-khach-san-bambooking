@@ -13,12 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin("*")
+//@CrossOrigin("*")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping("/hoa-don")
 public class HoaDonController {
     HoaDonService hoaDonService;
+
     @GetMapping
     public ResponseEntity<?> getAllHoaDon(
             @RequestParam(value = "trangThai", required = false) String trangThai,
@@ -28,18 +29,23 @@ public class HoaDonController {
         return ResponseEntity.ok(hoaDonResponses);
     }
 
-    @PostMapping("/add")
+    @PostMapping("tao-hoa-don")
     public ResponseEntity<?> createHoaDon(@RequestBody HoaDonRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(hoaDonService.createHoaDon(request));
     }
 
-//    @GetMapping("/search")
-//    public ResponseEntity<?> getTenDangNhap(@RequestParam(value = "tenDangNhap") String tenDangNhap) {
-//        try {
-//            return ResponseEntity.ok(hoaDonService.searchNhanVienByTenDangNhap(tenDangNhap));
-//        } catch (Exception e) {
-//            return ResponseEntity.badRequest().body("K lấy được tên đăng nhập");
-//        }
-//    }
+    @GetMapping("/{idHoaDon}")
+    public ResponseEntity<?> getHoaDonById(@PathVariable("idHoaDon") Integer idHoaDon){
+        return ResponseEntity.ok(hoaDonService.getOneHoaDon(idHoaDon));
+    }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<?> changeStatusInvoice(@PathVariable("id") Integer id) {
+        try {
+            String message = hoaDonService.changeStatusHoaDon(id);
+            return ResponseEntity.ok(message);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

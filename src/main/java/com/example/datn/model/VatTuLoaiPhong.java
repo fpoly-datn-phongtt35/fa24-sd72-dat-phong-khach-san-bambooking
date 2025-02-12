@@ -26,7 +26,9 @@ public class VatTuLoaiPhong {
     @ManyToOne
     private VatTu vatTu;
 
+
     @JoinColumn(name = "so_luong")
+
     private Integer soLuong;
 
 }

@@ -57,7 +57,7 @@ const Phong = () => {
             maPhong,
             tenPhong,
             idLoaiPhong,
-            tinhTrang: id ? tinhTrang : "Available",
+            tinhTrang: id ? tinhTrang : "available",
             trangThai: trangThai ? "true" : "false"
         };
     
@@ -65,7 +65,7 @@ const Phong = () => {
         formData.append('file', file);
         formData.append('tenAnh', tenPhong);
         formData.append('idPhong', id);
-        formData.append('tinhTrang', id ? tinhTrang : 'Available');
+        formData.append('tinhTrang', id ? tinhTrang : 'available');
         formData.append('trangThai', id ? trangThai : 'true');
     
         const handleError = (error) => {

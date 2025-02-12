@@ -3,6 +3,7 @@ import { useLocation,useNavigate  } from 'react-router-dom';
 import './TaoDatPhong.scss';
 import { ThemKhachHangDatPhong, ThemMoiDatPhong ,CapNhatDatPhong} from '../../services/DatPhong';
 import { addThongTinDatPhong } from '../../services/TTDP';
+
 const TaoDatPhong = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -47,16 +48,20 @@ const TaoDatPhong = () => {
             ten: formData.ten,
             email: formData.email,
             sdt: formData.sdt,
+            matKhau : '',
+            trangThai: false
         };
     
         const datPhongRequest = {
             khachHang: null, // Chờ cập nhật id khách hàng sau khi tạo
             maDatPhong: 'DP' + Date.now(),
+            soNguoi: adults,
+            soPhong: 1,
             ngayDat: new Date().toISOString(),
-            tongTien: calculateTotalAmount(),
+            tongTien: 0,
             datCoc: 0,
             ghiChu: 'Ghi chú thêm nếu cần',
-            trangThai: 'Đang xử lý'
+            trangThai: ''
         };
     
         try {

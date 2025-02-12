@@ -3,7 +3,7 @@ import { addTienIchPhong , DSTienIch, DSLoaiPhong } from '../../services/VatTuLo
 
 const FormAdd = ({ show, handleClose }) => {
     const [formData, setFormData] = useState({
-        tienIch: null,  
+        vatTu: null,
         loaiPhong: null,
     });
 
@@ -45,7 +45,7 @@ const FormAdd = ({ show, handleClose }) => {
         const selectedTienIch = ListTienIch.find(nv => nv.id === parseInt(e.target.value));
         setFormData({
             ...formData,
-            tienIch: selectedTienIch // Lưu toàn bộ đối tượng nhân viên
+            vatTu: selectedTienIch // Lưu toàn bộ đối tượng nhân viên
         });
     };
 
@@ -87,7 +87,7 @@ const FormAdd = ({ show, handleClose }) => {
                             {/* Tiện ích */}
                             <div className="mb-3">
                                 <label htmlFor="nhanVien" className="form-label">Tiện ích</label>
-                                <select className="form-select" id="tienIch" name="tienIch" value={formData.tienIch?.id || ''} onChange={handleTienIchChange} required>
+                                <select className="form-select" id="vatTu" name="vatTu" value={formData.vatTu?.id || ''} onChange={handleTienIchChange} required>
                                     <option value="">Chọn tiện ích</option>
                                     {ListTienIch.map(nv => (
                                         <option key={nv.id} value={nv.id}>{nv.tenTienIch}</option>

@@ -64,6 +64,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 //        ttdp.setGhiChu(request.getGhiChu());
         datPhongRepository.save(dp);
         return thongTinDatPhongRepository.save(ttdp);
+
+
+        
     }
 
     @Override
@@ -78,17 +81,15 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
     @Override
     public ThongTinDatPhong update(TTDPRequest request) {
+        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById(request.getId());
         LoaiPhong lp = loaiPhongServiceIMPL.findByID(request.getIdLoaiPhong());
-        ThongTinDatPhong ttdp = new ThongTinDatPhong();
-        ttdp.setId(request.getId());
-        ttdp.setMaThongTinDatPhong(request.getMaThongTinDatPhong());
-        ttdp.setDatPhong(request.getDatPhong());
         ttdp.setLoaiPhong(lp);
+        ttdp.setGiaDat(lp.getDonGia());
         ttdp.setNgayNhanPhong(request.getNgayNhanPhong());
         ttdp.setNgayTraPhong(request.getNgayTraPhong());
         ttdp.setSoNguoi(request.getSoNguoi());
-        ttdp.setGiaDat(request.getGiaDat());
         ttdp.setTrangThai(request.getTrangThai());
+        ttdp.setGhiChu(request.getGhiChu());
         return thongTinDatPhongRepository.save(ttdp);
     }
 
@@ -122,16 +123,8 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     }
 
     @Override
-    public void kiemTraDenHan(List<ThongTinDatPhong> ttdps) {
-        LocalDate ngayHienTai = LocalDate.now();
-        for (ThongTinDatPhong ttdp : ttdps) {
-            if (ttdp.getTrangThai().equals("Dang o")) {
-                if (ttdp.getNgayTraPhong().isEqual(ngayHienTai)) {
-                    ttdp.setTrangThai("Den han");
-                    thongTinDatPhongRepository.save(ttdp);
-                }
-            }
-        }
+    public ThongTinDatPhong getByMaTTDP(String maTTDP) {
+        return thongTinDatPhongRepository.getTTDPByMa(maTTDP);
     }
 
     @Override

@@ -92,6 +92,7 @@ const TaoDatPhong = () => {
                         ngayTraPhong: room.ngayTraPhong,
                         soNguoi: room.soNguoi,
                         giaDat: room.giaDat,
+                        ghiChu: 'Ghi chú thêm nếu cần',
                         trangThai: 'Chua xep'
                     }));
                     console.log(thongTinDatPhongRequestList);
