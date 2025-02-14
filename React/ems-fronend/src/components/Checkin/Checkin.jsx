@@ -1,150 +1,152 @@
-import React, { useState } from 'react'
-import './Checkin.scss';
+import React, { useState } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Box,
+  Typography,
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { checkIn, phongDaXep } from '../../services/XepPhongService';
 import { ThemPhuThu } from '../../services/PhuThuService';
 
 const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
-    const [ngayNhanPhong, setNgayNhanPhong] = useState('');
-    const [ngayTraPhong, setNgayTraPhong] = useState('');
-    const [ngayNhanPhongTime, setNgayNhanPhongTime] = useState('');
-    const [ngayTraPhongTime, setNgayTraPhongTime] = useState('');
-    const handleCheckin = async () => {
-        console.log(thongTinDatPhong);
+  const [ngayNhanPhong, setNgayNhanPhong] = useState('');
+  const [ngayTraPhong, setNgayTraPhong] = useState('');
+  const [ngayNhanPhongTime, setNgayNhanPhongTime] = useState('');
+  const [ngayTraPhongTime, setNgayTraPhongTime] = useState('');
+  const navigate = useNavigate();
 
-        try {
-            // Gọi API để lấy thông tin phòng đã xếp
-            let xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
-            console.log('Phòng trước khi check-in:', xepPhong);
+  const handleCheckin = async () => {
+    console.log(thongTinDatPhong);
 
-            if (!xepPhong) {
-                alert('Không tìm thấy phòng đã xếp.');
-                return;
-            }
+    try {
+      // Gọi API để lấy thông tin phòng đã xếp
+      let xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
+      console.log('Phòng trước khi check-in:', xepPhong);
 
-            // Cập nhật thông tin xếp phòng trước
-            const xepPhongRequest = {
-                id: xepPhong.id,
-                phong: xepPhong.phong,
-                thongTinDatPhong: xepPhong.thongTinDatPhong,
-                ngayNhanPhong: ngayNhanPhong, // Giờ được chọn từ input
-                ngayTraPhong: ngayTraPhong,
-                trangThai: xepPhong.trangThai,
-            };
+      if (!xepPhong) {
+        alert('Không tìm thấy phòng đã xếp.');
+        return;
+      }
 
-            console.log('Đang thực hiện xếp phòng:', xepPhongRequest);
+      // Cập nhật thông tin xếp phòng
+      const xepPhongRequest = {
+        id: xepPhong.id,
+        phong: xepPhong.phong,
+        thongTinDatPhong: xepPhong.thongTinDatPhong,
+        ngayNhanPhong: ngayNhanPhong, // Ngày nhận phòng đã kết hợp (date + time)
+        ngayTraPhong: ngayTraPhong,   // Ngày trả phòng đã kết hợp
+        trangThai: xepPhong.trangThai,
+      };
 
-            // Thực hiện check-in (cập nhật thông tin trong DB)
-            await checkIn(xepPhongRequest);
-            alert('Xếp phòng thành công!');
+      console.log('Đang thực hiện check-in với:', xepPhongRequest);
+      await checkIn(xepPhongRequest);
+      alert('Check-in thành công!');
 
-            // Gọi lại API để lấy dữ liệu phòng sau khi cập nhật
-            xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
-            console.log('Phòng sau khi check-in:', xepPhong);
+      // Lấy lại dữ liệu phòng sau khi cập nhật
+      xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
+      console.log('Phòng sau khi check-in:', xepPhong);
 
-            // Ngày nhận phòng từ XepPhong (sau khi cập nhật)
-            const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
-            console.log('Ngày nhận phòng sau cập nhật:', ngayNhanPhongXepPhong);
+      const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
+      console.log('Ngày nhận phòng sau cập nhật:', ngayNhanPhongXepPhong);
 
-            // Thiết lập 14h00 chiều
-            const gio14Chieu = new Date(ngayNhanPhongXepPhong);
-            gio14Chieu.setHours(14, 0, 0, 0);
+      // Thiết lập mốc thời gian 14:00 chiều cùng ngày
+      const gio14Chieu = new Date(ngayNhanPhongXepPhong);
+      gio14Chieu.setHours(14, 0, 0, 0);
 
-            // Kiểm tra nếu ngày nhận phòng < 14h00 chiều (nhận phòng sớm)
-            if (ngayNhanPhongXepPhong < gio14Chieu) {
-                const phuThuRequest = {
-                    xepPhong: { id: xepPhong.id },
-                    tenPhuThu: 'Phụ thu do nhận phòng sớm',
-                    tienPhuThu: 50000,
-                    soLuong: 1,
-                    trangThai: true,
-                };
+      // Nếu nhận phòng trước 14:00 chiều thì thêm phụ thu
+      if (ngayNhanPhongXepPhong < gio14Chieu) {
+        const phuThuRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: 'Phụ thu do nhận phòng sớm',
+          tienPhuThu: 50000,
+          soLuong: 1,
+          trangThai: true,
+        };
 
-                console.log('Đang thêm phụ thu do nhận phòng sớm:', phuThuRequest);
+        console.log('Đang thêm phụ thu:', phuThuRequest);
+        const phuThuResponse = await ThemPhuThu(phuThuRequest);
+        console.log('Phụ thu được thêm:', phuThuResponse.data);
+        alert('Phụ thu do nhận phòng sớm đã được thêm.');
+      } else {
+        console.log('Không cần phụ thu: nhận phòng sau 14h.');
+      }
+    } catch (error) {
+      console.error('Lỗi xảy ra:', error);
+      alert('Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng kiểm tra lại.');
+    }
+  };
 
-                // Thực hiện thêm phụ thu
-                const phuThuResponse = await ThemPhuThu(phuThuRequest);
-                console.log('Phụ thu do nhận phòng sớm thành công:', phuThuResponse.data);
-                alert('Phụ thu do nhận phòng sớm đã được thêm.');
-            } else {
-                console.log('Không cần phụ thu: Ngày nhận phòng sau 14h chiều.');
-            }
-        } catch (error) {
-            console.error('Lỗi xảy ra:', error);
-            alert('Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng kiểm tra lại.');
-        }
-    };
+  // Xử lý thay đổi thời gian nhận phòng
+  const handleNgayNhanPhongTimeChange = (event) => {
+    const timeValue = event.target.value; // Ví dụ: "08:30"
+    setNgayNhanPhongTime(timeValue);
+    // Giả sử thongTinDatPhong.getNgayNhanPhong() trả về phần date, ví dụ "2025-02-12"
+    const datePart = thongTinDatPhong.getNgayNhanPhong();
+    const combined = `${datePart}T${timeValue}`;
+    setNgayNhanPhong(combined);
+  };
 
-    const handleNgayNhanPhongChange = (event) => {
-        // Retrieve the date part from thongTinDatPhong
-        // const ngayNhanPhongDate = thongTinDatPhong.getNgayNhanPhong();
+  // Xử lý thay đổi thời gian trả phòng
+  const handleNgayTraPhongTimeChange = (event) => {
+    const timeValue = event.target.value;
+    setNgayTraPhongTime(timeValue);
+    const datePart = thongTinDatPhong.getNgayTraPhong();
+    const combined = `${datePart}T${timeValue}`;
+    setNgayTraPhong(combined);
+  };
 
-        // Retrieve the time part from the event target value
-        // const timeValue = event.target.value; // Assuming time is in "HH:mm:ss" or "HH:mm" format
+  return (
+    <Dialog open={show} onClose={handleClose} fullWidth maxWidth="sm">
+      <DialogTitle>Checkin</DialogTitle>
+      <DialogContent dividers>
+        <Box mb={2}>
+          <Typography variant="subtitle1" gutterBottom>
+            Ngày nhận phòng
+          </Typography>
+          <TextField
+            id="ngayNhanPhong"
+            type="time"
+            value={ngayNhanPhongTime}
+            onChange={handleNgayNhanPhongTimeChange}
+            fullWidth
+            variant="outlined"
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </Box>
+        <Box mb={2}>
+          <Typography variant="subtitle1" gutterBottom>
+            Ngày trả phòng
+          </Typography>
+          <TextField
+            id="ngayTraPhong"
+            type="time"
+            value={ngayTraPhongTime}
+            onChange={handleNgayTraPhongTimeChange}
+            fullWidth
+            variant="outlined"
+            InputLabelProps={{
+              shrink: true,
+            }}
+          />
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose} color="secondary">
+          Cancel
+        </Button>
+        <Button onClick={handleCheckin} color="primary" variant="contained">
+          Checkin
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
-        // Combine date and time into a single LocalDateTime string
-        // const combinedDateTime = `${ngayNhanPhongDate}T${timeValue}`;
-
-        // Update state with the combined LocalDateTime
-        //setNgayNhanPhong(combinedDateTime);
-        setNgayNhanPhong(event.target.value);
-    };
-
-    const handleNgayTraPhongChange = (event) => {
-        const ngayNhanPhongDate = thongTinDatPhong.getNgayTraPhong();
-
-        // Retrieve the time part from the event target value
-        const timeValue = event.target.value; // Assuming time is in "HH:mm:ss" or "HH:mm" format
-
-        // Combine date and time into a single LocalDateTime string
-        const combinedDateTime = `${ngayNhanPhongDate}T${timeValue}`;
-        setNgayTraPhong(combinedDateTime);
-    };
-
-    const handleNgayNhanPhongTimeChange = (event) => {
-        setNgayNhanPhongTime(event.target.value);
-        handleNgayNhanPhongChange();
-    };
-
-    const handleNgayTraPhongTimeChange = (event) => {
-        setNgayTraPhongTime(event.target.value);
-        handleNgayTraPhongChange();
-    };
-
-    if (!show) return null;
-    return (
-        <div className="checkin-modal-overlay">
-            <div className={`checkin-modal-container ${show ? 'show' : ''}`}>
-                <div className="modal-header">
-                    <h4>Checkin</h4>
-                </div>
-                <div className="modal-body">
-                    <div className="form-group">
-                        <label htmlFor="ngayNhanPhong">Ngày nhận phòng</label>
-                        <input
-                            type="time"
-                            id="ngayNhanPhong"
-                            value={ngayNhanPhongTime}
-                            onChange={handleNgayNhanPhongTimeChange}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="ngayTraPhong">Ngày trả phòng</label>
-                        <input
-                            type="local-datetime"
-                            id="ngayTraPhong"
-                            value={ngayTraPhongTime}
-                            onChange={handleNgayTraPhongTimeChange}
-                        />
-                    </div>
-                </div>
-                <div className="modal-footer">
-                    <button className="footer-button cancel-button" onClick={handleClose}>Cancel</button>
-                    <button onClick={handleCheckin}>checkin</button>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-export default Checkin
+export default Checkin;

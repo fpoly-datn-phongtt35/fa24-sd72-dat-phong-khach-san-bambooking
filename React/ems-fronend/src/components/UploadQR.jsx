@@ -57,12 +57,12 @@ const UploadQR = ({ setQRData }) => {
               result = await codeReader.current.decodeFromImageElement(imgRef.current);
             }
 
-            setQrResult(result.getText());
-            setQRData=(result.getText());
+            setQrResult(result.getText());  
+            setQRData(result.getText());
           } catch (error) {
             console.error("Không thể quét QR Code:", error);
             setQrResult("Không phát hiện QR Code. Hãy thử ảnh khác.");
-            setQRData=("Không phát hiện QR Code. Hãy thử ảnh khác.");
+            setQRData("Không phát hiện QR Code. Hãy thử ảnh khác.");
           }
         }, 300); // 🕒 Độ trễ 300ms để đảm bảo modal render hoàn tất
       };
