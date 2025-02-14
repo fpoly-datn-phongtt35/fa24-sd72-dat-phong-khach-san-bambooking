@@ -77,7 +77,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             AddDichVuSuDung(formData)
                 .then(() => {
                     console.log("Dữ liệu thêm dịch vụ:", formData);
-                    setShowForm(false); // Đóng form sau khi thêm
+                    handleClose();
                 })
                 .catch((error) => {
                     console.error("Error adding service:", error);

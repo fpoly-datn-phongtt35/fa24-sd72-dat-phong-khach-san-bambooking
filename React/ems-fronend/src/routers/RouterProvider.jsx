@@ -38,6 +38,7 @@ import Demo from "../components/HoaDon/Demo"
 import UploadQR from "../components/UploadQR";
 import QRScannerManual from "../components/QRScannerManual";
 import QuanLyPhong from "../components/QuanLyPhong/ViewPhong";
+import RoomDetail from "../components/QuanLyPhong/RoomDetail";
 function RouterProvider() {
 
     const UnauthorizedRoutes = () => {
@@ -103,7 +104,7 @@ function RouterProvider() {
                 <Route path="/tao-dat-phong" element={<TaoDatPhong />} />
                 <Route path="/thong-tin-dat-phong" element={<ChiTietDatPhong />} />
                 <Route path="/chi-tiet-ttdp" element={<ChiTietTTDP />} />
-                
+                <Route path="/api/RoomDetail/:roomId" element={<RoomDetail />} />
                 <Route path="/hoa-don" element={<ListHoaDon />} />
                 {/* <Route path="/add-hoa-don" element={<HoaDonComponent />} /> */}
                 <Route path="/add-taikhoan" element={<TaiKhoanComponent />} />

@@ -92,7 +92,6 @@ const ViewPhong = () => {
         });
 
         setStatus(newStatus);
-        console.log(status)
       } catch (error) {
         console.error("Lỗi khi lấy trạng thái phòng:", error);
       }
@@ -208,7 +207,6 @@ const ViewPhong = () => {
           ))}
           {rooms.map((room) => {
             let isOccupiedChain = false; // Theo dõi chuỗi ngày đã nhận phòng
-            console.log(status)
             return (
               <React.Fragment key={room.id}>
                 <div

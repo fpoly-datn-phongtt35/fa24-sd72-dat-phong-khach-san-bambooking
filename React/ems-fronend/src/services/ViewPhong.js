@@ -58,12 +58,13 @@ export const getTTDP = async () => {
     }
 };
 
-export const AddDichVuSuDung =  (dichVuSuDung) => {
+export const AddDichVuSuDung = async (dichVuSuDung) => {
     try {
-        const response = authorizedAxiosInstance.post(apiADDPhieuDichVu, dichVuSuDung);
-        return response.data; // Trả về dữ liệu phản hồi từ server
+        const response = await authorizedAxiosInstance.post(apiADDPhieuDichVu, dichVuSuDung);
+        return response.data; // Đúng, trả về dữ liệu phản hồi từ server
     } catch (error) {
         console.error("Lỗi khi thêm dịch vụ sử dụng:", error.response?.data || error.message);
         throw error; // Ném lỗi để xử lý tiếp ở nơi gọi hàm
     }
 };
+
