@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { listImage, searchTienIch } from '../../services/TienIchService';
+import { listImage, searchTienIch } from '../../services/VatTuService';
 import FormAdd from './FormAdd';
 import FormDetail from './FormDetail';
 
-const TienIch = () => {
+const VatTu = () => {
     const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
     const [totalPages, setTotalPages] = useState(0); // Tổng số trang
     const itemsPerPage = 4;
-    const [selectedData, setSelectedData] = useState(null); // Lưu tiện ích được chọn
+    const [selectedData, setSelectedData] = useState(null); 
     const [images, setImages] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Hàm lấy dữ liệu tiện ích
+    // Hàm lấy dữ liệu vật tư
     const getAllSanPham = () => {
         listImage({ page: currentPage, size: itemsPerPage }, searchQuery)
             .then((response) => {
@@ -67,24 +67,6 @@ const TienIch = () => {
         setSelectedData(null); // Xóa dữ liệu đã chọn
     };
 
-    // Hàm xử lý thay đổi giá trị input tìm kiếm
-    // const handleInputChange = (e) => {
-    //     const value = e.target.value;
-    //     setSearchTerm(value);
-    //     setCurrentPage(0); // Đặt lại trang về 0 khi tìm kiếm
-
-    //     // Gọi API tìm kiếm
-    //     searchTienIch(value, { page: 0, size: itemsPerPage }) // Sử dụng { page: 0, size: itemsPerPage }
-    //         .then((response) => {
-    //             console.log(response.data); // Kiểm tra cấu trúc dữ liệu
-    //             setData(response.data.content || []); // Đảm bảo setData là một mảng
-    //             setTotalPages(response.data.totalPages || 0); // Kiểm tra totalPages
-    //         })
-    //         .catch((error) => {
-    //             console.log(error);
-    //             setData([]); // Đặt lại data nếu có lỗi
-    //         });
-    // };
     const handleInputChange = (e) => {
         setSearchQuery(e.target.value);
         currentPage(0);
@@ -103,7 +85,7 @@ const TienIch = () => {
                     name="search"
                     value={searchQuery}
                     onChange={handleInputChange}
-                    placeholder="Tìm kiếm theo tên tiện ích"
+                    placeholder="Tìm kiếm theo tên vật tư"
                 />
                 <br></br>
             </div>
@@ -112,7 +94,8 @@ const TienIch = () => {
                     <thead>
                         <tr>
                             <th className="col">ID</th>
-                            <th className="col">Tên tiện ích</th>
+                            <th className="col">Tên vật tư</th>
+                            <th className="col">Giá</th>
                             <th className="col">Hình ảnh</th>
                         </tr>
                     </thead>
@@ -121,11 +104,12 @@ const TienIch = () => {
                             images.map(image => (
                                 <tr key={image.id} onClick={() => handleOpenFormDetail(image.id)}>
                                     <td>{image.id}</td>
-                                    <td>{image.tenTienIch}</td>
+                                    <td>{image.tenVatTu}</td>
+                                    <td>{image.gia}</td>
                                     <td>
                                         <img
                                             src={image.hinhAnh}
-                                            alt={image.tenTienIch}
+                                            alt={image.tenVatTu}
                                             style={{ width: '150px', height: '100px' }}
                                         />
                                     </td>
@@ -169,4 +153,4 @@ const TienIch = () => {
     );
 };
 
-export default TienIch;
+export default VatTu;

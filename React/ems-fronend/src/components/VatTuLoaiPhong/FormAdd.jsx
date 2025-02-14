@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { addTienIchPhong , DSTienIch, DSLoaiPhong } from '../../services/TienIchPhongService';
+import { addTienIchPhong , DSTienIch, DSLoaiPhong } from '../../services/VatTuLoaiPhong';
 
 const FormAdd = ({ show, handleClose }) => {
     const [formData, setFormData] = useState({

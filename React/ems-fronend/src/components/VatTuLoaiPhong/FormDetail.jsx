@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { updateTienIchPhong, DSTienIch, DSLoaiPhong, deleteTienNghiPhong } from '../../services/TienIchPhongService';
+import { updateTienIchPhong, DSTienIch, DSLoaiPhong, deleteTienNghiPhong } from '../../services/VatTuLoaiPhong';
 
 const FormDetail = ({ show, handleClose, data }) => {
     const [formData, setFormData] = useState({

@@ -106,6 +106,7 @@ const LoaiPhong = () => {
                         <tr>
                             <th className="col">ID</th>
                             <th className="col">Tên loại phòng</th>
+                            <th className="col">Mã loại phòng</th>
                             <th className="col">Diện tích</th>
                             <th className="col">Số khách tối đa</th>
                             <th className="col">Đơn giá</th>
@@ -119,6 +120,7 @@ const LoaiPhong = () => {
                                 <tr key={ti.id} onClick={() => handleOpenFormDetail(ti.id)}>
                                     <td>{ti.id}</td>
                                     <td>{ti.tenLoaiPhong}</td>
+                                    <td>{ti.maLoaiPhong}</td>
                                     <td>{ti.dienTich}</td>
                                     <td>{ti.soKhachToiDa}</td>
                                     <td>{ti.donGia}</td>

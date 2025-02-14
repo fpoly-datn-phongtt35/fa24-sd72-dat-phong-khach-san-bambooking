@@ -1,16 +1,15 @@
-import authorizedAxiosInstance from "../utils/authorizedAxios";
-
-const api = "http://localhost:8080/tien-ich/index";
-const apiadd = "http://localhost:8080/tien-ich/add";
-const apiUD = "http://localhost:8080/tien-ich/update";
-const apiDE = "http://localhost:8080/tien-ich/delete";
-const apiSE = "http://localhost:8080/tien-ich/search";
-const apiImage = "http://localhost:8080/tien-ich";
+import axios from "axios";
+const api = "http://localhost:8080/vat-tu/index";
+const apiadd = "http://localhost:8080/vat-tu/add";
+const apiUD = "http://localhost:8080/vat-tu/update";
+const apiDE = "http://localhost:8080/vat-tu/delete";
+const apiSE = "http://localhost:8080/vat-tu/search";
+const apiImage = "http://localhost:8080/vat-tu";
 
 // export const listTienNghi = () => axios.get(api);
 
-export const listTienIch = (pageable) => {
-    return authorizedAxiosInstance.get(api, {
+export const listVatTu = (pageable) => {
+    return axios.get(api, {
         params: { 
             page: pageable.page, 
             size: pageable.size
@@ -18,16 +17,16 @@ export const listTienIch = (pageable) => {
     });
 };
 
-export const addTienIch= (formData) => {
-    return authorizedAxiosInstance.post(apiadd, formData, {
+export const addVatTu= (formData) => {
+    return axios.post(apiadd, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
     });
 };
 
-export const updateTienIch = (formData) => {
-    return authorizedAxiosInstance.post(apiUD, formData, {
+export const updateVatTu = (formData) => {
+    return axios.post(apiUD, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
@@ -35,8 +34,8 @@ export const updateTienIch = (formData) => {
 };
 
 // Thay đổi hàm delete để truyền vào id và sử dụng phương thức DELETE
-export const deleteTienIch = (id) => {
-    return authorizedAxiosInstance.delete(`${apiDE}/${id}`);
+export const deleteVatTu = (id) => {
+    return axios.delete(`${apiDE}/${id}`);
 };
 
 

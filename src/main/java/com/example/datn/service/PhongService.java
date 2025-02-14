@@ -18,4 +18,6 @@ public interface PhongService {
     Boolean updateStatus(Integer id);
     Page<Phong> searchPhong(String keyword, Pageable pageable);
     List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong);
+
+    List<Phong> DSPhong(String keyword);
 }

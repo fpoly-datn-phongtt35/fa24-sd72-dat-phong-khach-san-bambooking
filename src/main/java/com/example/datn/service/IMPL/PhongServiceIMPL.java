@@ -89,5 +89,10 @@ public class PhongServiceIMPL implements PhongService {
         return phongRepository.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong);
     }
 
+    @Override
+    public List<Phong> DSPhong(String keyword) {
+        return phongRepository.DSPhong(keyword);
+    }
+
 
 }

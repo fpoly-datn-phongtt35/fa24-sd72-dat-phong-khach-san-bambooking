@@ -25,7 +25,10 @@ public class VatTuLoaiPhong {
     @JoinColumn(name = "id_vat_tu")
     @ManyToOne
     private VatTu vatTu;
-    @Column(name = "so_luong")
+
+
+    @JoinColumn(name = "so_luong")
+
     private Integer soLuong;
 
 }

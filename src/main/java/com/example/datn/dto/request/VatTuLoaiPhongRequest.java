@@ -15,4 +15,6 @@ public class VatTuLoaiPhongRequest {
     private Integer id;
     private LoaiPhong loaiPhong;
     private VatTu vatTu;
+
+    private Integer soLuong;
 }

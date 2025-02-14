@@ -8,17 +8,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface TienIchRepository extends JpaRepository<VatTu,Integer> {
+public interface VatTuRepository extends JpaRepository<VatTu,Integer> {
     @Query("select new com.example.datn.dto.response.VatTuResponse(ti.id," +
             "ti.tenVatTu," +
-            "ti.hinhAnh)" +
+            "ti.hinhAnh," +
+            "ti.gia)" +
             "from VatTu ti")
-    Page<VatTuResponse> TienIch(Pageable pageable);
+    Page<VatTuResponse> VatTu(Pageable pageable);
 
     @Query("SELECT tn FROM VatTu tn " +
-            "WHERE tn.tenVatTu LIKE %:tenTienIch% "
+            "WHERE tn.tenVatTu LIKE %:tenVatTu% "
     )
-    Page<VatTu> search(@Param("tenTienIch") String keyword, Pageable pageable);
+    Page<VatTu> search(@Param("tenVatTu") String keyword, Pageable pageable);
 
 
 

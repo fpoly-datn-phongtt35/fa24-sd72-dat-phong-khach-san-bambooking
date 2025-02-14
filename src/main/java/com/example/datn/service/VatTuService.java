@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
-public interface TienIchService {
+public interface VatTuService {
     List<VatTu> getAll();
     Page<VatTuResponse> getPage(Pageable pageable);
 
@@ -23,7 +23,7 @@ public interface TienIchService {
 
     Page<VatTu> search (String tenTienIch, Pageable pageable);
 
-    Page<VatTu> getAllTienIch(Pageable pageable);
+    Page<VatTu> getAllVatTu(Pageable pageable);
 
-    Page<VatTu> searchTienIch(String keyword, Pageable pageable);
+    Page<VatTu> searchVatTu(String keyword, Pageable pageable);
 }

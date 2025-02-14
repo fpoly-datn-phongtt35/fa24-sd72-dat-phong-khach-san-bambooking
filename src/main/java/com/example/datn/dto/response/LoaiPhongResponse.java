@@ -13,6 +13,7 @@ import lombok.Setter;
 public class LoaiPhongResponse {
     private Integer id;
     private String tenLoaiPhong;
+    private String maLoaiPhong;
     private Integer dienTich;
 
     private Integer soKhachToiDa;
