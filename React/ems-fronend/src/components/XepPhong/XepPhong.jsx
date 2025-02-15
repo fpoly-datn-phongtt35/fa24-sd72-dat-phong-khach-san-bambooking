@@ -24,6 +24,8 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
   // Hàm định dạng chuỗi ngày thành LocalDateTime (ISO string)
   const formatToLocalDateTime = (dateString) => {
     const date = new Date(dateString);
+    console.log(date);
+    console.log(date.toISOString().slice(0, 19));
     return date.toISOString().slice(0, 19);
   };
 

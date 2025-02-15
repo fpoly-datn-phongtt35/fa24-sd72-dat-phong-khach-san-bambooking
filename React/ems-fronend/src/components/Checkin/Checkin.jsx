@@ -86,7 +86,7 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
     const timeValue = event.target.value; // Ví dụ: "08:30"
     setNgayNhanPhongTime(timeValue);
     // Giả sử thongTinDatPhong.getNgayNhanPhong() trả về phần date, ví dụ "2025-02-12"
-    const datePart = thongTinDatPhong.getNgayNhanPhong();
+    const datePart = thongTinDatPhong.ngayNhanPhong;
     const combined = `${datePart}T${timeValue}`;
     setNgayNhanPhong(combined);
   };
@@ -95,7 +95,7 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
   const handleNgayTraPhongTimeChange = (event) => {
     const timeValue = event.target.value;
     setNgayTraPhongTime(timeValue);
-    const datePart = thongTinDatPhong.getNgayTraPhong();
+    const datePart = thongTinDatPhong.ngayTraPhong;
     const combined = `${datePart}T${timeValue}`;
     setNgayTraPhong(combined);
   };

@@ -37,8 +37,8 @@ public class XepPhongServiceIMPL implements XepPhongService {
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
         xp.setPhong(xepPhongRequest.getPhong());
         xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
-        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong().withHour(14).withMinute(0).withSecond(0).withNano(0));
-        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong().withHour(12).withMinute(0).withSecond(0).withNano(0));
+        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
+        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
         xp.setTrangThai(xepPhongRequest.getTrangThai());
         ttdp.setTrangThai("Da xep");
         thongTinDatPhongRepository.save(ttdp);
