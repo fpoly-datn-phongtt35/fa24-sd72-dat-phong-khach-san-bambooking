@@ -27,22 +27,22 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
       // Gọi API để lấy thông tin phòng đã xếp
       let xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
       console.log('Phòng trước khi check-in:', xepPhong);
-
       if (!xepPhong) {
         alert('Không tìm thấy phòng đã xếp.');
         return;
       }
+      // Lấy thông tin loại phòng
+      const loaiPhong = xepPhong.phong.loaiPhong;
 
-      // Cập nhật thông tin xếp phòng
+      // Cập nhật thông tin xếp phòng trước
       const xepPhongRequest = {
         id: xepPhong.id,
         phong: xepPhong.phong,
         thongTinDatPhong: xepPhong.thongTinDatPhong,
-        ngayNhanPhong: ngayNhanPhong, // Ngày nhận phòng đã kết hợp (date + time)
-        ngayTraPhong: ngayTraPhong,   // Ngày trả phòng đã kết hợp
+        ngayNhanPhong: ngayNhanPhong, // Giờ được chọn từ input
+        ngayTraPhong: ngayTraPhong,
         trangThai: xepPhong.trangThai,
       };
-
       console.log('Đang thực hiện check-in với:', xepPhongRequest);
       await checkIn(xepPhongRequest);
       alert('Check-in thành công!');
@@ -53,12 +53,17 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
 
       const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
       console.log('Ngày nhận phòng sau cập nhật:', ngayNhanPhongXepPhong);
+      const ngayTraPhongXepPhong = new Date(xepPhong.ngayTraPhong);
+      console.log('Ngày trả phòng sau cập nhật:', ngayTraPhongXepPhong);
 
-      // Thiết lập mốc thời gian 14:00 chiều cùng ngày
+      // Thiết lập 14h00 chiều
       const gio14Chieu = new Date(ngayNhanPhongXepPhong);
       gio14Chieu.setHours(14, 0, 0, 0);
 
-      // Nếu nhận phòng trước 14:00 chiều thì thêm phụ thu
+      const gio22Toi = new Date(ngayNhanPhongXepPhong);
+      gio22Toi.setHours(22, 0, 0, 0);
+
+      // Kiểm tra nếu ngày nhận phòng < 14h00 chiều (nhận phòng sớm)
       if (ngayNhanPhongXepPhong < gio14Chieu) {
         const phuThuRequest = {
           xepPhong: { id: xepPhong.id },
@@ -67,13 +72,44 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
           soLuong: 1,
           trangThai: true,
         };
-
         console.log('Đang thêm phụ thu:', phuThuRequest);
         const phuThuResponse = await ThemPhuThu(phuThuRequest);
         console.log('Phụ thu được thêm:', phuThuResponse.data);
         alert('Phụ thu do nhận phòng sớm đã được thêm.');
       } else {
         console.log('Không cần phụ thu: nhận phòng sau 14h.');
+      }
+      // Kiểm tra nếu ngày trả phòng > 12h00 trưa (trả phòng muộn)
+      const gio12Trua = new Date(ngayTraPhongXepPhong);
+      gio12Trua.setHours(12, 0, 0, 0);
+
+      if (ngayTraPhongXepPhong > gio12Trua) {
+        const phuThuRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: 'Phụ thu do trả phòng muộn',
+          tienPhuThu: 70000, // Số tiền phụ thu có thể thay đổi
+          soLuong: 1,
+          trangThai: true,
+        };
+
+        console.log('Đang thêm phụ thu do trả phòng muộn:', phuThuRequest);
+        await ThemPhuThu(phuThuRequest);
+        alert('Phụ thu do trả phòng muộn đã được thêm.');
+      }
+
+      // Kiểm tra phụ thu nếu số người nhiều hơn số khách tối đa
+      if (thongTinDatPhong.soNguoi > loaiPhong.soKhachToiDa) {
+        const soNguoiThem = thongTinDatPhong.soNguoi - loaiPhong.soKhachToiDa;
+        const phuThuRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: 'Phụ thu do quá số người quy định',
+          tienPhuThu: 100000, // Có thể thay đổi giá phụ thu theo số người
+          soLuong: soNguoiThem,
+          trangThai: true,
+        };
+        console.log('Đang thêm phụ thu do quá số người:', phuThuRequest);
+        await ThemPhuThu(phuThuRequest);
+        alert(`Phụ thu do quá số người quy định đã được thêm (${soNguoiThem} người).`);
       }
     } catch (error) {
       console.error('Lỗi xảy ra:', error);
@@ -86,16 +122,17 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
     const timeValue = event.target.value; // Ví dụ: "08:30"
     setNgayNhanPhongTime(timeValue);
     // Giả sử thongTinDatPhong.getNgayNhanPhong() trả về phần date, ví dụ "2025-02-12"
-    const datePart = thongTinDatPhong.getNgayNhanPhong();
+    const datePart = thongTinDatPhong.ngayNhanPhong;
     const combined = `${datePart}T${timeValue}`;
     setNgayNhanPhong(combined);
   };
+
 
   // Xử lý thay đổi thời gian trả phòng
   const handleNgayTraPhongTimeChange = (event) => {
     const timeValue = event.target.value;
     setNgayTraPhongTime(timeValue);
-    const datePart = thongTinDatPhong.getNgayTraPhong();
+    const datePart = thongTinDatPhong.ngayTraPhong;
     const combined = `${datePart}T${timeValue}`;
     setNgayTraPhong(combined);
   };
