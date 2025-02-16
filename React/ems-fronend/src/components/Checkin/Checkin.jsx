@@ -19,6 +19,9 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
                 return;
             }
 
+            // Lấy thông tin loại phòng
+            const loaiPhong = xepPhong.phong.loaiPhong;
+
             // Cập nhật thông tin xếp phòng trước
             const xepPhongRequest = {
                 id: xepPhong.id,
@@ -43,9 +46,15 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
             const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
             console.log('Ngày nhận phòng sau cập nhật:', ngayNhanPhongXepPhong);
 
+            const ngayTraPhongXepPhong = new Date(xepPhong.ngayTraPhong);
+            console.log('Ngày trả phòng sau cập nhật:', ngayTraPhongXepPhong);
+
             // Thiết lập 14h00 chiều
             const gio14Chieu = new Date(ngayNhanPhongXepPhong);
             gio14Chieu.setHours(14, 0, 0, 0);
+
+            const gio22Toi = new Date(ngayNhanPhongXepPhong);
+            gio22Toi.setHours(22, 0, 0, 0);
 
             // Kiểm tra nếu ngày nhận phòng < 14h00 chiều (nhận phòng sớm)
             if (ngayNhanPhongXepPhong < gio14Chieu) {
@@ -63,8 +72,40 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
                 const phuThuResponse = await ThemPhuThu(phuThuRequest);
                 console.log('Phụ thu do nhận phòng sớm thành công:', phuThuResponse.data);
                 alert('Phụ thu do nhận phòng sớm đã được thêm.');
+            }
+            // Kiểm tra nếu ngày trả phòng > 12h00 trưa (trả phòng muộn)
+            const gio12Trua = new Date(ngayTraPhongXepPhong);
+            gio12Trua.setHours(12, 0, 0, 0);
+
+            if (ngayTraPhongXepPhong > gio12Trua) {
+                const phuThuRequest = {
+                    xepPhong: { id: xepPhong.id },
+                    tenPhuThu: 'Phụ thu do trả phòng muộn',
+                    tienPhuThu: 70000, // Số tiền phụ thu có thể thay đổi
+                    soLuong: 1,
+                    trangThai: true,
+                };
+
+                console.log('Đang thêm phụ thu do trả phòng muộn:', phuThuRequest);
+                await ThemPhuThu(phuThuRequest);
+                alert('Phụ thu do trả phòng muộn đã được thêm.');
+            }
+
+            // Kiểm tra phụ thu nếu số người nhiều hơn số khách tối đa
+            if (thongTinDatPhong.soNguoi > loaiPhong.soKhachToiDa) {
+                const soNguoiThem = thongTinDatPhong.soNguoi - loaiPhong.soKhachToiDa;
+                const phuThuRequest = {
+                    xepPhong: { id: xepPhong.id },
+                    tenPhuThu: 'Phụ thu do quá số người quy định',
+                    tienPhuThu: 100000, // Có thể thay đổi giá phụ thu theo số người
+                    soLuong: soNguoiThem,
+                    trangThai: true,
+                };
+                console.log('Đang thêm phụ thu do quá số người:', phuThuRequest);
+                await ThemPhuThu(phuThuRequest);
+                alert(`Phụ thu do quá số người quy định đã được thêm (${soNguoiThem} người).`);
             } else {
-                console.log('Không cần phụ thu: Ngày nhận phòng sau 14h chiều.');
+                console.log('Số người ở không vượt quá số khách tối đa, không cần phụ thu.');
             }
         } catch (error) {
             console.error('Lỗi xảy ra:', error);
