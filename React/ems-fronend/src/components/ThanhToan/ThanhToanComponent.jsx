@@ -81,7 +81,9 @@ const ThanhToanComponent = () => {
 
                     <Box sx={{ marginBottom: 3, paddingLeft: 8 }}>
                         <Typography sx={{ marginBottom: 1 }}><b>Mã hóa đơn:</b> {hoaDon.maHoaDon}</Typography>
-                        <Typography sx={{ marginBottom: 1 }}><b>Nhân viên:</b> {hoaDon.tenNhanVien}</Typography>
+                        <Typography sx={{ marginBottom: 1 }}><b>Mã đặt phòng:</b> {hoaDon.maDatPhong}</Typography>
+                        <Typography sx={{ marginBottom: 1 }}><b>Tên nhân viên:</b> {hoaDon.tenNhanVien}</Typography>
+                        <Typography sx={{ marginBottom: 1 }}><b>Tên khách hàng:</b> {hoaDon.tenKhachHang}</Typography>
                         <Typography sx={{ marginBottom: 1 }}><b>Ngày tạo:</b> {hoaDon.ngayTao}</Typography>
                         <Typography sx={{ marginBottom: 1 }}>
                             <b>Tổng tiền:</b>
