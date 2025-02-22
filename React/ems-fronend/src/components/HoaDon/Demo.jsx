@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { findCheckOut, checkOut } from '../../services/HoaDonDat';
-import {Box, Button, Card, Container, IconButton, Input, Stack, Typography} from '@mui/joy';
+import { Box, Button, Card, Container, IconButton, Input, Stack, Typography } from '@mui/joy';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
+import { ThemPhuThu } from '../../services/PhuThuService';
 
-const Demo = () => {
+
+const Demo = ({ thongTinDatPhong }) => {
     const [key, setKey] = useState('');
     const [traPhong, setTraPhong] = useState([]);
     const navigate = useNavigate();
@@ -21,20 +23,66 @@ const Demo = () => {
             });
     };
 
-    const CheckOut = () => {
-        traPhong.forEach((item) => {
-            checkOut(item.id)
-                .then((response) => {
-                    console.log(`Checkout thành công cho phòng ID: ${item.id}`);
-                })
-                .catch((error) => {
-                    console.log(`Lỗi khi checkout phòng ID: ${item.id}`, error);
-                });
-        });
+    const CheckOut = async () => {
+        try {
+            for (const item of traPhong) {
+                await checkOut(item.id);
+                console.log(`✅ Checkout thành công cho phòng ID: ${item.id}`);
 
-        localStorage.setItem('traPhong', JSON.stringify(traPhong));
-        navigate('/tao-hoa-don');
+
+                // Kiểm tra xem item.xepPhong có tồn tại không
+                if (!item.xepPhong) {
+                    console.warn(`⚠️ Không tìm thấy thông tin xếp phòng cho phòng ID: ${item.id}`);
+                    continue; // Bỏ qua nếu không có thông tin xếp phòng
+                }
+
+                // Lấy ngày trả phòng dự kiến từ xếp phòng
+                const ngayTraPhong = new Date(item.xepPhong.ngayTraPhong);
+                const ngayTraThucTe = new Date(item.ngayTraThucTe);
+
+                if (isNaN(ngayTraPhong) || isNaN(ngayTraThucTe)) {
+                    console.warn(`⚠️ Ngày không hợp lệ cho phòng ID: ${item.id}`);
+                    continue;
+                }
+
+                // Mốc 12h trưa của ngày trả phòng
+                const gio12Trua = new Date(ngayTraPhong);
+                gio12Trua.setHours(12, 0, 0, 0);
+
+                console.log("⏳ Kiểm tra phụ thu...");
+                console.log("Ngày trả phòng dự kiến:", ngayTraPhong);
+                console.log("Ngày trả thực tế:", ngayTraThucTe);
+                console.log("Mốc 12h trưa:", gio12Trua);
+
+                // Nếu trả phòng sau 12h trưa => Thêm phụ thu
+                if (ngayTraThucTe > gio12Trua) {
+                    const phuThuRequest = {
+                        xepPhong: { id: item.xepPhong.id },
+                        tenPhuThu: 'Phụ thu do trả phòng muộn',
+                        tienPhuThu: 70000,
+                        soLuong: 1,
+                        trangThai: true,
+                    };
+
+                    console.log('➕ Đang thêm phụ thu:', phuThuRequest);
+
+                    await ThemPhuThu(phuThuRequest);
+                    console.log(`💰 Phụ thu đã được thêm cho phòng ${item.xepPhong.id}`);
+                    alert(`Phụ thu do trả phòng muộn đã được thêm cho phòng ${item.xepPhong.id}`);
+                } else {
+                    console.log(`✅ Không cần phụ thu: Phòng ${item.xepPhong.id} trả trước 12h trưa.`);
+                }
+            }
+
+            // Lưu vào localStorage và chuyển hướng
+            localStorage.setItem('traPhong', JSON.stringify(traPhong));
+            navigate('/tao-hoa-don');
+        } catch (error) {
+            console.error('❌ Lỗi khi thực hiện checkout:', error);
+            alert('Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng kiểm tra lại.');
+        }
     };
+
 
     const removeTraPhong = (id) => {
         setTraPhong(traPhong.filter((item) => item.id !== id));
