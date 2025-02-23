@@ -40,5 +40,11 @@ public class XepPhongController {
     @GetMapping("test")
     public ResponseEntity<List<XepPhong>> tesst(@RequestParam("key") String key){
         return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.findByKey(key));
+
+    }
+
+    @GetMapping("thong-tin-xep-phong")
+    public ResponseEntity<?> ttXepPhong(){
+        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.getAll());
     }
 }

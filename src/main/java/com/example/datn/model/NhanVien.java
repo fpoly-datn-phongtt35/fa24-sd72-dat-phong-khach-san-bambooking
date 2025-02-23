@@ -25,7 +25,7 @@ public class NhanVien implements Serializable {
 
     @Column(name = "cmnd")
     private String cmnd;
-
+    
     @Column(name = "ho")
     private String ho;
 

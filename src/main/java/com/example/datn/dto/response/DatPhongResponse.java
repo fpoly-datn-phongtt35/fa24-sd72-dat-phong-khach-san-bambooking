@@ -18,9 +18,10 @@ public class DatPhongResponse {
     private Integer id;
     private KhachHang khachHang;
     private String maDatPhong;
+    private Integer soNguoi;
+    private Integer soPhong;
     private LocalDate ngayDat;
     private Double tongTien;
-    private Double datCoc;
     private String ghiChu;
     private String trangThai;
 

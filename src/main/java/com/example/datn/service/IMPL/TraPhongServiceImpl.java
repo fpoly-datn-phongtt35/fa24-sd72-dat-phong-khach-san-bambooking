@@ -18,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -64,5 +66,10 @@ public class TraPhongServiceImpl implements TraPhongService {
         traPhong.setTrangThai(true);
         traPhongRepository.save(traPhong);
         return traPhong;
+    }
+
+    @Override
+    public List<TraPhong> DSTraPhong() {
+        return  traPhongRepository.findAll();
     }
 }

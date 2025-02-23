@@ -3,12 +3,9 @@ package com.example.datn.controller;
 
 
 import com.example.datn.dto.request.LoaiPhongRequest;
-import com.example.datn.dto.request.TienIchPhongRequest;
 import com.example.datn.dto.response.LoaiPhongResponse;
-import com.example.datn.dto.response.TienIchPhongResponse;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.service.IMPL.DichVuDiKemServiceIMPL;
-import com.example.datn.model.TienIch;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

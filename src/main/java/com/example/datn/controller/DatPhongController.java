@@ -4,9 +4,11 @@ package com.example.datn.controller;
 import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.model.DatPhong;
+import com.example.datn.model.KhachHang;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
 import com.example.datn.service.IMPL.PhongServiceIMPL;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/dat-phong")
+@CrossOrigin("*")
 public class DatPhongController {
     @Autowired
     DatPhongServiceIMPL datPhongServiceIMPL;
@@ -97,4 +100,17 @@ public class DatPhongController {
         return ResponseEntity.ok(datPhongServiceIMPL.DSDatPhong(pageable));
     }
 
+    @DeleteMapping("xoa")
+    public ResponseEntity<?> xoaDatPhong(@RequestParam Integer iddp) {
+        try {
+            datPhongServiceIMPL.xoaDatPhong(iddp);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Đặt phòng không tồn tại.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Đã xảy ra lỗi trong quá trình xóa đặt phòng.");
+        }
+    }
 }

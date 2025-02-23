@@ -116,11 +116,13 @@ export default function Navbar({ isLoggedIn, handleLogout }) {
             Quy Định
           </Link>
         </li>
-        <li>
-          <Link to="/histories" className={location.pathname === '/histories' ? 'active' : ''}>
-            Lịch sử đặt phòng
-          </Link>
-        </li>
+        {user ? (
+            <li>
+            <Link to="/histories" className={location.pathname === '/histories' ? 'active' : ''}>
+              Lịch sử đặt phòng
+            </Link>
+          </li>
+        ) : null}
       </ul>
       <div className="navbar-buttons">
         {user ? (

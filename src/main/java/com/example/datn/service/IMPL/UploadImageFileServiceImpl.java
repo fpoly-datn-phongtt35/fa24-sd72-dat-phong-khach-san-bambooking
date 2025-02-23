@@ -41,56 +41,56 @@ public class UploadImageFileServiceImpl implements UploadImageFileService {
         return hinhAnhRepository.findAll(pageable);
     }
 
-    @Override
-    public HinhAnhResponse uploadImage(HinhAnhRequest request, MultipartFile file) throws IOException {
-        if (file.isEmpty() || file.getOriginalFilename() == null) {
-            throw new IllegalArgumentException("File rỗng hoặc tên file không hợp lệ");
+        @Override
+        public HinhAnhResponse uploadImage(HinhAnhRequest request, MultipartFile file) throws IOException {
+            if (file.isEmpty() || file.getOriginalFilename() == null) {
+                throw new IllegalArgumentException("File rỗng hoặc tên file không hợp lệ");
+            }
+
+            // Kiểm tra định dạng file
+            String extension = getFileName(file.getOriginalFilename())[1].toLowerCase();
+            if (!extension.matches("jpg|jpeg|png|gif")) {
+                throw new IllegalArgumentException("Định dạng file không hợp lệ. Chỉ hỗ trợ jpg, jpeg, png, gif.");
+            }
+
+            String publicValue = generatePublicValue(file.getOriginalFilename());
+            File fileUpload = convert(file);
+            log.info("Đang upload file: {}", fileUpload);
+
+            // Upload file lên Cloudinary
+            try {
+                cloudinary.uploader().upload(fileUpload, ObjectUtils.asMap("public_id", publicValue));
+            } catch (Exception e) {
+                throw new IOException("Lỗi khi upload lên Cloudinary: " + e.getMessage());
+            }
+
+            cleanDisk(fileUpload);
+
+            HinhAnh hinhAnh = new HinhAnh();
+            hinhAnh.setTenAnh(request.getTenAnh());
+            hinhAnh.setDuongDan(cloudinary.url().generate(publicValue + "." + extension));
+            hinhAnh.setTrangThai(request.getTrangThai());
+
+            if (request.getIdPhong() != null) {
+                Phong phong = phongRepository.findById(request.getIdPhong())
+                        .orElseThrow(() -> new RuntimeException("Phòng không tồn tại"));
+                hinhAnh.setPhong(phong);
+            }
+
+            hinhAnhRepository.save(hinhAnh);
+
+            HinhAnhResponse response = new HinhAnhResponse();
+            response.setId(hinhAnh.getId());
+            response.setTenAnh(hinhAnh.getTenAnh());
+            response.setDuongDan(hinhAnh.getDuongDan());
+            response.setTrangThai(hinhAnh.getTrangThai());
+
+            if (request.getIdPhong() != null) {
+                response.setIdPhong(request.getIdPhong());
+            }
+
+            return response;
         }
-
-        // Kiểm tra định dạng file
-        String extension = getFileName(file.getOriginalFilename())[1].toLowerCase();
-        if (!extension.matches("jpg|jpeg|png|gif")) {
-            throw new IllegalArgumentException("Định dạng file không hợp lệ. Chỉ hỗ trợ jpg, jpeg, png, gif.");
-        }
-
-        String publicValue = generatePublicValue(file.getOriginalFilename());
-        File fileUpload = convert(file);
-        log.info("Đang upload file: {}", fileUpload);
-
-        // Upload file lên Cloudinary
-        try {
-            cloudinary.uploader().upload(fileUpload, ObjectUtils.asMap("public_id", publicValue));
-        } catch (Exception e) {
-            throw new IOException("Lỗi khi upload lên Cloudinary: " + e.getMessage());
-        }
-
-        cleanDisk(fileUpload);
-
-        HinhAnh hinhAnh = new HinhAnh();
-        hinhAnh.setTenAnh(request.getTenAnh());
-        hinhAnh.setDuongDan(cloudinary.url().generate(publicValue + "." + extension));
-        hinhAnh.setTrangThai(request.getTrangThai());
-
-        if (request.getIdPhong() != null) {
-            Phong phong = phongRepository.findById(request.getIdPhong())
-                    .orElseThrow(() -> new RuntimeException("Phòng không tồn tại"));
-            hinhAnh.setPhong(phong);
-        }
-
-        hinhAnhRepository.save(hinhAnh);
-
-        HinhAnhResponse response = new HinhAnhResponse();
-        response.setId(hinhAnh.getId());
-        response.setTenAnh(hinhAnh.getTenAnh());
-        response.setDuongDan(hinhAnh.getDuongDan());
-        response.setTrangThai(hinhAnh.getTrangThai());
-
-        if (request.getIdPhong() != null) {
-            response.setIdPhong(request.getIdPhong());
-        }
-
-        return response;
-    }
 
     @Override
     public String getImageUrl(Integer id) {

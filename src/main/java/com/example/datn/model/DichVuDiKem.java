@@ -25,6 +25,9 @@ public class DichVuDiKem {
     @JoinColumn(name = "id_loai_phong")
     private LoaiPhong loaiPhong;
 
+    @Column(name = "so_luong")
+    private Integer soLuong;
+
     @Column(name = "trang_thai")
     private Boolean trangThai;
 }

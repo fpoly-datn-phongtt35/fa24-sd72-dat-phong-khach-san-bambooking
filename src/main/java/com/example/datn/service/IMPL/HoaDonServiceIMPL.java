@@ -2,31 +2,42 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.HoaDonRequest;
 import com.example.datn.dto.response.HoaDonResponse;
+import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.mapper.HoaDonMapper;
-import com.example.datn.model.DatPhong;
 import com.example.datn.model.HoaDon;
 import com.example.datn.model.NhanVien;
-import com.example.datn.model.ThongTinHoaDon;
-import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.repository.HoaDonRepository;
+import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.service.HoaDonService;
+import com.example.datn.service.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpHeaders;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.util.Locale;
+
+import static com.example.datn.common.TokenType.ACCESS_TOKEN;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+@Slf4j
 public class HoaDonServiceIMPL implements HoaDonService {
     HoaDonRepository hoaDonRepository;
-    DatPhongRepository datPhongRepository;
     HoaDonMapper hoaDonMapper;
+
+    NhanVienRepository nhanVienRepository;
+
+    JwtService jwtService;
 
     private static final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int code_length = 6;
@@ -36,7 +47,7 @@ public class HoaDonServiceIMPL implements HoaDonService {
     public Page<HoaDonResponse> getHoaDonByTrangThai(String trangThai, String keyword, Pageable pageable) {
         Page<HoaDon> hoaDons;
         if (trangThai == null || trangThai.isEmpty()) {
-            hoaDons = hoaDonRepository.findAll(pageable);
+            hoaDons = hoaDonRepository.findAllByOrderByNgayTaoDesc(pageable);
         } else {
             hoaDons = hoaDonRepository.findByTrangThai(trangThai, keyword, pageable);
         }
@@ -59,7 +70,7 @@ public class HoaDonServiceIMPL implements HoaDonService {
     }
 
     @Override
-    public HoaDonResponse createHoaDon(HoaDonRequest request) {
+    public HoaDonResponse createHoaDon(HttpServletRequest request) {
         // Check trùng mã hóa đơn
         String maHoaDon;
 
@@ -67,7 +78,10 @@ public class HoaDonServiceIMPL implements HoaDonService {
             maHoaDon = generateMaaHoaDon();
         } while (isMaHoaDonExists(maHoaDon));
 
-        NhanVien nhanVien = hoaDonRepository.searchTenDangNhap(request.getTenDangNhap());
+        String username = this.jwtService.extractUsername(request.getHeader(HttpHeaders.AUTHORIZATION).substring("Bearer ".length()), ACCESS_TOKEN); // Boc tach token => username
+        log.info("Username {}", username);
+        NhanVien nhanVien = this.nhanVienRepository.findByUsername(username).orElseThrow(() -> new EntityNotFountException("User name not found!!"));
+
         HoaDon hoaDon = new HoaDon();
         hoaDon.setMaHoaDon(maHoaDon);
         hoaDon.setNhanVien(nhanVien);
@@ -76,7 +90,13 @@ public class HoaDonServiceIMPL implements HoaDonService {
         hoaDon.setNgayTao(LocalDateTime.now());
         hoaDon.setTrangThai("Chưa thanh toán");
 
-        return hoaDonMapper.toHoaDonResponse(hoaDonRepository.save(hoaDon));
+        double tongTien = hoaDon.getTongTien();
+        String formattedTongTien = formatCurrency(tongTien);
+
+        HoaDonResponse hoaDonResponse = hoaDonMapper.toHoaDonResponse(hoaDonRepository.save(hoaDon));
+        hoaDonResponse.setTongTien(Double.valueOf(formattedTongTien));
+
+        return hoaDonResponse;
     }
 
     @Override
@@ -86,13 +106,28 @@ public class HoaDonServiceIMPL implements HoaDonService {
         return hoaDonMapper.toHoaDonResponse(hoaDon);
     }
 
-
     @Override
-    public void changeStatusHoaDon(Integer idHoaDon) {
+    public String changeStatusHoaDon(Integer id) {
+        HoaDon hoaDon = hoaDonRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn có ID: " + id));
 
+        if ("Chờ xác nhận".equals(hoaDon.getTrangThai())) {
+            hoaDon.setTrangThai("Đã thanh toán");
+            hoaDonRepository.save(hoaDon);
+            return "Hóa đơn đã được thanh toán thành công.";
+        } else {
+            throw new RuntimeException("Hóa đơn không ở trạng thái 'Chờ xác nhận', không thể thay đổi.");
+        }
     }
+
     @Override
     public NhanVien searchNhanVienByTenDangNhap(String tenDangNhap) {
         return hoaDonRepository.searchTenDangNhap(tenDangNhap);
+    }
+
+    // Phương thức định dạng tiền tệ
+    private String formatCurrency(double amount) {
+        NumberFormat currencyFormatter = NumberFormat.getInstance(new Locale("vi", "VN"));
+        return currencyFormatter.format(amount);
     }
 }

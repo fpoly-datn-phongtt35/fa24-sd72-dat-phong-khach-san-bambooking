@@ -12,7 +12,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "hotel-website": "file:",
+    "axios": "^1.7.9",
     "html-webpack-plugin": "^5.6.3",
     "lodash": "^4.17.21",
     "lucide-react": "^0.456.0",
@@ -22,12 +22,16 @@
     "react-scripts": "^5.0.1",
     "web-vitals": "^2.1.4"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
+ "eslintConfig": {
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ],
+  "plugins": ["jest"],
+  "env": {
+    "jest/globals": true
+  }
+},
   "browserslist": {
     "production": [
       ">0.2%",
@@ -43,4 +47,5 @@
   "devDependencies": {
     "cross-env": "^7.0.3"
   }
+  
 }

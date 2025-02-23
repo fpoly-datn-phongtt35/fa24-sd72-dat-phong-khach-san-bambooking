@@ -74,10 +74,6 @@
     min-width: 280px; /* Đảm bảo cột chiếm đủ không gian */
 }
 
-.form-group {
-    margin-bottom: 15px;
-}
-
 /* label {
     display: block;
     font-weight: bold;

@@ -51,7 +51,6 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         }
         DatPhong dp = request.getDatPhong();
         dp.setTongTien(dp.getTongTien() + tienPhong + tienPhuThu);
-        dp.setDatCoc(dp.getTongTien() * 0.1);
         ttdp.setDatPhong(dp);
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
@@ -62,6 +61,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setTrangThai(request.getTrangThai());
         datPhongRepository.save(dp);
         return thongTinDatPhongRepository.save(ttdp);
+
+
+        
     }
 
     @Override

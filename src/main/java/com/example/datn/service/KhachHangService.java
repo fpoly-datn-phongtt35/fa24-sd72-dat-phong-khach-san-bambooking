@@ -10,6 +10,8 @@ public interface KhachHangService {
 
     KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request);
 
+    void deleteKhachHangDatPhong(Integer idkh);
+
     CustomerResponses.CustomerTemplate getCustomers(FilterRequest request);
 
     void updateStatus(int id, boolean status);

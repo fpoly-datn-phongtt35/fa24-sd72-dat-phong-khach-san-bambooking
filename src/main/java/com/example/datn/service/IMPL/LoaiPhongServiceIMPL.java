@@ -2,8 +2,10 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.DichVuDikemRequest;
 import com.example.datn.dto.request.LoaiPhongRequest;
+import com.example.datn.dto.response.ChiaPhongResponse;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
+import com.example.datn.dto.response.SearchResultResponse;
 import com.example.datn.model.DichVuDiKem;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.repository.DichVuDiKemRepository;
@@ -19,7 +21,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
+import java.util.*;
+import java.util.stream.Collectors;
 @Service
 public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
@@ -48,6 +51,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     public LoaiPhong add(LoaiPhongRequest loaiPhongRequest) {
         LoaiPhong loaiPhong = new LoaiPhong();
         loaiPhong.setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
+        loaiPhong.setMaLoaiPhong(loaiPhongRequest.getMaLoaiPhong());
         loaiPhong.setDienTich(loaiPhongRequest.getDienTich());
         loaiPhong.setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
         loaiPhong.setDonGiaPhuThu(loaiPhongRequest.getDonGiaPhuThu());
@@ -72,6 +76,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         Optional<LoaiPhong> loaiPhong = loaiPhongRepository.findById(loaiPhongRequest.getId());
         loaiPhong.get().setId(loaiPhongRequest.getId());
         loaiPhong.get().setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
+        loaiPhong.get().setMaLoaiPhong(loaiPhongRequest.getMaLoaiPhong());
         loaiPhong.get().setDienTich(loaiPhongRequest.getDienTich());
         loaiPhong.get().setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
         loaiPhong.get().setDonGia(loaiPhongRequest.getDonGia());
@@ -96,11 +101,51 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
     @Override
     public Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
-                                                           Integer soNguoi, Pageable pageable) {
+                                                           Integer soNguoi, Integer soPhong, Pageable pageable) {
 
-            Pageable pageable1 = PageRequest.of(pageable.getPageNumber(),3);
-            return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,pageable1);
+            Pageable pg = PageRequest.of(pageable.getPageNumber(),3);
+            Page<LoaiPhongKhaDungResponse> pageLPKD = loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pg);
+            return loaiPhongRepository.LoaiPhongKhaDung(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pg);
 
+    }
+
+    @Override
+    public SearchResultResponse searchLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi, Integer soPhong,Pageable pageable) {
+        if (soNguoi == null || soNguoi <= 0 || soPhong == null || soPhong <= 0) {
+            throw new IllegalArgumentException("Số người và số phòng phải lớn hơn 0.");
+        }
+
+        try {
+            // Lấy danh sách loại phòng khả dụng từ repository
+            Page<LoaiPhongKhaDungResponse> allLoaiPhong = loaiPhongRepository.findLoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi, pageable);
+
+            // Xây dựng danh sách gợi ý cách chia phòng
+            List<ChiaPhongResponse> chiaPhongCach = allLoaiPhong.stream()
+                    .map(loaiPhong -> {
+                        int soKhachToiDa = loaiPhong.getSoKhachToiDa();
+                        int soPhongCan = (int) Math.ceil((double) soNguoi / soKhachToiDa);
+
+                        // Chỉ thêm vào danh sách nếu đủ phòng
+                        if (soPhongCan <= loaiPhong.getSoPhongKhaDung()) {
+                            double tongGia = loaiPhong.getDonGia() * soPhongCan; // Tính tổng giá tiền
+                            return new ChiaPhongResponse(
+                                    loaiPhong.getId(),
+                                    loaiPhong.getTenLoaiPhong(),
+                                    soPhongCan,
+                                    soKhachToiDa,
+                                    tongGia
+                            );
+                        }
+                        return null; // Bỏ qua nếu không đủ phòng
+                    })
+                    .filter(Objects::nonNull) // Loại bỏ kết quả null
+                    .collect(Collectors.toList());
+
+            // Trả về kết quả
+            return new SearchResultResponse(allLoaiPhong, chiaPhongCach);
+        } catch (Exception e) {
+            throw new RuntimeException("Đã xảy ra lỗi khi tìm kiếm loại phòng khả dụng.", e);
+        }
     }
 
     @Override

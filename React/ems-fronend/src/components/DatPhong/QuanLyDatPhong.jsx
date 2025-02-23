@@ -1,282 +1,436 @@
-import React, { useState, useEffect } from 'react';
-import './QuanLyDatPhong.scss';
-import { HienThiQuanLy, findTTDPS, huyTTDP } from '../../services/TTDP';
-import { useNavigate } from 'react-router-dom';
-import XepPhong from '../XepPhong/XepPhong';
-import { phongDaXep ,checkIn} from '../../services/XepPhongService';
-import { Alert } from 'react-bootstrap';
-import { checkOut } from '../../services/TraPhong';
-import Checkin from '../Checkin/Checkin';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Container,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Checkbox,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Pagination,
+  IconButton,
+  Popper,
+} from "@mui/material";
+import { LocalizationProvider, DateCalendar } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import DeleteIcon from "@mui/icons-material/Delete";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom"; // Icon cho nút Xếp Phòng
+import { useNavigate } from "react-router-dom";
+import { findTTDPS, huyTTDP } from "../../services/TTDP";
+import { phongDaXep } from "../../services/XepPhongService";
+import XepPhong from "../XepPhong/XepPhong";
+import Checkin from "../Checkin/Checkin"; // Import modal Checkin
+
 function QuanLyDatPhong() {
-    const navigate = useNavigate();
-    const [currentPage, setCurrentPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
-    const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
-    const [currentStatus, setCurrentStatus] = useState('Chua xep');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [searchKey, setSearchKey] = useState('');
-    const [showXepPhongModal, setShowXepPhongModal] = useState(false); // Trạng thái hiển thị của Modal
-    const [loaiPhong, setLoaiPhong] = useState(null);
-    const [ttdp, setTTDP] = useState(null);
-    const [phongData, setPhongData] = useState({}); // State để lưu dữ liệu phòng đã xếp
-    const [selectedTTDPs, setSelectedTTDPs] = useState([]);
-    const [showCheckInModal, setShowCheckInModal] = useState(false);
-    const [selectedTTDP, setSelectedTTDP] = useState(null);
-    const HuyThongTinDatPhong = (maThongTinDatPhong) => {
-        const confirmed = window.confirm("Bạn có chắc chắn muốn hủy thông tin đặt phòng này không?");
-        if (confirmed) {
-            huyTTDP(maThongTinDatPhong)
-                .then(response => {
-                    console.log(response.data);
-                    alert('Hủy thành công!')
-                    fetchThongTinDatPhong(currentStatus,currentPage);
-                })
-                .catch(error => {
-                    console.log(error);
-                    alert('Hủy thất bại!')
-                });
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
+  const [currentStatus, setCurrentStatus] = useState("Chua xep");
+  const [searchKey, setSearchKey] = useState("");
+  const [showXepPhongModal, setShowXepPhongModal] = useState(false);
+  const [selectedTTDPs, setSelectedTTDPs] = useState([]);
+  const [phongData, setPhongData] = useState({});
+  const [selectedStartDate, setSelectedStartDate] = useState(null);
+  const [selectedEndDate, setSelectedEndDate] = useState(null);
+  const [openStartDatePicker, setOpenStartDatePicker] = useState(false);
+  const [openEndDatePicker, setOpenEndDatePicker] = useState(false);
+  const [showCheckinModal, setShowCheckinModal] = useState(false);
+  const startDateAnchorRef = useRef(null);
+  const endDateAnchorRef = useRef(null);
+
+  const fetchPhongDaXep = (maThongTinDatPhong) => {
+    phongDaXep(maThongTinDatPhong)
+      .then((response) => {
+        setPhongData((prev) => ({
+          ...prev,
+          [maThongTinDatPhong]: response.data.phong,
+        }));
+      })
+      .catch((error) => console.error("Lỗi khi lấy phòng:", error));
+  };
+
+  const fetchThongTinDatPhong = (status, page = 0) => {
+    findTTDPS(
+      selectedStartDate ? selectedStartDate.format("YYYY-MM-DD") : "",
+      selectedEndDate ? selectedEndDate.format("YYYY-MM-DD") : "",
+      searchKey,
+      status,
+      { page, size: 5 }
+    )
+      .then((response) => {
+        setThongTinDatPhong(response.data.content);
+        setTotalPages(response.data.totalPages);
+        setCurrentPage(page);
+
+        if (["Da xep", "Dang o", "Da tra phong"].includes(status)) {
+          response.data.content.forEach((ttdp) => {
+            fetchPhongDaXep(ttdp.maThongTinDatPhong);
+          });
         }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  };
+
+  useEffect(() => {
+    fetchThongTinDatPhong(currentStatus, currentPage);
+  }, [
+    currentPage,
+    currentStatus,
+    selectedStartDate,
+    selectedEndDate,
+    searchKey,
+  ]);
+
+  const toggleStartDatePicker = () => setOpenStartDatePicker((prev) => !prev);
+  const toggleEndDatePicker = () => setOpenEndDatePicker((prev) => !prev);
+
+  const handleDateChange = (newDate, setDate, closePopper) => {
+    setDate(newDate);
+    closePopper(false);
+  };
+
+  const handleStatusChange = (status) => {
+    setCurrentPage(0);
+    setCurrentStatus(status);
+    fetchThongTinDatPhong(status, 0);
+  };
+
+  const handleViewDetails = (maDatPhong) => {
+    navigate("/thong-tin-dat-phong", { state: { maDatPhong } });
+  };
+
+  const handleViewDetailsTTDPTTDP = (maThongTinDatPhong) => {
+    navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
+  };
+
+  const handleAssign = () => {
+    if (selectedTTDPs.length === 0) {
+      alert("Vui lòng chọn ít nhất một thông tin đặt phòng để xếp phòng.");
+      return;
     }
+    setShowXepPhongModal(true);
+  };
 
-    const fetchPhongDaXep = (maThongTinDatPhong) => {
-        phongDaXep(maThongTinDatPhong)
-            .then(response => {
-                console.log("Dữ liệu phòng đã xếp:", response.data); // Log dữ liệu phòng đã xếp
-                setPhongData(prevData => ({
-                    ...prevData,
-                    [maThongTinDatPhong]: response.data
-                }));
-            })
-            .catch(error => {
-                console.log("Lỗi khi lấy phòng đã xếp:", error);
-            });
-    };
-    const fetchThongTinDatPhong = (trangThai, page = 0) => {
-        findTTDPS(startDate, endDate, searchKey, trangThai, { page, size: 5 })
-            .then(response => {
-                setThongTinDatPhong(response.data.content);
-                setTotalPages(response.data.totalPages);
-                setCurrentPage(page);
-                setCurrentStatus(trangThai);
-                if (trangThai != 'Chua xep') {
-                    response.data.content.forEach(ttdp => fetchPhongDaXep(ttdp.maThongTinDatPhong));
-                }
-                console.log(response.data);
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    };
+  // Danh sách trạng thái đặt phòng
+  const statuses = [
+    { label: "Chưa xếp", value: "Chua xep" },
+    { label: "Đã xếp", value: "Da xep" },
+    { label: "Đang ở", value: "Dang o" },
+    { label: "Đã trả phòng", value: "Da tra phong" },
+    { label: "Đã hủy", value: "Da huy" },
+  ];
 
-    const calculateDays = (start, end) => {
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-        const diffTime = Math.abs(endDate - startDate);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays === 0 ? 1 : diffDays;
-    };
+  return (
+    <Container sx={{ minWidth: "1300px" }}>
+      <Box sx={{ mt: 5 }}>
+        <Typography variant="h4" gutterBottom>
+          Quản Lý Đặt Phòng
+        </Typography>
 
-    const calculateTotalPrice = (donGia, start, end) => {
-        const days = calculateDays(start, end);
-        return donGia * days;
-    };
+        <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+          <TextField
+            label="Tìm kiếm"
+            variant="outlined"
+            value={searchKey}
+            onChange={(e) => setSearchKey(e.target.value)}
+            sx={{ flex: 0.8 }}
+          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <div
+                ref={startDateAnchorRef}
+                style={{ position: "relative", flex: 1.2 }}
+              >
+                <Button
+                  variant="outlined"
+                  onClick={toggleStartDatePicker}
+                  endIcon={<CalendarMonthIcon />}
+                  style={{
+                    width: "180px",
+                    border: "1px solid black",
+                    color: "black",
+                  }}
+                >
+                  {selectedStartDate
+                    ? selectedStartDate.format("DD/MM/YYYY")
+                    : "Ngày bắt đầu"}
+                </Button>
+                <Popper
+                  open={openStartDatePicker}
+                  anchorEl={startDateAnchorRef.current}
+                  placement="bottom-start"
+                  style={{ zIndex: 20 }}
+                >
+                  <div
+                    style={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #ccc",
+                      borderRadius: "5px",
+                      padding: "10px",
+                    }}
+                  >
+                    <DateCalendar
+                      value={selectedStartDate}
+                      onChange={(newDate) =>
+                        handleDateChange(
+                          newDate,
+                          setSelectedStartDate,
+                          setOpenStartDatePicker
+                        )
+                      }
+                    />
+                  </div>
+                </Popper>
+              </div>
 
-    useEffect(() => {
-        fetchThongTinDatPhong(currentStatus, currentPage);
-    }, [currentPage, currentStatus, startDate, endDate, searchKey]);
-
-    const handleStatusChange = (trangThai) => {
-        setCurrentPage(0);
-        fetchThongTinDatPhong(trangThai, 0);
-    };
-
-    const handleDatPhongClick = (maDatPhong) => {
-        navigate('/thong-tin-dat-phong', { state: { maDatPhong } });
-    };
-
-    const handleTTDPClick = (maThongTinDatPhong) => {
-        navigate('/chi-tiet-ttdp', { state: { maThongTinDatPhong } });
-    };
-
-    const handleHuyTTDPClick = (maThongTinDatPhong) => {
-        HuyThongTinDatPhong(maThongTinDatPhong)
-    };
-    
-    const goToPreviousPage = () => {
-        if (currentPage > 0) {
-            setCurrentPage(prevPage => prevPage - 1);
-        }
-    };
-
-    const goToNextPage = () => {
-        if (currentPage < totalPages - 1) {
-            setCurrentPage(prevPage => prevPage + 1);
-        }
-    };
-
-    // Hàm đóng Modal XepPhong
-    const closeXepPhongModal = () => {
-        setShowXepPhongModal(false);
-    };
-    const openModal = () => {
-        setShowXepPhongModal(true); // Mở modal
-    };
-    // Hàm mở Modal XepPhong
-    const openXepPhongModal = (thongTinDatPhong) => {
-        setSelectedTTDPs([thongTinDatPhong]); // Gán thongTinDatPhong vào selectedTTDPs dưới dạng mảng chứa một phần tử
-        setShowXepPhongModal(true); // Mở modal
-    };
-    const closeCheckinModal = () => {
-        setShowCheckInModal(false);
-    };
-    const handleCheckboxChange = (ttdp) => {
-        setSelectedTTDPs(prevSelected => {
-            if (prevSelected.includes(ttdp)) {
-                return prevSelected.filter(item => item !== ttdp);
-            } else {
-                return [...prevSelected, ttdp];
-            }
-        });
-    };
-    const handleCheckIn = (ttdp) => {
-        console.log("Checkin for:", ttdp.maThongTinDatPhong);
-        setSelectedTTDP(ttdp);
-        setShowCheckInModal(true)
-        // checkIn(maThongTinDatPhong);
-        // fetchThongTinDatPhong(currentStatus,currentPage);
-    };
-    const handleCheckOut = (maThongTinDatPhong) => {
-        console.log("Checkout for:", maThongTinDatPhong);
-        checkOut(maThongTinDatPhong);
-        fetchThongTinDatPhong(currentStatus,currentPage);
-    };
-    return (
-        <div className="reservation">
-            <nav>
-                <a onClick={() => handleStatusChange('Chua xep')}>Chưa xếp</a>
-                <a onClick={() => handleStatusChange('Da xep')}>Đã xếp</a>
-                <a onClick={() => handleStatusChange('Dang o')}>Đang ở</a>
-                <a onClick={() => handleStatusChange('Da tra phong')}>Đã trả phòng</a>
-                <a onClick={() => handleStatusChange('Da huy')}>Đã hủy</a>
-            </nav>
-
-            <div className="filters">
-                <input
-                    type="text"
-                    placeholder="Search..."
-                    className="search-bar"
-                    value={searchKey}
-                    onChange={(e) => setSearchKey(e.target.value)}
-                />
-                <input
-                    type="date"
-                    placeholder="Start Date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                />
-                <input
-                    type="date"
-                    placeholder="End Date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                />
+              <div
+                ref={endDateAnchorRef}
+                style={{ position: "relative", flex: 1.2 }}
+              >
+                <Button
+                  variant="outlined"
+                  onClick={toggleEndDatePicker}
+                  endIcon={<CalendarMonthIcon />}
+                  style={{
+                    width: "180px",
+                    border: "1px solid black",
+                    color: "black",
+                  }}
+                >
+                  {selectedEndDate
+                    ? selectedEndDate.format("DD/MM/YYYY")
+                    : "Ngày kết thúc"}
+                </Button>
+                <Popper
+                  open={openEndDatePicker}
+                  anchorEl={endDateAnchorRef.current}
+                  placement="bottom-start"
+                  style={{ zIndex: 20 }}
+                >
+                  <div
+                    style={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #ccc",
+                      borderRadius: "5px",
+                      padding: "10px",
+                    }}
+                  >
+                    <DateCalendar
+                      value={selectedEndDate}
+                      onChange={(newDate) =>
+                        handleDateChange(
+                          newDate,
+                          setSelectedEndDate,
+                          setOpenEndDatePicker
+                        )
+                      }
+                    />
+                  </div>
+                </Popper>
+              </div>
             </div>
+          </LocalizationProvider>
+          <Button
+            variant="contained"
+            onClick={() => fetchThongTinDatPhong(currentStatus, 0)}
+            sx={{ width: "150px" }}
+          >
+            Lọc
+          </Button>
+        </Box>
 
-            <div className="reservation-list">
-                <button className="assign-button" onClick={openModal}>
-                    Assign
-                </button>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Select</th>
-                            <th>Đặt phòng</th>
-                            <th>Thông tin đặt phòng</th>
-                            <th>Tên khách hàng</th>
-                            <th>Số người</th>
-                            <th>{['Da xep', 'Dang o', 'Den han','Da tra phong'].includes(currentStatus) ? 'Phòng' : 'Loại phòng'}</th>
-                            <th>Ngày nhận phòng</th>
-                            <th>Ngày trả phòng</th>
-                            <th>Tiền phòng</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {thongTinDatPhong.length > 0 ? (
-                            thongTinDatPhong.map((ttdp) => (
-                                <tr key={ttdp.id}>
-                                    <td>
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedTTDPs.includes(ttdp)}
-                                            onChange={() => handleCheckboxChange(ttdp)}
-                                        />
-                                    </td>
-                                    <td onClick={() => handleDatPhongClick(ttdp.maDatPhong)} style={{ cursor: 'pointer', color: 'blue' }}>
-                                        {ttdp.maDatPhong}
-                                    </td>
-                                    <td onClick={() => handleTTDPClick(ttdp.maThongTinDatPhong)} style={{ cursor: 'pointer', color: 'blue' }}>
-                                        {ttdp.maThongTinDatPhong}
-                                    </td>
-                                    <td>{ttdp.tenKhachHang}</td>
-                                    <td>{ttdp.soNguoi}</td>
-                                    <td>
-                                        {['Da xep', 'Dang o', 'Den han','Da tra phong'].includes(currentStatus)
-                                            ? (phongData[ttdp.maThongTinDatPhong]?.phong.tenPhong || "Đang tải...")
-                                            : ttdp.loaiPhong.tenLoaiPhong}
-                                    </td>
-                                    <td>{ttdp.ngayNhanPhong}</td>
-                                    <td>{ttdp.ngayTraPhong}</td>
-                                    <td>{calculateTotalPrice(ttdp.donGia, ttdp.ngayNhanPhong, ttdp.ngayTraPhong).toLocaleString()}</td>
-                                    <td>
-                                        {currentStatus === 'Chua xep' ? (
-                                            <>
-                                                <button onClick={() => openXepPhongModal(ttdp)}>Assign</button>
-                                                <button onClick={() => handleHuyTTDPClick(ttdp.maThongTinDatPhong, currentStatus)} style={{ marginLeft: '10px' }}>Hủy</button>
-                                            </>
-                                        ) : currentStatus === 'Da xep' ? (
-                                            <>
-                                                <button onClick={() => handleCheckIn(ttdp)}>Checkin</button>
-                                                <button onClick={() => handleHuyTTDPClick(ttdp.maThongTinDatPhong, currentStatus)} style={{ marginLeft: '10px' }}>Hủy</button>
-                                            </>
-                                        ) : currentStatus === 'Dang o' ? (
-                                            <>
-                                                <button onClick={() => handleCheckOut(ttdp.maThongTinDatPhong)}>Checkout</button>
-                                            </>
-                                        ) : currentStatus === 'Den han' ? (
-                                            <>
-                                                <button onClick={() => handleCheckOut(ttdp.maThongTinDatPhong)}>Checkout</button>
-                                            </>
-                                        ) : null
-                                        }
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="10">Không có dữ liệu</td>
-                            </tr>
-                        )}
-                    </tbody>
+        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+          {statuses.map((status) => (
+            <Button
+              key={status.value}
+              variant={
+                currentStatus === status.value ? "contained" : "outlined"
+              }
+              onClick={() => handleStatusChange(status.value)}
+            >
+              {status.label}
+            </Button>
+          ))}
+        </Box>
 
-                </table>
-                <div className="pagination">
-                    <button onClick={goToPreviousPage} disabled={currentPage === 0}>
-                        Trang Trước
-                    </button>
-                    <span>Trang {currentPage + 1} trên {totalPages}</span>
-                    <button onClick={goToNextPage} disabled={currentPage === totalPages - 1}>
-                        Trang Sau
-                    </button>
-                </div>
-            </div>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+          <Button variant="contained" color="primary" onClick={handleAssign}>
+            Xếp phòng
+          </Button>
+        </Box>
 
-            {/* Hiển thị Modal XepPhong */}
-            <XepPhong show={showXepPhongModal} handleClose={closeXepPhongModal} selectedTTDPs={selectedTTDPs} />
-            <Checkin show={showCheckInModal} handleClose={closeCheckinModal} thongTinDatPhong={selectedTTDP}/> 
-        </div>
-    );
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Chọn</TableCell>
+                <TableCell>Mã Đặt Phòng</TableCell>
+                <TableCell>Thông Tin Đặt Phòng</TableCell>
+                <TableCell>Khách Hàng</TableCell>
+                <TableCell>Số Người</TableCell>
+                <TableCell>
+                  {["Da xep", "Dang o", "Da tra phong"].includes(currentStatus)
+                    ? "Phòng"
+                    : "Loại Phòng"}
+                </TableCell>
+                <TableCell>Ngày Nhận</TableCell>
+                <TableCell>Ngày Trả</TableCell>
+                <TableCell>Tiền Phòng</TableCell>
+                <TableCell>Hành Động</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {thongTinDatPhong.length > 0 ? (
+                thongTinDatPhong.map((ttdp) => (
+                  <TableRow key={ttdp.maThongTinDatPhong}>
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedTTDPs.includes(ttdp)}
+                        onChange={() =>
+                          setSelectedTTDPs((prev) =>
+                            prev.includes(ttdp)
+                              ? prev.filter((item) => item !== ttdp)
+                              : [...prev, ttdp]
+                          )
+                        }
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "blue", cursor: "pointer" }}
+                        onClick={() => handleViewDetails(ttdp.maDatPhong)}
+                      >
+                        {ttdp.maDatPhong}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "blue", cursor: "pointer" }}
+                        onClick={() =>
+                          handleViewDetailsTTDPTTDP(ttdp.maThongTinDatPhong)
+                        }
+                      >
+                        {ttdp.maThongTinDatPhong}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{ttdp.tenKhachHang}</TableCell>
+                    <TableCell>{ttdp.soNguoi}</TableCell>
+                    <TableCell>
+                      {["Da xep", "Dang o", "Da tra phong"].includes(
+                        currentStatus
+                      )
+                        ? phongData[ttdp.maThongTinDatPhong]?.tenPhong ||
+                          "Đang tải..."
+                        : ttdp.loaiPhong.tenLoaiPhong}
+                    </TableCell>
+                    <TableCell>{ttdp.ngayNhanPhong}</TableCell>
+                    <TableCell>{ttdp.ngayTraPhong}</TableCell>
+                    <TableCell>{ttdp.donGia.toLocaleString()} VND</TableCell>
+                    <TableCell>
+                      {/* Nút hủy đặt phòng */}
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() =>
+                          huyTTDP(ttdp.maThongTinDatPhong).then(() =>
+                            fetchThongTinDatPhong(currentStatus, currentPage)
+                          )
+                        }
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                      {/* Nút checkin: mở modal Checkin với thông tin của dòng này */}
+                      {currentStatus === "Da xep" && (
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            setSelectedTTDPs([ttdp]);
+                            setShowCheckinModal(true);
+                          }}
+                        >
+                          <CheckCircleIcon />
+                        </IconButton>
+                      )}
+
+                      {/* Nút xếp phòng: mở modal Xếp Phòng với thông tin của dòng này */}
+
+                      {currentStatus === "Chua xep" && (
+                      <IconButton
+                      size="small"
+                      onClick={() => {
+                        setSelectedTTDPs([ttdp]);
+                        setShowXepPhongModal(true);
+                      }}
+                    >
+                      <MeetingRoomIcon />
+                    </IconButton>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={10} align="center">
+                    Không có dữ liệu
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage + 1}
+            onChange={(e, value) => setCurrentPage(value - 1)}
+            color="primary"
+          />
+        </Box>
+      </Box>
+
+      {/* Modal Xếp Phòng */}
+      <XepPhong
+        show={showXepPhongModal}
+        handleClose={() => setShowXepPhongModal(false)}
+        selectedTTDPs={selectedTTDPs}
+      />
+
+      {/* Modal Checkin */}
+      {showCheckinModal && (
+        <Checkin
+          show={showCheckinModal}
+          handleClose={() => {
+            setShowCheckinModal(false);
+            // Sau khi checkin có thể cập nhật lại danh sách đặt phòng
+            fetchThongTinDatPhong(currentStatus, currentPage);
+          }}
+          // Vì modal Checkin xử lý 1 thông tin đặt phòng tại 1 thời điểm nên truyền selectedTTDPs[0]
+          thongTinDatPhong={selectedTTDPs[0]}
+        />
+      )}
+    </Container>
+  );
 }
 
 export default QuanLyDatPhong;

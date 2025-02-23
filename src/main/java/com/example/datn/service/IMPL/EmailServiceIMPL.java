@@ -23,8 +23,7 @@ public class EmailServiceIMPL implements EmailService {
                                   String maThongTinDatPhong,
                                   long soDem,
                                   Double tienPhuThu,
-                                  Double tongTien,
-                                  Double tienDatCoc) {
+                                  Double tongTien) {
         try {
             // Định dạng ngày tháng chỉ hiển thị ngày
             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -37,7 +36,6 @@ public class EmailServiceIMPL implements EmailService {
                     + "Số đêm: " + soDem + "\n"
                     + "Tiền phụ thu (nếu có): " + String.format("%.2f", tienPhuThu) + " VND\n"
                     + "Tổng tiền: " + String.format("%.2f", tongTien) + " VND\n"
-                    + "Tiền đặt cọc: " + String.format("%.2f", tienDatCoc) + " VND\n"
                     + "Mã đặt phòng: " + maThongTinDatPhong + "\n\n"
                     + "Ngày đặt phòng: " + ngayDatPhong.format(dateFormatter) + "\n"
                     + "Ngày nhận phòng: " + ngayNhanPhong.format(dateFormatter) + "\n"

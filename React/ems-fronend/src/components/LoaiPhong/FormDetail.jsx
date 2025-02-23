@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { updateLoaiPhong, deleteLoaiPhong, DanhSachTienIchPhong } from '../../services/LoaiPhongService';
-import { deleteTienNghiPhong, listTienIchPhong, addTienIchPhong } from '../../services/TienIchPhongService'; // Thêm import cho hàm lấy danh sách tiện ích
+import { updateLoaiPhong, deleteLoaiPhong, DanhSachVatTuLoaiPhong } from '../../services/LoaiPhongService';
+import { deleteVatTuLoaiPhong, listVatTuLoaiPhong, addVatTuLoaiPhong } from '../../services/VatTuLoaiPhong'; // Thêm import cho hàm lấy danh sách tiện ích
 import { DanhSachDichVu, XoaDichVuDiKem } from '../../services/DichVuDiKemService';
 import { ThemDichVuDiKem, DanhSachDichVuDiKem } from '../../services/LoaiPhongService';
 import './Detail.css';
@@ -10,41 +10,43 @@ const FormDetail = ({ show, handleClose, data }) => {
     const [formData, setFormData] = useState({
         id: data?.id || '',
         tenLoaiPhong: data?.tenLoaiPhong || '',
+        maLoaiPhong: data?.maLoaiPhong || '',
         dienTich: data?.dienTich || '',
         soKhachToiDa: data?.soKhachToiDa || '',
         donGia: data?.donGia || '',
         moTa: data?.moTa || '',
         donGiaPhuThu: data?.donGiaPhuThu || '',
+
     });
 
     const [currentPage, setCurrentPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
     const itemsPerPage = 3;
-    const [ListTienIchPhong, setListTienIchPhong] = useState([]);
+    const [ListVatTuLoaiPhong, setListVatTuLoaiPhong] = useState([]);
     const [ListDichVuDiKem, setListDichVuDiKem] = useState([]);
     const [dichVuList, setDichVuList] = useState([]);
     const [selectedDichVu, setSelectedDichVu] = useState('');
     // State cho danh sách tiện ích và tiện ích đã chọn
     const [allTienIch, setAllTienIch] = useState([]); // Danh sách tiện ích
-    const [selectedTienIch, setSelectedTienIch] = useState(''); // Tiện ích đã chọn
+    const [SelectedVatTu, setSelectedVatTu] = useState(''); // Tiện ích đã chọn
 
     // Lấy danh sách tiện ích phòng theo idLoaiPhong và cập nhật khi trang thay đổi
     useEffect(() => {
         if (formData.id) {
-            DanhSachTienIchPhong(formData.id, { page: currentPage, size: itemsPerPage })
+            DanhSachVatTuLoaiPhong(formData.id, { page: currentPage, size: itemsPerPage })
                 .then(response => {
-                    setListTienIchPhong(response.data.content); // Hiển thị dữ liệu tiện ích phòng
+                    setListVatTuLoaiPhong(response.data.content); // Hiển thị dữ liệu tiện ích phòng
                     setTotalPages(response.data.totalPages); // Lấy tổng số trang
                 })
                 .catch(error => {
                     console.error("Lỗi khi lấy danh sách tiện ích:", error);
                 });
         }
-    }, [formData.id, currentPage, totalPages, ListTienIchPhong]);
+    }, [formData.id, currentPage, totalPages]);
 
     // Lấy danh sách tất cả tiện ích
     useEffect(() => {
-        listTienIchPhong()
+        listVatTuLoaiPhong()
             .then(response => {
                 setAllTienIch(response.data); // Giả sử response.data chứa danh sách tiện ích
             })
@@ -119,7 +121,7 @@ const FormDetail = ({ show, handleClose, data }) => {
 
 
 
-    const handleDeleteTienIchPhong = (id) => {
+    const handleDeleteVatTuLoaiPhong = (id) => {
         Swal.fire({
             title: 'Bạn có chắc chắn?',
             text: 'Tiện ích phòng này sẽ bị xóa và không thể khôi phục!',
@@ -129,7 +131,7 @@ const FormDetail = ({ show, handleClose, data }) => {
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                deleteTienNghiPhong(id)
+                deleteVatTuLoaiPhong(id)
                     .then(response => {
                         console.log("Xóa tiện ích thành công:", response.data);
                         Swal.fire({
@@ -139,9 +141,9 @@ const FormDetail = ({ show, handleClose, data }) => {
                             confirmButtonText: 'OK'
                         });
                         // Cập nhật lại danh sách sau khi xóa
-                        DanhSachTienIchPhong(formData.id, { page: currentPage, size: itemsPerPage })
+                        DanhSachVatTuLoaiPhong(formData.id, { page: currentPage, size: itemsPerPage })
                             .then(response => {
-                                setListTienIchPhong(response.data.content); // Cập nhật danh sách tiện ích
+                                setListVatTuLoaiPhong(response.data.content); // Cập nhật danh sách tiện ích
                             })
                             .catch(error => {
                                 console.error("Lỗi khi cập nhật danh sách tiện ích:", error);
@@ -161,8 +163,8 @@ const FormDetail = ({ show, handleClose, data }) => {
     };
 
 
-    const handleAddTienIch = (selectedTienIchId) => {
-        if (!selectedTienIchId || selectedTienIchId === '') {
+    const handleAddTienIch = (selectedVatTuId) => {
+        if (!selectedVatTuId || selectedVatTuId === '') {
             Swal.fire({
                 title: 'Lỗi!',
                 text: 'Vui lòng chọn tiện ích để thêm.',
@@ -182,14 +184,14 @@ const FormDetail = ({ show, handleClose, data }) => {
             return;
         }
 
-        const tienNghiPhongRequest = {
+        const vatTuPhongRequest = {
             loaiPhong: { id: formData.id },
-            tienIch: { id: selectedTienIchId }
+            vatTu: { id: selectedVatTuId }
         };
 
-        console.log("Request gửi đi:", tienNghiPhongRequest);
+        console.log("Request gửi đi:", vatTuPhongRequest);
 
-        addTienIchPhong(tienNghiPhongRequest)
+        addVatTuLoaiPhong(vatTuPhongRequest)
             .then(response => {
                 console.log("Thêm tiện ích thành công:", response.data);
                 Swal.fire({
@@ -199,9 +201,9 @@ const FormDetail = ({ show, handleClose, data }) => {
                     confirmButtonText: 'OK'
                 });
                 // Cập nhật lại danh sách tiện ích sau khi thêm
-                DanhSachTienIchPhong(formData.id, { page: currentPage, size: itemsPerPage })
+                DanhSachVatTuLoaiPhong(formData.id, { page: currentPage, size: itemsPerPage })
                     .then(response => {
-                        setListTienIchPhong(response.data.content);
+                        setListVatTuLoaiPhong(response.data.content);
                     })
                     .catch(error => {
                         console.error("Lỗi khi cập nhật danh sách tiện ích:", error);
@@ -332,7 +334,7 @@ const FormDetail = ({ show, handleClose, data }) => {
                     console.error("Lỗi khi lấy danh sách dịch vụ đi kèm:", error);
                 });
         }
-    }, [formData.id, currentPage, totalPages, ListTienIchPhong]);
+    }, [formData.id, currentPage, totalPages, ListVatTuLoaiPhong]);
 
     return (
         <div className={`modal ${show ? 'show' : ''}`} style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
@@ -364,10 +366,15 @@ const FormDetail = ({ show, handleClose, data }) => {
                                     </div>
                                 </div>
                                 <div className="form-column">
+                                <div className="form-group">
+                                        <label htmlFor="maLoaiPhong">Mã Loại Phòng</label>
+                                        <input type="text" id="maLoaiPhong" name="maLoaiPhong" value={formData.maLoaiPhong} onChange={handleInputChange} required />
+                                    </div>
                                     <div className="form-group">
                                         <label htmlFor="donGia">Đơn giá</label>
                                         <input type="text" id="donGia" name="donGia" value={formData.donGia} onChange={handleInputChange} required />
                                     </div>
+                                    
                                     <div className="form-group">
                                         <label htmlFor="donGiaPhuThu">Đơn giá phụ thu</label>
                                         <input type="text" id="donGiaPhuThu" name="donGiaPhuThu" value={formData.donGiaPhuThu} onChange={handleInputChange} required />
@@ -417,51 +424,43 @@ const FormDetail = ({ show, handleClose, data }) => {
                             </div>
 
                             <div className="detail_lp_utility-container">
-                                <h4>Thêm tiện tích phòng</h4>
+                                <h4>Thêm vật tư loại phòng</h4>
                                 <div className="form-group">
-                                    <label htmlFor="selectTienIch">Chọn tiện ích</label>
+                                    <label htmlFor="selectVatTu">Chọn vật tư</label>
                                     <select
-                                        id="selectTienIch"
-                                        value={selectedTienIch}
-                                        // onChange={(e) => setSelectedTienIch(e.target.value)}
+                                        id="selectVatTu"
+                                        value={SelectedVatTu}
                                         onChange={(e) => {
                                             const selectedValueTI = e.target.value;
-                                            setSelectedTienIch(selectedValueTI);
+                                            setSelectedVatTu(selectedValueTI);
                                             handleAddTienIch(selectedValueTI);
                                         }}
                                     >
-                                        <option value="">-- Chọn tiện ích --</option>
+                                        <option value="">-- Chọn vật tư --</option>
                                         {allTienIch.map(ti => (
-                                            <option key={ti.id} value={ti.id}>{ti.tenTienIch}</option>
+                                            <option key={ti.id} value={ti.id}>{ti.tenVatTu}</option>
                                         ))}
                                     </select>
                                 </div>
 
-                                <h4>Danh sách tiện ích phòng</h4>
+                                <h4>Danh sách vật tư phòng</h4>
                                 <ul className="list-group">
-                                    {ListTienIchPhong.length > 0 ? (
-                                        ListTienIchPhong.map(ti => (
-                                            <li key={ti.id} className="list-group-item" onClick={() => handleDeleteTienIchPhong(ti.id)}>
+                                    {ListVatTuLoaiPhong.length > 0 ? (
+                                        ListVatTuLoaiPhong.map(ti => (
+                                            <li key={ti.id} className="list-group-item" onClick={() => handleDeleteVatTuLoaiPhong(ti.id)}>
                                                 <span className="icon">
-                                                    <img src={ti.hinhAnh} width="24" alt="Icon tiện ích" />
+                                                    <img src={ti.hinhAnh} width="24" alt="Icon vật tư" />
                                                 </span>
-                                                <span className="amenity-text">{ti.tenTienIch}</span>
+                                                <span className="amenity-text">{ti.tenVatTu}</span>
                                             </li>
                                         ))
                                     ) : (
-                                        <li className="list-group-item">Không có tiện ích nào</li>
+                                        <li className="list-group-item">Không có vật tư nào</li>
                                     )}
                                 </ul>
 
                                 {/* <button type="button" className="add-button" onClick={handleAddTienIch}>Thêm tiện ích</button> */}
                             </div>
-                        </div>
-
-
-                        <div className="pagination">
-                            <button className="pagination-button" onClick={handlePreviousPage}>Trang trước</button>
-                            <span>Trang {currentPage + 1} / {totalPages}</span>
-                            <button className="pagination-button" onClick={handleNextPage}>Trang sau</button>
                         </div>
                     </div>
                 </div>

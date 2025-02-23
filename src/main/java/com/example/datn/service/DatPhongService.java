@@ -32,5 +32,7 @@ public interface DatPhongService {
 
     Page<DatPhong> DSDatPhong (Pageable pageable);
 
+    void xoaDatPhong(Integer iddp);
+
 
 }

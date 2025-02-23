@@ -25,12 +25,14 @@ public class DatPhong {
     private KhachHang khachHang;
     @Column(name = "ma_dat_phong")
     private String maDatPhong;
+    @Column(name = "so_nguoi")
+    private Integer soNguoi;
+    @Column(name = "so_phong")
+    private Integer soPhong;
     @Column(name = "ngay_dat")
     private LocalDate ngayDat;
     @Column(name = "tong_tien")
     private Double tongTien;
-    @Column(name = "dat_coc")
-    private Double datCoc;
     @Column(name = "ghi_chu")
     private String ghiChu;
     @Column(name = "trang_thai")

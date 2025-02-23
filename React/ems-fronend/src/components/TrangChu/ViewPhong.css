@@ -1,0 +1,9 @@
+.scroll-container {
+    overflow: auto; /* Cho phép cuộn */
+    scrollbar-width: none; /* Ẩn thanh cuộn trên Firefox */
+  }
+  
+  .scroll-container::-webkit-scrollbar {
+    display: none; /* Ẩn thanh cuộn trên Chrome */
+  }
+  

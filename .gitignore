@@ -31,7 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
-<<<<<<< HEAD
 node_modules
-=======
->>>>>>> long
+
+# Ignore node_modules folder
+node_modules/
+
+# Ignore package-lock.json nếu không muốn theo dõi nó
+package-lock.json

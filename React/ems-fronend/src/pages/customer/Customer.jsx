@@ -6,7 +6,7 @@ import { IconButton, Pagination, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { fetchAllCustomer, updatStatus } from '../../apis/customerApi';
 import { useNavigate } from 'react-router-dom';
-import debounce from 'lodash.debounce';
+import debounce from 'lodash/debounce';
 
 export const Customer = () => {
     const [data, setData] = useState(null);
@@ -49,7 +49,7 @@ export const Customer = () => {
 
     return (
         <Container>
-
+            
             <Box sx={{
                 display: 'flex',
                 alignItems: 'center',
