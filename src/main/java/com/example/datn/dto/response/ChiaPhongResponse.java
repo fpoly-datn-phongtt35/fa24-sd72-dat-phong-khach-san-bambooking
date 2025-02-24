@@ -10,9 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChiaPhongResponse {
-    private Integer loaiPhongId;
-    private String tenLoaiPhong;
     private Integer soPhongCan;
-    private Integer soKhachToiDa;
     private Double tongGiaTien;
+    private Boolean isContainable;
 }

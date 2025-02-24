@@ -2,7 +2,6 @@ package com.example.datn.service;
 import com.example.datn.dto.request.LoaiPhongRequest;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
-import com.example.datn.dto.response.SearchResultResponse;
 import com.example.datn.model.LoaiPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,7 +36,7 @@ public interface LoaiPhongService {
     Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
                                                     Integer soNguoi,Integer soPhong,Pageable pageable);
 
-    SearchResultResponse searchLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi,
+    Page<LoaiPhongKhaDungResponse> searchLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi,
                                          Integer soPhong,Pageable pageable);
     LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
                                                      Integer idLoaiPhong);

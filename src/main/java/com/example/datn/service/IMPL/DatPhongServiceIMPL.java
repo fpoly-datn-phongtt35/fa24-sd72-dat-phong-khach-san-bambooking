@@ -51,7 +51,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTongTien(datPhongRequest.getTongTien());
         datPhong.setNgayDat(LocalDate.now());
-        datPhong.setTrangThai("Chua xac nhan");
+        datPhong.setTrangThai("Chưa xác nhận");
         DatPhong dp = datPhongRepository.save(datPhong);
 
 

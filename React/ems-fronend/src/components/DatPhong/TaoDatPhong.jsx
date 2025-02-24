@@ -13,6 +13,8 @@ import {
   IconButton,
   Alert,
   AlertTitle,
+  Paper,
+  Divider,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import dayjs from "dayjs";
@@ -29,12 +31,17 @@ const TaoDatPhong = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { ngayNhanPhong, ngayTraPhong, soNguoi } = location.state || {};
-  const validNgayNhanPhong = dayjs(ngayNhanPhong.$d).format("DD/MM/YYYY HH:mm");
-  const validNgayTraPhong = dayjs(ngayTraPhong.$d).format("DD/MM/YYYY HH:mm");
-  const [selectedRooms, setSelectedRooms] = useState(
-    location.state?.selectedRooms || []
-  );
+  const { ngayNhanPhong, ngayTraPhong, soNguoi, soPhong } = location.state || {};
+
+  // Khởi tạo bookingData với định dạng ngày "YYYY-MM-DD" cho input type="date"
+  const [bookingData, setBookingData] = useState({
+    ngayNhanPhong: ngayNhanPhong ? dayjs(ngayNhanPhong.$d).format("YYYY-MM-DD") : "",
+    ngayTraPhong: ngayTraPhong ? dayjs(ngayTraPhong.$d).format("YYYY-MM-DD") : "",
+    soNguoi: soNguoi || 1,
+    soPhong: soPhong || 1,
+  });
+
+  const [selectedRooms, setSelectedRooms] = useState(location.state?.selectedRooms || []);
 
   const [formData, setFormData] = useState({
     ho: "",
@@ -68,20 +75,15 @@ const TaoDatPhong = () => {
   };
 
   const calculateTotalAmount = () => {
-    if (!validNgayNhanPhong || !validNgayTraPhong) return 0;
-    const ngayNhan = dayjs(stringToISO(validNgayNhanPhong));
-    const ngayTra = dayjs(stringToISO(validNgayTraPhong));
+    if (!bookingData.ngayNhanPhong || !bookingData.ngayTraPhong) return 0;
+    const ngayNhan = dayjs(bookingData.ngayNhanPhong);
+    const ngayTra = dayjs(bookingData.ngayTraPhong);
     const totalDays = Math.max(ngayTra.diff(ngayNhan, "day"), 1);
-    return selectedRooms.reduce((total, room) => total + room.donGia * totalDays, 0);
-  };
-
-  const stringToISO = (dateTimeString) => {
-    const [datePart, timePart] = dateTimeString.split(" ");
-    const [day, month, year] = datePart.split("/").map(Number);
-    const [hour, minute] = timePart.split(":").map(Number);
-    const date = new Date(year, month - 1, day, hour, minute);
-    if (isNaN(date)) throw new Error("Chuỗi ngày giờ không hợp lệ.");
-    return date.toISOString();
+    // Với mỗi loại phòng được chọn, số tiền = giá mỗi đêm * số ngày * số phòng đặt (bookingData.soPhong)
+    return selectedRooms.reduce(
+      (total, room) => total + room.donGia * totalDays * bookingData.soPhong,
+      0
+    );
   };
 
   const handleRemoveRoom = (roomIndex) => {
@@ -107,7 +109,6 @@ const TaoDatPhong = () => {
         ten: formData.ten,
         email: formData.email,
         sdt: formData.sdt,
-        matKhau: "",
         trangThai: false,
       };
 
@@ -119,11 +120,10 @@ const TaoDatPhong = () => {
       const datPhongRequest = {
         khachHang: khachHangResponse.data,
         maDatPhong: "DP" + Date.now(),
-        soNguoi: soNguoi,
-        soPhong: selectedRooms.length,
+        soNguoi: bookingData.soNguoi,
+        soPhong: bookingData.soPhong,
         ngayDat: new Date().toISOString(),
         tongTien: calculateTotalAmount(),
-        datCoc: 0,
         ghiChu: "Ghi chú thêm nếu cần",
         trangThai: "Chờ xử lý",
       };
@@ -133,17 +133,24 @@ const TaoDatPhong = () => {
         throw new Error("Không thể tạo đặt phòng.");
       }
 
-      const thongTinDatPhongRequestList = selectedRooms.map((room) => ({
-        datPhong: datPhongResponse.data,
-        idLoaiPhong: room.id,
-        maThongTinDatPhong: "",
-        ngayNhanPhong: stringToISO(validNgayNhanPhong),
-        ngayTraPhong: stringToISO(validNgayTraPhong),
-        soNguoi,
-        giaDat: room.donGia,
-        trangThai: "Chua xep",
-      }));
+      // Tạo thông tin đặt phòng: Với mỗi loại phòng đã chọn, tạo booking detail theo số lượng phòng (bookingData.soPhong)
+      const thongTinDatPhongRequestList = [];
+      selectedRooms.forEach((room) => {
+        for (let i = 0; i < bookingData.soPhong; i++) {
+          thongTinDatPhongRequestList.push({
+            datPhong: datPhongResponse.data,
+            idLoaiPhong: room.id,
+            maThongTinDatPhong: "",
+            ngayNhanPhong: new Date(bookingData.ngayNhanPhong).toISOString(),
+            ngayTraPhong: new Date(bookingData.ngayTraPhong).toISOString(),
+            soNguoi: bookingData.soNguoi,
+            giaDat: room.donGia,
+            trangThai: "Chua xep",
+          });
+        }
+      });
 
+      // Gửi yêu cầu tạo thông tin đặt phòng cho từng record
       for (const thongTinDatPhong of thongTinDatPhongRequestList) {
         const response = await addThongTinDatPhong(thongTinDatPhong);
         if (!response || !response.data) {
@@ -165,10 +172,18 @@ const TaoDatPhong = () => {
     }
   };
 
+  // Hiển thị ngày theo định dạng DD/MM/YYYY cho giao diện
+  const displayNgayNhan = bookingData.ngayNhanPhong
+    ? dayjs(bookingData.ngayNhanPhong).format("DD/MM/YYYY")
+    : "";
+  const displayNgayTra = bookingData.ngayTraPhong
+    ? dayjs(bookingData.ngayTraPhong).format("DD/MM/YYYY")
+    : "";
+
   return (
-    <Container>
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h4" sx={{ mb: 3 }}>
+    <Container sx={{ minWidth: "1300px" }}>
+      <Paper elevation={3} sx={{ mt: 4, p: 4 }}>
+        <Typography variant="h4" gutterBottom>
           Tạo Đặt Phòng
         </Typography>
 
@@ -179,17 +194,11 @@ const TaoDatPhong = () => {
           </Alert>
         )}
 
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
+          {/* Thông Tin Người Đặt */}
           <Grid item xs={12} md={6}>
-            <Box
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                boxShadow: 2,
-                backgroundColor: "#f9f9f9",
-              }}
-            >
-              <Typography variant="h5" sx={{ mb: 2 }}>
+            <Paper variant="outlined" sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
                 Thông Tin Người Đặt
               </Typography>
               <Grid container spacing={2}>
@@ -238,24 +247,83 @@ const TaoDatPhong = () => {
                   />
                 </Grid>
               </Grid>
-            </Box>
+            </Paper>
           </Grid>
 
+          {/* Chi Tiết Phòng Đã Chọn & Chỉnh sửa thông tin đặt phòng */}
           <Grid item xs={12} md={6}>
-            <Box
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                boxShadow: 2,
-                backgroundColor: "#ffffff",
-                border: "1px solid #ddd",
-              }}
-            >
-              <Typography variant="h5" sx={{ mb: 2 }}>
+            <Paper variant="outlined" sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
                 Chi Tiết Phòng Đã Chọn ({selectedRooms.length})
               </Typography>
-              <Typography sx={{ mb: 2 }}>
-                <strong>Thời gian:</strong> từ {validNgayNhanPhong} đến {validNgayTraPhong}
+              {/* Phần chỉnh sửa thông tin đặt phòng */}
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Chỉnh sửa thông tin đặt phòng
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <TextField
+                      label="Ngày Nhận Phòng"
+                      type="date"
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      value={bookingData.ngayNhanPhong}
+                      onChange={(e) =>
+                        setBookingData({
+                          ...bookingData,
+                          ngayNhanPhong: e.target.value,
+                        })
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      label="Ngày Trả Phòng"
+                      type="date"
+                      fullWidth
+                      InputLabelProps={{ shrink: true }}
+                      value={bookingData.ngayTraPhong}
+                      onChange={(e) =>
+                        setBookingData({
+                          ...bookingData,
+                          ngayTraPhong: e.target.value,
+                        })
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      label="Số Người"
+                      type="number"
+                      fullWidth
+                      value={bookingData.soNguoi}
+                      onChange={(e) =>
+                        setBookingData({
+                          ...bookingData,
+                          soNguoi: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      label="Số Phòng"
+                      type="number"
+                      fullWidth
+                      value={bookingData.soPhong}
+                      onChange={(e) =>
+                        setBookingData({
+                          ...bookingData,
+                          soPhong: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+              <Typography variant="body2" gutterBottom>
+                <strong>Thời gian:</strong> từ {displayNgayNhan} đến {displayNgayTra}
               </Typography>
               {selectedRooms.length > 0 ? (
                 selectedRooms.map((room, index) => (
@@ -263,7 +331,6 @@ const TaoDatPhong = () => {
                     key={`${room.id}-${index}`}
                     sx={{
                       display: "flex",
-                      justifyContent: "space-between",
                       alignItems: "center",
                       mb: 2,
                       p: 2,
@@ -276,41 +343,36 @@ const TaoDatPhong = () => {
                         <strong>Loại phòng:</strong> {room.tenLoaiPhong}
                       </Typography>
                       <Typography variant="body2">
-                        <strong>Số người:</strong> {soNguoi}
+                        <strong>Số phòng:</strong> {bookingData.soPhong}
+                      </Typography>
+                      <Typography variant="body2">
+                        <strong>Số người:</strong> {bookingData.soNguoi}
                       </Typography>
                       <Typography variant="body2">
                         <strong>Giá mỗi đêm:</strong> {room.donGia.toLocaleString()} VND
                       </Typography>
                     </CardContent>
                     <CardActions>
-                      <IconButton
-                        onClick={() => handleRemoveRoom(index)}
-                        color="error"
-                      >
+                      <IconButton onClick={() => handleRemoveRoom(index)} color="error">
                         <DeleteIcon />
                       </IconButton>
                     </CardActions>
                   </Card>
                 ))
               ) : (
-                <Typography>Không có phòng nào được chọn</Typography>
+                <Typography variant="body2">Không có phòng nào được chọn</Typography>
               )}
-              <Typography variant="h6" sx={{ mt: 3, textAlign: "right" }}>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6" sx={{ textAlign: "right" }}>
                 <strong>Tổng tiền:</strong> {calculateTotalAmount().toLocaleString()} VND
               </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{ mt: 3 }}
-                onClick={handleConfirmBooking}
-              >
+              <Button variant="contained" color="primary" fullWidth sx={{ mt: 2 }} onClick={handleConfirmBooking}>
                 Xác nhận đặt phòng
               </Button>
-            </Box>
+            </Paper>
           </Grid>
         </Grid>
-      </Box>
+      </Paper>
     </Container>
   );
 };

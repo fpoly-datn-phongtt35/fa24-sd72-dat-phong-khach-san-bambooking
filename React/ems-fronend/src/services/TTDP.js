@@ -7,7 +7,7 @@ const apiLoaiPhongKhaDung = "http://localhost:8080/ttdp/loai-phong-kha-dung"
 const apiTimKiem = "http://localhost:8080/ttdp/tim-kiem"
 const apiHuyTTDP = "http://localhost:8080/ttdp/huy-ttdp"
 const apiGetTTDP = "http://localhost:8080/ttdp/detail-ttdp"
-const apiTimLoaiPhong = "http://localhost:8080/ttdp/tim-kiem-loai-phong"
+const apiTimLoaiPhong = "http://localhost:8080/ttdp/tim-kiem-loai-phong2"
 
 export const getThongTinDatPhong = (idDP, pageable) => {
     return authorizedAxiosInstance.get(apiTTDP, {
@@ -87,15 +87,17 @@ export const getTTDPByMaTTDP = (maTTDP) => {
         }
     });
 };
-export const getTimKiemLoaiPhong = (ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pageable) => {
+export const getTimKiemLoaiPhong = (ngayNhanPhong, ngayTraPhong, soNguoi, soPhong, pageable = { page: 0, size: 5 }) => {
     return authorizedAxiosInstance.get(apiTimLoaiPhong, {
-        params: {
-            ngayNhanPhong: ngayNhanPhong,
-            ngayTraPhong: ngayTraPhong,
-            soNguoi:soNguoi,
-            soPhong: soPhong,
-            page: pageable.page, 
-            size: pageable.size
-        }
+      params: {
+        ngayNhanPhong,
+        ngayTraPhong,
+        soNguoi,
+        soPhong,
+        page: pageable.page,
+        size: pageable.size
+      }
     });
-};
+  };
+  
+  

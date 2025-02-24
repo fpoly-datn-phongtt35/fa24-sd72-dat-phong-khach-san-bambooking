@@ -14,6 +14,8 @@ import {
   TableCell,
   TableBody,
   TextField,
+  Chip,
+  Checkbox,
 } from "@mui/material";
 import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -27,13 +29,17 @@ const BookingForm = () => {
   const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, "day"));
   const [soPhong, setSoPhong] = useState(1);
   const [soNguoi, setSoNguoi] = useState(1);
+  // Đây là danh sách loại phòng có sẵn theo phân trang
   const [loaiPhongKhaDung, setLoaiPhongKhaDung] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const navigate = useNavigate();
 
-  // Fetch danh sách loại phòng khả dụng
+  // State chứa danh sách các phòng được chọn qua checkbox
+  const [selectedRoomList, setSelectedRoomList] = useState([]);
+
+  // Hàm gọi API với phân trang sử dụng đối tượng pageable { page, size }
   const fetchLoaiPhong = () => {
     getTimKiemLoaiPhong(
       ngayNhanPhong.toISOString(),
@@ -43,22 +49,22 @@ const BookingForm = () => {
       { page: currentPage, size: pageSize }
     )
       .then((response) => {
-        setLoaiPhongKhaDung(response.data.danhSachLoaiPhong.content);
-        console.log(response.data.danhSachLoaiPhong.content);
-        setTotalPages(response.data.danhSachLoaiPhong.totalPages);
+        setLoaiPhongKhaDung(response.data.content);
+        setTotalPages(response.data.totalPages);
+        console.log("Response:", response.data);
       })
       .catch((error) => {
         console.error(error);
-        alert("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau."); // Thông báo lỗi
+        alert("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
       });
   };
 
   useEffect(() => {
-    fetchLoaiPhong(); // Gọi lại API khi pageSize hoặc currentPage thay đổi
+    fetchLoaiPhong();
   }, [pageSize, currentPage, ngayNhanPhong, ngayTraPhong, soNguoi, soPhong]);
 
   const handleSearch = () => {
-    setCurrentPage(0); // Reset về trang đầu tiên
+    setCurrentPage(0);
     fetchLoaiPhong();
   };
 
@@ -67,20 +73,50 @@ const BookingForm = () => {
     return donGia * days;
   };
 
-  const handleCreateBooking = (room) => {
-    console.log(ngayNhanPhong,ngayTraPhong);
+  // Khi người dùng tích checkbox tại một hàng
+  const handleCheckboxChange = (event, result) => {
+    const roomId = result.loaiPhongResponse.id;
+    if (event.target.checked) {
+      setSelectedRoomList((prev) => [...prev, result.loaiPhongResponse]);
+    } else {
+      setSelectedRoomList((prev) =>
+        prev.filter((room) => room.id !== roomId)
+      );
+    }
+  };
+
+  // Xử lý đặt phòng theo danh sách các phòng đã chọn (Bulk Booking)
+  const handleBulkBooking = () => {
+    if (selectedRoomList.length === 0) {
+      alert("Vui lòng chọn ít nhất một loại phòng để đặt.");
+      return;
+    }
     navigate("/tao-dat-phong", {
       state: {
-        selectedRooms: [room],
+        selectedRooms: selectedRoomList,
         ngayNhanPhong,
         ngayTraPhong,
         soNguoi,
+        soPhong,
+      },
+    });
+  };
+
+  // Hàm đặt ngay cho từng hàng (đặt riêng một loại phòng)
+  const handleCreateBooking = (result) => {
+    navigate("/tao-dat-phong", {
+      state: {
+        selectedRooms: [result.loaiPhongResponse],
+        ngayNhanPhong,
+        ngayTraPhong,
+        soNguoi,
+        soPhong,
       },
     });
   };
 
   return (
-    <Container sx={{ minWidth: '1300px' }}>
+    <Container sx={{ minWidth: "1300px" }}>
       <Box
         sx={{ padding: 3, backgroundColor: "#f5f5f5", borderRadius: 2, mb: 3 }}
       >
@@ -175,54 +211,94 @@ const BookingForm = () => {
           <Option value={100}>100</Option>
         </Select>
       </Stack>
+      {/* Nút đặt phòng cho các phòng đã chọn */}
+      <Box sx={{ mt: 3, display: "flex", justifyContent: "left" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleBulkBooking}
+        >
+          Đặt phòng
+        </Button>
+      </Box>
       {/* Bảng hiển thị kết quả */}
-      <TableContainer sx={{ borderRadius: 2, boxShadow: 1 }}>
+      <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Tên loại phòng</TableCell>
-              <TableCell>Diện tích (m²)</TableCell>
-              <TableCell>Sức chứa</TableCell>
-              <TableCell>Số phòng thực tế</TableCell>
-              <TableCell>Số phòng khả dụng</TableCell>
-              <TableCell>Đơn giá (VND)</TableCell>
-              <TableCell>Thành tiền (VND)</TableCell>
+              {/* Cột Checkbox */}
+              <TableCell padding="checkbox"></TableCell>
+              <TableCell>STT</TableCell>
+              <TableCell>Loại phòng</TableCell>
+              <TableCell>Diện tích</TableCell>
+              <TableCell>Số khách tối đa</TableCell>
+              <TableCell>Đơn giá</TableCell>
+              <TableCell>Số phòng cần</TableCell>
+              <TableCell>Tổng giá</TableCell>
+              <TableCell>Trạng thái</TableCell>
               <TableCell>Hành động</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {loaiPhongKhaDung.length > 0 ? (
-              loaiPhongKhaDung.map((lp) => (
-                <TableRow key={lp.id}>
-                  <TableCell>{lp.tenLoaiPhong}</TableCell>
-                  <TableCell>{lp.dienTich} m²</TableCell>
-                  <TableCell>{lp.soKhachToiDa} khách</TableCell>
-                  <TableCell>{lp.soLuongPhong}</TableCell>
-                  <TableCell>{lp.soPhongKhaDung}</TableCell>
-                  <TableCell>{lp.donGia.toLocaleString()} VND</TableCell>
+            {loaiPhongKhaDung && loaiPhongKhaDung.length > 0 ? (
+              loaiPhongKhaDung.map((result, index) => (
+                <TableRow key={index}>
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={selectedRoomList.some(
+                        (room) => room.id === result.loaiPhongResponse.id
+                      )}
+                      onChange={(e) => handleCheckboxChange(e, result)}
+                      disabled={!result.danhSachCachChia.isContainable}
+                    />
+                  </TableCell>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{result.loaiPhongResponse.tenLoaiPhong}</TableCell>
+                  <TableCell>{result.loaiPhongResponse.dienTich} m²</TableCell>
                   <TableCell>
-                    {calculateTotalPrice(
-                      lp.donGia,
-                      ngayNhanPhong,
-                      ngayTraPhong
-                    ).toLocaleString()}{" "}
-                    VND
+                    {result.loaiPhongResponse.soKhachToiDa} khách
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="success"
-                      size="small"
-                      onClick={() => handleCreateBooking(lp)}
-                    >
-                      Đặt ngay
-                    </Button>
+                    {result.loaiPhongResponse.donGia.toLocaleString()} VND
+                  </TableCell>
+                  <TableCell>
+                    {result.danhSachCachChia.soPhongCan}
+                  </TableCell>
+                  <TableCell>
+                    {result.danhSachCachChia.tongGiaTien.toLocaleString()} VND
+                  </TableCell>
+                  <TableCell>
+                    {result.danhSachCachChia.isContainable ? (
+                      <Chip label="Đủ" color="success" size="small" />
+                    ) : (
+                      <Chip
+                        label="Vượt quá sức chứa"
+                        color="error"
+                        size="small"
+                      />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {result.danhSachCachChia.isContainable ? (
+                      <Button
+                        variant="outlined"
+                        color="success"
+                        size="small"
+                        onClick={() => handleCreateBooking(result)}
+                      >
+                        Đặt ngay
+                      </Button>
+                    ) : (
+                      <Typography variant="body2" color="error">
+                        Không đặt được
+                      </Typography>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} align="center">
+                <TableCell colSpan={10} align="center">
                   Không tìm thấy loại phòng nào phù hợp.
                 </TableCell>
               </TableRow>
