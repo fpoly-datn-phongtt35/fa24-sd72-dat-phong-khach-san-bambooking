@@ -1,4 +1,4 @@
-import axios from "axios";
+import authorizedAxiosInstance from '../utils/authorizedAxios';
 const api = "http://localhost:8080/vat-tu/index";
 const apiadd = "http://localhost:8080/vat-tu/add";
 const apiUD = "http://localhost:8080/vat-tu/update";
@@ -9,7 +9,7 @@ const apiImage = "http://localhost:8080/vat-tu";
 // export const listTienNghi = () => axios.get(api);
 
 export const listVatTu = (pageable) => {
-    return axios.get(api, {
+    return authorizedAxiosInstance.get(api, {
         params: { 
             page: pageable.page, 
             size: pageable.size
@@ -18,7 +18,7 @@ export const listVatTu = (pageable) => {
 };
 
 export const addVatTu= (formData) => {
-    return axios.post(apiadd, formData, {
+    return authorizedAxiosInstance.post(apiadd, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
@@ -26,7 +26,7 @@ export const addVatTu= (formData) => {
 };
 
 export const updateVatTu = (formData) => {
-    return axios.post(apiUD, formData, {
+    return authorizedAxiosInstance.post(apiUD, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
@@ -35,7 +35,7 @@ export const updateVatTu = (formData) => {
 
 // Thay đổi hàm delete để truyền vào id và sử dụng phương thức DELETE
 export const deleteVatTu = (id) => {
-    return axios.delete(`${apiDE}/${id}`);
+    return authorizedAxiosInstance.delete(`${apiDE}/${id}`);
 };
 
 

@@ -7,6 +7,8 @@ import com.example.datn.model.VatTuLoaiPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface VatTuLoaiPhongService {
     Page<VatTuLoaiPhongResponse> getPage(Pageable pageable);
 
@@ -18,7 +20,7 @@ public interface VatTuLoaiPhongService {
 
     VatTuLoaiPhong update(VatTuLoaiPhongRequest vatTuLoaiPhongRequest);
 
-    Page<VatTuLoaiPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable);
+    List<VatTuLoaiPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong);
 
     Page<Object> ListVatTuFindByIDLoaiPhong (Integer idLoaiPhong,Pageable pageable);
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { updateTienIchPhong, DSTienIch, DSLoaiPhong, deleteTienNghiPhong } from '../../services/VatTuLoaiPhong';
+import { updateVatTuLoaiPhong, DSVatTu, DSLoaiPhong, deleteVatTuLoaiPhong } from '../../services/VatTuLoaiPhong';
 
 const FormDetail = ({ show, handleClose, data }) => {
     const [formData, setFormData] = useState({
@@ -13,7 +13,7 @@ const FormDetail = ({ show, handleClose, data }) => {
 
     // Lấy danh sách tiện ích và loại phòng
     useEffect(() => {
-        DSTienIch()
+        DSVatTu()
             .then(response => {
                 setListTienIch(response.data);
             })
@@ -80,7 +80,7 @@ const FormDetail = ({ show, handleClose, data }) => {
     // Xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
-        updateTienIchPhong(formData)
+        updateVatTuLoaiPhong(formData)
             .then(response => {
                 console.log("Cập nhật thành công:", response.data);
                 console.log("formData.vatTu", formData.vatTu);
@@ -99,7 +99,7 @@ const FormDetail = ({ show, handleClose, data }) => {
     // Xử lý xóa tiện ích
     const handleDelete = () => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tiện ích này không?")) {
-            deleteTienNghiPhong(formData.id)
+            deleteVatTuLoaiPhong(formData.id)
                 .then(response => {
                     console.log("Xóa thành công:", response.data);
                     handleClose();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { addTienIchPhong , DSTienIch, DSLoaiPhong } from '../../services/VatTuLoaiPhong';
+import { addVatTuLoaiPhong , DSVatTu, DSLoaiPhong } from '../../services/VatTuLoaiPhong';
 
 const FormAdd = ({ show, handleClose }) => {
     const [formData, setFormData] = useState({
@@ -13,7 +13,7 @@ const FormAdd = ({ show, handleClose }) => {
     // Lấy danh sách nhân viên và khách hàng khi component render
     useEffect(() => {
         // Gọi API để lấy danh sách nhân viên
-        DSTienIch()
+        DSVatTu()
             .then(response => {
                 setListTienIch(response.data); // Lưu danh sách nhân viên vào state
             })
@@ -62,7 +62,7 @@ const FormAdd = ({ show, handleClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         // Gọi API thêm mới đặt phòng với đối tượng khách hàng và nhân viên
-        addTienIchPhong(formData)
+        addVatTuLoaiPhong(formData)
             .then(response => {
                 console.log("Thêm mới thành công:", response.data);
                 handleClose(); // Đóng modal sau khi thêm thành công

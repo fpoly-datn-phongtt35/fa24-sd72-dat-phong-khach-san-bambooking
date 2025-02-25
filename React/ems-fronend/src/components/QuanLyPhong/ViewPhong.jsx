@@ -16,13 +16,16 @@ import {
   Paper,
   FormControl,
   FormLabel,
-  RadioGroup,
+  FormGroup,
   FormControlLabel,
+  Checkbox,
   Radio,
+  RadioGroup,
   Typography,
 } from '@mui/material';
 import { searchRooms, getRoomDetail } from '../../services/ViewPhong';
 import { searchByIDPhong } from '../../services/ImageService';
+import { getAllLoaiPhong } from '../../services/LoaiPhongService';
 
 const QuanLyPhong = () => {
   const [rooms, setRooms] = useState([]);
@@ -31,6 +34,9 @@ const QuanLyPhong = () => {
   const [giaMax, setGiaMax] = useState(null);
   const [keyword, setKeyword] = useState('');
   const [listImage, setlistImage] = useState({});
+  const [soTang, setSoTang] = useState(null);
+  const [idLoaiPhong, setIdLoaiPhong] = useState([]); // Thay đổi thành mảng
+  const [loaiPhongs, setLoaiPhongs] = useState([]);
 
   const navigate = useNavigate();
 
@@ -38,12 +44,11 @@ const QuanLyPhong = () => {
     const min = giaMin !== null ? Number(giaMin) : null;
     const max = giaMax !== null ? Number(giaMax) : null;
 
-    searchRooms(tinhTrang, min, max, keyword)
+    // Truyền mảng idLoaiPhong thay vì giá trị đơn
+    searchRooms(tinhTrang, min, max, keyword, idLoaiPhong.length > 0 ? idLoaiPhong : null, soTang)
       .then(async (roomList) => {
         if (Array.isArray(roomList)) {
           setRooms(roomList);
-
-          // Đợi tất cả các yêu cầu lấy hình ảnh hoàn thành
           const images = await Promise.all(
             roomList.map((room) =>
               searchByIDPhong(room.id).then((response) => ({
@@ -53,7 +58,6 @@ const QuanLyPhong = () => {
             )
           );
 
-          // Chuyển đổi về dạng map: { [room.id]: response.data }
           const imageMap = images.reduce((acc, img) => {
             acc[img.id] = img.data;
             return acc;
@@ -68,11 +72,25 @@ const QuanLyPhong = () => {
         console.error('Không thể tìm kiếm phòng:', error);
         setRooms([]);
       });
-  }, [tinhTrang, giaMin, giaMax, keyword]);
+  }, [tinhTrang, giaMin, giaMax, keyword, idLoaiPhong, soTang]);
+
+  useEffect(() => {
+    getAllLoaiPhong()
+      .then((response) => {
+        if (Array.isArray(response.data)) {
+          setLoaiPhongs(response.data);
+        } else {
+          console.error("Dữ liệu trả về không hợp lệ:", response);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy danh sách loại phòng:", error);
+      });
+  }, []);
 
   useEffect(() => {
     handleSearch();
-  }, [tinhTrang, giaMin, giaMax, keyword, handleSearch]);
+  }, [tinhTrang, giaMin, giaMax, keyword, idLoaiPhong, handleSearch]);
 
   const handleStatusChange = (e) => {
     const value = e.target.value;
@@ -81,6 +99,14 @@ const QuanLyPhong = () => {
 
   const handlePriceChange = () => {
     handleSearch();
+  };
+
+  // Xử lý khi checkbox thay đổi
+  const handleLoaiPhongChange = (e) => {
+    const value = Number(e.target.value);
+    setIdLoaiPhong((prev) =>
+      prev.includes(value) ? prev.filter((id) => id !== value) : [...prev, value]
+    );
   };
 
   const handleViewDetail = (roomId) => {
@@ -162,6 +188,40 @@ const QuanLyPhong = () => {
                   />
                 </Grid>
               </Grid>
+            </Box>
+            <TextField
+              label="Số tầng"
+              type="number"
+              variant="outlined"
+              size="small"
+              fullWidth
+              margin="normal"
+              value={soTang !== null ? soTang : ''}
+              onChange={(e) => setSoTang(e.target.value ? Number(e.target.value) : null)}
+              onBlur={handleSearch}
+            />
+            <Box sx={{ mt: 2 }}>
+              <FormControl component="fieldset">
+                <FormLabel component="legend" sx={{ fontSize: '0.9rem', mb: 1 }}>
+                  Loại phòng
+                </FormLabel>
+                <FormGroup>
+                  {loaiPhongs.map((loai) => (
+                    <FormControlLabel
+                      key={loai.id}
+                      control={
+                        <Checkbox
+                          checked={idLoaiPhong.includes(loai.id)}
+                          onChange={handleLoaiPhongChange}
+                          value={loai.id}
+                          size="small"
+                        />
+                      }
+                      label={loai.tenLoaiPhong}
+                    />
+                  ))}
+                </FormGroup>
+              </FormControl>
             </Box>
 
             <Box sx={{ mt: 2 }}>
