@@ -25,21 +25,22 @@ import "./BookingForm.scss"; // Custom CSS nếu cần
 import { getTimKiemLoaiPhong } from "../../services/TTDP";
 
 const BookingForm = () => {
+  // Các state cho tiêu chí tìm kiếm
   const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs());
   const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, "day"));
   const [soPhong, setSoPhong] = useState(1);
   const [soNguoi, setSoNguoi] = useState(1);
-  // Đây là danh sách loại phòng có sẵn theo phân trang
+  // Danh sách loại phòng có sẵn (theo phân trang)
   const [loaiPhongKhaDung, setLoaiPhongKhaDung] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const navigate = useNavigate();
 
-  // State chứa danh sách các phòng được chọn qua checkbox
+  // Danh sách các phòng được chọn qua checkbox
   const [selectedRoomList, setSelectedRoomList] = useState([]);
 
-  // Hàm gọi API với phân trang sử dụng đối tượng pageable { page, size }
+  // Gọi API tìm kiếm loại phòng với phân trang
   const fetchLoaiPhong = () => {
     getTimKiemLoaiPhong(
       ngayNhanPhong.toISOString(),
@@ -73,7 +74,7 @@ const BookingForm = () => {
     return donGia * days;
   };
 
-  // Khi người dùng tích checkbox tại một hàng
+  // Xử lý checkbox: thêm/xóa phòng từ danh sách đã chọn
   const handleCheckboxChange = (event, result) => {
     const roomId = result.loaiPhongResponse.id;
     if (event.target.checked) {
@@ -85,7 +86,7 @@ const BookingForm = () => {
     }
   };
 
-  // Xử lý đặt phòng theo danh sách các phòng đã chọn (Bulk Booking)
+  // Đặt phòng theo danh sách các phòng được chọn (Bulk Booking)
   const handleBulkBooking = () => {
     if (selectedRoomList.length === 0) {
       alert("Vui lòng chọn ít nhất một loại phòng để đặt.");
@@ -102,7 +103,7 @@ const BookingForm = () => {
     });
   };
 
-  // Hàm đặt ngay cho từng hàng (đặt riêng một loại phòng)
+  // Đặt ngay cho từng loại phòng riêng lẻ
   const handleCreateBooking = (result) => {
     navigate("/tao-dat-phong", {
       state: {
@@ -116,15 +117,20 @@ const BookingForm = () => {
   };
 
   return (
-    <Container sx={{ minWidth: "1300px" }}>
+    <Container sx={{ minWidth: "1300px", padding: 2 }}>
+      {/* Phần tìm kiếm */}
       <Box
-        sx={{ padding: 3, backgroundColor: "#f5f5f5", borderRadius: 2, mb: 3 }}
+        sx={{
+          padding: 3,
+          backgroundColor: "#f5f5f5",
+          borderRadius: 2,
+          mb: 3,
+          boxShadow: 1,
+        }}
       >
         <Typography variant="h4" sx={{ mb: 3, textAlign: "center" }}>
           Tìm Kiếm Phòng
         </Typography>
-
-        {/* Form tìm kiếm */}
         <Box
           sx={{
             display: "flex",
@@ -137,7 +143,7 @@ const BookingForm = () => {
             <DateTimePicker
               label="Ngày nhận phòng"
               value={ngayNhanPhong}
-              minDate={dayjs()} // Ngày nhỏ nhất là ngày hiện tại
+              minDate={dayjs()}
               onChange={(newValue) => {
                 setNgayNhanPhong(newValue);
                 if (newValue.isAfter(ngayTraPhong)) {
@@ -149,14 +155,11 @@ const BookingForm = () => {
             <DateTimePicker
               label="Ngày trả phòng"
               value={ngayTraPhong}
-              minDate={ngayNhanPhong} // Ngày nhỏ nhất là ngày nhận phòng
-              onChange={(newValue) => {
-                setNgayTraPhong(newValue);
-              }}
+              minDate={ngayNhanPhong}
+              onChange={(newValue) => setNgayTraPhong(newValue)}
               renderInput={(params) => <TextField {...params} />}
             />
           </LocalizationProvider>
-
           <TextField
             label="Số người"
             type="number"
@@ -164,7 +167,6 @@ const BookingForm = () => {
             onChange={(e) => setSoNguoi(Math.max(1, Number(e.target.value)))}
             inputProps={{ min: 1 }}
           />
-
           <TextField
             label="Số phòng"
             type="number"
@@ -172,33 +174,26 @@ const BookingForm = () => {
             onChange={(e) => setSoPhong(Math.max(1, Number(e.target.value)))}
             inputProps={{ min: 1 }}
           />
-
           <Button variant="contained" color="primary" onClick={handleSearch}>
             Tìm kiếm
           </Button>
         </Box>
       </Box>
+
+      {/* Phân trang & chọn số dòng hiển thị */}
       <Stack
         spacing={1}
         direction="row"
-        sx={{
-          justifyContent: "right",
-          alignItems: "center",
-          marginBottom: "20px",
-        }}
+        sx={{ justifyContent: "flex-end", alignItems: "center", mb: 2 }}
       >
-        <Typography color="neutral" level="title-md" noWrap variant="plain">
+        <Typography variant="subtitle1" noWrap>
           Hiển thị:
         </Typography>
         <Select
           value={pageSize}
           sx={{ width: "70px", height: "40px" }}
           onChange={(event) => {
-            const selectedText = event.target.selectedOptions
-              ? event.target.selectedOptions[0]?.innerText
-              : event.target.innerText;
-            console.log("Selected Text:", selectedText); // In ra text từ Option
-            const newPageSize = Number(selectedText); // Lấy value của Option
+            const newPageSize = Number(event.target.value);
             setPageSize(newPageSize);
             setCurrentPage(0);
             fetchLoaiPhong();
@@ -211,22 +206,19 @@ const BookingForm = () => {
           <Option value={100}>100</Option>
         </Select>
       </Stack>
-      {/* Nút đặt phòng cho các phòng đã chọn */}
-      <Box sx={{ mt: 3, display: "flex", justifyContent: "left" }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={handleBulkBooking}
-        >
+
+      {/* Nút Bulk Booking */}
+      <Box sx={{ mb: 3, display: "flex", justifyContent: "flex-start" }}>
+        <Button variant="contained" color="primary" onClick={handleBulkBooking}>
           Đặt phòng
         </Button>
       </Box>
+
       {/* Bảng hiển thị kết quả */}
       <TableContainer>
         <Table>
           <TableHead>
             <TableRow>
-              {/* Cột Checkbox */}
               <TableCell padding="checkbox"></TableCell>
               <TableCell>STT</TableCell>
               <TableCell>Loại phòng</TableCell>
@@ -242,7 +234,7 @@ const BookingForm = () => {
           <TableBody>
             {loaiPhongKhaDung && loaiPhongKhaDung.length > 0 ? (
               loaiPhongKhaDung.map((result, index) => (
-                <TableRow key={index}>
+                <TableRow key={result.loaiPhongResponse.id}>
                   <TableCell padding="checkbox">
                     <Checkbox
                       checked={selectedRoomList.some(
@@ -261,9 +253,7 @@ const BookingForm = () => {
                   <TableCell>
                     {result.loaiPhongResponse.donGia.toLocaleString()} VND
                   </TableCell>
-                  <TableCell>
-                    {result.danhSachCachChia.soPhongCan}
-                  </TableCell>
+                  <TableCell>{result.danhSachCachChia.soPhongCan}</TableCell>
                   <TableCell>
                     {result.danhSachCachChia.tongGiaTien.toLocaleString()} VND
                   </TableCell>
