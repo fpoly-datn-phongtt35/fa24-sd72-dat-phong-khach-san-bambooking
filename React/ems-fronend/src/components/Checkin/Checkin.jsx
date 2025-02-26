@@ -32,10 +32,12 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
                 alert('Không tìm thấy phòng đã xếp.');
                 return;
             }
+
             // Lấy thông tin loại phòng
             const loaiPhong = xepPhong.phong.loaiPhong;
+            console.log("Loại phòng: ", loaiPhong);
 
-            // Cập nhật thông tin xếp phòng trước
+            // Cập nhật thông tin xếp phòng
             const xepPhongRequest = {
                 id: xepPhong.id,
                 phong: xepPhong.phong,
@@ -61,9 +63,6 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
             const gio14Chieu = new Date(ngayNhanPhongXepPhong);
             gio14Chieu.setHours(14, 0, 0, 0);
 
-            const gio22Toi = new Date(ngayNhanPhongXepPhong);
-            gio22Toi.setHours(22, 0, 0, 0);
-
             // Kiểm tra nếu ngày nhận phòng < 14h00 chiều (nhận phòng sớm)
             if (ngayNhanPhongXepPhong < gio14Chieu) {
                 const phuThuRequest = {
@@ -80,44 +79,31 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
             } else {
                 console.log('Không cần phụ thu: nhận phòng sau 14h.');
             }
-            
-            // Kiểm tra nếu ngày trả phòng > 12h00 trưa (trả phòng muộn)
-            // const gio12Trua = new Date(ngayTraPhongXepPhong);
-            // gio12Trua.setHours(12, 0, 0, 0);
 
-            // if (ngayTraPhongXepPhong > gio12Trua) {
-            //     const phuThuRequest = {
-            //         xepPhong: { id: xepPhong.id },
-            //         tenPhuThu: 'Phụ thu do trả phòng muộn',
-            //         tienPhuThu: 70000, // Số tiền phụ thu có thể thay đổi
-            //         soLuong: 1,
-            //         trangThai: true,
-            //     };
+            // Kiểm tra nếu số người vượt quá số khách tối đa của loại phòng
+            if (thongTinDatPhong.soNguoi > loaiPhong.soKhachToiDa) {
+                const soNguoiVuot = thongTinDatPhong.soNguoi - loaiPhong.soKhachToiDa;
+                const tienPhuThuThem = soNguoiVuot * loaiPhong.donGiaPhuThu; // Giả sử đây là mức phụ thu trên mỗi người vượt
 
-            //     console.log('Đang thêm phụ thu do trả phòng muộn:', phuThuRequest);
-            //     await ThemPhuThu(phuThuRequest);
-            //     alert('Phụ thu do trả phòng muộn đã được thêm.');
-            // }
+                const phuThuThemRequest = {
+                    xepPhong: { id: xepPhong.id },
+                    tenPhuThu: `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người)`,
+                    tienPhuThu: tienPhuThuThem,
+                    soLuong: 1,
+                    trangThai: true,
+                };
+                console.log('Đang thêm phụ thu do vượt số khách tối đa:', phuThuThemRequest);
+                const phuThuThemResponse = await ThemPhuThu(phuThuThemRequest);
+                console.log('Phụ thu do vượt số khách tối đa đã được thêm:', phuThuThemResponse.data);
+                alert(`Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`);
+            }
 
-            // Kiểm tra phụ thu nếu số người nhiều hơn số khách tối đa
-            // if (thongTinDatPhong.soNguoi > loaiPhong.soKhachToiDa) {
-            //     const soNguoiThem = thongTinDatPhong.soNguoi - loaiPhong.soKhachToiDa;
-            //     const phuThuRequest = {
-            //         xepPhong: { id: xepPhong.id },
-            //         tenPhuThu: 'Phụ thu do quá số người quy định',
-            //         tienPhuThu: 100000, // Có thể thay đổi giá phụ thu theo số người
-            //         soLuong: soNguoiThem,
-            //         trangThai: true,
-            //     };
-            //     console.log('Đang thêm phụ thu do quá số người:', phuThuRequest);
-            //     await ThemPhuThu(phuThuRequest);
-            //     alert(`Phụ thu do quá số người quy định đã được thêm (${soNguoiThem} người).`);
-            // }
         } catch (error) {
             console.error('Lỗi xảy ra:', error);
             alert('Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng kiểm tra lại.');
         }
     };
+
 
     // Xử lý thay đổi thời gian nhận phòng
     const handleNgayNhanPhongTimeChange = (event) => {
