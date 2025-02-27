@@ -23,15 +23,22 @@ import {
 import { getHoaDonById, updateThanhToan } from '../../services/ThanhToanService';
 
 const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
-    const [phuongThucThanhToan, setPhuongThucThanhToan] = useState(false); // Mặc định là "Tiền mặt"
+    const [phuongThucThanhToan, setPhuongThucThanhToan] = useState(false);
     const [tienThanhToan, setTienThanhToan] = useState(thanhToan?.tienThanhToan || 0);
     const [hoaDon, setHoaDonLocal] = useState(thanhToan?.hoaDon || null);
+
+    const bankInfo = {
+        bankName: "Ngân hàng TMCP Quân Đội",
+        accountNumber: "0374135106",
+        accountName: "BUI HOANG LONG",
+    };
 
     useEffect(() => {
         const fetchHoaDon = async () => {
             const hoaDonResponse = await getHoaDonById(thanhToan.hoaDon.id);
             setHoaDonLocal(hoaDonResponse.data);
             setHoaDon(hoaDonResponse.data);
+            setTienThanhToan(hoaDonResponse.data.tongTien);
         };
 
         if (thanhToan?.hoaDon?.id) {
@@ -41,8 +48,7 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
 
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
-        const date = new Date(dateString);
-        return date.toLocaleString('vi-VN', options);
+        return new Date(dateString).toLocaleString('vi-VN', options);
     };
 
     const formatCurrency = (amount) => {
@@ -65,7 +71,6 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
             };
 
             await updateThanhToan(thanhToan.id, data);
-
             const updatedHoaDon = await getHoaDonById(thanhToan.hoaDon.id);
             setHoaDonLocal(updatedHoaDon.data);
             setHoaDon(updatedHoaDon.data);
@@ -74,8 +79,7 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
             onClose();
         } catch (error) {
             console.error('Lỗi khi thực hiện thanh toán: ', error);
-            const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi thanh toán, vui lòng thử lại.';
-            alert(errorMessage);
+            alert(error.response?.data?.message || 'Có lỗi xảy ra khi thanh toán, vui lòng thử lại.');
         }
     };
 
@@ -107,21 +111,8 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
                         hoaDon ? (
                             <Paper elevation={2} sx={{ paddingLeft: 13, paddingTop: 5, paddingBottom: 4, backgroundColor: '#f9f9f9' }}>
                                 <Stack spacing={3}>
-                                    <Typography>
-                                        <b>Ngày thanh toán:</b>{' '}
-                                        {thanhToan.ngayThanhToan
-                                            ? formatDate(thanhToan.ngayThanhToan)
-                                            : 'Chưa có ngày thanh toán'}
-                                    </Typography>
-                                    <Typography>
-                                        <b>Tổng tiền:</b>{' '}
-                                        <Chip
-                                            label={formatCurrency(hoaDon.tongTien)}
-                                            color="success"
-                                            variant="outlined"
-                                            sx={{ fontSize: '16px' }}
-                                        />
-                                    </Typography>
+                                    <Typography><b>Ngày thanh toán:</b> {thanhToan.ngayThanhToan ? formatDate(thanhToan.ngayThanhToan) : 'Chưa có'}</Typography>
+                                    <Typography><b>Tổng tiền:</b> <Chip label={formatCurrency(hoaDon.tongTien)} color="success" variant="outlined" sx={{ fontSize: '16px' }} /></Typography>
                                     <Box display="flex" alignItems="center" gap={1}>
                                         <Typography><b>Tiền thanh toán:</b></Typography>
                                         <FormControl variant="standard" sx={{ width: '15ch' }}>
@@ -130,19 +121,10 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
                                                 value={tienThanhToan}
                                                 onChange={handleTienThanhToanChange}
                                                 endAdornment={<InputAdornment position="end">vnđ</InputAdornment>}
-                                                aria-describedby="standard-weight-helper-text"
                                             />
                                         </FormControl>
                                     </Box>
-                                    <Typography>
-                                        <b>Tiền thừa:</b>{' '}
-                                        <Chip
-                                            label={formatCurrency(tienThanhToan - hoaDon.tongTien)}
-                                            color={tienThanhToan - hoaDon.tongTien >= 0 ? 'warning' : 'error'}
-                                            variant='outlined'
-                                            sx={{ fontSize: '16px' }}
-                                        />
-                                    </Typography>
+                                    <Typography><b>Tiền thừa:</b> <Chip label={formatCurrency(tienThanhToan - hoaDon.tongTien)} color={tienThanhToan - hoaDon.tongTien >= 0 ? 'warning' : 'error'} variant='outlined' sx={{ fontSize: '16px' }} /></Typography>
                                 </Stack>
                             </Paper>
                         ) : (
@@ -150,9 +132,28 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
                         )
                     ) : (
                         hoaDon ? (
-                            <Typography variant="h6" align="center" fontWeight="bold">
-                                Chuyển Khoản
-                            </Typography>
+                            <Paper elevation={2} sx={{ padding: 2, backgroundColor: '#f9f9f9' }}>
+                                <Stack spacing={2} alignItems="center">
+                                    <Typography variant="h6" fontWeight="bold">Thanh toán qua Banking</Typography>
+                                    <Typography><b>Tổng tiền:</b> {formatCurrency(hoaDon.tongTien)}</Typography>
+                                    <img src={`https://api.vietqr.io/image/970422-0374135106-Q5S7ZXh.jpg?accountName=${encodeURIComponent(bankInfo.accountName)}&amount=${hoaDon.tongTien}&addInfo=${encodeURIComponent(`Thanh toan hoa don ${hoaDon.id}`)}`}
+                                        style={{
+                                            width: '210px',
+                                            height: 'auto',
+                                            objectFit: 'cover',
+                                            borderRadius: '4px',
+                                        }} />
+                                    <Stack spacing={1} alignItems="center">
+                                        <Typography><b>Ngân hàng:</b> {bankInfo.bankName}</Typography>
+                                        <Typography><b>Số tài khoản:</b> {bankInfo.accountNumber}</Typography>
+                                        <Typography><b>Chủ tài khoản:</b> {bankInfo.accountName}</Typography>
+                                        <Typography><b>Nội dung:</b> Thanh toan hoa don {hoaDon.id}</Typography>
+                                    </Stack>
+                                    <Typography variant="caption" color="text.secondary" align="center">
+                                        Quét mã QR bằng ứng dụng ngân hàng để thanh toán
+                                    </Typography>
+                                </Stack>
+                            </Paper>
                         ) : (
                             <Typography align="center">Không có thông tin thanh toán chuyển khoản.</Typography>
                         )
@@ -167,7 +168,7 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
                     onClick={handleUpdateTienThanhToan}
                     disabled={tienThanhToan <= 0}
                 >
-                    Thanh Toán
+                    Xác nhận Thanh Toán
                 </Button>
                 <Button variant="outlined" color="error" onClick={onClose}>
                     Hủy
