@@ -6,26 +6,31 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
-@Table(name = "vat_tu_loai_phong")
-
-public class VatTuLoaiPhong {
+@Table(name = "kiem_tra_vat_tu")
+public class KiemTraVatTu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "id_loai_phong")
-    private LoaiPhong loaiPhong;
+    @JoinColumn(name = "id_kiem_tra_phong")
+    private KiemTraPhong kiemTraPhong;
 
-    @JoinColumn(name = "id_vat_tu")
     @ManyToOne
+    @JoinColumn(name = "id_vat_tu")
     private VatTu vatTu;
+
     @Column(name = "so_luong")
     private Integer soLuong;
 
+    @Column(name = "tinh_trang")
+    private String tinhTrang;
+
+    @Column(name = "ghi_chu")
+    private String ghiChu;
 }

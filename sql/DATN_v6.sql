@@ -1,8 +1,7 @@
-create database DATN_v6
+﻿create database DATN_v6
 go
 use DATN_v6
 go
-
 
 CREATE TABLE vai_tro (
   id INT IDENTITY(1,1) PRIMARY KEY,
@@ -115,6 +114,8 @@ CREATE TABLE dat_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_khach_hang INT,
   ma_dat_phong VARCHAR(255) UNIQUE,
+  so_nguoi INT,
+  so_phong INT,
   ngay_dat DATE,
   tong_tien DECIMAL(18,2),
   ghi_chu NVARCHAR(255),
@@ -169,6 +170,7 @@ CREATE TABLE dich_vu_su_dung(
   FOREIGN KEY (id_dich_vu) REFERENCES dich_vu(id),
   FOREIGN KEY (id_xep_phong) REFERENCES xep_phong(id)
 );
+
 CREATE TABLE hoa_don (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_nhan_vien INT ,
@@ -183,11 +185,9 @@ CREATE TABLE hoa_don (
 
 CREATE TABLE tra_phong (
     id INT PRIMARY KEY IDENTITY(1,1),
-    id_nhan_vien INT,
     id_xep_phong INT,
     ngay_tra_phong_thuc_te DATETIME,
     trang_thai BIT,
-    FOREIGN KEY (id_nhan_vien) REFERENCES nhan_vien(id),
     FOREIGN KEY (id_xep_phong) REFERENCES xep_phong(id)
 );
 
@@ -224,22 +224,21 @@ CREATE TABLE thanh_toan(
 	trang_thai BIT,
 	FOREIGN KEY (id_hoa_don) REFERENCES hoa_don(id),
 	FOREIGN KEY (id_nhan_vien) REFERENCES nhan_vien(id),
-	);
-
-
+);
 
 CREATE TABLE danh_gia (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_khach_hang INT,
-  id_loai_phong INT,
+  id_thong_tin_dat_phong INT,
   stars INT,
   nhan_xet NVARCHAR(255),
   ngay_tao DATETIME,
   ngay_sua DATETIME,
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_khach_hang) REFERENCES khach_hang(id),
-  FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id)
+  FOREIGN KEY (id_thong_tin_dat_phong) REFERENCES thong_tin_dat_phong(id)
 );
+
 CREATE TABLE dich_vu_di_kem (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_dich_vu INT,
@@ -249,15 +248,28 @@ CREATE TABLE dich_vu_di_kem (
   FOREIGN KEY (id_dich_vu) REFERENCES dich_vu(id),
   FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id)
 );
+
 CREATE TABLE kiem_tra_phong(
 	id INT IDENTITY(1,1) PRIMARY KEY,
-	id_tra_phong INT,
-	ten_vat_tu NVARCHAR(255),
-	so_luong INT,
-	trang_thai VARCHAR(255),
-	FOREIGN KEY (id_tra_phong) REFERENCES tra_phong(id),
-)
+	id_xep_phong INT,
+	id_nhan_vien INT,
+	thoi_gian_kiem_tra DATETIME,
+	tinh_trang NVARCHAR(50),
+	trang_thai NVARCHAR(50),
+	FOREIGN KEY (id_xep_phong) REFERENCES xep_phong(id),
+	FOREIGN KEY (id_nhan_vien) REFERENCES nhan_vien(id)
+);
 
+CREATE TABLE kiem_tra_vat_tu(
+	id INT IDENTITY(1,1) PRIMARY KEY,
+	id_kiem_tra_phong INT,
+	id_vat_tu INT,
+	so_luong INT, -- Đây là số lượng thực tế ở phòng
+	tinh_trang NVARCHAR(50), -- Thiếu / Đủ / Hỏng
+	ghi_chu NVARCHAR(255),
+	FOREIGN KEY (id_kiem_tra_phong) REFERENCES kiem_tra_phong(id),
+	FOREIGN KEY (id_vat_tu) REFERENCES vat_tu(id)
+);
 
 INSERT INTO vai_tro (ten_vai_tro, trang_thai)
 VALUES 
@@ -273,13 +285,14 @@ VALUES
 
 INSERT INTO nhan_vien (id_tai_khoan, cmnd, ho, ten, gioi_tinh, dia_chi, sdt, email, ngay_tao, ngay_sua, trang_thai)
 VALUES 
-(1, '123456789', 'Nguyen', 'An', 'Nam', '123 Nguyen Trai', '0901234567', 'an.nguyen@example.com', GETDATE(), GETDATE(), 1);
-
+(1, '123456789', 'Nguyen', 'An', 'Nam', '123 Nguyen Trai', '0901234567', 'an.nguyen@example.com', GETDATE(), GETDATE(), 1),
+(2, '001204042060', 'Luu', 'Hung', 'Nam', '12 Xuan Thuy', '0911575888', 'hunglq@gmail.com', GETDATE(), GETDATE(), 1);
 
 
 INSERT INTO khach_hang (id_tai_khoan, cmnd, ho, ten, gioi_tinh, dia_chi, sdt, email, ngay_tao, ngay_sua, trang_thai)
 VALUES 
-(2, '222333444', 'Thu', 'Chuc', 'Nu', '567 Tran Phu', '0843787882', 'nguyenchuc812@gmail.com', GETDATE(), GETDATE(), 1);
+(2, '222333444', 'Thu', 'Chuc', 'Nu', '567 Tran Phu', '0843787882', 'nguyenchuc812@gmail.com', GETDATE(), GETDATE(), 1),
+(2, '001204042061', 'Nguyen', 'Hien', 'Nu', 'Tuyen Quang', '0364573309', 'hiennt@gmail.com', GETDATE(), GETDATE(), 1);
 
 
 
@@ -348,19 +361,21 @@ VALUES
 
 INSERT INTO dat_phong (id_khach_hang, ma_dat_phong, ngay_dat, tong_tien, ghi_chu, trang_thai)
 VALUES 
-(1, 'DP001', '2024-12-01', 2000000, N'Đặt phòng cho gia đình.', N'Đã xác nhận');
-
+(1, 'DP001', '2024-12-01', 2000000, N'Đặt phòng cho gia đình.', N'Đã xác nhận'),
+(2, 'DP002', '2025-02-20', 500000, N'Đặt phòng .', N'Đã xác nhận');
 
 
 INSERT INTO thong_tin_dat_phong (id_dat_phong, id_loai_phong, ma_thong_tin_dat_phong, ngay_nhan_phong, ngay_tra_phong, so_nguoi, gia_dat, ghi_chu, trang_thai)
 VALUES 
-(1, 3, 'TTDP001', '2024-12-10', '2024-12-12', 4, 2000000, N'Yêu cầu phòng tầng cao.', N'Đã xác nhận');
+(1, 3, 'TTDP001', '2024-12-10', '2024-12-12', 4, 2000000, N'Yêu cầu phòng tầng cao.', N'Đã xác nhận'),
+(2, 5, 'TTDP002', '2025-02-20', '2025-02-25', 10, 500000, N'Yêu cầu phòng.', N'Đã xác nhận');
 
 
 
 INSERT INTO khach_hang_checkin (id_thong_tin_dat_phong, id_khach_hang, trang_thai)
 VALUES 
-(1, 1, 1); -- Khách hàng 1 đã check-in cho thông tin đặt phòng 1
+(1, 1, 1), -- Khách hàng 1 đã check-in cho thông tin đặt phòng 1
+(2, 2, 1);
 
 
 INSERT INTO xep_phong (id_phong, id_thong_tin_dat_phong, ngay_nhan_phong, ngay_tra_phong, trang_thai)
@@ -382,9 +397,8 @@ INSERT INTO hoa_don (id_nhan_vien, id_dat_phong, ma_hoa_don, tong_tien, ngay_tao
 VALUES (1, 1, 'HD001', 3100000, '2024-12-12 15:00:00', N'Đã thanh toán');
 
 
-
-INSERT INTO tra_phong (id_nhan_vien, id_xep_phong, ngay_tra_phong_thuc_te, trang_thai)
-VALUES (1, 1, '2023-10-01 14:30:00', 1);
+INSERT INTO tra_phong (id_xep_phong, ngay_tra_phong_thuc_te, trang_thai)
+VALUES (1, '2023-10-01 14:30:00', 1);
 
 
 INSERT INTO thong_tin_hoa_don (id_tra_phong, id_hoa_don, tien_dich_vu, tien_phong, tien_phu_thu)
@@ -396,28 +410,8 @@ INSERT INTO phu_thu (id_xep_phong, ten_phu_thu, tien_phu_thu, so_luong, trang_th
 VALUES (1, N'Phí dịch vụ', 100000.00, 2, N'Hoàn thành');
 
 
-
-INSERT INTO thanh_toan (id_hoa_don, id_nhan_vien, ngay_thanh_toan, tien_thanh_toan, tien_thua, phuong_thuc_thanh_toan, ma_qr, trang_thai)
-VALUES (1, 1, '2024-12-31', 3000000.00, 0.00, 1, 'QR123456', 1);
-
-
-
-INSERT INTO danh_gia (id_khach_hang, id_loai_phong, stars, nhan_xet, ngay_tao, ngay_sua, trang_thai)
+INSERT INTO danh_gia (id_khach_hang, id_thong_tin_dat_phong, stars, nhan_xet, ngay_tao, ngay_sua, trang_thai)
 VALUES (1, 1, 5, N'Phòng rất tốt, dịch vụ tuyệt vời!', GETDATE(), GETDATE(), N'Hoạt động');
-
-
 
 INSERT INTO dich_vu_di_kem (id_dich_vu, id_loai_phong, trang_thai)
 VALUES (1, 1, 1); 
-
-
-
-INSERT INTO kiem_tra_phong (id_tra_phong, ten_vat_tu, so_luong, trang_thai)
-VALUES (1, N'Tivi', 1, N'Hoạt động');
-
-
-
-
-
-
-

@@ -34,6 +34,8 @@ import ThanhToanComponent from "../components/ThanhToan/ThanhToanComponent";
 import InfoHoaDon from "../components/HoaDon/InfoHoaDon";
 import DemoTaoHoaDon from "../components/HoaDon/DemoTaoHoaDon"
 import Demo from "../components/HoaDon/Demo"
+import KiemTraPhong from "../components/kiemTraPhong/KiemTraPhong";
+import CreateKiemTraPhong from "../components/kiemTraPhong/createKiemTraPhong";
 
 function RouterProvider() {
 
@@ -120,6 +122,10 @@ function RouterProvider() {
                 <Route path="/hoa-don/:id" element={<InfoHoaDon />} />
                 <Route path="/tao-hoa-don" element={<DemoTaoHoaDon />} />
                 
+                {/*Kiểm tra phòng */}
+                <Route path="/kiem-tra-phong" element={<KiemTraPhong/>}/>
+                <Route path="/tao-kiem-tra-phong/:idXepPhong" element={<CreateKiemTraPhong/>}/>
+
             </Route>
         </Routes>
     )

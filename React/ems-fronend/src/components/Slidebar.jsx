@@ -42,6 +42,9 @@ function Sidebar() {
               <li className="nav-item">
                 <Link className="nav-link" to="/TienIch">Tiện ích</Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/kiem-tra-phong">Kiểm tra phòng</Link>
+              </li>
             </ul>
           </li>
 

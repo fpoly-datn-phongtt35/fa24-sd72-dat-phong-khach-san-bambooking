@@ -7,7 +7,6 @@ import { Box, Container, Table, Typography, Button, Sheet } from '@mui/joy';
 const DemoTaoHoaDon = () => {
     const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
     const [idHoaDon, setIdHoaDon] = useState(null);
-    const [idDatPhong, setIdDatPhong] = useState(null);
     const hoaDonDaTaoRef = useRef(false);
     const navigate = useNavigate();
 
@@ -21,22 +20,23 @@ const DemoTaoHoaDon = () => {
     const createHoaDon = async () => {
         try {
             // Lấy idTraPhong từ localStorage (giả sử đã lưu là mảng các id)
-            const storedIdTraPhong = JSON.parse(localStorage.getItem('idTraPhong'));
+            const storedIdTraPhong = JSON.parse(localStorage.getItem('traPhong'));
             console.log("Stored idTraPhong from localStorage:", storedIdTraPhong);
             
             // Nếu storedIdTraPhong là mảng và có phần tử, lấy phần tử đầu tiên
             const idTraPhong = (storedIdTraPhong && storedIdTraPhong.length > 0)
-                ? Number(storedIdTraPhong[0])
+                ? Number(storedIdTraPhong[0].id)
                 : null;
             console.log("Using idTraPhong:", idTraPhong);
             
-            if (!idTraPhong) {
-                console.error("Không có idTraPhong trong localStorage");
-                return;
-            }
+            // if (!idTraPhong) {
+            //     console.error("Không có idTraPhong trong localStorage");
+            //     return;
+            // }
             
             // Gọi hàm taoHoaDon với idTraPhong (backend sẽ xử lý chuyển đổi qua idDatPhong)
             const hdResponse = await taoHoaDon(idTraPhong);
+            console.log("Hoa don: ", hdResponse)
             setIdHoaDon(hdResponse.id);
         
             const traPhongData = JSON.parse(localStorage.getItem('traPhong')) || [];
@@ -51,8 +51,6 @@ const DemoTaoHoaDon = () => {
             console.error('Lỗi tạo hóa đơn:', error);
         }
     };
-    
-    
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('vi-VN', {

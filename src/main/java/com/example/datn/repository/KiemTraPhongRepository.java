@@ -1,5 +1,6 @@
 package com.example.datn.repository;
 
+import com.example.datn.model.KiemTraPhong;
 import com.example.datn.model.XepPhong;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,14 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
-    @Query("select xp from XepPhong xp join ThongTinDatPhong ttdp on xp.thongTinDatPhong.id = ttdp.id" +
-            "  where xp.thongTinDatPhong.maThongTinDatPhong =:maTTDP")
-    XepPhong getByMaTTDP(String maTTDP);
-
-    @Query("select xp from XepPhong xp" +
-            "  where xp.trangThai =true and xp.thongTinDatPhong.trangThai IN ('Dang o', 'Den han') and xp.phong.id =:idPhong")
-    XepPhong getByIDPhong(int idPhong);
+public interface KiemTraPhongRepository extends JpaRepository<KiemTraPhong, Integer> {
 
     @Query("SELECT xp FROM XepPhong xp " +
             "WHERE (" +
@@ -31,6 +25,6 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
             "OR LOWER(CONCAT(COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ho, ''), ' ' , COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ten, ''))) = LOWER(:key) " +
             ") " +
             "AND xp.thongTinDatPhong.trangThai IN ('Dang o', 'Den han')")
-    List<XepPhong> findByKey(@Param("key") String key);
+    List<XepPhong> findByKeyNotChecked(@Param("key") String key);
 
 }

@@ -1,7 +1,5 @@
 package com.example.datn.service.IMPL;
 
-import com.example.datn.dto.request.DatPhongRequest;
-import com.example.datn.dto.request.HoaDonRequest;
 import com.example.datn.dto.response.HoaDonResponse;
 import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.mapper.HoaDonMapper;
@@ -22,6 +20,7 @@ import org.apache.http.HttpHeaders;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.text.NumberFormat;
@@ -73,6 +72,7 @@ public class HoaDonServiceIMPL implements HoaDonService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public HoaDon createHoaDon(HttpServletRequest request, Integer idTraPhong) {
 
         Integer idDatPhong = datPhongRepository.findIdDatPhongByIdTraPhong(idTraPhong);
