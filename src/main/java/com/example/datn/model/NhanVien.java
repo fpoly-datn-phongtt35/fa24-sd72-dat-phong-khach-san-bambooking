@@ -1,13 +1,10 @@
 package com.example.datn.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 @AllArgsConstructor
@@ -15,6 +12,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Entity
+@Builder
 @Table(name = "nhan_vien")
 public class NhanVien implements Serializable {
     @Id
@@ -53,14 +51,18 @@ public class NhanVien implements Serializable {
     @Column(name = "email")
     private String email;
     @Column(name = "ngay_tao")
-    private LocalDate ngayTao;
+    private LocalDateTime ngayTao;
 
     @Column(name = "ngay_sua")
-    private LocalDate ngaySua;
+    private LocalDateTime ngaySua;
 
     @Column(name = "trang_thai")
     private Boolean trangThai;
+    @Column(name = "avatar")
+    private String avatar;
 
+    @Column(name = "public_id")
+    private String public_id;
     public String getHoTen() {
         return ho + " " + ten;
     }

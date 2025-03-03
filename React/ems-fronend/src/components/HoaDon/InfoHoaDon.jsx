@@ -59,32 +59,44 @@ const InfoHoaDon = () => {
                 </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "space-between", gap: 3 }}>
-                <Box sx={{ flex: 1, backgroundColor: '#fff', borderRadius: '8px', boxShadow: 3, padding: 3 }}>
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    flexWrap: "nowrap",
+                }}
+            >
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
                     <Typography level="h6" sx={{ fontWeight: 'bold' }}>Mã hóa đơn</Typography>
                     <Typography>{hoaDon.maHoaDon}</Typography>
-                </Box>
-
-                <Box sx={{ flex: 1, backgroundColor: '#fff', borderRadius: '8px', boxShadow: 3, padding: 3 }}>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
+                    <Typography level="h6" sx={{ fontWeight: 'bold' }}>Mã đặt phòng</Typography>
+                    <Typography>{hoaDon.maDatPhong}</Typography>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
                     <Typography level="h6" sx={{ fontWeight: 'bold' }}>Ngày tạo</Typography>
                     <Typography>{hoaDon.ngayTao}</Typography>
-                </Box>
-
-                <Box sx={{ flex: 1, backgroundColor: '#fff', borderRadius: '8px', boxShadow: 3, padding: 3 }}>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
                     <Typography level="h6" sx={{ fontWeight: 'bold' }}>Tên nhân viên</Typography>
                     <Typography>{hoaDon.tenNhanVien}</Typography>
-                </Box>
-
-                <Box sx={{ flex: 1, backgroundColor: '#fff', borderRadius: '8px', boxShadow: 3, padding: 3 }}>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
+                    <Typography level="h6" sx={{ fontWeight: 'bold' }}>Tên khách hàng</Typography>
+                    <Typography>{hoaDon.tenKhachHang}</Typography>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
                     <Typography level="h6" sx={{ fontWeight: 'bold' }}>Tổng tiền</Typography>
                     <Typography>{formatCurrency(hoaDon.tongTien)}</Typography>
-                </Box>
-
-                <Box sx={{ flex: 1, backgroundColor: '#fff', borderRadius: '8px', boxShadow: 3, padding: 3 }}>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
                     <Typography level="h6" sx={{ fontWeight: 'bold' }}>Trạng thái</Typography>
                     <Typography>{hoaDon.trangThai}</Typography>
-                </Box>
+                </Sheet>
             </Box>
+
 
             {/* Thông tin tiền phòng */}
             <Box sx={{ marginTop: 3 }}>

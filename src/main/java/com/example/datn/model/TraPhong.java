@@ -20,7 +20,7 @@ public class TraPhong {
     @JoinColumn(name = "id_xep_phong")
     @ManyToOne
     XepPhong xepPhong;
-    @Column(name = "ngay_tra_thuc_te")
+    @Column(name = "ngay_tra_phong_thuc_te")
     LocalDateTime ngayTraThucTe;
     @Column(name = "trang_thai")
     Boolean trangThai;

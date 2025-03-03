@@ -84,14 +84,15 @@ function QuanLyDatPhong() {
   };
 
   useEffect(() => {
-    fetchThongTinDatPhong(currentStatus, currentPage);
-  }, [
-    currentPage,
-    currentStatus,
-    selectedStartDate,
-    selectedEndDate,
-    searchKey,
-  ]);
+    // Thiết lập interval để gọi fetchThongTinDatPhong mỗi 5 giây
+    const intervalId = setInterval(() => {
+      fetchThongTinDatPhong(currentStatus, currentPage);
+    }, 5000);
+  
+    // Xóa interval khi component unmount hoặc khi dependency thay đổi
+    return () => clearInterval(intervalId);
+  }, [currentStatus, currentPage, selectedStartDate, selectedEndDate, searchKey]);
+  
 
   const toggleStartDatePicker = () => setOpenStartDatePicker((prev) => !prev);
   const toggleEndDatePicker = () => setOpenEndDatePicker((prev) => !prev);

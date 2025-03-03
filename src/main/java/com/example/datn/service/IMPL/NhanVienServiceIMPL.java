@@ -1,115 +1,134 @@
 package com.example.datn.service.IMPL;
 
-import com.example.datn.config.PasswordGenerator;
-import com.example.datn.dto.request.NhanVienRequest;
+import com.example.datn.dto.request.employee.EmployeeFilterRequest;
+import com.example.datn.dto.request.employee.EmployeeRequests;
+import com.example.datn.dto.response.employee.EmployeeResponses;
+import com.example.datn.exception.EntityNotFountException;
+import com.example.datn.exception.InvalidDataException;
 import com.example.datn.model.NhanVien;
 import com.example.datn.model.TaiKhoan;
-import com.example.datn.model.VaiTro;
 import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.repository.VaiTroRepository;
+import com.example.datn.repository.customizeQuery.EmployeeRepository;
 import com.example.datn.service.NhanVienService;
-import com.example.datn.service.PhongService;
-import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.example.datn.utilities.CloudinaryUtils;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Map;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@RequiredArgsConstructor
+@Slf4j
 @Service
 public class NhanVienServiceIMPL implements NhanVienService{
-    @Autowired
+    PasswordEncoder passwordEncoder;
+    EmployeeRepository employeeRepository;
     NhanVienRepository nhanVienRepository;
-    @Autowired
     TaiKhoanRepository taiKhoanRepository;
-
-    @Autowired
     VaiTroRepository vaiTroRepository;
-
+    private final CloudinaryUtils cloudinary;
 
     @Override
-    public Page<NhanVien> getAll(Pageable pageable) {
-        return nhanVienRepository.findAll(pageable);
+    public EmployeeResponses.EmployeeTemplate getEmployees(EmployeeFilterRequest request) {
+        return employeeRepository.getAllEmployees(request);
     }
 
     @Override
-    public NhanVien create(NhanVien nhanVien) {
-        return  nhanVienRepository.save(nhanVien);
+    public void updateStatus(int id, boolean status) {
+        NhanVien nhanVien = this.nhanVienRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Employee not found!"));
+        TaiKhoan taiKhoan = nhanVien.getTaiKhoan();
+        taiKhoan.setTrangThai(status);
+        taiKhoanRepository.save(taiKhoan);
+        log.info("Update status successfully");
     }
 
     @Override
-    public NhanVien update(NhanVien nhanVien) {
-        if (nhanVienRepository.existsById(nhanVien.getId())) {
-            return nhanVienRepository.save(nhanVien); // Cập nhật thông tin nhân viên
-        } else {
-            throw new EntityNotFoundException("Nhân viên không tồn tại với ID: " + nhanVien.getId());
+    public int storeEmployee(EmployeeRequests.EmployeeStore request) {
+        if (this.taiKhoanRepository.findByTenDangNhap(request.getUsername()).isPresent()) {
+            throw new InvalidDataException("Tài khoản đã tồn tại!");
         }
-    }
+        TaiKhoan taiKhoan = TaiKhoan.builder()
+                .tenDangNhap(request.getUsername())
+                .matKhau(passwordEncoder.encode(request.getPassword()))
+                .idVaiTro(this.vaiTroRepository.findById(2)
+                        .orElseThrow(() -> new EntityNotFountException("Role not found!")))
+                .trangThai(true)
+                .build();
 
-    @Override
-    public void deleteNhanVien(Integer id) {
-        Optional<NhanVien> optionalNhanVien = nhanVienRepository.findById(id);
+        NhanVien nhanVien = NhanVien.builder()
+                .taiKhoan(this.taiKhoanRepository.save(taiKhoan))
+                .cmnd(request.getIdCard())
+                .ho(request.getLastName())
+                .ten(request.getFirstName())
+                .gioiTinh(request.getGender())
+                .diaChi(request.getAddress())
+                .email(request.getEmail())
+                .sdt(request.getPhoneNumber())
+                .ngaySua(LocalDateTime.now())
+                .ngayTao(LocalDateTime.now())
+                .trangThai(true)
+                .build();
 
-        if (optionalNhanVien.isPresent()) {
-            nhanVienRepository.delete(optionalNhanVien.get());
-        } else {
-            // Nếu bạn không muốn tạo ra ngoại lệ, có thể ghi log hoặc thực hiện một hành động khác
-            System.out.println("Nhân viên không tồn tại với ID: " + id);
+        if (request.getAvatar() != null) {
+            Map<String, String> upload = this.cloudinary.upload(request.getAvatar());
+            nhanVien.setAvatar(upload.get("url"));
+            nhanVien.setPublic_id(upload.get("publicId"));
         }
+        return this.nhanVienRepository.save(nhanVien).getId();
     }
 
     @Override
-    public Page<NhanVien> searchNhanVien(String keyword, Pageable pageable) {
-        return nhanVienRepository.searchByName(keyword,pageable);
+    public EmployeeResponses.EmployeeResponseBase getEmployee(Integer id) {
+        return getEmployeeById(id);
+    }
+
+    private EmployeeResponses.EmployeeResponseBase getEmployeeById(Integer id) {
+        NhanVien nhanVien = this.nhanVienRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Employee not found!"));
+
+
+        return EmployeeResponses.EmployeeResponseBase.builder()
+                .id(nhanVien.getId())
+                .username(nhanVien.getTaiKhoan().getTenDangNhap())
+                .firstName(nhanVien.getTen())
+                .lastName(nhanVien.getHo())
+                .idCard(nhanVien.getCmnd())
+                .email(nhanVien.getEmail())
+                .address(nhanVien.getDiaChi())
+                .phoneNumber(nhanVien.getSdt())
+                .gender(nhanVien.getGioiTinh())
+                .avatar(nhanVien.getAvatar())
+                .build();
     }
 
     @Override
-    public Optional<NhanVien> findBySdt(String sdt) {
-        return nhanVienRepository.findBySdt(sdt);
-    }
+    public void updateEmployee(EmployeeRequests.EmployeeUpdate request, int id) {
+        NhanVien nhanVien = this.nhanVienRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
 
-    @Override
-    public NhanVien getNhanVienById(Integer id) {
-        return nhanVienRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public NhanVien createNhanVien(NhanVienRequest request) {
-        // Tạo tài khoản mới
-        TaiKhoan taiKhoan = new TaiKhoan();
-        taiKhoan.setTenDangNhap(request.getEmail());
-        String generatedPassword = PasswordGenerator.generateRandomPassword();
-        taiKhoan.setMatKhau(generatedPassword);
-        taiKhoan.setTrangThai(true);
-
-        TaiKhoan saveTaiKhoan = taiKhoanRepository.save(taiKhoan);
-
-        // Lấy vai trò dựa trên ID từ request
-        Integer vaiTroId = request.getVaiTro().getId();
-        VaiTro vaiTro = vaiTroRepository.findById(vaiTroId)
-                .orElseThrow(() -> new IllegalArgumentException("Vai trò không tồn tại"));
-
-        // Tạo và lưu nhân viên
-        NhanVien nhanVien = new NhanVien();
-        nhanVien.setTaiKhoan(saveTaiKhoan);
-//        nhanVien.setVaiTro(vaiTro);
-        nhanVien.setHo(request.getHo());
-        nhanVien.setTen(request.getTen());
-        nhanVien.setGioiTinh(request.getGioiTinh());
-        nhanVien.setDiaChi(request.getDiaChi());
-        nhanVien.setSdt(request.getSdt());
+        if (request.getAvatar() != null) {
+            if (nhanVien.getPublic_id() != null) {
+                this.cloudinary.removeByPublicId(nhanVien.getPublic_id());
+            }
+            Map<String, String> upload = this.cloudinary.upload(request.getAvatar());
+            nhanVien.setAvatar(upload.get("url"));
+            nhanVien.setPublic_id(upload.get("publicId"));
+        }
+        nhanVien.setHo(request.getLastName());
+        nhanVien.setTen(request.getFirstName());
         nhanVien.setEmail(request.getEmail());
-        nhanVien.setNgayTao(LocalDate.now());
-        nhanVien.setNgaySua(LocalDate.now());
-        nhanVien.setTrangThai(request.isTrangThai());
-
-        return nhanVienRepository.save(nhanVien);
+        nhanVien.setGioiTinh(request.getGender());
+        nhanVien.setDiaChi(request.getAddress());
+        nhanVien.setSdt(request.getPhoneNumber());
+        nhanVien.setNgaySua(LocalDateTime.now());
+        this.nhanVienRepository.save(nhanVien);
     }
-
-
 }

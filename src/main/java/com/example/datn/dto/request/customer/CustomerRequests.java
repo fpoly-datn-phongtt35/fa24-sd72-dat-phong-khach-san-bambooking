@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 
@@ -30,6 +31,9 @@ public abstract class CustomerRequests {
         private String phoneNumber;
         @NotBlank(message ="address không được trống")
         private String address;
+
+        // Validate (optional)
+        private MultipartFile avatar;
     }
 
     @Getter
@@ -46,5 +50,7 @@ public abstract class CustomerRequests {
         private String email;
         @NotBlank(message ="address không được trống")
         private String address;
+
+        private MultipartFile avatar;
     }
 }

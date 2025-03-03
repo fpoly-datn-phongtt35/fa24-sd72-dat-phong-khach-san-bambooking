@@ -15,12 +15,8 @@ public class LoaiPhongResponse {
     private String tenLoaiPhong;
     private String maLoaiPhong;
     private Integer dienTich;
-
     private Integer soKhachToiDa;
-
     private Double donGia;
-
     private Double donGiaPhuThu;
-
     private String moTa;
 }

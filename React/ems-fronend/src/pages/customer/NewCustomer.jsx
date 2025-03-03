@@ -4,6 +4,7 @@ import { styled } from '@mui/joy';
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { newCustomer } from "../../apis/customerApi";
+import { useState } from "react";
 
 const VisuallyHiddenInput = styled('input')`
   clip: rect(0 0 0 0);
@@ -19,11 +20,23 @@ const VisuallyHiddenInput = styled('input')`
 export const NewCustomer = () => {
     const navigate = useNavigate();
 
+    const [imagePreview, setImagePreview] = useState(null);
+    const [imageObject, setImageObject] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm();
+
+
+    const handleImageChange = (event) => {
+        var file = event.target.files[0];
+        var url = URL.createObjectURL(file)
+        setImagePreview(url)
+        setImageObject(file)
+    }
 
     const onSubmit = async (data) => {
         const formData = new FormData();
@@ -36,10 +49,11 @@ export const NewCustomer = () => {
         formData.append('gender', data.gender)
         formData.append('password', data.password)
         formData.append('email', data.email)
-
+        formData.append('avatar', imageObject)
+        setIsLoading(true);
         await newCustomer(formData).then(() => {
             navigate('/khach-hang')
-        })
+        }).finally(() => { setIsLoading(false) })
     };
     return (
         <Container>
@@ -48,7 +62,7 @@ export const NewCustomer = () => {
                     <Grid xs={3} sx={{ border: '0.5px solid #d9d9d9' }}>
                         <Box sx={{ marginTop: 5 }}>
                             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                                <Avatar sx={{ width: 150, height: 150 }} variant="soft" />
+                                <Avatar sx={{ width: 150, height: 150 }} variant="soft" src={imagePreview} />
                             </Box>
                             <Box sx={{ marginTop: 2, display: 'flex', justifyContent: 'center' }}>
                                 <Button
@@ -76,7 +90,7 @@ export const NewCustomer = () => {
                                     }
                                 >
                                     Upload a file
-                                    <VisuallyHiddenInput type="file" />
+                                    <VisuallyHiddenInput type="file" onChange={handleImageChange} />
                                 </Button>
                             </Box>
                         </Box>
@@ -226,8 +240,8 @@ export const NewCustomer = () => {
                             </Grid>
 
                             <Box sx={{ marginTop: 2 }}>
-                                <Button color="danger" sx={{ marginRight: 2 }} type="button" onClick={() => navigate('/khach-hang')}>Hủy</Button>
-                                <Button type="submit">Lưu thông tin</Button>
+                                <Button loading={isLoading} color="danger" sx={{ marginRight: 2 }} type="button" onClick={() => navigate('/khach-hang')}>Hủy</Button>
+                                <Button loading={isLoading} type="submit">Lưu thông tin</Button>
                             </Box>
                         </Grid>
                     </Grid>

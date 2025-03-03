@@ -1,9 +1,11 @@
 package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.XepPhongRequest;
+import com.example.datn.dto.response.XepPhongResponse;
 import com.example.datn.model.Phong;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.model.XepPhong;
+import com.example.datn.repository.KiemTraPhongRepository;
 import com.example.datn.repository.PhongRepository;
 import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.repository.XepPhongRepository;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class XepPhongServiceIMPL implements XepPhongService {
@@ -25,6 +28,8 @@ public class XepPhongServiceIMPL implements XepPhongService {
 
     @Autowired
     PhongRepository phongRepository;
+    @Autowired
+    private KiemTraPhongRepository kiemTraPhongRepository;
 
     @Override
     public List<XepPhong> getAll() {
@@ -44,6 +49,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
         thongTinDatPhongRepository.save(ttdp);
         return xepPhongRepository.save(xp);
     }
+
     @Override
     public XepPhong updateXepPhong(XepPhongRequest xepPhongRequest) {
         XepPhong xp = new XepPhong();
@@ -70,9 +76,9 @@ public class XepPhongServiceIMPL implements XepPhongService {
     @Override
     public XepPhong checkIn(XepPhongRequest xepPhongRequest) {
 
-        try{
+        try {
             XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId()).orElse(null);
-            if(xp!=null){
+            if (xp != null) {
                 ThongTinDatPhong ttdp = xp.getThongTinDatPhong();
                 Phong p = xp.getPhong();
                 ttdp.setTrangThai("Dang o");
@@ -83,7 +89,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
                 xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
                 xp.setTrangThai(true);
                 return xepPhongRepository.save(xp);
-            }else{
+            } else {
                 XepPhong xpNew = this.addXepPhong(xepPhongRequest);
                 ThongTinDatPhong ttdp = xpNew.getThongTinDatPhong();
                 Phong p = xpNew.getPhong();
@@ -92,7 +98,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
                 xpNew.setTrangThai(true);
                 return xepPhongRepository.save(xpNew);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Chưa được xếp phòng");
         }

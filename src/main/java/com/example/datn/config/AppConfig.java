@@ -26,11 +26,13 @@ public class AppConfig {
 
     private final UserService userService;
     private final PrevFilter prevFilter;
-    private final String[] WHILE_LIST = {"/api/auth/**"};
+    private final String[] WHILE_LIST = {"/api/auth/**", "/api/*/customer/**"};
     private final String[] URI_ADMIN = {"/api/*/customer/**", "/xep-phong/**", "/ttdp/**", "/tra-phong/**",
             "/tien-ich-phong/**", "/tien-ich/**", "/thong-tin-hoa-don/**", "/phong/**", "/loai-phong/**",
             "/khach-hang-checkin/**", "/hoa-don/**", "/dich_vu_su_dung/**", "/dich_vu_di_kem/**", "/dich_vu/**",
-            "/dat-phong/**","/loai-phong/add" ,"thanh-toan/**","/dat-phong/xoa","api/**", "/vat-tu/**", "/vat-tu-loai-phong/**"};
+            "/loai-phong/add" ,"thanh-toan/**","/dat-phong/xoa","api/**", "/vat-tu/**", "/vat-tu-loai-phong/**",
+            "/kiem-tra-phong/**"};
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

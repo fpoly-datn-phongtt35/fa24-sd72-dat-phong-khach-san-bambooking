@@ -35,6 +35,7 @@ public class CustomerRepository {
         if (StringUtils.hasLength(request.getKeyword())) {
             sql.append(" WHERE( c.taiKhoan.tenDangNhap LIKE :keyword) or (c.sdt LIKE :keyword)");
         }
+        sql.append(" ORDER BY ID DESC");
 
         TypedQuery<KhachHang> query = entityManager.createQuery(sql.toString(), KhachHang.class);
         if (StringUtils.hasLength(request.getKeyword())) {
@@ -53,6 +54,7 @@ public class CustomerRepository {
                         .gender(s.getGioiTinh())
                         .phoneNumber(s.getSdt())
                         .isLocked(s.getTaiKhoan().getTrangThai())
+                        .avatar(s.getAvatar())
                         .build()
         ).toList();
         StringBuilder sqlCountPage = new StringBuilder("SELECT count(c) FROM KhachHang c");

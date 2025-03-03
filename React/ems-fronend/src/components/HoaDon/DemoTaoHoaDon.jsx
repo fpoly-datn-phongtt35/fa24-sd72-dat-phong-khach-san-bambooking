@@ -19,15 +19,32 @@ const DemoTaoHoaDon = () => {
 
     const createHoaDon = async () => {
         try {
-            const hdResponse = await taoHoaDon();
+            // Lấy idTraPhong từ localStorage (giả sử đã lưu là mảng các id)
+            const storedIdTraPhong = JSON.parse(localStorage.getItem('traPhong'));
+            console.log("Stored idTraPhong from localStorage:", storedIdTraPhong);
+            
+            // Nếu storedIdTraPhong là mảng và có phần tử, lấy phần tử đầu tiên
+            const idTraPhong = (storedIdTraPhong && storedIdTraPhong.length > 0)
+                ? Number(storedIdTraPhong[0].id)
+                : null;
+            console.log("Using idTraPhong:", idTraPhong);
+            
+            // if (!idTraPhong) {
+            //     console.error("Không có idTraPhong trong localStorage");
+            //     return;
+            // }
+            
+            // Gọi hàm taoHoaDon với idTraPhong (backend sẽ xử lý chuyển đổi qua idDatPhong)
+            const hdResponse = await taoHoaDon(idTraPhong);
+            console.log("Hoa don: ", hdResponse)
             setIdHoaDon(hdResponse.id);
-
+        
             const traPhongData = JSON.parse(localStorage.getItem('traPhong')) || [];
             const tthdRequest = {
                 idHoaDon: hdResponse.id,
                 listTraPhong: traPhongData,
             };
-
+        
             const response = await createThongTinHoaDon(tthdRequest);
             setThongTinHoaDon(response.data || []);
         } catch (error) {
@@ -66,8 +83,8 @@ const DemoTaoHoaDon = () => {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Mã Hóa Đơn</th>
                             <th>ID Trả phòng</th>
+                            <th>Mã Hóa Đơn</th>
                             <th>Phòng</th>
                             <th>Tiền Phòng</th>
                             <th>Tiền Phụ Thu</th>
@@ -79,8 +96,8 @@ const DemoTaoHoaDon = () => {
                             thongTinHoaDon.map((item, index) => (
                                 <tr key={index}>
                                     <td>{item.id}</td>
-                                    <td>{item.hoaDon?.maHoaDon}</td>
                                     <td>{item.traPhong?.id}</td>
+                                    <td>{item.hoaDon?.maHoaDon}</td>
                                     <td>{item.traPhong?.xepPhong?.phong?.tenPhong}</td>
                                     <td>{formatCurrency(item.tienPhong)}</td>
                                     <td>{formatCurrency(item.tienPhuThu)}</td>

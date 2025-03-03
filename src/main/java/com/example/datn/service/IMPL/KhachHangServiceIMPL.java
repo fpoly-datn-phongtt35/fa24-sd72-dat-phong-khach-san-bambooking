@@ -1,15 +1,11 @@
 package com.example.datn.service.IMPL;
 
-import com.example.datn.config.PasswordGenerator;
 import com.example.datn.dto.request.KhachHangDatPhongRequest;
-import com.example.datn.dto.request.KhachHangRequest;
 import com.example.datn.dto.request.customer.CustomerRequests;
 import com.example.datn.dto.request.customer.FilterRequest;
-import com.example.datn.dto.response.KhachHangResponse;
 import com.example.datn.dto.response.customer.CustomerResponses;
 import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.exception.InvalidDataException;
-import com.example.datn.mapper.KhachHangMapper;
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.repository.KhachHangRepository;
@@ -17,19 +13,17 @@ import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.repository.VaiTroRepository;
 import com.example.datn.repository.customizeQuery.CustomerRepository;
 import com.example.datn.service.KhachHangService;
+import com.example.datn.utilities.CloudinaryUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -47,6 +41,8 @@ public class KhachHangServiceIMPL implements KhachHangService {
 
     CustomerRepository customerRepository;
 
+    private final CloudinaryUtils cloudinary;
+
     @Override
     public KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request) {
         KhachHang khachHang = new KhachHang();
@@ -61,7 +57,22 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(request.getTrangThai());
         return khachHangRepository.save(khachHang);
+    }
 
+    @Override
+    public KhachHang updateKhachHangDatPhong(KhachHangDatPhongRequest request) {
+        KhachHang khachHang = khachHangRepository.getReferenceById(request.getId());
+        khachHang.setTen(request.getTen());
+        khachHang.setHo(request.getHo());
+        khachHang.setSdt(request.getSdt());
+        khachHang.setEmail(request.getEmail());
+//        khachHang.setGioiTinh(request.getGioiTinh());
+//        khachHang.setDiaChi(request.getDiaChi());
+//        khachHang.setMatKhau(request.getMatKhau());
+        khachHang.setNgayTao(LocalDateTime.now());
+        khachHang.setNgaySua(LocalDateTime.now());
+        khachHang.setTrangThai(request.getTrangThai());
+        return khachHangRepository.save(khachHang);
     }
 
     @Override
@@ -85,10 +96,12 @@ public class KhachHangServiceIMPL implements KhachHangService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int storeCustomer(CustomerRequests.CustomerStore request) {
         if (this.taiKhoanRepository.findByTenDangNhap(request.getUsername()).isPresent()) {
             throw new InvalidDataException("Tài khoản đã tồn tại!");
         }
+
         TaiKhoan taiKhoan = TaiKhoan.builder()
                 .tenDangNhap(request.getUsername())
                 .matKhau(passwordEncoder.encode(request.getPassword()))
@@ -96,6 +109,7 @@ public class KhachHangServiceIMPL implements KhachHangService {
                         .orElseThrow(() -> new EntityNotFountException("Role not found!")))
                 .trangThai(true)
                 .build();
+
 
         KhachHang khachHang = KhachHang.builder()
                 .taiKhoan(this.taiKhoanRepository.save(taiKhoan))
@@ -108,7 +122,14 @@ public class KhachHangServiceIMPL implements KhachHangService {
                 .sdt(request.getPhoneNumber())
                 .ngaySua(LocalDateTime.now())
                 .ngayTao(LocalDateTime.now())
+                .trangThai(true)
                 .build();
+
+        if (request.getAvatar() != null) {
+            Map<String, String> upload = this.cloudinary.upload(request.getAvatar());
+            khachHang.setAvatar(upload.get("url"));
+            khachHang.setPublic_id(upload.get("publicId"));
+        }
         return this.khachHangRepository.save(khachHang).getId();
     }
 
@@ -121,6 +142,15 @@ public class KhachHangServiceIMPL implements KhachHangService {
     public void updateCustomer(CustomerRequests.CustomerUpdate request, int id) {
         KhachHang customer = this.khachHangRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
+
+        if (request.getAvatar() != null) {
+            if (customer.getPublic_id() != null) {
+                this.cloudinary.removeByPublicId(customer.getPublic_id());
+            }
+            Map<String, String> upload = this.cloudinary.upload(request.getAvatar());
+            customer.setAvatar(upload.get("url"));
+            customer.setPublic_id(upload.get("publicId"));
+        }
         customer.setHo(request.getLastName());
         customer.setTen(request.getFirstName());
         customer.setEmail(request.getEmail());
@@ -144,6 +174,7 @@ public class KhachHangServiceIMPL implements KhachHangService {
                 .address(khachHang.getDiaChi())
                 .phoneNumber(khachHang.getSdt())
                 .gender(khachHang.getGioiTinh())
+                .avatar(khachHang.getAvatar())
                 .build();
     }
 }
