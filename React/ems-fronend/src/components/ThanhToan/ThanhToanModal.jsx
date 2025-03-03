@@ -26,11 +26,13 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
     const [phuongThucThanhToan, setPhuongThucThanhToan] = useState(false);
     const [tienThanhToan, setTienThanhToan] = useState(thanhToan?.tienThanhToan || 0);
     const [hoaDon, setHoaDonLocal] = useState(thanhToan?.hoaDon || null);
+    const [noiDungThanhToan, setNoiDungThanhToan] = useState(`Thanh toan hoa don ${thanhToan?.hoaDon?.id || ''}`); // State mới cho nội dung
 
     const bankInfo = {
         bankName: "Ngân hàng TMCP Quân Đội",
         accountNumber: "0374135106",
         accountName: "BUI HOANG LONG",
+        bankBin: "970422",
     };
 
     useEffect(() => {
@@ -39,6 +41,7 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
             setHoaDonLocal(hoaDonResponse.data);
             setHoaDon(hoaDonResponse.data);
             setTienThanhToan(hoaDonResponse.data.tongTien);
+            setNoiDungThanhToan(`Thanh toan hoa don ${hoaDonResponse.data.id}`); // Khởi tạo nội dung mặc định
         };
 
         if (thanhToan?.hoaDon?.id) {
@@ -59,6 +62,10 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
         const value = event.target.value;
         let numericValue = value.replace(/[^0-9]/g, '');
         setTienThanhToan(numericValue);
+    };
+
+    const handleNoiDungChange = (event) => {
+        setNoiDungThanhToan(event.target.value); // Cập nhật nội dung khi người dùng nhập
     };
 
     const handleUpdateTienThanhToan = async () => {
@@ -136,18 +143,29 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
                                 <Stack spacing={2} alignItems="center">
                                     <Typography variant="h6" fontWeight="bold">Thanh toán qua Banking</Typography>
                                     <Typography><b>Tổng tiền:</b> {formatCurrency(hoaDon.tongTien)}</Typography>
-                                    <img src={`https://api.vietqr.io/image/970422-0374135106-Q5S7ZXh.jpg?accountName=${encodeURIComponent(bankInfo.accountName)}&amount=${hoaDon.tongTien}&addInfo=${encodeURIComponent(`Thanh toan hoa don ${hoaDon.id}`)}`}
+                                    <img
+                                        src={`https://api.vietqr.io/image/${bankInfo.bankBin}-${bankInfo.accountNumber}-Q5S7ZXh.jpg?accountName=${encodeURIComponent(bankInfo.accountName)}&amount=${hoaDon.tongTien}&addInfo=${encodeURIComponent(noiDungThanhToan)}`}
                                         style={{
                                             width: '210px',
                                             height: 'auto',
                                             objectFit: 'cover',
                                             borderRadius: '4px',
-                                        }} />
+                                        }}
+                                    />
                                     <Stack spacing={1} alignItems="center">
                                         <Typography><b>Ngân hàng:</b> {bankInfo.bankName}</Typography>
                                         <Typography><b>Số tài khoản:</b> {bankInfo.accountNumber}</Typography>
                                         <Typography><b>Chủ tài khoản:</b> {bankInfo.accountName}</Typography>
-                                        <Typography><b>Nội dung:</b> Thanh toan hoa don {hoaDon.id}</Typography>
+                                        <Box display="flex" alignItems="center" gap={1}>
+                                            <Typography><b>Nội dung:</b></Typography>
+                                            <TextField
+                                                value={noiDungThanhToan}
+                                                onChange={handleNoiDungChange}
+                                                variant="outlined"
+                                                size="small" 
+                                                sx={{ flexGrow: 1 }} 
+                                            />
+                                        </Box>
                                     </Stack>
                                     <Typography variant="caption" color="text.secondary" align="center">
                                         Quét mã QR bằng ứng dụng ngân hàng để thanh toán

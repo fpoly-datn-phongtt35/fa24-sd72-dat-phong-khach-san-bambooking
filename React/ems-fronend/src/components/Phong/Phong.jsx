@@ -52,7 +52,7 @@ const Phong = () => {
 
     const saveOrUpdate = (e) => {
         e.preventDefault();
-    
+
         const phong = {
             maPhong,
             tenPhong,
@@ -60,14 +60,14 @@ const Phong = () => {
             tinhTrang: id ? tinhTrang : "available",
             trangThai: trangThai ? "true" : "false"
         };
-    
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('tenAnh', tenPhong);
         formData.append('idPhong', id);
         formData.append('tinhTrang', id ? tinhTrang : 'available');
         formData.append('trangThai', id ? trangThai : 'true');
-    
+
         const handleError = (error) => {
             if (error.response && error.response.data) {
                 setErrors(error.response.data);
@@ -88,7 +88,7 @@ const Phong = () => {
                 });
             }
         };
-    
+
         Swal.fire({
             title: id ? 'Xác nhận cập nhật' : 'Xác nhận thêm mới',
             text: id ? 'Bạn có chắc chắn muốn cập nhật thông tin phòng?' : 'Bạn có chắc chắn muốn thêm phòng mới?',
@@ -102,20 +102,21 @@ const Phong = () => {
                     // Cập nhật phòng
                     updatePhong(id, phong).then((response) => {
                         console.log("Cập nhật phòng thành công:", response.data.content);
-                        uploadImage(formData)
-                            .then((response) => {
-                                console.log('Upload thành công:', response.data);
-                            })
-                            .catch((error) => {
-                                console.error('Lỗi khi upload:', error);
-                            });
-                        Swal.fire({
-                            title: 'Thành công!',
-                            text: 'Thông tin phòng đã được cập nhật.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(() => navigate('/phong'));
-                    }).catch(handleError);
+                        if (file) {
+                            return uploadImage(formData); // Trả về Promise để chờ
+                        }
+                    })
+                        .then((uploadResponse) => {
+                            if (uploadResponse) {
+                                console.log('Upload thành công:', uploadResponse.data);
+                            }
+                            Swal.fire({
+                                title: 'Thành công!',
+                                text: 'Thông tin phòng đã được cập nhật.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => navigate('/quan-ly-phong'));
+                        }).catch(handleError);
                 } else {
                     // Thêm mới phòng
                     createPhong(phong).then((response) => {
@@ -125,13 +126,13 @@ const Phong = () => {
                             text: 'Phòng mới đã được thêm.',
                             icon: 'success',
                             confirmButtonText: 'OK'
-                        }).then(() => navigate('/phong'));
+                        }).then(() => navigate('/quan-ly-phong'));
                     }).catch(handleError);
                 }
             }
         });
     };
-    
+
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
