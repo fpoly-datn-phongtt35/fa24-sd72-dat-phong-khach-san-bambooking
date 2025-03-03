@@ -31,8 +31,6 @@ import { DetailCustomer } from "../pages/customer/DetailCustomer";
 import { Employee } from "../pages/employee/Employee";
 import { NewEmployee } from "../pages/employee/NewEmployee";
 import { DetailEmployee } from "../pages/employee/DetailEmployee";
-
-
 import ThanhToanComponent from "../components/ThanhToan/ThanhToanComponent";
 import InfoHoaDon from "../components/HoaDon/InfoHoaDon";
 import DemoTaoHoaDon from "../components/HoaDon/DemoTaoHoaDon"
