@@ -226,6 +226,28 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             @Param("loaiPhongId") Integer idLoaiPhong // Tham số mới
     );
 
+    @Query("SELECT (SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
+            "        (SELECT COUNT(xp) FROM XepPhong xp " +
+            "         WHERE xp.phong.loaiPhong.id = lp.id " +
+            "           AND xp.ngayNhanPhong < :ngayTraPhong " +
+            "           AND xp.ngayTraPhong > :ngayNhanPhong " +
+            "           AND xp.trangThai = true) - " +
+            "        (SELECT COUNT(tp) FROM ThongTinDatPhong tp " +
+            "         WHERE tp.loaiPhong.id = lp.id " +
+            "           AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) " +
+            "           AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
+            "           AND tp.trangThai IN ('Da xep','Chua xep','Dang o','Den han'))" +
+            ") " +
+            "FROM LoaiPhong lp " +
+            "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+            "WHERE lp.id = :loaiPhongId " +
+            "GROUP BY lp.id")
+    Integer demSoPhongKhaDung(
+            @Param("loaiPhongId") Integer loaiPhongId,
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong);
+
+
 
 
 

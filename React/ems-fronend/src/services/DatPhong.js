@@ -6,6 +6,7 @@ const apiNV = "http://localhost:8080/nhan-vien/hien-thi";
 const apiKH = "http://localhost:8080/khach-hang/hien-thi";
 const apiLoc = "http://localhost:8080/dat-phong/bo-loc";
 const apiCreateKHDP = "http://localhost:8080/khach-hang/create-kh-dp";
+const apiUpdateKHDP = "http://localhost:8080/khach-hang/update-kh-dp";
 const apiDetailDP = "http://localhost:8080/dat-phong/chi-tiet-dat-phong";
 const apiDeleteKHDP = "http://localhost:8080/khach-hang/delete-kh-dp";
 const apiXoaDatPhong = "http://localhost:8080/dat-phong/xoa";
@@ -67,6 +68,10 @@ export const HienThiTheoLoc = (pageable, trangThai) => {
 
 export const ThemKhachHangDatPhong = (khachHangRequest) => {
     return authorizedAxiosInstance.post(apiCreateKHDP, khachHangRequest);
+};
+
+export const SuaKhachHangDatPhong = (khachHangRequest) => {
+    return authorizedAxiosInstance.put(apiUpdateKHDP, khachHangRequest);
 };
 
 export const XoaKhachHangDatPhong = (khachHang) => {

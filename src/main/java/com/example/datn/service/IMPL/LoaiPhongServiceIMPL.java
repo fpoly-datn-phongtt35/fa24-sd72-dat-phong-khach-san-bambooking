@@ -140,11 +140,14 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
             Integer availableRooms = loaiPhongRepository.getAvailableRoomCount(roomType.getId(), checkIn, checkOut);
             availableRooms = (availableRooms == null) ? 0 : availableRooms;
 
+            // Lấy số phòng khả dụng
+            Integer soPhongKhaDung = loaiPhongRepository.demSoPhongKhaDung(roomType.getId(),checkIn,checkOut);
             // Kiểm tra điều kiện: số phòng khả dụng phải >= soPhong và tổng sức chứa (soKhachToiDa * soPhong) >= soNguoi
             boolean isContainable = (availableRooms >= soPhong) && ((roomType.getSoKhachToiDa() * soPhong) >= soNguoi);
 
             // Tạo đối tượng ChiaPhongResponse
             ChiaPhongResponse cp = new ChiaPhongResponse();
+            cp.setSoPhongKhaDung(soPhongKhaDung);
             cp.setSoPhongCan(soPhong);
             cp.setTongGiaTien(soPhong * roomType.getDonGia());
             cp.setIsContainable(isContainable);

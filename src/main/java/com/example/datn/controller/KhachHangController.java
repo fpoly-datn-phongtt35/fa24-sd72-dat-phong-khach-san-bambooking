@@ -79,6 +79,11 @@ public class KhachHangController {
         return ResponseEntity.status(HttpStatus.CREATED).body(khachHangService.createKhachHangDatPhong(request));
     }
 
+    @PutMapping("/update-kh-dp")
+    public ResponseEntity<?> updateKhachHangDatPhong(@RequestBody KhachHangDatPhongRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(khachHangService.updateKhachHangDatPhong(request));
+    }
+
     @DeleteMapping("delete-kh-dp")
     public ResponseEntity<?> deleteKhachHangDatPhong(@RequestParam Integer kh) {
         try {

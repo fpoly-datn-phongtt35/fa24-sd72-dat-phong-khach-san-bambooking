@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 public class ChiaPhongResponse {
     private Integer soPhongCan;
+    private Integer soPhongKhaDung;
     private Double tongGiaTien;
     private Boolean isContainable;
 }

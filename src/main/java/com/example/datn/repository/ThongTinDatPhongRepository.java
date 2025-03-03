@@ -14,7 +14,7 @@ import java.util.List;
 
 @Repository
 public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPhong, Integer> {
-    @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp")
+    @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp and t.trangThai= 'Chua xac nhan'")
     List<ThongTinDatPhong> findByDatPhongId(@Param("iddp") Integer iddp);
 
 

@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 public interface KhachHangService {
 
     KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request);
+    KhachHang updateKhachHangDatPhong(KhachHangDatPhongRequest request);
 
     void deleteKhachHangDatPhong(Integer idkh);
 
