@@ -40,6 +40,8 @@ import UploadQR from "../components/UploadQR";
 import QRScannerManual from "../components/QRScannerManual";
 import QuanLyPhong from "../components/QuanLyPhong/ViewPhong";
 import RoomDetail from "../components/QuanLyPhong/RoomDetail";
+import KiemTraPhong from "../components/kiemTraPhong/KiemTraPhong";
+import CreateKiemTraPhong from "../components/kiemTraPhong/CreateKiemTraPhong";
 function RouterProvider() {
 
     const UnauthorizedRoutes = () => {
