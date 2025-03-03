@@ -7,6 +7,7 @@ import { Box, Container, Table, Typography, Button, Sheet } from '@mui/joy';
 const DemoTaoHoaDon = () => {
     const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
     const [idHoaDon, setIdHoaDon] = useState(null);
+    const [idDatPhong, setIdDatPhong] = useState(null);
     const hoaDonDaTaoRef = useRef(false);
     const navigate = useNavigate();
 
@@ -19,21 +20,39 @@ const DemoTaoHoaDon = () => {
 
     const createHoaDon = async () => {
         try {
-            const hdResponse = await taoHoaDon();
+            // Lấy idTraPhong từ localStorage (giả sử đã lưu là mảng các id)
+            const storedIdTraPhong = JSON.parse(localStorage.getItem('idTraPhong'));
+            console.log("Stored idTraPhong from localStorage:", storedIdTraPhong);
+            
+            // Nếu storedIdTraPhong là mảng và có phần tử, lấy phần tử đầu tiên
+            const idTraPhong = (storedIdTraPhong && storedIdTraPhong.length > 0)
+                ? Number(storedIdTraPhong[0])
+                : null;
+            console.log("Using idTraPhong:", idTraPhong);
+            
+            if (!idTraPhong) {
+                console.error("Không có idTraPhong trong localStorage");
+                return;
+            }
+            
+            // Gọi hàm taoHoaDon với idTraPhong (backend sẽ xử lý chuyển đổi qua idDatPhong)
+            const hdResponse = await taoHoaDon(idTraPhong);
             setIdHoaDon(hdResponse.id);
-
+        
             const traPhongData = JSON.parse(localStorage.getItem('traPhong')) || [];
             const tthdRequest = {
                 idHoaDon: hdResponse.id,
                 listTraPhong: traPhongData,
             };
-
+        
             const response = await createThongTinHoaDon(tthdRequest);
             setThongTinHoaDon(response.data || []);
         } catch (error) {
             console.error('Lỗi tạo hóa đơn:', error);
         }
     };
+    
+    
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('vi-VN', {
@@ -66,8 +85,8 @@ const DemoTaoHoaDon = () => {
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Mã Hóa Đơn</th>
                             <th>ID Trả phòng</th>
+                            <th>Mã Hóa Đơn</th>
                             <th>Phòng</th>
                             <th>Tiền Phòng</th>
                             <th>Tiền Phụ Thu</th>
@@ -79,8 +98,8 @@ const DemoTaoHoaDon = () => {
                             thongTinHoaDon.map((item, index) => (
                                 <tr key={index}>
                                     <td>{item.id}</td>
-                                    <td>{item.hoaDon?.maHoaDon}</td>
                                     <td>{item.traPhong?.id}</td>
+                                    <td>{item.hoaDon?.maHoaDon}</td>
                                     <td>{item.traPhong?.xepPhong?.phong?.tenPhong}</td>
                                     <td>{formatCurrency(item.tienPhong)}</td>
                                     <td>{formatCurrency(item.tienPhuThu)}</td>

@@ -82,4 +82,13 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
             "FROM DatPhong dp " +
             "ORDER BY dp.ngayDat DESC")
     Page<DatPhong> DSDatPhong(Pageable pageable);
+
+    @Query(value = "SELECT dp.id " +
+            "FROM tra_phong tp " +
+            "JOIN xep_phong xp ON tp.id_xep_phong = xp.id " +
+            "JOIN thong_tin_dat_phong ttdp ON xp.id_thong_tin_dat_phong = ttdp.id " +
+            "JOIN dat_phong dp ON ttdp.id_dat_phong = dp.id " +
+            "WHERE tp.id = :idTraPhong", nativeQuery = true)
+    Integer findIdDatPhongByIdTraPhong(@Param("idTraPhong") Integer idTraPhong);
 }
+

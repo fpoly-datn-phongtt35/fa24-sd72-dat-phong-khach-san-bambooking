@@ -15,5 +15,6 @@ public class TraPhongResponse {
     Integer id;
     Integer idXepPhong;
     LocalDateTime ngayTraThucTe;
+    String tenNhanVien;
     Boolean trangThai;
 }
