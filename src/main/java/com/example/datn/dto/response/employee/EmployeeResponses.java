@@ -1,15 +1,15 @@
-package com.example.datn.dto.response.customer;
+package com.example.datn.dto.response.employee;
 
 import lombok.Builder;
 import lombok.Getter;
 
 import java.io.Serializable;
 
-public abstract class CustomerResponses {
+public abstract class EmployeeResponses {
 
     @Getter
     @Builder
-    public static class CustomerTemplate implements Serializable {
+    public static class EmployeeTemplate implements Serializable {
         private long totalPage;
         private long pageSize;
         private int pageNo;
@@ -18,7 +18,7 @@ public abstract class CustomerResponses {
 
     @Getter
     @Builder
-    public static class CustomerData implements Serializable {
+    public static class EmployeeData implements Serializable {
         private int id;
         private String username;
         private String fullName;
@@ -30,7 +30,7 @@ public abstract class CustomerResponses {
 
     @Getter
     @Builder
-    public static class CustomerResponseBase implements Serializable {
+    public static class EmployeeResponseBase implements Serializable {
         private Integer id;
         private String username;
         private String firstName;

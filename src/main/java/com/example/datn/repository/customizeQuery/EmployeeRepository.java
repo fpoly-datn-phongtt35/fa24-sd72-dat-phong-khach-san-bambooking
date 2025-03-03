@@ -1,8 +1,8 @@
 package com.example.datn.repository.customizeQuery;
 
-import com.example.datn.dto.request.customer.FilterRequest;
-import com.example.datn.dto.response.customer.CustomerResponses;
-import com.example.datn.model.KhachHang;
+import com.example.datn.dto.request.employee.EmployeeFilterRequest;
+import com.example.datn.dto.response.employee.EmployeeResponses;
+import com.example.datn.model.Employee;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -19,25 +19,23 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j(topic = "CUSTOMIZE-QUERY-CUSTOMER")
-public class CustomerRepository {
-
+@Slf4j(topic = "CUSTOMIZE-QUERY-EMPLOYEE")
+public class EmployeeRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
     private static final String LIKE_FORMAT = "%%%s%%";
 
-    public CustomerResponses.CustomerTemplate getAllCustomers(FilterRequest request) {
+    public EmployeeResponses.EmployeeTemplate getAllEmployees(EmployeeFilterRequest request) {
         if (request.getPageNo() < 1) {
             request.setPageNo(1);
         }
-        StringBuilder sql = new StringBuilder("SELECT c FROM KhachHang c");
+        StringBuilder sql = new StringBuilder("SELECT e FROM Employee e");
         if (StringUtils.hasLength(request.getKeyword())) {
-            sql.append(" WHERE( c.taiKhoan.tenDangNhap LIKE :keyword) or (c.sdt LIKE :keyword)");
+            sql.append(" WHERE( e.taiKhoan.tenDangNhap LIKE :keyword) or (e.sdt LIKE :keyword)");
         }
-        sql.append(" ORDER BY ID DESC");
 
-        TypedQuery<KhachHang> query = entityManager.createQuery(sql.toString(), KhachHang.class);
+        TypedQuery<Employee> query = entityManager.createQuery(sql.toString(), Employee.class);
         if (StringUtils.hasLength(request.getKeyword())) {
             query.setParameter("keyword", String.format(LIKE_FORMAT, request.getKeyword()));
         }
@@ -45,9 +43,9 @@ public class CustomerRepository {
         query.setFirstResult((request.getPageNo() - 1) * request.getPageSize());
         query.setMaxResults(request.getPageSize());
 
-        List<KhachHang> resultList = query.getResultList();
-        List<CustomerResponses.CustomerData> data = resultList.stream().map(s ->
-                CustomerResponses.CustomerData.builder()
+        List<Employee> resultList = query.getResultList();
+        List<EmployeeResponses.EmployeeData> data = resultList.stream().map(s ->
+                EmployeeResponses.EmployeeData.builder()
                         .id(s.getId())
                         .fullName(String.format("%s %s", s.getHo(), s.getTen()))
                         .username(s.getTaiKhoan().getUsername())
@@ -57,9 +55,9 @@ public class CustomerRepository {
                         .avatar(s.getAvatar())
                         .build()
         ).toList();
-        StringBuilder sqlCountPage = new StringBuilder("SELECT count(c) FROM KhachHang c");
+        StringBuilder sqlCountPage = new StringBuilder("SELECT count(e) FROM Employee e");
         if (StringUtils.hasLength(request.getKeyword())) {
-            sqlCountPage.append(" WHERE( c.taiKhoan.tenDangNhap LIKE :keyword) or (c.sdt LIKE :keyword)");
+            sqlCountPage.append(" WHERE( e.taiKhoan.tenDangNhap LIKE :keyword) or (e.sdt LIKE :keyword)");
         }
         TypedQuery<Long> countQuery = entityManager.createQuery(sqlCountPage.toString(), Long.class);
         if (StringUtils.hasLength(request.getKeyword())) {
@@ -68,7 +66,7 @@ public class CustomerRepository {
         Long totalElements = countQuery.getSingleResult();
         Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize());
         Page<?> page = new PageImpl<>(data, pageable, totalElements);
-        return CustomerResponses.CustomerTemplate.builder()
+        return EmployeeResponses.EmployeeTemplate.builder()
                 .totalPage(page.getTotalPages())
                 .pageNo(request.getPageNo())
                 .pageSize(request.getPageSize())

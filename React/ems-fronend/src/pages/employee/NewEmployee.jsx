@@ -3,7 +3,7 @@ import SvgIcon from '@mui/joy/SvgIcon';
 import { styled } from '@mui/joy';
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
-import { newCustomer } from "../../apis/customerApi";
+import { newEmployee } from "../../apis/employeeApi";
 import { useState } from "react";
 
 const VisuallyHiddenInput = styled('input')`
@@ -17,19 +17,17 @@ const VisuallyHiddenInput = styled('input')`
   white-space: nowrap;
   width: 1px;
 `;
-export const NewCustomer = () => {
+export const NewEmployee = () => {
     const navigate = useNavigate();
 
     const [imagePreview, setImagePreview] = useState(null);
     const [imageObject, setImageObject] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm();
-
 
     const handleImageChange = (event) => {
         var file = event.target.files[0];
@@ -51,8 +49,9 @@ export const NewCustomer = () => {
         formData.append('email', data.email)
         formData.append('avatar', imageObject)
         setIsLoading(true);
-        await newCustomer(formData).then(() => {
-            navigate('/khach-hang')
+
+        await newEmployee(formData).then(() => {
+            navigate('/NhanVien')
         }).finally(() => { setIsLoading(false) })
     };
     return (
@@ -96,7 +95,7 @@ export const NewCustomer = () => {
                         </Box>
                     </Grid>
                     <Grid xs={9} sx={{ border: '0.1px solid #d9d9d9', padding: 2 }}>
-                        <Typography level="h4" sx={{ marginBottom: 2 }}>Thêm khách hàng</Typography>
+                        <Typography level="h4" sx={{ marginBottom: 2 }}>Thêm nhân viên</Typography>
                         <Grid container spacing={2}>
 
                             <Grid container spacing={2} sx={{ width: '100%' }}>
@@ -240,7 +239,7 @@ export const NewCustomer = () => {
                             </Grid>
 
                             <Box sx={{ marginTop: 2 }}>
-                                <Button loading={isLoading} color="danger" sx={{ marginRight: 2 }} type="button" onClick={() => navigate('/khach-hang')}>Hủy</Button>
+                                <Button loading={isLoading} color="danger" sx={{ marginRight: 2 }} type="button" onClick={() => navigate('/NhanVien')}>Hủy</Button>
                                 <Button loading={isLoading} type="submit">Lưu thông tin</Button>
                             </Box>
                         </Grid>

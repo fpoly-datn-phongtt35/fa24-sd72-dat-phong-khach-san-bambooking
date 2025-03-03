@@ -4,11 +4,12 @@ import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { IconButton, Pagination, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { fetchAllCustomer, updatStatus } from '../../apis/customerApi';
-import { useNavigate } from 'react-router-dom';
-import debounce from 'lodash/debounce';
 
-export const Customer = () => {
+import { useNavigate } from 'react-router-dom';
+import debounce from 'lodash.debounce';
+import { fetchAllEmployee, updateStatus } from '../../apis/employeeApi';
+
+export const Employee = () => {
     const [data, setData] = useState(null);
     const [pageNo, setPageNo] = useState(1);
     const [pageSize, setPageSize] = useState(5);
@@ -22,14 +23,14 @@ export const Customer = () => {
 
     const handleFetchData = async () => {
         const param = { pageNo, pageSize, keyword }
-        await fetchAllCustomer(param).then(res => {
+        await fetchAllEmployee(param).then(res => {
             setData(res?.data);
 
         })
     }
 
     const handleUpdateStatus = async (id, status) => {
-        await updatStatus(id, status).then(() => {
+        await updateStatus(id, status).then(() => {
             handleFetchData();
         })
     }
@@ -49,23 +50,23 @@ export const Customer = () => {
 
     return (
         <Container>
-            
+
             <Box sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 marginTop: '20px'
             }}>
-                <Typography level='h3'>Quản lý khách hàng</Typography>
+                <Typography level='h3'>Quản lý Nhân viên</Typography>
                 <Typography
                     color="primary"
                     level="title-sm"
                     variant="plain"
                     startDecorator={<AddIcon />}
                     sx={{ cursor: 'pointer' }}
-                    onClick={() => navigate('/add-khach-hang')}
+                    onClick={() => navigate('/add-nhan-vien')}
                 >
-                    Thêm khách hàng
+                    Thêm nhân viên
                 </Typography>
             </Box>
             <Box sx={{ marginTop: 3, display: 'flex', justifyContent: 'space-between', alignContent: 'center' }} >
@@ -122,7 +123,7 @@ export const Customer = () => {
                         {
                             data && data?.data.map((value) => (
                                 <tr key={value.id}>
-                                    <td>
+                                     <td>
                                         <Avatar src={value?.avatar}/>
                                     </td>
                                     <td>{value.username}</td>
@@ -136,7 +137,7 @@ export const Customer = () => {
                                             title="Xem chi tiết"
                                             variant="plain"
                                         >
-                                            <IconButton color='warning' onClick={() => navigate(`/update-khach-hang/${value.id}`)}>
+                                            <IconButton color='warning' onClick={() => navigate(`/update-nhan-vien/${value.id}`)}>
                                                 <VisibilityIcon />
                                             </IconButton>
                                         </Tooltip>

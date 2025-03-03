@@ -41,4 +41,10 @@ public class KhachHang {
     @Column(name = "trang_thai")
     private boolean trangThai;
 
+    @Column(name = "avatar")
+    private String avatar;
+
+    @Column(name = "public_id")
+    private String public_id;
+
 }

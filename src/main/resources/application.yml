@@ -5,3 +5,7 @@ jwt:
   refreshKey: c2VjcmV0QG5ndXllbl90aGlfdGh1X2NodWNfcmVmcmVzaF90b2tlbg==
 api:
   version: v1
+cloudinary:
+  cloud_name: ${CLOUD_NAME:dqw1bfmnq}
+  api_key: ${API_KEY:734735925733542}
+  api_secret: ${API_SECRET:0rS6gHAGgFhyINfAYJyo9vAu644}

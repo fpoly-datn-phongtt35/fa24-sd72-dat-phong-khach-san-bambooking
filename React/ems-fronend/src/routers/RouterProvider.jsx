@@ -6,8 +6,6 @@ import Login from "../components/login/Login";
 import LoaiPhong from "../components/LoaiPhong/LoaiPhong";
 import ViewPhong from "../components/TrangChu/ViewPhong";
 import Header from "../components/Header";
-import ListNhanVien from "../components/nhanvien/ListNhanVien";
-import NhanVienComponent from "../components/nhanvien/NhanVienComponent";
 import { XoaDichVuDiKem } from "../services/DichVuDiKemService";
 import DanhSach from "../components/DichVu/DanhSach";
 import DanhSachDichVuDiKem from "../components/DichVuDikem/DanhSachDichVuDiKem";
@@ -26,12 +24,15 @@ import ChiTietTTDP from "../components/DatPhong/ChiTietTTDP";
 import ListHoaDon from "../components/HoaDon/ListHoaDon";
 // import HoaDonComponent from "../components/HoaDon/HoaDonComponent";
 import TaiKhoanComponent from "../components/taikhoan/TaiKhoanComponent";
-// import KhachHangComponent from "../components/KhachHang/KhachHangComponent";
 import ListTaiKhoan from "../components/taikhoan/ListTaiKhoan";
-// import ListVaiTro from "../components/vaitro/ListVaiTro";
 import { Customer } from "../pages/customer/Customer";
 import { NewCustomer } from "../pages/customer/NewCustomer";
 import { DetailCustomer } from "../pages/customer/DetailCustomer";
+import { Employee } from "../pages/employee/Employee";
+import { NewEmployee } from "../pages/employee/NewEmployee";
+import { DetailEmployee } from "../pages/employee/DetailEmployee";
+
+
 import ThanhToanComponent from "../components/ThanhToan/ThanhToanComponent";
 import InfoHoaDon from "../components/HoaDon/InfoHoaDon";
 import DemoTaoHoaDon from "../components/HoaDon/DemoTaoHoaDon"
@@ -88,8 +89,11 @@ function RouterProvider() {
             </Route>
 
             <Route element={<ProtectedRoutes />}>
-                <Route path="/NhanVien" element={<ListNhanVien />} />
-                <Route path="/add-nhanvien" element={<NhanVienComponent />} />
+                <Route path="/TrangChu" element={<ViewPhong />} />
+                <Route path="/LoaiPhong" element={<LoaiPhong />} />
+                <Route path="/NhanVien" element={<Employee />} />
+                <Route path="/add-nhan-vien" element={<NewEmployee />} />
+                <Route path="/update-nhan-vien/:id" element={<DetailEmployee />} />
                 <Route path="/LoaiPhong" element={<LoaiPhong />} />
                 <Route path="/DichVuDikem" element={<XoaDichVuDiKem />} />
                 <Route path="/DichVu" element={<DanhSach />} />

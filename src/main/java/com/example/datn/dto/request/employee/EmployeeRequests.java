@@ -1,4 +1,4 @@
-package com.example.datn.dto.request.customer;
+package com.example.datn.dto.request.employee;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
@@ -8,11 +8,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
 
-public abstract class CustomerRequests {
-
+public abstract class EmployeeRequests  {
     @Getter
     @Setter
-    public static class CustomerStore implements Serializable {
+    public static class EmployeeStore implements Serializable {
         @NotBlank(message ="user không được trống")
         private String username;
         @NotBlank(message ="password không được trống")
@@ -25,20 +24,18 @@ public abstract class CustomerRequests {
         private String idCard;
         @NotBlank(message ="gender không được trống")
         private String gender;
-
         private String email;
         @NotBlank(message ="phoneNumber không được trống")
         private String phoneNumber;
         @NotBlank(message ="address không được trống")
         private String address;
 
-        // Validate (optional)
         private MultipartFile avatar;
     }
 
     @Getter
     @Builder
-    public static class CustomerUpdate implements Serializable{
+    public static class EmployeeUpdate implements Serializable{
         @NotBlank(message ="firstName không được trống")
         private String firstName;
         @NotBlank(message ="lastName không được trống")
