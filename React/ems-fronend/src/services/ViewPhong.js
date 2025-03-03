@@ -6,22 +6,31 @@ const apiPhieuDichVu = "http://localhost:8080/dich_vu_su_dung/searchByIDXepPhong
 const apiTTDP = "http://localhost:8080/ttdp/all"; // Đường dẫn API cho thông tin đặt phòng
 const apiRoomDetail = 'http://localhost:8080/api/RoomDetail';
 const apiADDPhieuDichVu = "http://localhost:8080/dich_vu_su_dung/addDVSD";
+const apiAddDVDK = 'http://localhost:8080/api/addDVDK';
 
 // Hàm tìm kiếm phòng
-export const searchRooms = async (tinhTrang, giaMin, giaMax, keyword) => {
+export const searchRooms = async (tinhTrang, giaMin, giaMax, keyword, idLoaiPhong, soTang) => {
     try {
+        const params = new URLSearchParams();
+        if (tinhTrang) params.append('tinhTrang', tinhTrang);
+        if (keyword) params.append('keyword', keyword);
+        if (giaMin) params.append('giaMin', giaMin);
+        if (giaMax) params.append('giaMax', giaMax);
+        if (soTang) params.append('soTang', soTang);
+        
+        // Thêm từng idLoaiPhong riêng biệt
+        if (Array.isArray(idLoaiPhong) && idLoaiPhong.length > 0) {
+            idLoaiPhong.forEach(id => params.append('idLoaiPhong', id));
+        }
+
         const response = await authorizedAxiosInstance.get(apiViewPhong, {
-            params: {
-                tinhTrang,
-                giaMin,
-                giaMax,
-                keyword,
-            },
+            params,
         });
-        return response.data; // Trả về dữ liệu phòng tìm kiếm được
+
+        return response.data;
     } catch (error) {
         console.error("Lỗi khi tìm kiếm phòng:", error);
-        throw error; // Ném lỗi để xử lý ở nơi gọi hàm
+        throw error;
     }
 };
 
@@ -64,6 +73,16 @@ export const AddDichVuSuDung = async (dichVuSuDung) => {
         return response.data; // Đúng, trả về dữ liệu phản hồi từ server
     } catch (error) {
         console.error("Lỗi khi thêm dịch vụ sử dụng:", error.response?.data || error.message);
+        throw error; // Ném lỗi để xử lý tiếp ở nơi gọi hàm
+    }
+};
+
+export const AddDVDK = async (idXepPhong) => {
+    try {
+        const response = await authorizedAxiosInstance.post(`${apiAddDVDK}/${idXepPhong}`);
+        return response.data; // Đúng, trả về dữ liệu phản hồi từ server
+    } catch (error) {
+        console.error("Lỗi khi thêm dịch vụ đi kèm:", error.response?.data || error.message);
         throw error; // Ném lỗi để xử lý tiếp ở nơi gọi hàm
     }
 };

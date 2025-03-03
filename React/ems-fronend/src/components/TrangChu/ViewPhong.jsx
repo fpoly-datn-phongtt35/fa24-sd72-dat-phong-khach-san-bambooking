@@ -212,7 +212,7 @@ const ViewPhong = () => {
                 <div
                   style={{
                     backgroundColor: "#f8f9fa",
-                    padding: "10px",
+                    padding: "4px",
                     fontWeight: "bold",
                     fontSize: "16px",
                     textAlign: "center",

@@ -15,6 +15,7 @@ public interface DichVuDiKemRepository extends JpaRepository<DichVuDiKem,Integer
     @Query("select new com.example.datn.dto.response.DichVuDiKemResponse(dvdk.id," +
             "dvdk.dichVu.tenDichVu," +
             "dvdk.loaiPhong.tenLoaiPhong, " + // Thêm trangThai vào query
+            "dvdk.soLuong, " + // Thêm trangThai vào query
             "dvdk.trangThai) " + // Giả sử rằng bạn có thuộc tính trangThai trong model
             "from DichVuDiKem dvdk WHERE dvdk.loaiPhong.id = :idLoaiPhong")
     Page<DichVuDiKemResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable);

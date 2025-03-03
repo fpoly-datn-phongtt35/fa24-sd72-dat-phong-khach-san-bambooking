@@ -73,8 +73,8 @@ public class VatTuLoaiPhongController {
     }
 
     @GetMapping("/findByIDLoaiPhong/{idLoaiPhong}")
-    public ResponseEntity<?> findByIDLoaiPhong(@PathVariable int idLoaiPhong, Pageable pageable) {
-        Page<VatTuLoaiPhongResponse> ti = vatTuLoaiPhongServiceIMPL.findByIDLoaiPhong(idLoaiPhong, pageable);
+    public ResponseEntity<?> findByIDLoaiPhong(@PathVariable int idLoaiPhong) {
+        List<VatTuLoaiPhongResponse> ti = vatTuLoaiPhongServiceIMPL.findByIDLoaiPhong(idLoaiPhong);
         return ResponseEntity.ok(ti);
     }
 

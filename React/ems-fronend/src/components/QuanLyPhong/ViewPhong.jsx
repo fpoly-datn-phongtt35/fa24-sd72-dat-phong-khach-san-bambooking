@@ -16,13 +16,16 @@ import {
   Paper,
   FormControl,
   FormLabel,
-  RadioGroup,
+  FormGroup,
   FormControlLabel,
+  Checkbox,
   Radio,
+  RadioGroup,
   Typography,
 } from '@mui/material';
 import { searchRooms, getRoomDetail } from '../../services/ViewPhong';
 import { searchByIDPhong } from '../../services/ImageService';
+import { getAllLoaiPhong } from '../../services/LoaiPhongService';
 
 const QuanLyPhong = () => {
   const [rooms, setRooms] = useState([]);
@@ -31,19 +34,21 @@ const QuanLyPhong = () => {
   const [giaMax, setGiaMax] = useState(null);
   const [keyword, setKeyword] = useState('');
   const [listImage, setlistImage] = useState({});
-
+  const [soTang, setSoTang] = useState(null);
+  const [idLoaiPhong, setIdLoaiPhong] = useState([]);
+  const [loaiPhongs, setLoaiPhongs] = useState([]);
+  
   const navigate = useNavigate();
 
+  // Hàm tìm kiếm phòng
   const handleSearch = useCallback(() => {
     const min = giaMin !== null ? Number(giaMin) : null;
     const max = giaMax !== null ? Number(giaMax) : null;
 
-    searchRooms(tinhTrang, min, max, keyword)
+    searchRooms(tinhTrang, min, max, keyword, idLoaiPhong.length > 0 ? idLoaiPhong : null, soTang)
       .then(async (roomList) => {
         if (Array.isArray(roomList)) {
           setRooms(roomList);
-
-          // Đợi tất cả các yêu cầu lấy hình ảnh hoàn thành
           const images = await Promise.all(
             roomList.map((room) =>
               searchByIDPhong(room.id).then((response) => ({
@@ -53,14 +58,12 @@ const QuanLyPhong = () => {
             )
           );
 
-          // Chuyển đổi về dạng map: { [room.id]: response.data }
           const imageMap = images.reduce((acc, img) => {
             acc[img.id] = img.data;
             return acc;
           }, {});
           setlistImage(imageMap);
         } else {
-          console.error('Dữ liệu trả về không phải là mảng:', roomList);
           setRooms([]);
         }
       })
@@ -68,11 +71,33 @@ const QuanLyPhong = () => {
         console.error('Không thể tìm kiếm phòng:', error);
         setRooms([]);
       });
-  }, [tinhTrang, giaMin, giaMax, keyword]);
+  }, [tinhTrang, giaMin, giaMax, keyword, idLoaiPhong, soTang]);
+
+  useEffect(() => {
+    getAllLoaiPhong()
+      .then((response) => {
+        if (Array.isArray(response.data)) {
+          setLoaiPhongs(response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Lỗi khi lấy danh sách loại phòng:", error);
+      });
+  }, []);
 
   useEffect(() => {
     handleSearch();
-  }, [tinhTrang, giaMin, giaMax, keyword, handleSearch]);
+  }, [tinhTrang, giaMin, giaMax, keyword, idLoaiPhong, handleSearch]);
+
+  // Thêm phòng mới
+  const handleAddRoom = () => {
+    navigate('/add-phong'); // Chuyển hướng đến form thêm phòng
+  };
+
+  // Sửa phòng
+  const handleEditRoom = (roomId) => {
+    navigate(`/update-phong/${roomId}`);
+  };
 
   const handleStatusChange = (e) => {
     const value = e.target.value;
@@ -83,24 +108,28 @@ const QuanLyPhong = () => {
     handleSearch();
   };
 
+  const handleLoaiPhongChange = (e) => {
+    const value = Number(e.target.value);
+    setIdLoaiPhong((prev) =>
+      prev.includes(value) ? prev.filter((id) => id !== value) : [...prev, value]
+    );
+  };
+
   const handleViewDetail = (roomId) => {
     getRoomDetail(roomId)
       .then((response) => {
         if (!response) {
           throw new Error('Không có thông tin chi tiết phòng.');
-        } else {
-          const ngayNhanPhong = new Date(response.thongTinDatPhong.ngayNhanPhong);
-          const ngayHienTai = new Date();
+        }
+        const ngayNhanPhong = new Date(response.thongTinDatPhong.ngayNhanPhong);
+        const ngayHienTai = new Date();
 
-          if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
-            alert(
-              `Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString(
-                'vi-VN'
-              )}). Không thể xem chi tiết.`
-            );
-          } else {
-            navigate(`/api/RoomDetail/${roomId}`);
-          }
+        if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
+          alert(
+            `Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`
+          );
+        } else {
+          navigate(`/api/RoomDetail/${roomId}`);
         }
       })
       .catch(() => {
@@ -110,7 +139,6 @@ const QuanLyPhong = () => {
 
   return (
     <Grid container spacing={2} sx={{ p: 2 }}>
-      {/* Bộ lọc */}
       <Grid item xs={12} sm={3}>
         <Card variant="outlined" sx={{ borderRadius: 2 }}>
           <CardContent>
@@ -141,9 +169,7 @@ const QuanLyPhong = () => {
                     size="small"
                     fullWidth
                     value={giaMin !== null ? giaMin : ''}
-                    onChange={(e) =>
-                      setGiaMin(e.target.value ? Number(e.target.value) : null)
-                    }
+                    onChange={(e) => setGiaMin(e.target.value ? Number(e.target.value) : null)}
                     onBlur={handlePriceChange}
                   />
                 </Grid>
@@ -155,13 +181,45 @@ const QuanLyPhong = () => {
                     size="small"
                     fullWidth
                     value={giaMax !== null ? giaMax : ''}
-                    onChange={(e) =>
-                      setGiaMax(e.target.value ? Number(e.target.value) : null)
-                    }
+                    onChange={(e) => setGiaMax(e.target.value ? Number(e.target.value) : null)}
                     onBlur={handlePriceChange}
                   />
                 </Grid>
               </Grid>
+            </Box>
+            <TextField
+              label="Số tầng"
+              type="number"
+              variant="outlined"
+              size="small"
+              fullWidth
+              margin="normal"
+              value={soTang !== null ? soTang : ''}
+              onChange={(e) => setSoTang(e.target.value ? Number(e.target.value) : null)}
+              onBlur={handleSearch}
+            />
+            <Box sx={{ mt: 2 }}>
+              <FormControl component="fieldset">
+                <FormLabel component="legend" sx={{ fontSize: '0.9rem', mb: 1 }}>
+                  Loại phòng
+                </FormLabel>
+                <FormGroup>
+                  {loaiPhongs.map((loai) => (
+                    <FormControlLabel
+                      key={loai.id}
+                      control={
+                        <Checkbox
+                          checked={idLoaiPhong.includes(loai.id)}
+                          onChange={handleLoaiPhongChange}
+                          value={loai.id}
+                          size="small"
+                        />
+                      }
+                      label={loai.tenLoaiPhong}
+                    />
+                  ))}
+                </FormGroup>
+              </FormControl>
             </Box>
 
             <Box sx={{ mt: 2 }}>
@@ -175,16 +233,8 @@ const QuanLyPhong = () => {
                   row
                 >
                   <FormControlLabel value="all" control={<Radio size="small" />} label="Tất cả" />
-                  <FormControlLabel
-                    value="Available"
-                    control={<Radio size="small" />}
-                    label="Available"
-                  />
-                  <FormControlLabel
-                    value="Occupied"
-                    control={<Radio size="small" />}
-                    label="Occupied"
-                  />
+                  <FormControlLabel value="Available" control={<Radio size="small" />} label="Available" />
+                  <FormControlLabel value="Occupied" control={<Radio size="small" />} label="Occupied" />
                 </RadioGroup>
               </FormControl>
             </Box>
@@ -192,8 +242,12 @@ const QuanLyPhong = () => {
         </Card>
       </Grid>
 
-      {/* Bảng danh sách phòng */}
       <Grid item xs={12} sm={9}>
+        <Box sx={{ mb: 2 }}>
+          <Button variant="contained" color="success" onClick={handleAddRoom}>
+            Thêm phòng mới
+          </Button>
+        </Box>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
@@ -236,15 +290,26 @@ const QuanLyPhong = () => {
                         color="primary"
                         size="small"
                         onClick={() => handleViewDetail(room.id)}
+                        sx={{ mr: 1 }}
                       >
                         Chi tiết
                       </Button>
+                      <Button
+                        variant="contained"
+                        color="warning"
+                        size="small"
+                        onClick={() => handleEditRoom(room.id)}
+                        sx={{ mr: 1 }}
+                      >
+                        Sửa
+                      </Button>
+                      
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} align="center">
+                  <TableCell colSpan={6} align="center">
                     Không tìm thấy phòng nào.
                   </TableCell>
                 </TableRow>

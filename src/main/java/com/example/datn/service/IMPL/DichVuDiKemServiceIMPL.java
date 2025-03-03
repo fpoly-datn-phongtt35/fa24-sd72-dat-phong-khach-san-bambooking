@@ -25,8 +25,10 @@ public class DichVuDiKemServiceIMPL implements DichVuDiKemService {
     @Override
     public DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest) {
         DichVuDiKem dichVuDiKem = new DichVuDiKem();
+        System.out.println(dichVuDikemRequest.getSoLuong());
         dichVuDiKem.setDichVu(dichVuDikemRequest.getDichVu());
         dichVuDiKem.setLoaiPhong(dichVuDikemRequest.getLoaiPhong());
+        dichVuDiKem.setSoLuong(dichVuDikemRequest.getSoLuong());
         dichVuDiKem.setTrangThai(dichVuDikemRequest.getTrangThai());
         return dichVuDiKemRepository.save(dichVuDiKem);
     }

@@ -6,7 +6,7 @@ const apiUD = "http://localhost:8080/loai-phong/update";
 const apiDE = "http://localhost:8080/loai-phong/delete";
 const apiTi = "http://localhost:8080/tien-ich-phong/home";
 const apiFilter = "http://localhost:8080/loai-phong/filter";
-
+const apiGetAll = "http://localhost:8080/loai-phong";
 const apiAdd = "http://localhost:8080/dich_vu_di_kem/add";
 export const ThemDichVuDiKem = (dvDiKem) => {
     return authorizedAxiosInstance.post(apiAdd, dvDiKem);
@@ -22,15 +22,15 @@ export const listLoaiPhong = (pageable) => {
     });
 };
 
+export const getAllLoaiPhong = () => {
+    return authorizedAxiosInstance.get(apiGetAll);
+};
+
+
 
 // Service call trong frontend
-export const DanhSachVatTuLoaiPhong = (idLoaiPhong, pageable) => {
-    return axios.get(`http://localhost:8080/vat-tu-loai-phong/findByIDLoaiPhong/${idLoaiPhong}`, {
-        params: {
-            page: pageable.page,
-            size: pageable.size,
-        }
-    });
+export const DanhSachVatTuLoaiPhong = (idLoaiPhong) => {
+    return authorizedAxiosInstance.get(`http://localhost:8080/vat-tu-loai-phong/findByIDLoaiPhong/${idLoaiPhong}`);
 };
 // Service call trong frontend
 export const DanhSachDichVuDiKem = (idLoaiPhong, pageable) => {
