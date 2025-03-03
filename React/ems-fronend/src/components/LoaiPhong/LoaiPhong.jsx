@@ -62,7 +62,7 @@ const LoaiPhong = () => {
 
   useEffect(() => {
     getAllSanPham();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm,data]);
 
   const handlePageChange = (event, value) => {
     setCurrentPage(value - 1);

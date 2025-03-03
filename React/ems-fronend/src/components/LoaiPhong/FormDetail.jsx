@@ -1,10 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import {
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Typography,
+    TextField,
+    Button,
+    Grid,
+    List,
+    ListItem,
+    ListItemText,
+    Divider,
+    Chip,
+    Box,
+    IconButton, // Thêm IconButton
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close'; // Thêm CloseIcon
 import { updateLoaiPhong, deleteLoaiPhong, DanhSachVatTuLoaiPhong } from '../../services/LoaiPhongService';
-import { deleteVatTuLoaiPhong, listVatTuLoaiPhong, addVatTuLoaiPhong } from '../../services/VatTuLoaiPhong'; // Thêm import cho hàm lấy danh sách tiện ích
+import { deleteVatTuLoaiPhong, listVatTuLoaiPhong, addVatTuLoaiPhong } from '../../services/VatTuLoaiPhong';
 import { DanhSachDichVu, XoaDichVuDiKem } from '../../services/DichVuDiKemService';
 import { ThemDichVuDiKem, DanhSachDichVuDiKem } from '../../services/LoaiPhongService';
+import AddServiceModal from './AddServiceModal';
+import AddUtilityModal from './AddUtilityModal';
 import './Detail.css';
-import AddServiceUtilityModal from './AddServiceUtilityModal';
 import Swal from 'sweetalert2';
 
 const FormDetail = ({ show, handleClose, data }) => {
@@ -19,7 +38,8 @@ const FormDetail = ({ show, handleClose, data }) => {
         donGiaPhuThu: data?.donGiaPhuThu || '',
     });
 
-    const [showAddModal, setShowAddModal] = useState(false);
+    const [showAddServiceModal, setShowAddServiceModal] = useState(false);
+    const [showAddUtilityModal, setShowAddUtilityModal] = useState(false);
     const [ListVatTuLoaiPhong, setListVatTuLoaiPhong] = useState([]);
     const [ListDichVuDiKem, setListDichVuDiKem] = useState([]);
     const itemsPerPage = 3;
@@ -34,22 +54,14 @@ const FormDetail = ({ show, handleClose, data }) => {
 
     const fetchDanhSachVatTu = () => {
         DanhSachVatTuLoaiPhong(formData.id)
-            .then(response => {
-                setListVatTuLoaiPhong(response.data);
-            })
-            .catch(error => {
-                console.error("Lỗi khi lấy danh sách vật tư:", error);
-            });
+            .then(response => setListVatTuLoaiPhong(response.data))
+            .catch(error => console.error("Lỗi khi lấy danh sách vật tư:", error));
     };
 
     const fetchDanhSachDichVu = () => {
         DanhSachDichVuDiKem(formData.id, { page: currentPage, size: itemsPerPage })
-            .then(response => {
-                setListDichVuDiKem(response.data.content);
-            })
-            .catch(error => {
-                console.error("Lỗi khi lấy danh sách dịch vụ đi kèm:", error);
-            });
+            .then(response => setListDichVuDiKem(response.data.content))
+            .catch(error => console.error("Lỗi khi lấy danh sách dịch vụ đi kèm:", error));
     };
 
     const handleInputChange = (e) => {
@@ -70,22 +82,10 @@ const FormDetail = ({ show, handleClose, data }) => {
             if (result.isConfirmed) {
                 updateLoaiPhong(formData)
                     .then(() => {
-                        Swal.fire({
-                            title: 'Thành công!',
-                            text: 'Thông tin loại phòng đã được cập nhật.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        });
+                        Swal.fire({ title: 'Thành công!', text: 'Thông tin loại phòng đã được cập nhật.', icon: 'success' });
                         handleClose();
                     })
-                    .catch(error => {
-                        Swal.fire({
-                            title: 'Lỗi!',
-                            text: 'Không thể cập nhật loại phòng, vui lòng thử lại.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    });
+                    .catch(() => Swal.fire({ title: 'Lỗi!', text: 'Không thể cập nhật loại phòng.', icon: 'error' }));
             }
         });
     };
@@ -93,7 +93,7 @@ const FormDetail = ({ show, handleClose, data }) => {
     const handleDeleteDichVuDiKem = (id) => {
         Swal.fire({
             title: 'Bạn có chắc chắn?',
-            text: 'Dịch vụ đi kèm này sẽ bị xóa và không thể khôi phục!',
+            text: 'Dịch vụ đi kèm này sẽ bị xóa!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Xóa',
@@ -102,22 +102,10 @@ const FormDetail = ({ show, handleClose, data }) => {
             if (result.isConfirmed) {
                 XoaDichVuDiKem(id)
                     .then(() => {
-                        Swal.fire({
-                            title: 'Thành công!',
-                            text: 'Dịch vụ đi kèm đã được xóa.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        });
+                        Swal.fire({ title: 'Thành công!', text: 'Dịch vụ đi kèm đã được xóa.', icon: 'success' });
                         fetchDanhSachDichVu();
                     })
-                    .catch(error => {
-                        Swal.fire({
-                            title: 'Lỗi!',
-                            text: 'Không thể xóa dịch vụ, vui lòng thử lại.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    });
+                    .catch(() => Swal.fire({ title: 'Lỗi!', text: 'Không thể xóa dịch vụ.', icon: 'error' }));
             }
         });
     };
@@ -125,7 +113,7 @@ const FormDetail = ({ show, handleClose, data }) => {
     const handleDeleteVatTuLoaiPhong = (id) => {
         Swal.fire({
             title: 'Bạn có chắc chắn?',
-            text: 'Vật tư này sẽ bị xóa và không thể khôi phục!',
+            text: 'Vật tư này sẽ bị xóa!',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Xóa',
@@ -134,215 +122,116 @@ const FormDetail = ({ show, handleClose, data }) => {
             if (result.isConfirmed) {
                 deleteVatTuLoaiPhong(id)
                     .then(() => {
-                        Swal.fire({
-                            title: 'Thành công!',
-                            text: 'Vật tư đã được xóa.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        });
+                        Swal.fire({ title: 'Thành công!', text: 'Vật tư đã được xóa.', icon: 'success' });
                         fetchDanhSachVatTu();
                     })
-                    .catch(error => {
-                        Swal.fire({
-                            title: 'Lỗi!',
-                            text: 'Không thể xóa vật tư, vui lòng thử lại.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    });
+                    .catch(() => Swal.fire({ title: 'Lỗi!', text: 'Không thể xóa vật tư.', icon: 'error' }));
             }
         });
     };
 
-    const openAddModal = () => setShowAddModal(true);
-    const closeAddModal = () => setShowAddModal(false);
-
     return (
-        <div className={`modal fade ${show ? 'show d-block' : ''}`} style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
-            <div className="modal-dialog modal-lg">
-                <div className="modal-content shadow-lg">
-                    <div className="modal-header  text-white">
-                        <h5 className="modal-title">Chi tiết loại phòng</h5>
-                        <button type="button" className="btn-close btn-close-blac" onClick={handleClose}></button>
-                    </div>
-                    <div className="modal-body p-4">
-                        <form onSubmit={handleSubmit}>
-                            <div className="row mb-4">
-                                <div className="col-md-6">
-                                    <div className="mb-3">
-                                        <label htmlFor="id" className="form-label fw-bold">ID</label>
-                                        <input
-                                            type="text"
-                                            id="id"
-                                            name="id"
-                                            className="form-control"
-                                            value={formData.id}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="tenLoaiPhong" className="form-label fw-bold">Tên Loại Phòng</label>
-                                        <input
-                                            type="text"
-                                            id="tenLoaiPhong"
-                                            name="tenLoaiPhong"
-                                            className="form-control"
-                                            value={formData.tenLoaiPhong}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="dienTich" className="form-label fw-bold">Diện tích</label>
-                                        <input
-                                            type="text"
-                                            id="dienTich"
-                                            name="dienTich"
-                                            className="form-control"
-                                            value={formData.dienTich}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="soKhachToiDa" className="form-label fw-bold">Số khách tối đa</label>
-                                        <input
-                                            type="text"
-                                            id="soKhachToiDa"
-                                            name="soKhachToiDa"
-                                            className="form-control"
-                                            value={formData.soKhachToiDa}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                </div>
-                                <div className="col-md-6">
-                                    <div className="mb-3">
-                                        <label htmlFor="maLoaiPhong" className="form-label fw-bold">Mã Loại Phòng</label>
-                                        <input
-                                            type="text"
-                                            id="maLoaiPhong"
-                                            name="maLoaiPhong"
-                                            className="form-control"
-                                            value={formData.maLoaiPhong}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="donGia" className="form-label fw-bold">Đơn giá</label>
-                                        <input
-                                            type="text"
-                                            id="donGia"
-                                            name="donGia"
-                                            className="form-control"
-                                            value={formData.donGia}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="donGiaPhuThu" className="form-label fw-bold">Đơn giá phụ thu</label>
-                                        <input
-                                            type="text"
-                                            id="donGiaPhuThu"
-                                            name="donGiaPhuThu"
-                                            className="form-control"
-                                            value={formData.donGiaPhuThu}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="mb-3">
-                                        <label htmlFor="moTa" className="form-label fw-bold">Mô tả</label>
-                                        <input
-                                            type="text"
-                                            id="moTa"
-                                            name="moTa"
-                                            className="form-control"
-                                            value={formData.moTa}
-                                            onChange={handleInputChange}
-                                            required
-                                        />
-                                    </div>
-                                    <button type="submit" className="btn btn-primary ms-auto d-block" onClick={handleSubmit}>
-                                        Lưu thay đổi
-                                    </button>
-                                </div>
-                            </div>
-                            <hr className="my-4" />
+        <Dialog open={show} onClose={handleClose} maxWidth="md" fullWidth>
+            <DialogTitle sx={{ bgcolor: '#1976d2', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="h6">Chi tiết loại phòng</Typography>
+                <IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
+                    <CloseIcon />
+                </IconButton>
+            </DialogTitle>
+            <DialogContent sx={{ p: 4 }}>
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={6}>
+                            <TextField fullWidth label="ID" name="id" value={formData.id} onChange={handleInputChange} required margin="normal" />
+                            <TextField fullWidth label="Tên Loại Phòng" name="tenLoaiPhong" value={formData.tenLoaiPhong} onChange={handleInputChange} required margin="normal" />
+                            <TextField fullWidth label="Diện tích" name="dienTich" value={formData.dienTich} onChange={handleInputChange} required margin="normal" />
+                            <TextField fullWidth label="Số khách tối đa" name="soKhachToiDa" value={formData.soKhachToiDa} onChange={handleInputChange} required margin="normal" />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextField fullWidth label="Mã Loại Phòng" name="maLoaiPhong" value={formData.maLoaiPhong} onChange={handleInputChange} required margin="normal" />
+                            <TextField fullWidth label="Đơn giá" name="donGia" value={formData.donGia} onChange={handleInputChange} required margin="normal" />
+                            <TextField fullWidth label="Đơn giá phụ thu" name="donGiaPhuThu" value={formData.donGiaPhuThu} onChange={handleInputChange} required margin="normal" />
+                            <TextField fullWidth label="Mô tả" name="moTa" value={formData.moTa} onChange={handleInputChange} required margin="normal" />
+                            <Box display="flex" justifyContent="flex-end" mt={2}>
+                                <Button variant="contained" color="primary" type="submit">Lưu thay đổi</Button>
+                            </Box>
+                        </Grid>
+                    </Grid>
 
-                            <div className="row">
-                                {/* Danh sách dịch vụ đi kèm  */}
-                                <div className="col-md-6">
-                                    <h5 className="mb-3 text-primary">Danh sách dịch vụ đi kèm</h5>
-                                    <ul className="list-group" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                        {ListDichVuDiKem.length > 0 ? (
-                                            ListDichVuDiKem.map(dv => (
-                                                <li
-                                                    key={dv.id}
-                                                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                                                    onClick={() => handleDeleteDichVuDiKem(dv.id)}
-                                                    style={{ cursor: 'pointer' }}
-                                                >
-                                                    <span>{dv.tenDichVu}</span>
-                                                    <span className="badge bg-secondary rounded-pill">
-                                                        {dv.soLuong || 'Chưa có số lượng'}
-                                                    </span>
-                                                </li>
-                                            ))
-                                        ) : (
-                                            <li className="list-group-item text-muted">Chưa có dịch vụ đi kèm.</li>
-                                        )}
-                                    </ul>
-                                </div>
+                    <Divider sx={{ my: 4 }} />
 
-                                {/* Danh sách vật tư loại phòng  */}
-                                <div className="col-md-6">
-                                    <h5 className="mb-3 text-primary">Danh sách vật tư loại phòng</h5>
-                                    <ul className="list-group" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                        {ListVatTuLoaiPhong.length > 0 ? (
-                                            ListVatTuLoaiPhong.map(ti => (
-                                                <li
-                                                    key={ti.id}
-                                                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                                                    onClick={() => handleDeleteVatTuLoaiPhong(ti.id)}
-                                                    style={{ cursor: 'pointer' }}
-                                                >
-                                                    <span className="amenity-text">{ti.tenVatTu} - Số lượng: {ti.soLuong || 'Chưa có số lượng'}</span>
-                                                </li>
-                                            ))
-                                        ) : (
-                                            <li className="list-group-item text-muted">Không có vật tư nào</li>
-                                        )}
-                                    </ul>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                    <div className="modal-footer">
-                        <button type="button" className="btn btn-primary" onClick={openAddModal}>
-                            Thêm dịch vụ/vật tư
-                        </button>
+                    <Grid container spacing={3}>
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="h6" color="primary" gutterBottom>Danh sách dịch vụ đi kèm</Typography>
+                            <Box sx={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                                <List>
+                                    {ListDichVuDiKem.length > 0 ? (
+                                        ListDichVuDiKem.map(dv => (
+                                            <ListItem
+                                                key={dv.id}
+                                                button
+                                                onClick={() => handleDeleteDichVuDiKem(dv.id)}
+                                                secondaryAction={<Chip label={dv.soLuong || 'Chưa có'} color="secondary" size="small" />}
+                                            >
+                                                <ListItemText primary={dv.tenDichVu} />
+                                            </ListItem>
+                                        ))
+                                    ) : (
+                                        <ListItem>
+                                            <ListItemText primary="Chưa có dịch vụ đi kèm." primaryTypographyProps={{ color: 'text.secondary' }} />
+                                        </ListItem>
+                                    )}
+                                </List>
+                            </Box>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <Typography variant="h6" color="primary" gutterBottom>Danh sách vật tư loại phòng</Typography>
+                            <Box sx={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #e0e0e0', borderRadius: 1 }}>
+                                <List>
+                                    {ListVatTuLoaiPhong.length > 0 ? (
+                                        ListVatTuLoaiPhong.map(ti => (
+                                            <ListItem
+                                                key={ti.id}
+                                                button
+                                                onClick={() => handleDeleteVatTuLoaiPhong(ti.id)}
+                                                secondaryAction={<Chip label={ti.soLuong || 'Chưa có'} color="secondary" size="small" />}
+                                            >
+                                                <ListItemText primary={ti.tenVatTu} />
+                                            </ListItem>
+                                        ))
+                                    ) : (
+                                        <ListItem>
+                                            <ListItemText primary="Không có vật tư nào" primaryTypographyProps={{ color: 'text.secondary' }} />
+                                        </ListItem>
+                                    )}
+                                </List>
+                            </Box>
+                        </Grid>
+                    </Grid>
+                </form>
+            </DialogContent>
+            <DialogActions>
+                <Button variant="contained" color="primary" onClick={() => setShowAddServiceModal(true)}>
+                    Thêm dịch vụ
+                </Button>
+                <Button variant="contained" color="primary" onClick={() => setShowAddUtilityModal(true)}>
+                    Thêm vật tư
+                </Button>
+            </DialogActions>
 
-                    </div>
-                </div>
-            </div>
-
-            {showAddModal && (
-                <AddServiceUtilityModal
-                    show={showAddModal}
-                    handleClose={closeAddModal}
-                    loaiPhongId={formData.id}
-                    onAddSuccess={() => {
-                        fetchDanhSachVatTu();
-                        fetchDanhSachDichVu();
-                    }}
-                />
-            )}
-        </div>
+            <AddServiceModal
+                show={showAddServiceModal}
+                handleClose={() => setShowAddServiceModal(false)}
+                loaiPhongId={formData.id}
+                onAddSuccess={() => fetchDanhSachDichVu()}
+            />
+            <AddUtilityModal
+                show={showAddUtilityModal}
+                handleClose={() => setShowAddUtilityModal(false)}
+                loaiPhongId={formData.id}
+                onAddSuccess={() => fetchDanhSachVatTu()}
+            />
+        </Dialog>
     );
 };
 
