@@ -58,8 +58,8 @@ function Sidebar() {
             <ListItemButton component={Link} to="/LoaiPhong" sx={{ pl: 4 }}>
               <ListItemText primary="Loại phòng" />
             </ListItemButton>
-            <ListItemButton component={Link} to="/TienIch" sx={{ pl: 4 }}>
-              <ListItemText primary="Tiện ích" />
+            <ListItemButton component={Link} to="/VatTu" sx={{ pl: 4 }}>
+              <ListItemText primary="Vật tư" />
             </ListItemButton>
             <ListItemButton component={Link} to="/kiem-tra-phong" sx={{ pl: 4 }}>
               <ListItemText primary="Kiểm tra phòng" />
