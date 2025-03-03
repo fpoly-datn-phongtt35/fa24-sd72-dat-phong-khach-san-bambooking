@@ -130,6 +130,10 @@ function RouterProvider() {
                 <Route path="/hoa-don/:id" element={<InfoHoaDon />} />
                 <Route path="/tao-hoa-don" element={<DemoTaoHoaDon />} />
                 
+                {/*Kiểm tra phòng */}
+                <Route path="/kiem-tra-phong" element={<KiemTraPhong/>}/>
+                <Route path="/tao-kiem-tra-phong/:idXepPhong" element={<CreateKiemTraPhong/>}/>
+
             </Route>
         </Routes>
     )

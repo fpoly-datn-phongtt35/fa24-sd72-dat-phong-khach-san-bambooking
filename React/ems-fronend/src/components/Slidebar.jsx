@@ -26,27 +26,27 @@ function Sidebar() {
             <Link className="nav-link" to="/quan-ly-dat-phong">Quản lý đặt phòng</Link>
           </li>
 
-            {/* Quản lý phòng với submenu */}
-            <li
-              className={`nav-item has-submenu quan-ly-phong ${activeSubmenu === 1 ? 'active' : ''}`}
-              onClick={() => toggleSubmenu(1)}
-            >
-              <div className="nav-link">Quản lý phòng</div>
-              <ul className={`submenu ${activeSubmenu === 1 ? 'open' : ''}`}>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/phong">Phòng</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/LoaiPhong">Loại phòng</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/VatTuLoaiPhong">Vật tư loại phòng</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/VatTu">Vật tư</Link>
-                </li>
-              </ul>
-            </li>
+          {/* Quản lý phòng với submenu */}
+          <li
+            className={`nav-item has-submenu quan-ly-phong ${activeSubmenu === 1 ? 'active' : ''}`}
+            onClick={() => toggleSubmenu(1)}
+          >
+            <div className="nav-link">Quản lý phòng</div>
+            <ul className={`submenu ${activeSubmenu === 1 ? 'open' : ''}`}>
+              <li className="nav-item">
+                <Link className="nav-link" to="/phong">Phòng</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/LoaiPhong">Loại phòng</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/TienIch">Tiện ích</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/kiem-tra-phong">Kiểm tra phòng</Link>
+              </li>
+            </ul>
+          </li>
 
         </ul>
 

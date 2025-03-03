@@ -53,12 +53,4 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
             """)
     NhanVien searchTenDangNhap(String tenDangNhap);
 
-//    @Query("""
-//                SELECT  kh.ho , kh.ten
-//                FROM HoaDon hd
-//                JOIN DatPhong dp on hd.datPhong.id = dp.id
-//                JOIN KhachHang kh ON kh.id = dp.khachHang.id
-//                WHERE kh.email = :email
-//            """)
-//    HoaDon findByKhachHang(String email);
 }

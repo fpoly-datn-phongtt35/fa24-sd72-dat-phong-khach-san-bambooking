@@ -32,8 +32,9 @@ public class HoaDonController {
 
     @PostMapping("/tao-hoa-don")
     public ResponseEntity<?> createHoaDon(
-            HttpServletRequest request,
-            @RequestParam("idTraPhong") Integer idTraPhong) { // can username thi add HttpServletRequest
+            HttpServletRequest request // can username thi add HttpServletRequest
+            ,@RequestParam("idTraPhong") Integer idTraPhong
+    ) {
         log.info("POST/tao-hoa-don");
         return ResponseEntity.status(HttpStatus.CREATED).body(hoaDonService.createHoaDon(request, idTraPhong));
     }

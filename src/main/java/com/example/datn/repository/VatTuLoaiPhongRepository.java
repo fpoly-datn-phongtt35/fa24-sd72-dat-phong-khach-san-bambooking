@@ -33,6 +33,5 @@ public interface VatTuLoaiPhongRepository extends JpaRepository<VatTuLoaiPhong,I
     @Query("SELECT t FROM VatTuLoaiPhong t WHERE t.loaiPhong.id = :idLoaiPhong")
     Page<Object> ListVatTuFindByIDLoaiPhong(@Param("idLoaiPhong") Integer idLoaiPhong,Pageable pageable);
 
-
-
+    List<VatTuLoaiPhong> findByLoaiPhong_Id(Integer loaiPhongId);
 }
