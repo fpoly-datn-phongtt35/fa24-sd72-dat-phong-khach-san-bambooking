@@ -1,93 +1,113 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../assets/Slidebar.css'; // File CSS cho Sidebar
+import {
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemText,
+  Collapse,
+  Divider
+} from '@mui/material';
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 
 function Sidebar() {
-  const [activeSubmenu, setActiveSubmenu] = useState(null);
+  const [openSubmenu, setOpenSubmenu] = useState({});
 
-  const toggleSubmenu = (id) => {
-    setActiveSubmenu(activeSubmenu === id ? null : id);
+  const handleToggle = (menu) => {
+    setOpenSubmenu((prev) => ({ ...prev, [menu]: !prev[menu] }));
   };
 
   return (
-    <div className="sidebar">
-      <>
-        <ul>
-          <li className="nav-item">
-            <Link className="nav-link" to="/TrangChu">Trang chủ</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/quan-ly-phong">Quản lý phòng</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/giao-dien-tao-dp">Đặt phòng</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/quan-ly-dat-phong">Quản lý đặt phòng</Link>
-          </li>
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: 200,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: 200,
+          boxSizing: 'border-box',
+          overflow: 'hidden', // Ẩn thanh cuộn
+        },
+      }}
+    >
+      <List>
+        {/* Các mục menu chính */}
+        <ListItemButton component={Link} to="/TrangChu">
+          <ListItemText primary="Trang chủ" />
+        </ListItemButton>
+        <ListItemButton component={Link} to="/quan-ly-phong">
+          <ListItemText primary="Quản lý phòng" />
+        </ListItemButton>
+        <ListItemButton component={Link} to="/giao-dien-tao-dp">
+          <ListItemText primary="Đặt phòng" />
+        </ListItemButton>
+        <ListItemButton component={Link} to="/quan-ly-dat-phong">
+          <ListItemText primary="Quản lý đặt phòng" />
+        </ListItemButton>
 
-          {/* Quản lý phòng với submenu */}
-          <li
-            className={`nav-item has-submenu quan-ly-phong ${activeSubmenu === 1 ? 'active' : ''}`}
-            onClick={() => toggleSubmenu(1)}
-          >
-            <div className="nav-link">Quản lý phòng</div>
-            <ul className={`submenu ${activeSubmenu === 1 ? 'open' : ''}`}>
-              <li className="nav-item">
-                <Link className="nav-link" to="/phong">Phòng</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/LoaiPhong">Loại phòng</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/TienIch">Tiện ích</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/kiem-tra-phong">Kiểm tra phòng</Link>
-              </li>
-            </ul>
-          </li>
+        {/* Submenu: Quản lý phòng */}
+        <ListItemButton onClick={() => handleToggle('quanLyPhong')}>
+          <ListItemText primary="Quản lý phòng" />
+          {openSubmenu['quanLyPhong'] ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={openSubmenu['quanLyPhong']} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItemButton component={Link} to="/phong" sx={{ pl: 4 }}>
+              <ListItemText primary="Phòng" />
+            </ListItemButton>
+            <ListItemButton component={Link} to="/LoaiPhong" sx={{ pl: 4 }}>
+              <ListItemText primary="Loại phòng" />
+            </ListItemButton>
+            <ListItemButton component={Link} to="/TienIch" sx={{ pl: 4 }}>
+              <ListItemText primary="Tiện ích" />
+            </ListItemButton>
+            <ListItemButton component={Link} to="/kiem-tra-phong" sx={{ pl: 4 }}>
+              <ListItemText primary="Kiểm tra phòng" />
+            </ListItemButton>
+          </List>
+        </Collapse>
 
-        </ul>
+        <Divider />
 
-        <ul>
-          <li className="nav-item">
-            <Link className="nav-link" to="/DichVu">Dịch vụ</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/hinh-anh">Hình ảnh</Link>
-          </li>
+        <ListItemButton component={Link} to="/DichVu">
+          <ListItemText primary="Dịch vụ" />
+        </ListItemButton>
+        <ListItemButton component={Link} to="/hinh-anh">
+          <ListItemText primary="Hình ảnh" />
+        </ListItemButton>
 
-          <li
-            className={`nav-item has-submenu quan-ly-phong ${activeSubmenu === 2 ? 'active' : ''}`}
-            onClick={() => toggleSubmenu(2)}
-          >
-            <div className="nav-link">Hóa đơn</div>
-            <ul className={`submenu ${activeSubmenu === 2 ? 'open' : ''}`}>
-              <li className="nav-item">
-                <Link className="nav-link" to="/tra-phong">Trả phòng</Link>
-              </li>
-              <li className="nav-item">
-                <Link className="nav-link" to="/hoa-don">Quản lý hóa đơn</Link>
-              </li>
-            </ul>
-          </li>
+        {/* Submenu: Hóa đơn */}
+        <ListItemButton onClick={() => handleToggle('hoaDon')}>
+          <ListItemText primary="Hóa đơn" />
+          {openSubmenu['hoaDon'] ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={openSubmenu['hoaDon']} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItemButton component={Link} to="/tra-phong" sx={{ pl: 4 }}>
+              <ListItemText primary="Trả phòng" />
+            </ListItemButton>
+            <ListItemButton component={Link} to="/hoa-don" sx={{ pl: 4 }}>
+              <ListItemText primary="Quản lý hóa đơn" />
+            </ListItemButton>
+          </List>
+        </Collapse>
 
-          <li className="nav-item">
-            <Link className="nav-link" to="/NhanVien">Nhân viên</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/TaiKhoan">Tài Khoản</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/VaiTro">Vai Trò</Link>
-          </li>
-          <li className="nav-item">
-            <Link className="nav-link" to="/khach-hang">Khách hàng</Link>
-          </li>
-        </ul>
-      </>
-    </div>
+        <Divider />
+
+        <ListItemButton component={Link} to="/NhanVien">
+          <ListItemText primary="Nhân viên" />
+        </ListItemButton>
+        <ListItemButton component={Link} to="/TaiKhoan">
+          <ListItemText primary="Tài Khoản" />
+        </ListItemButton>
+        <ListItemButton component={Link} to="/VaiTro">
+          <ListItemText primary="Vai Trò" />
+        </ListItemButton>
+        <ListItemButton component={Link} to="/khach-hang">
+          <ListItemText primary="Khách hàng" />
+        </ListItemButton>
+      </List>
+    </Drawer>
   );
 }
 
