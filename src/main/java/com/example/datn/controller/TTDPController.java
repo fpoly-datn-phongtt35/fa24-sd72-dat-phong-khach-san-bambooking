@@ -1,11 +1,10 @@
 package com.example.datn.controller;
 
 import com.example.datn.dto.request.TTDPRequest;
-import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.dto.response.SearchResultResponse;
 import com.example.datn.dto.response.TTDPResponse;
-import com.example.datn.model.LoaiPhong;
+import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
@@ -23,7 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-//@CrossOrigin("*")
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/ttdp")
 public class TTDPController {
@@ -72,52 +71,16 @@ public class TTDPController {
     }
 
 
-        @GetMapping("loai-phong-kha-dung")
-    public ResponseEntity<?> loaiPhongKhaDung(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
-                                              @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
-                                              @RequestParam(required = false) Integer soNguoi,
-                                              @RequestParam(required = false) Integer soPhong,
-                                              Pageable pageable) {
-//        LocalDateTime ngayNhanPhongStart = (ngayNhanPhong != null) ? ngayNhanPhong.atTime(14, 00,00) : LocalDate.now().atTime(14, 00,00);
-//        LocalDateTime ngayTraPhongEnd = (ngayTraPhong != null) ? ngayTraPhong.atTime(12, 00,00) : LocalDate.now().atTime(12, 00,00);
-        Page<LoaiPhongKhaDungResponse> p = loaiPhongService.LoaiPhongKhaDung(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong, pageable);
-        return ResponseEntity.ok(p);
+    @GetMapping("loai-phong-kha-dung")
+    public List<LoaiPhongResponse> loaiPhongKhaDung(@RequestParam(required = false) LocalDateTime ngayNhanPhong, @RequestParam(required = false) LocalDateTime ngayTraPhong) {
+        List<LoaiPhongResponse> p = loaiPhongServiceIMPL.getAllLPR(ngayNhanPhong, ngayTraPhong);
+        return p;
     }
 
     @GetMapping("/tim-kiem-loai-phong")
-    public ResponseEntity<List<List<LoaiPhongKhaDungResponse>>> searchLoaiPhong(
-            @RequestParam("ngayNhanPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
-            @RequestParam("ngayTraPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
-            @RequestParam("soNguoi") Integer soNguoi,
-            @RequestParam("soPhong") Integer soPhong,
-            @PageableDefault(size = 5) Pageable pageable) {
+    public ResponseEntity<Page<SearchResultResponse>> searchLoaiPhong2(@RequestParam("ngayNhanPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong, @RequestParam("ngayTraPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong, @RequestParam("soNguoi") Integer soNguoi, @RequestParam("soPhong") Integer soPhong, @PageableDefault(size = 5) Pageable pageable) {
         // Tìm các kết hợp phòng khả dụng
-        List<List<LoaiPhongKhaDungResponse>> availableCombinations = loaiPhongServiceIMPL.searchAvailableRooms(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong);
-
-        // Hiển thị kết quả
-//        System.out.println("Các trường hợp phòng khả dụng:");
-//        int caseNum = 1;
-//        for (List<LoaiPhong> combination : availableCombinations) {
-//            System.out.print("TH" + caseNum + ": ");
-//            for (LoaiPhong room : combination) {
-//                System.out.print(room.getTenLoaiPhong() + " ");
-//            }
-//            System.out.println();
-//            caseNum++;
-//        }
-//        Page<LoaiPhongKhaDungResponse> result = loaiPhongService.searchLoaiPhong(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong,pageable);
-        return ResponseEntity.ok(availableCombinations);
-    }
-
-    @GetMapping("/tim-kiem-loai-phong2")
-    public ResponseEntity<Page<SearchResultResponse>> searchLoaiPhong2(
-            @RequestParam("ngayNhanPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
-            @RequestParam("ngayTraPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
-            @RequestParam("soNguoi") Integer soNguoi,
-            @RequestParam("soPhong") Integer soPhong,
-            @PageableDefault(size = 5) Pageable pageable) {
-        // Tìm các kết hợp phòng khả dụng
-        Page<SearchResultResponse> availableCombinations = loaiPhongServiceIMPL.searchAvailableRooms2(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong,pageable);
+        Page<SearchResultResponse> availableCombinations = loaiPhongServiceIMPL.searchAvailableRooms(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong, pageable);
         return ResponseEntity.ok(availableCombinations);
     }
 
@@ -125,16 +88,14 @@ public class TTDPController {
     public ResponseEntity<?> chiTietDatPhong(@RequestParam String maDatPhong) {
         List<ThongTinDatPhong> ttdps = thongTinDatPhongServiceIMPL.findByMaDatPhong(maDatPhong);
         return ResponseEntity.ok(ttdps);
-
     }
 
     @GetMapping("/tim-kiem")
-    public Page<TTDPResponse> timKiemThongTinDatPhong(
-            @RequestParam(required = false) LocalDate startDate,
-            @RequestParam(required = false) LocalDate endDate,
-            @RequestParam(required = false) String key,
-            @RequestParam(required = false) String trangThai,
-            Pageable pageable) {
+    public Page<TTDPResponse> timKiemThongTinDatPhong(@RequestParam(required = false) LocalDate startDate,
+                                                      @RequestParam(required = false) LocalDate endDate,
+                                                      @RequestParam(required = false) String key,
+                                                      @RequestParam(required = false) String trangThai,
+                                                      Pageable pageable) {
         return thongTinDatPhongServiceIMPL.findByDateRangeAndKey(startDate, endDate, key, trangThai, pageable);
     }
 
@@ -144,10 +105,11 @@ public class TTDPController {
     }
 
     @GetMapping("detail-ttdp")
-    public ResponseEntity<?> chiTietTTDP(@RequestParam String maTTDP){
+    public ResponseEntity<?> chiTietTTDP(@RequestParam String maTTDP) {
         ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.getByMaTTDP(maTTDP);
         return ResponseEntity.ok(ttdp);
     }
+
     @GetMapping("list-gio-hang")
     public List<ThongTinDatPhong> getGioHang(@RequestParam(value = "idDatPhong") Integer idDatPhong) {
         return thongTinDatPhongServiceIMPL.getGioHang(idDatPhong);
@@ -163,5 +125,13 @@ public class TTDPController {
     public ResponseEntity<ThongTinDatPhong> updateTTDP(@RequestBody TTDPRequest request) {
         ThongTinDatPhong ttdp = thongTinDatPhongServiceIMPL.update(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ttdp);
+    }
+
+    @GetMapping("to-hop-loai-phong-kha-dung")
+    public List<ToHopPhongPhuHop> toHopLoaiPhongKhaDung(@RequestParam(required = false) LocalDateTime ngayNhanPhong,
+                                                        @RequestParam(required = false) LocalDateTime ngayTraPhong,
+                                                        @RequestParam(required = false) Integer soKhach) {
+        List<ToHopPhongPhuHop> p = loaiPhongServiceIMPL.TESTDATPHONG(ngayNhanPhong, ngayTraPhong,soKhach);
+        return p;
     }
 }

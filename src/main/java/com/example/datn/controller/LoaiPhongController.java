@@ -10,10 +10,12 @@ import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 //@CrossOrigin("*")
@@ -24,6 +26,9 @@ public class LoaiPhongController {
     LoaiPhongServiceIMPL phongServiceIMPL;
     @Autowired
     DichVuDiKemServiceIMPL dichVuDiKemServiceIMPL;
+
+    @Autowired
+    LoaiPhongServiceIMPL loaiPhongServiceIMPL;
 
     @GetMapping("")
     public ResponseEntity<?> home(){
@@ -73,6 +78,29 @@ public class LoaiPhongController {
         Page<LoaiPhong> lp = phongServiceIMPL.filter(tenLoaiPhong,dienTichMin,dienTichMax,soKhach,donGiaMin,
                                                      donGiaMax,donGiaPhuThuMin,donGiaPhuThuMax,pageable);
         return ResponseEntity.ok(lp);
+    }
+
+    @GetMapping("/kiem-tra-don")
+    public ResponseEntity<Boolean> kiemTraDon(
+            @RequestParam("ngayNhanPhong")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
+            @RequestParam("ngayTraPhong")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
+            @RequestParam("soNguoi") Integer soNguoi) {
+
+        boolean isAvailable = loaiPhongServiceIMPL.KiemTraDon(ngayNhanPhong, ngayTraPhong, soNguoi);
+        return ResponseEntity.ok(isAvailable);
+    }
+
+    @GetMapping("/kiem-tra-da")
+    public ResponseEntity<Boolean> kiemTraDa(
+            @RequestParam("ngayNhanPhong")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
+            @RequestParam("ngayTraPhong")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
+            @RequestParam("soNguoi") Integer soNguoi) {
+        boolean isAvailable = loaiPhongServiceIMPL.KiemTraDa(ngayNhanPhong, ngayTraPhong, soNguoi);
+        return ResponseEntity.ok(isAvailable);
     }
 
 }

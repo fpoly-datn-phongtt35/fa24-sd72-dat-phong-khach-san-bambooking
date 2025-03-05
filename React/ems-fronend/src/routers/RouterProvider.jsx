@@ -41,6 +41,7 @@ import QuanLyPhong from "../components/QuanLyPhong/ViewPhong";
 import RoomDetail from "../components/QuanLyPhong/RoomDetail";
 import KiemTraPhong from "../components/kiemTraPhong/KiemTraPhong";
 import CreateKiemTraPhong from "../components/kiemTraPhong/CreateKiemTraPhong";
+import DatPhong from "../components/DatPhong/DatPhong";
 function RouterProvider() {
 
     const UnauthorizedRoutes = () => {
@@ -138,6 +139,8 @@ function RouterProvider() {
                 <Route path="/kiem-tra-phong" element={<KiemTraPhong/>}/>
                 <Route path="/tao-kiem-tra-phong/:idXepPhong" element={<CreateKiemTraPhong/>}/>
 
+                {/* Đặt phòng */}
+                <Route path="/dat-phong" element={<DatPhong/>}/>
             </Route>
         </Routes>
     )

@@ -8,6 +8,8 @@ const apiTi = "http://localhost:8080/tien-ich-phong/home";
 const apiFilter = "http://localhost:8080/loai-phong/filter";
 const apiGetAll = "http://localhost:8080/loai-phong";
 const apiAdd = "http://localhost:8080/dich_vu_di_kem/add";
+const apiKiemTraDon = "http://localhost:8080/loai-phong/kiem-tra-don";
+const apiKiemTraDa = "http://localhost:8080/loai-phong/kiem-tra-da";
 export const ThemDichVuDiKem = (dvDiKem) => {
     return authorizedAxiosInstance.post(apiAdd, dvDiKem);
 };
@@ -93,5 +95,23 @@ export const filterLoaiPhong = (tenLoaiPhong, dienTichMin, dienTichMax, soKhach,
     return authorizedAxiosInstance.get(apiFilter, { params });
 };
 
+export const kiemTraDon = (ngayNhanPhong, ngayTraPhong, soNguoi) => {
+    return authorizedAxiosInstance.get(apiKiemTraDon, {
+        params: {
+            ngayNhanPhong,
+            ngayTraPhong,
+            soNguoi
+        }
+    });
+};
 
+export const kiemTraDa = (ngayNhanPhong, ngayTraPhong, soNguoi) => {
+    return authorizedAxiosInstance.get(apiKiemTraDa, {
+        params: {
+            ngayNhanPhong,
+            ngayTraPhong,
+            soNguoi
+        }
+    });
+};
 
