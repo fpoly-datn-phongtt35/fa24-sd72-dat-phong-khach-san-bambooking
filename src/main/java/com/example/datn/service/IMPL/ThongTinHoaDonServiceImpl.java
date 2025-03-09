@@ -1,23 +1,21 @@
 package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.response.DichVuSuDungResponse;
+import com.example.datn.dto.response.PhuThuResponse;
 import com.example.datn.dto.response.ThongTinHoaDonResponse;
+import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.mapper.ThongTinHoaDonMapper;
-import com.example.datn.model.DichVuSuDung;
-import com.example.datn.model.HoaDon;
-import com.example.datn.model.ThongTinHoaDon;
-import com.example.datn.model.TraPhong;
-import com.example.datn.repository.DichVuSuDungRepository;
-import com.example.datn.repository.HoaDonRepository;
-import com.example.datn.repository.ThongTinHoaDonRepository;
-import com.example.datn.repository.TraPhongRepository;
+import com.example.datn.model.*;
+import com.example.datn.repository.*;
 import com.example.datn.service.ThongTinHoaDonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -27,28 +25,35 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
     ThongTinHoaDonRepository thongTinHoaDonRepository;
-    TraPhongRepository traPhongRepository;
     HoaDonRepository hoaDonRepository;
     DichVuSuDungRepository dichVuSuDungRepository;
     ThongTinHoaDonMapper thongTinHoaDonMapper;
+    KiemTraVatTuRepository kiemTraVatTuRepository;
+    VatTuLoaiPhongRepository vatTuLoaiPhongRepository;
+    PhuThuRepository phuThuRepository;
 
     @Override
     public Page<ThongTinHoaDonResponse> getAllThongTinHoaDon(Pageable pageable) {
+        log.info("============ Generate all thongTinHoaDon ============");
         return thongTinHoaDonRepository.findAll(pageable)
                 .map(thongTinHoaDonMapper::toThongTinHoaDonResponse);
     }
 
     @Override
     public List<ThongTinHoaDonResponse> getThongTinHoaDonByHoaDonId(Integer idHoaDon) {
+        log.info("============ Get a thongTinHoaDon ============");
         List<ThongTinHoaDon> list = thongTinHoaDonRepository.findByHoaDonId(idHoaDon);
         return list.stream().map(thongTinHoaDonMapper::toThongTinHoaDonResponse)
                 .toList();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public List<ThongTinHoaDon> createThongTinHoaDon(Integer idHD, List<TraPhong> listTraPhong) {
+        log.info("============ Create invoice ============");
         List<ThongTinHoaDon> thongTinList = new ArrayList<>();
         HoaDon hoaDon = hoaDonRepository.findById(idHD)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn"));
@@ -66,6 +71,7 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
             thongTinHoaDon.setTienPhong(tienPhong);
             thongTinHoaDon.setTienPhuThu(tienPhuThu);
             thongTinHoaDon.setTienDichVu(tienDichVu);
+            thongTinHoaDon.setTienKhauTru(0.0);
 
             thongTinList.add(thongTinHoaDon);
 
@@ -87,7 +93,47 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         return hoaDonRepository.findDichVuSuDungByIdHoaDon(idHoaDon);
     }
 
+    @Transactional
+    @Override
+    public void capNhatTienKhauTru(Integer idHoaDon, Integer idThongTinHoaDon, Double tienKhauTru) {
+        log.info("===== Bắt đầu cập nhật tiền khấu trừ =====");
+        HoaDon hoaDon = hoaDonRepository.findById(idHoaDon)
+                .orElseThrow(() -> new EntityNotFountException("Không tìm thấy hóa đơn với ID: " + idHoaDon));
+
+        ThongTinHoaDon thongTinHoaDon = thongTinHoaDonRepository.findById(idThongTinHoaDon)
+                .orElseThrow(() -> new EntityNotFountException("Không tìm thấy thông tin hóa đơn với ID: " + idThongTinHoaDon));
+
+        // Lấy tổng tiền gốc từ tất cả các thông tin hóa đơn
+        Double tongTienGoc = thongTinHoaDonRepository.tinhTongTienGoc(idHoaDon);
+        Double tongTienKhauTru = thongTinHoaDonRepository.tinhTongTienKhauTru(idHoaDon);
+
+        if (tienKhauTru < 0) {
+            throw new IllegalArgumentException("Tiền khấu trừ không được nhỏ hơn 0.");
+        }
+
+        if (tienKhauTru > thongTinHoaDon.getTienPhong() + thongTinHoaDon.getTienPhuThu() + thongTinHoaDon.getTienDichVu()) {
+            throw new IllegalArgumentException("Tiền khấu trừ không được lớn hơn tổng tiền của thông tin hóa đơn.");
+        }
+
+        // Cập nhật tiền khấu trừ
+        thongTinHoaDon.setTienKhauTru(tienKhauTru);
+        thongTinHoaDonRepository.save(thongTinHoaDon);
+
+        // Cập nhật tổng tiền của hóa đơn
+        hoaDon.setTongTien(tongTienGoc - tongTienKhauTru);
+        hoaDonRepository.save(hoaDon);
+
+        log.info("Cập nhật thành công. Tổng tiền mới của hóa đơn ID {}: {}", idHoaDon, hoaDon.getTongTien());
+    }
+
+    @Override
+    public List<PhuThuResponse> getPhuThu(Integer idHoaDon) {
+        return hoaDonRepository.findPhuThuByIdHoaDon(idHoaDon);
+    }
+
+
     private double tinhTienPhong(TraPhong traPhong) {
+        log.info("============= Start charging room fees =============");
         LocalDateTime ngayNhanPhong = traPhong.getXepPhong().getNgayNhanPhong();
         LocalDateTime ngayTraThucTe = traPhong.getNgayTraThucTe();
         Duration duration = Duration.between(ngayNhanPhong, ngayTraThucTe);
@@ -110,18 +156,66 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
     }
 
     private double tinhTienPhuThu(TraPhong traPhong) {
-        int soNguoiThucTe = traPhong.getXepPhong().getThongTinDatPhong().getSoNguoi();
-        int soNguoiQuyDinh = traPhong.getXepPhong().getThongTinDatPhong().getLoaiPhong().getSoKhachToiDa();
-        double donGiaPhuThu = traPhong.getXepPhong().getThongTinDatPhong().getLoaiPhong().getDonGiaPhuThu();
-        int soNguoiVuotQua = soNguoiThucTe - soNguoiQuyDinh;
+        log.info("============= Start charging surcharges =============");
+        List<PhuThu> danhSachPhuThu = phuThuRepository.findByXepPhong_Id(traPhong.getXepPhong().getId());
+        double tienPhuThu = danhSachPhuThu.stream()
+                .mapToDouble(pt -> pt.getTienPhuThu() * pt.getSoLuong())
+                .sum();
 
-        return soNguoiVuotQua > 0 ? soNguoiVuotQua * donGiaPhuThu : 0;
+        double tienBoiThuong = tinhTienBoiThuong(traPhong);
+        System.out.println("Tổng tiền phụ thu của phòng " + traPhong.getXepPhong().getId() + ": " + tienPhuThu);
+
+        return tienPhuThu + tienBoiThuong;
     }
 
     private double tinhTienDichVu(TraPhong traPhong) {
+        log.info("============= Start charging for services =============");
         List<DichVuSuDung> dichVuSuDungList = dichVuSuDungRepository.findByXepPhongId(traPhong.getXepPhong().getId());
         return dichVuSuDungList.stream()
                 .mapToDouble(dv -> dv.getGiaSuDung() * dv.getSoLuongSuDung())
                 .sum();
+    }
+
+    private double tinhTienBoiThuong(TraPhong traPhong) {
+        log.info("============= Start calculating compensation =============");
+        List<String> tinhTrangList = List.of("Hỏng", "Thiếu");
+
+        // Lấy danh sách vật tư bị hỏng hoặc thiếu theo phòng
+        List<KiemTraVatTu> danhSachKiemTra = kiemTraVatTuRepository
+                .findByKiemTraPhong_XepPhongIdAndTinhTrangIn(traPhong.getXepPhong().getId(), tinhTrangList);
+
+        System.out.println("Danh sách vật tư hỏng/thiếu của phòng " + traPhong.getXepPhong().getId() + ":");
+
+        double tienBoiThuong = 0;
+
+        for (KiemTraVatTu kiemTra : danhSachKiemTra) {
+            VatTu vatTu = kiemTra.getVatTu();
+            int soLuongThucTe = kiemTra.getSoLuong();
+
+            // Truy vấn số lượng tiêu chuẩn của vật tư này trong loại phòng
+            VatTuLoaiPhong vatTuLoaiPhong = (VatTuLoaiPhong) vatTuLoaiPhongRepository
+                    .findByLoaiPhongIdAndVatTuId(traPhong.getXepPhong().getThongTinDatPhong().getLoaiPhong().getId(), vatTu.getId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy số lượng tiêu chuẩn của vật tư: " + vatTu.getTenVatTu()));
+
+            int soLuongTieuChuan = vatTuLoaiPhong.getSoLuong();
+            int soLuongBoiThuong = soLuongTieuChuan - soLuongThucTe;
+
+            // Nếu số lượng bồi thường > 0, mới tính phí
+            if (soLuongBoiThuong > 0) {
+                double giaBoiThuong = vatTu.getGia();
+                double thanhTien = soLuongBoiThuong * giaBoiThuong;
+                tienBoiThuong += thanhTien;
+
+                System.out.println("Bồi thường: " + vatTu.getTenVatTu() +
+                        " | Tiêu chuẩn: " + soLuongTieuChuan +
+                        " | Thực tế: " + soLuongThucTe +
+                        " | Thiếu: " + soLuongBoiThuong +
+                        " | Đơn giá: " + giaBoiThuong +
+                        " | Thành tiền: " + thanhTien);
+            }
+        }
+
+        System.out.println("Tổng tiền bồi thường của phòng " + traPhong.getXepPhong().getId() + ": " + tienBoiThuong);
+        return tienBoiThuong;
     }
 }

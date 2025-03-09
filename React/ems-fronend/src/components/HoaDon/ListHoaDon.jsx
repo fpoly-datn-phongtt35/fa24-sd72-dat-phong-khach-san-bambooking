@@ -98,6 +98,7 @@ const ListHoaDon = () => {
                         <tr>
                             <th>Mã hóa đơn</th>
                             <th>Tên nhân viên</th>
+                            {/* <th>Tên khách hàng</th> */}
                             <th>Ngày tạo</th>
                             <th>Tổng tiền</th>
                             <th>Trạng thái</th>
@@ -109,6 +110,7 @@ const ListHoaDon = () => {
                             <tr key={item.id}>
                                 <td>{item.maHoaDon}</td>
                                 <td>{item.tenNhanVien}</td>
+                                {/* <td>{item.tenKhachHang}</td> */}
                                 <td>{item.ngayTao}</td>
                                 <td>{formatCurrency(item.tongTien)}</td>
                                 <td>{item.trangThai}</td>

@@ -3,6 +3,7 @@ go
 use DATN_v6
 go
 
+
 CREATE TABLE vai_tro (
   id INT IDENTITY(1,1) PRIMARY KEY,
   ten_vai_tro NVARCHAR (255),
@@ -198,6 +199,7 @@ CREATE TABLE thong_tin_hoa_don (
   tien_dich_vu DECIMAL(18,2),
   tien_phong DECIMAL(18,2),
   tien_phu_thu DECIMAL(18,2),
+  tien_khau_tru DECIMAL(18,2),
   FOREIGN KEY (id_tra_phong) REFERENCES tra_phong(id),
   FOREIGN KEY (id_hoa_don) REFERENCES hoa_don(id)
 );
@@ -244,6 +246,7 @@ CREATE TABLE dich_vu_di_kem (
   id_dich_vu INT,
   id_loai_phong INT,
   trang_thai BIT,
+  so_luong INT,
   CONSTRAINT unique_dichvu_loaiphong UNIQUE (id_dich_vu, id_loai_phong),
   FOREIGN KEY (id_dich_vu) REFERENCES dich_vu(id),
   FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id)

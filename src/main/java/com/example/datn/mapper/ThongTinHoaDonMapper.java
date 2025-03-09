@@ -42,6 +42,7 @@ public class ThongTinHoaDonMapper {
         response.setTienDichVu(thongTinHoaDon.getTienDichVu());
         response.setTienPhong(thongTinHoaDon.getTienPhong());
         response.setTienPhuThu(thongTinHoaDon.getTienPhuThu());
+        response.setTienKhauTru(thongTinHoaDon.getTienKhauTru());
         return response;
     }
 }

@@ -33,6 +33,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
   const phongKhaDung = (idLoaiPhong, ngayNhanPhong, ngayTraPhong, ttdpId) => {
     getPhongKhaDung(idLoaiPhong, ngayNhanPhong, ngayTraPhong)
       .then((response) => {
+        console.log(response)
         setListPhong((prevList) => ({
           ...prevList,
           [ttdpId]: response.data,
