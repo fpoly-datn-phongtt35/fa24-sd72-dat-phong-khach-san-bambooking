@@ -66,63 +66,58 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
     if (!show) return null; // Không hiển thị nếu không có yêu cầu
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-container">
-                <h2>Cập Nhật Dịch Vụ</h2>
-                <form onSubmit={handleUpdate}>
-                    <div>
-                        <label>Tên Dịch Vụ:</label>
-                        <input
-                            type="text"
-                            value={tenDichVu}
-                            onChange={(e) => setTenDichVu(e.target.value)}
-                            required
-                        />
+        <div className={`modal fade ${show ? 'show d-block' : ''}`} tabIndex={-1} role="dialog" style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
+            <div className="modal-dialog modal-lg" role="document">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">Cập Nhật Dịch Vụ</h5>
+                        <button type="button" className="btn-close" onClick={handleClose}></button>
                     </div>
-                    <div>
-                        <label>Giá:</label>
-                        <input
-                            type="number"
-                            value={donGia}
-                            onChange={(e) => setDonGia(e.target.value)}
-                            required
-                        />
+                    <div className="modal-body">
+                        <form onSubmit={handleUpdate}>
+                            {/* Tên dịch vụ */}
+                            <div className="mb-3">
+                                <label className="form-label">Tên Dịch Vụ</label>
+                                <input type="text" className="form-control" value={tenDichVu} onChange={(e) => setTenDichVu(e.target.value)} required />
+                            </div>
+
+                            {/* Giá dịch vụ */}
+                            <div className="mb-3">
+                                <label className="form-label">Giá</label>
+                                <input type="number" className="form-control" value={donGia} onChange={(e) => setDonGia(e.target.value)} required />
+                            </div>
+
+                            {/* Mô tả */}
+                            <div className="mb-3">
+                                <label className="form-label">Mô Tả</label>
+                                <textarea className="form-control" value={moTa} onChange={(e) => setMoTa(e.target.value)} required></textarea>
+                            </div>
+
+                            {/* Hình ảnh */}
+                            <div className="mb-3">
+                                <label className="form-label">Chọn Hình Ảnh</label>
+                                <input type="file" className="form-control-file" accept="image/*" onChange={handleImageChange} />
+                                {dichVu.hinhAnh && (
+                                    <img src={dichVu.hinhAnh} alt="Hình ảnh dịch vụ" className="img-fluid mt-2 rounded" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+                                )}
+                            </div>
+
+                            {/* Trạng thái */}
+                            <div className="mb-3">
+                                <label className="form-label">Trạng Thái</label>
+                                <select className="form-control" value={trangThai} onChange={(e) => setTrangThai(e.target.value === 'true')}>
+                                    <option value={true}>Hoạt Động</option>
+                                    <option value={false}>Ngừng Hoạt Động</option>
+                                </select>
+                            </div>
+
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={handleClose}>Đóng</button>
+                                <button type="submit" className="btn btn-primary">Cập Nhật</button>
+                            </div>
+                        </form>
                     </div>
-                    <div>
-                        <label>Mô Tả:</label>
-                        <textarea
-                            value={moTa}
-                            onChange={(e) => setMoTa(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div>
-                        <label>Hình Ảnh:</label>
-                        <input
-                            type="file"
-                            accept="image/*" // Chỉ chấp nhận tệp hình ảnh
-                            onChange={handleImageChange} // Xử lý sự kiện khi chọn tệp
-                        />
-                        {dichVu && dichVu.hinhAnh && (
-                            <img
-                                src={dichVu.hinhAnh} // Đường dẫn tới hình ảnh hiện tại
-                                alt="Hình ảnh dịch vụ"
-                                style={{ width: '200px', height: 'auto', marginTop: '10px', display: 'block' }} // Kích thước hình ảnh
-                            />
-                        )}
-                    </div>
-                    <div>
-                        <label>Trạng Thái:</label>
-                        <select
-                            value={trangThai}
-                            onChange={(e) => setTrangThai(e.target.value === 'true')}>
-                            <option value={true}>Hoạt Động</option>
-                            <option value={false}>Ngừng Hoạt Động</option>
-                        </select>
-                    </div>
-                    <button type="submit">Cập Nhật</button>
-                    <button type="button" onClick={handleClose}>Đóng</button>
-                </form>
+                </div>
             </div>
         </div>
     );

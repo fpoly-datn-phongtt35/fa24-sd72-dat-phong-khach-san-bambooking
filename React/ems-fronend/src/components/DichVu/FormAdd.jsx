@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './FormAdd.css'; // CSS cho modal
 import { ThemDichVu } from '../../services/DichVuService'; // Import API service
 import Swal from 'sweetalert2'; // down npm install sweetalert2
 
@@ -12,7 +11,7 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
         hinhAnh: null, // Chứa file hình ảnh
         trangThai: true, // Dùng boolean, mặc định là true (Hoạt động)
     });
-
+    
     // Hàm xử lý thay đổi giá trị input
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -83,70 +82,55 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
     if (!show) return null; // Không hiển thị modal nếu không mở
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-container">
-                <h2>Thêm Dịch Vụ Mới</h2>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="tenDichVu">Tên Dịch Vụ:</label>
-                        <input
-                            type="text"
-                            id="tenDichVu"
-                            name="tenDichVu"
-                            value={formData.tenDichVu}
-                            onChange={handleInputChange}
-                            required
-                        />
+        <div className={`modal fade ${show ? 'show d-block' : ''}`} tabIndex={-1} role="dialog" style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
+            <div className="modal-dialog modal-lg" role="document">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">Thêm Dịch Vụ</h5>
+                        <button type="button" className="btn-close" onClick={handleClose}></button>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="donGia">Giá:</label>
-                        <input
-                            type="number"
-                            id="donGia"
-                            name="donGia"
-                            value={formData.donGia}
-                            onChange={handleInputChange}
-                            required
-                        />
+                    <div className="modal-body">
+                        <form onSubmit={handleSubmit}>
+                            {/* Tên dịch vụ */}
+                            <div className="mb-3">
+                                <label htmlFor="tenDichVu" className="form-label">Tên Dịch Vụ</label>
+                                <input type="text" className="form-control" id="tenDichVu" name="tenDichVu" value={formData.tenDichVu} onChange={handleInputChange} required />
+                            </div>
+
+                            {/* Giá dịch vụ */}
+                            <div className="mb-3">
+                                <label htmlFor="donGia" className="form-label">Giá</label>
+                                <input type="number" className="form-control" id="donGia" name="donGia" value={formData.donGia} onChange={handleInputChange} required />
+                            </div>
+
+                            {/* Mô tả */}
+                            <div className="mb-3">
+                                <label htmlFor="moTa" className="form-label">Mô Tả</label>
+                                <textarea className="form-control" id="moTa" name="moTa" value={formData.moTa} onChange={handleInputChange} required></textarea>
+                            </div>
+
+                            {/* Hình ảnh */}
+                            <div className="mb-3">
+                                <label className="form-label">Chọn Hình Ảnh</label>
+                                <input type="file" className="form-control-file" id="file" onChange={handleFileChange} required />
+                            </div>
+
+                            {/* Trạng thái */}
+                            <div className="mb-3">
+                                <label htmlFor="trangThai" className="form-label">Trạng Thái</label>
+                                <select className="form-control" id="trangThai" name="trangThai" value={formData.trangThai} onChange={handleInputChange}>
+                                    <option value={true}>Hoạt động</option>
+                                    <option value={false}>Ngừng hoạt động</option>
+                                </select>
+                            </div>
+
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={handleClose}>Đóng</button>
+                                <button type="submit" className="btn btn-primary">Lưu</button>
+                            </div>
+                        </form>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="moTa">Mô Tả:</label>
-                        <textarea
-                            id="moTa"
-                            name="moTa"
-                            value={formData.moTa}
-                            onChange={handleInputChange}
-                            required
-                        ></textarea>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="hinhAnh">Chọn Hình Ảnh:</label>
-                        <input
-                            type="file"
-                            id="hinhAnh"
-                            name="hinhAnh"
-                            accept="image/*" // Chỉ cho phép chọn hình ảnh
-                            onChange={handleFileChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="trangThai">Trạng Thái:</label>
-                        <select
-                            id="trangThai"
-                            name="trangThai"
-                            value={formData.trangThai}
-                            onChange={handleInputChange}
-                        >
-                            <option value={true}>Hoạt động</option>
-                            <option value={false}>Ngừng hoạt động</option>
-                        </select>
-                    </div>
-                    <div className="modal-actions">
-                        <button type="button" onClick={handleClose}>Đóng</button>
-                        <button type="submit">Lưu</button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     );

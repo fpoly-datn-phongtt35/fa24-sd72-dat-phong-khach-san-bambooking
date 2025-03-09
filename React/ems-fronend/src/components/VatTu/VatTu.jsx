@@ -7,7 +7,7 @@ const VatTu = () => {
     const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
     const [totalPages, setTotalPages] = useState(0); // Tổng số trang
     const itemsPerPage = 4;
-    const [selectedData, setSelectedData] = useState(null); 
+    const [selectedData, setSelectedData] = useState(null);
     const [images, setImages] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -29,7 +29,7 @@ const VatTu = () => {
     // Gọi API khi currentPage hoặc searchTerm thay đổi
     useEffect(() => {
         getAllSanPham();
-    }, [ totalPages,currentPage, searchQuery,images]);
+    }, [totalPages, currentPage, searchQuery, images]);
 
     const handleNextPage = () => {
         if (currentPage < totalPages - 1) {
@@ -70,39 +70,42 @@ const VatTu = () => {
     const handleInputChange = (e) => {
         setSearchQuery(e.target.value);
         currentPage(0);
-      }
+    }
 
 
     return (
         <div className="container">
+            <div className="card p-3">
+                <div className='d-flex justify-content-between mb-3'>
+                    <button className="btn btn-outline-success" onClick={handleOpenFormAdd}>
+                        <i className="bi bi-plus-circle"></i> Thêm mới
+                    </button>
+                </div>
 
-            <div>
-                <br></br>
-                <input
-                    type="text"
-                    className="form-control"
-                    id="search"
-                    name="search"
-                    value={searchQuery}
-                    onChange={handleInputChange}
-                    placeholder="Tìm kiếm theo tên vật tư"
-                />
-                <br></br>
-            </div>
-            <div className="container">
-                <table className="table">
+                <div className="mb-3">
+                    <input
+                        type="text"
+                        className="form-control form-control-lg"
+                        id="search"
+                        name="search"
+                        value={searchQuery}
+                        onChange={handleInputChange}
+                        placeholder="Tìm kiếm theo tên vật tư"
+                    />
+                </div>
+                <table className="table table-hover">
                     <thead>
                         <tr>
-                            <th className="col">ID</th>
-                            <th className="col">Tên vật tư</th>
-                            <th className="col">Giá</th>
-                            <th className="col">Hình ảnh</th>
+                            <th>ID</th>
+                            <th>Tên vật tư</th>
+                            <th>Giá</th>
+                            <th>Hình ảnh</th>
                         </tr>
                     </thead>
                     <tbody>
                         {images.length > 0 ? (
                             images.map(image => (
-                                <tr key={image.id} onClick={() => handleOpenFormDetail(image.id)}>
+                                <tr key={image.id} className="table-row" onClick={() => handleOpenFormDetail(image.id)}>
                                     <td>{image.id}</td>
                                     <td>{image.tenVatTu}</td>
                                     <td>{image.gia}</td>
@@ -110,6 +113,7 @@ const VatTu = () => {
                                         <img
                                             src={image.hinhAnh}
                                             alt={image.tenVatTu}
+                                            className="img-thumbnail"
                                             style={{ width: '150px', height: '100px' }}
                                         />
                                     </td>
@@ -117,36 +121,25 @@ const VatTu = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="3">Không có dữ liệu tìm kiếm</td>
+                                <td colSpan="4" className="text-center">Không có dữ liệu tìm kiếm</td>
                             </tr>
                         )}
                     </tbody>
-
-
-
                 </table>
-            </div>
 
-            <div className="pagination">
-                <button className="btn btn-success" onClick={handlePreviousPage}>
-                    Trang trước
-                </button>
-                <span>Trang hiện tại: {currentPage + 1} / {totalPages}</span>
-                <button className="btn btn-success" onClick={handleNextPage}>
-                    Trang sau
-                </button>
-            </div>
+                <div className="d-flex justify-content-center my-3">
+                    <button className="btn btn-outline-primary me-2" onClick={handlePreviousPage} disabled={currentPage === 0}>
+                        Trang trước
+                    </button>
+                    <span className="align-self-center" style={{ marginTop: '7px' }}>
+                        Trang {currentPage + 1} / {totalPages}
+                    </span>
+                    <button className="btn btn-outline-primary ms-2" onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>
+                        Trang sau
+                    </button>
+                </div>
 
-            <div>
-                <br />
-                <button className="btn btn-secondary" onClick={handleOpenFormAdd}>
-                    Thêm mới
-                </button>
-
-                {/* Hiển thị FormAdd khi showAddForm là true */}
                 {showAddForm && <FormAdd show={showAddForm} handleClose={handleCloseFormAdd} />}
-
-                {/* Hiển thị FormDetail khi showDetailForm là true */}
                 {showDetailForm && <FormDetail show={showDetailForm} handleClose={handleCloseFormDetail} data={selectedData} />}
             </div>
         </div>

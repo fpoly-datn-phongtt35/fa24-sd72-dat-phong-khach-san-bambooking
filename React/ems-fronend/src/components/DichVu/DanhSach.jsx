@@ -120,66 +120,91 @@ const DanhSach = () => {
     };
 
     return (
-        <div>
-            <div>
-                <input
-                    type="text"
-                    placeholder="Tìm kiếm theo tên hoặc mô tả"
-                    value={searchKeyword}
-                    onChange={(e) => setSearchKeyword(e.target.value)}
-                />
-                <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="true">Hoạt động</option>
-                    <option value="false">Ngừng hoạt động</option>
-                </select>
-                <button onClick={loadDichVu}>Lọc</button>
-            </div> <br />
+        <div className='container'>
+            <div className='card'>
+                <div className='card-body'>
+                    <div className='d-flex justify-content-between mb-3'>
+                        <button className='btn btn-outline-success btn-lg fs-6' onClick={openForm}>
+                            <i className='bi bi-plus-circle'></i> Thêm Dịch Vụ
+                        </button>
+                        <div className='d-flex w-50'>
+                            <input
+                                type='text'
+                                className='form-control form-control-lg fs-6 me-2'
+                                placeholder='Tìm kiếm theo tên hoặc mô tả...'
+                                value={searchKeyword}
+                                onChange={(e) => setSearchKeyword(e.target.value)}
+                            />
+                            <select className='form-select form-select-lg fs-6' value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                                <option value=''>Tất cả trạng thái</option>
+                                <option value='true'>Hoạt động</option>
+                                <option value='false'>Ngừng hoạt động</option>
+                            </select>
+                            <button className='btn btn-outline-primary btn-lg ms-2' onClick={loadDichVu}>Lọc</button>
+                        </div>
+                    </div>
 
-            <button onClick={openForm}>Thêm Dịch Vụ</button>
-            <table className='table'>
-                <thead>
-                    <tr>
-                        <th>Tên Dịch Vụ</th>
-                        <th>Giá</th>
-                        <th>Mô Tả</th>
-                        <th>Hình ảnh</th>
-                        <th>Trạng Thái</th>
-                        <th>Hành Động</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {dichVuList.map((dv) => (
-                        <tr key={dv.id}>
-                            <td>{dv.tenDichVu}</td>
-                            <td>{dv.donGia}</td>
-                            <td>{dv.moTa}</td>
-                            <td>
-                                <img src={dv.hinhAnh} alt={dv.tenDichVu} style={{ width: '200px', height: 'auto' }} />
-                            </td>
+                    <table className='table table-hover'>
+                        <thead>
+                            <tr>
+                                <th>Tên Dịch Vụ</th>
+                                <th>Giá</th>
+                                <th>Mô Tả</th>
+                                <th>Hình ảnh</th>
+                                <th>Trạng Thái</th>
+                                <th>Hành Động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {dichVuList.length > 0 ? (
+                                dichVuList.map((dv) => (
+                                    <tr key={dv.id}>
+                                        <td>{dv.tenDichVu}</td>
+                                        <td>{dv.donGia}</td>
+                                        <td>{dv.moTa}</td>
+                                        <td>
+                                            <img src={dv.hinhAnh} alt={dv.tenDichVu} style={{ width: '100px', height: 'auto' }} />
+                                        </td>
+                                        <td>{dv.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</td>
+                                        <td>
+                                            <button className='btn btn-outline-warning me-2' onClick={() => openUpdateForm(dv)}>Sửa</button>
+                                            <button className='btn btn-outline-danger me-2' onClick={() => handleDelete(dv.id)}>Xóa</button>
+                                            {/* <button className='btn btn-outline-info' onClick={() => openDetail(dv)}>Chi Tiết</button> */}
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan='6' className='text-center'>Không có dịch vụ</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
 
-                            {/* Hiển thị trạng thái dưới dạng chuỗi dựa trên giá trị boolean */}
-                            <td>{dv.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</td>
-                            <td>
-                                <button onClick={() => openUpdateForm(dv)}>Sửa</button>
-                                <button onClick={() => handleDelete(dv.id)}>Xóa</button>
-                                <button onClick={() => openDetail(dv)}>Chi Tiết</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+                    {/* Phân trang */}
+                    <div className='d-flex justify-content-center my-3'>
+                        <button
+                            className='btn btn-outline-primary me-2'
+                            onClick={handlePreviousPage}
+                            disabled={currentPage === 0}>
+                            Previous
+                        </button>
+                        <span className='align-self-center' style={{ marginTop: '7px' }}>
+                            Trang {currentPage + 1} / {totalPages}
+                        </span>
+                        <button
+                            className='btn btn-outline-primary ms-2'
+                            onClick={handleNextPage}
+                            disabled={currentPage + 1 >= totalPages}>
+                            Next
+                        </button>
+                    </div>
 
-            {/* Phân trang */}
-            <div className="pagination">
-                <button onClick={handlePreviousPage} disabled={currentPage === 0}>Trang trước</button>
-                <span>Trang {currentPage + 1} / {totalPages}</span>
-                <button onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>Trang sau</button>
+                    {showForm && <FormAdd show={showForm} handleClose={closeForm} refreshData={loadDichVu} />}
+                    {showUpdateForm && <FormUpdate show={showUpdateForm} handleClose={closeUpdateForm} refreshData={loadDichVu} dichVu={currentDichVu} />}
+                    {/* {showDetail && <DetailDichVu dichVu={currentDichVu} handleClose={closeDetail} />} */}
+                </div>
             </div>
-
-            {showForm && <FormAdd show={showForm} handleClose={closeForm} refreshData={loadDichVu} />}
-            {showUpdateForm && <FormUpdate show={showUpdateForm} handleClose={closeUpdateForm} refreshData={loadDichVu} dichVu={currentDichVu} />}
-            {showDetail && <DetailDichVu dichVu={currentDichVu} handleClose={closeDetail} />}
         </div>
     );
 };
