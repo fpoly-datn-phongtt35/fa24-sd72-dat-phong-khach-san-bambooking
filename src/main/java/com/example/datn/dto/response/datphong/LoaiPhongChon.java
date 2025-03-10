@@ -12,9 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ToHopPhongPhuHop {
-    private List<LoaiPhongChon> phongs;
-    private Integer tongSucChua;
-    private Double tongChiPhi;
-    private Integer tongSoPhong;
+public class LoaiPhongChon {
+    private LoaiPhongKhaDungResponse loaiPhong;
+    private int soLuongChon;
 }

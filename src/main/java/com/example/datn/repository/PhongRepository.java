@@ -38,8 +38,11 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
       AND NOT EXISTS (
           SELECT d 
           FROM XepPhong d 
+          JOIN d.thongTinDatPhong ttdp
           WHERE d.phong = p     
-            AND (d.ngayNhanPhong <= :ngayTraPhong AND d.ngayTraPhong >= :ngayNhanPhong)
+            AND d.ngayNhanPhong = :ngayNhanPhong
+            AND d.ngayTraPhong >= :ngayTraPhong
+            AND ttdp.trangThai In ('Dang o', 'Da xep')
       )
 """)
     List<Phong> searchPhongKhaDung(
@@ -47,6 +50,7 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
             @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong
     );
+
 
     @Query("SELECT p FROM Phong p WHERE p.id = :id")
     Phong getPhongById(@Param("id") Integer id);

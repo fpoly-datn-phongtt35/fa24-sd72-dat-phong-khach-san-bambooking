@@ -6,6 +6,7 @@ import com.example.datn.dto.response.ChiaPhongResponse;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.dto.response.SearchResultResponse;
+import com.example.datn.dto.response.datphong.LoaiPhongChon;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.DichVuDiKem;
 import com.example.datn.model.LoaiPhong;
@@ -19,7 +20,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,34 +113,30 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
 
     //    Tuan Dat
-    public boolean KiemTraDon(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi){
-        if(ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null){
+    public boolean KiemTraDon(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi) {
+        if (ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null) {
             System.out.println(soNguoi);
-            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong,ngayTraPhong);
+            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
             Integer totalCap = 0;
-            for(LoaiPhongResponse  lp : loaiPhongResponseList){
-                totalCap += loaiPhongRepository.demSoPhongKhaDung(lp.getId(),ngayNhanPhong,ngayTraPhong);
+            for (LoaiPhongResponse lp : loaiPhongResponseList) {
+                totalCap += loaiPhongRepository.demSoPhongKhaDung(lp.getId(), ngayNhanPhong, ngayTraPhong);
             }
             System.out.println(totalCap);
-            if(totalCap>=soNguoi){
-                return true;
-            }
+            return totalCap >= soNguoi;
         }
         return false;
     }
 
-    public boolean KiemTraDa(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi){
-        if(ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null){
+    public boolean KiemTraDa(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi) {
+        if (ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null) {
             System.out.println(soNguoi);
-            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong,ngayTraPhong);
+            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
             Integer totalCaps = 0;
-            for(LoaiPhongResponse  lp : loaiPhongResponseList){
-                totalCaps += loaiPhongRepository.demSoPhongKhaDung(lp.getId(),ngayNhanPhong,ngayTraPhong) * lp.getSoKhachToiDa();
+            for (LoaiPhongResponse lp : loaiPhongResponseList) {
+                totalCaps += loaiPhongRepository.demSoPhongKhaDung(lp.getId(), ngayNhanPhong, ngayTraPhong) * lp.getSoKhachToiDa();
             }
             System.out.println(totalCaps);
-            if(totalCaps>=soNguoi){
-                return true;
-            }
+            return totalCaps >= soNguoi;
         }
         return false;
     }
@@ -154,12 +150,14 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
 
-    public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, Integer soKhach) {
+    public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach) {
+        // Integer Programming
         List<ToHopPhongPhuHop> results = new ArrayList<>();
         LoaiPhongKhaDungResponse room1 = loaiPhong.get(0);
         LoaiPhongKhaDungResponse room2 = loaiPhong.get(1);
         LoaiPhongKhaDungResponse room3 = loaiPhong.get(2);
 
+        // Duyệt tất cả các khả năng chọn phòng (giả sử số phòng khả dụng là số lượng phòng tối đa có thể chọn)
         for (int x1 = 0; x1 <= room1.getSoPhongKhaDung(); x1++) {
             for (int x2 = 0; x2 <= room2.getSoPhongKhaDung(); x2++) {
                 for (int x3 = 0; x3 <= room3.getSoPhongKhaDung(); x3++) {
@@ -167,12 +165,18 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
                             + x2 * room2.getSoKhachToiDa()
                             + x3 * room3.getSoKhachToiDa();
                     if (totalCapacity >= soKhach) {
-                        Double totalCost = x1 * room1.getDonGia()
+                        double totalCost = x1 * room1.getDonGia()
                                 + x2 * room2.getDonGia()
                                 + x3 * room3.getDonGia();
                         int totalRooms = x1 + x2 + x3;
-                        List<Integer> ListToHopPhongPhuHop = Arrays.asList(x1, x2, x3);
-                        ToHopPhongPhuHop comb = new ToHopPhongPhuHop(ListToHopPhongPhuHop, totalCapacity, totalCost, totalRooms);
+
+                        // Tạo danh sách tổ hợp với số lượng phòng đã chọn cho mỗi loại
+                        List<LoaiPhongChon> lp = new ArrayList<>();
+                        lp.add(new LoaiPhongChon(room1, x1));
+                        lp.add(new LoaiPhongChon(room2, x2));
+                        lp.add(new LoaiPhongChon(room3, x3));
+
+                        ToHopPhongPhuHop comb = new ToHopPhongPhuHop(lp, totalCapacity, totalCost, totalRooms);
                         results.add(comb);
                     }
                 }
@@ -201,8 +205,8 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     public List<ToHopPhongPhuHop> TESTDATPHONG(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soKhach) {
-        List<LoaiPhongKhaDungResponse> loaiPhongKhaDungResponses = getAllLPKDR(ngayNhanPhong,ngayTraPhong);
-        List<ToHopPhongPhuHop> toHopPhongPhuHops = DanhSachToHop(loaiPhongKhaDungResponses,soKhach);
+        List<LoaiPhongKhaDungResponse> loaiPhongKhaDungResponses = getAllLPKDR(ngayNhanPhong, ngayTraPhong);
+        List<ToHopPhongPhuHop> toHopPhongPhuHops = DanhSachToHop(loaiPhongKhaDungResponses, soKhach);
         return toHopPhongPhuHops;
     }
 
