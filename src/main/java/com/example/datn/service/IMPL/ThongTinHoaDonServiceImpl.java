@@ -170,11 +170,31 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
 
     private double tinhTienDichVu(TraPhong traPhong) {
         log.info("============= Start charging for services =============");
+
+        // Lấy danh sách dịch vụ sử dụng (bao gồm cả dịch vụ miễn phí)
         List<DichVuSuDung> dichVuSuDungList = dichVuSuDungRepository.findByXepPhongId(traPhong.getXepPhong().getId());
-        return dichVuSuDungList.stream()
-                .mapToDouble(dv -> dv.getGiaSuDung() * dv.getSoLuongSuDung())
+
+        // Tính tổng tiền dịch vụ, xử lý trường hợp null
+        double tongTienDichVu = dichVuSuDungList.stream()
+                .mapToDouble(dv -> {
+                    double giaSuDung = (dv.getGiaSuDung() != null) ? dv.getGiaSuDung() : 0.0;
+                    int soLuongSuDung = (dv.getSoLuongSuDung() != null) ? dv.getSoLuongSuDung() : 0;
+                    return giaSuDung * soLuongSuDung;
+                })
                 .sum();
+
+        // Lọc danh sách dịch vụ miễn phí (giá = 0 hoặc null)
+        List<DichVuSuDung> dichVuMienPhi = dichVuSuDungList.stream()
+                .filter(dv -> (dv.getGiaSuDung() == null || dv.getGiaSuDung() == 0))
+                .toList();
+
+        log.info("Danh sách dịch vụ miễn phí đã sử dụng: {}", dichVuMienPhi);
+        log.info("Tổng tiền dịch vụ có phí: {}", tongTienDichVu);
+
+        return tongTienDichVu;
     }
+
+
 
     private double tinhTienBoiThuong(TraPhong traPhong) {
         log.info("============= Start calculating compensation =============");

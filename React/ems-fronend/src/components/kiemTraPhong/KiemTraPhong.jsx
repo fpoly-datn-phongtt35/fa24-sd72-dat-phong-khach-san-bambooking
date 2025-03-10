@@ -31,14 +31,16 @@ const KiemTraPhong = () => {
     return (
         <Container>
             {/* Tiêu đề + Ô tìm kiếm */}
-            <Box sx={{
-                maxWidth: isMobile ? "100%" : 650,
-                margin: '0 auto',
-                textAlign: 'center',
-                mb: 3,
-                mt: isMobile ? 4 : 7,
-                px: isMobile ? 2 : 0
-            }}>
+            <Box
+                sx={{
+                    maxWidth: isMobile ? "100%" : 650,
+                    margin: '0 auto',
+                    textAlign: 'center',
+                    mb: 3,
+                    mt: isMobile ? 4 : 7,
+                    px: isMobile ? 2 : 0
+                }}
+            >
                 <Typography level="h4" sx={{ mb: 2, fontSize: isMobile ? "1.2rem" : "1.5rem" }}>
                     Tìm kiếm thông tin kiểm tra phòng
                 </Typography>

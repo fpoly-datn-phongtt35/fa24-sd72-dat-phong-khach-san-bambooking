@@ -74,6 +74,44 @@ const InfoHoaDon = () => {
                 </Typography>
             </Box>
 
+            <Box
+                sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    flexWrap: "nowrap",
+                }}
+            >
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
+                    <Typography level="h6" sx={{ fontWeight: 'bold' }}>Mã hóa đơn</Typography>
+                    <Typography>{hoaDon.maHoaDon}</Typography>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
+                    <Typography level="h6" sx={{ fontWeight: 'bold' }}>Mã đặt phòng</Typography>
+                    <Typography>{hoaDon.maDatPhong}</Typography>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
+                    <Typography level="h6" sx={{ fontWeight: 'bold' }}>Ngày tạo</Typography>
+                    <Typography>{hoaDon.ngayTao}</Typography>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
+                    <Typography level="h6" sx={{ fontWeight: 'bold' }}>Tên nhân viên</Typography>
+                    <Typography>{hoaDon.tenNhanVien}</Typography>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
+                    <Typography level="h6" sx={{ fontWeight: 'bold' }}>Tên khách hàng</Typography>
+                    <Typography>{hoaDon.tenKhachHang}</Typography>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
+                    <Typography level="h6" sx={{ fontWeight: 'bold' }}>Tổng tiền</Typography>
+                    <Typography>{formatCurrency(hoaDon.tongTien)}</Typography>
+                </Sheet>
+                <Sheet sx={{ p: 2, borderRadius: 2, boxShadow: 3, minWidth: 150, flexShrink: 0, bgcolor: "#fff" }}>
+                    <Typography level="h6" sx={{ fontWeight: 'bold' }}>Trạng thái</Typography>
+                    <Typography>{hoaDon.trangThai}</Typography>
+                </Sheet>
+            </Box>
+
             <Box sx={{ marginTop: 3 }}>
                 <Sheet sx={{ padding: '2px', borderRadius: '5px' }}>
                     <Table borderAxis="x" size="lg" stickyHeader variant="outlined">
@@ -133,9 +171,9 @@ const InfoHoaDon = () => {
                                                                                 {dichVuSuDung.filter(dv => dv.tenPhong === item.tenPhong).map((dv, i) => (
                                                                                     <tr key={i}>
                                                                                         <td>{dv.tenDichVu}</td>
-                                                                                        <td>{formatCurrency(dv.giaSuDung)}</td>
+                                                                                        <td>{formatCurrency(dv.giaDichVu)}</td>
                                                                                         <td>{dv.soLuongSuDung}</td>
-                                                                                        <td>{formatCurrency(dv.giaSuDung * dv.soLuongSuDung)}</td>
+                                                                                        <td>{formatCurrency(dv.giaDichVu * dv.soLuongSuDung)}</td>
                                                                                     </tr>
                                                                                 ))}
                                                                             </tbody>
