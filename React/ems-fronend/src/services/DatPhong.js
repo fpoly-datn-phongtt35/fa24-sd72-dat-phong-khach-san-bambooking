@@ -10,6 +10,7 @@ const apiUpdateKHDP = "http://localhost:8080/khach-hang/update-kh-dp";
 const apiDetailDP = "http://localhost:8080/dat-phong/chi-tiet-dat-phong";
 const apiDeleteKHDP = "http://localhost:8080/khach-hang/delete-kh-dp";
 const apiXoaDatPhong = "http://localhost:8080/dat-phong/xoa";
+const apiToHopLoaiPhong  = "http://localhost:8080/ttdp/to-hop-loai-phong-kha-dung";
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
     return authorizedAxiosInstance.get(apiDP, {
@@ -81,3 +82,15 @@ export const XoaDatPhong = (iddp) => {
     return authorizedAxiosInstance.delete(apiXoaDatPhong, iddp);
 };
 
+export const toHopLoaiPhong = (ngayNhanPhong, ngayTraPhong, soNguoi, key, pageable) => {
+    return authorizedAxiosInstance.get(apiToHopLoaiPhong, {
+        params: {
+            ngayNhanPhong,
+            ngayTraPhong,
+            soNguoi,
+            key,
+            size: pageable.size,
+            page: pageable.page
+        }
+    });
+};

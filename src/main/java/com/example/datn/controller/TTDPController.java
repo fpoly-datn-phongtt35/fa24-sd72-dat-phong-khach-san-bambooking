@@ -128,10 +128,12 @@ public class TTDPController {
     }
 
     @GetMapping("to-hop-loai-phong-kha-dung")
-    public List<ToHopPhongPhuHop> toHopLoaiPhongKhaDung(@RequestParam(required = false) LocalDateTime ngayNhanPhong,
-                                                        @RequestParam(required = false) LocalDateTime ngayTraPhong,
-                                                        @RequestParam(required = false) Integer soKhach) {
-        List<ToHopPhongPhuHop> p = loaiPhongServiceIMPL.TESTDATPHONG(ngayNhanPhong, ngayTraPhong,soKhach);
+    public Page<ToHopPhongPhuHop> toHopLoaiPhongKhaDung(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
+                                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
+                                                        @RequestParam(required = false) Integer soNguoi,
+                                                        @RequestParam(required = false) String key,
+                                                        @PageableDefault(size = 5) Pageable pageable) {
+        Page<ToHopPhongPhuHop> p = loaiPhongServiceIMPL.TESTDATPHONG(ngayNhanPhong, ngayTraPhong,soNguoi, key, pageable);
         return p;
     }
 }

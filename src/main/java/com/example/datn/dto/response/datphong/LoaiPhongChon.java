@@ -14,5 +14,5 @@ import java.util.List;
 @Setter
 public class LoaiPhongChon {
     private LoaiPhongKhaDungResponse loaiPhong;
-    private int soLuongChon;
+    private Integer soLuongChon;
 }

@@ -21,10 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class LoaiPhongServiceIMPL implements LoaiPhongService {
@@ -151,63 +148,80 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
 
     public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach) {
-        // Integer Programming
         List<ToHopPhongPhuHop> results = new ArrayList<>();
-        LoaiPhongKhaDungResponse room1 = loaiPhong.get(0);
-        LoaiPhongKhaDungResponse room2 = loaiPhong.get(1);
-        LoaiPhongKhaDungResponse room3 = loaiPhong.get(2);
-
-        // Duyệt tất cả các khả năng chọn phòng (giả sử số phòng khả dụng là số lượng phòng tối đa có thể chọn)
-        for (int x1 = 0; x1 <= room1.getSoPhongKhaDung(); x1++) {
-            for (int x2 = 0; x2 <= room2.getSoPhongKhaDung(); x2++) {
-                for (int x3 = 0; x3 <= room3.getSoPhongKhaDung(); x3++) {
-                    int totalCapacity = x1 * room1.getSoKhachToiDa()
-                            + x2 * room2.getSoKhachToiDa()
-                            + x3 * room3.getSoKhachToiDa();
-                    if (totalCapacity >= soKhach) {
-                        double totalCost = x1 * room1.getDonGia()
-                                + x2 * room2.getDonGia()
-                                + x3 * room3.getDonGia();
-                        int totalRooms = x1 + x2 + x3;
-
-                        // Tạo danh sách tổ hợp với số lượng phòng đã chọn cho mỗi loại
-                        List<LoaiPhongChon> lp = new ArrayList<>();
-                        lp.add(new LoaiPhongChon(room1, x1));
-                        lp.add(new LoaiPhongChon(room2, x2));
-                        lp.add(new LoaiPhongChon(room3, x3));
-
-                        ToHopPhongPhuHop comb = new ToHopPhongPhuHop(lp, totalCapacity, totalCost, totalRooms);
-                        results.add(comb);
-                    }
-                }
-            }
-        }
+        int n = loaiPhong.size();
+        // Mảng counts lưu số lượng phòng được chọn cho từng loại (theo thứ tự trong list loaiPhong)
+        int[] counts = new int[n];
+        generateCombinationsRec(0, counts, loaiPhong, soKhach, results);
         return results;
     }
 
-    public ToHopPhongPhuHop ToHopPhuHop(List<ToHopPhongPhuHop> toHopPhongPhuHops, String key) {
-        if (toHopPhongPhuHops.isEmpty()) return null;
-        ToHopPhongPhuHop temp = toHopPhongPhuHops.get(0);
-        if (key.equalsIgnoreCase("optimalCost")) {
-            for (ToHopPhongPhuHop thpph : toHopPhongPhuHops) {
-                if (thpph.getTongChiPhi() < temp.getTongChiPhi()) {
-                    temp = thpph;
+    private void generateCombinationsRec(int index, int[] counts, List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach, List<ToHopPhongPhuHop> results) {
+        // Khi đã duyệt hết các loại phòng, tính toán tổ hợp hiện tại
+        if (index == loaiPhong.size()) {
+            int totalCapacity = 0;
+            double totalCost = 0;
+            int totalRooms = 0;
+            List<LoaiPhongChon> lp = new ArrayList<>();
+            for (int i = 0; i < loaiPhong.size(); i++) {
+                LoaiPhongKhaDungResponse room = loaiPhong.get(i);
+                int count = counts[i];
+                totalCapacity += count * room.getSoKhachToiDa();
+                totalCost += count * room.getDonGia();
+                totalRooms += count;
+                // Chỉ thêm vào danh sách nếu số lượng chọn lớn hơn 0
+                if (count > 0) {
+                    lp.add(new LoaiPhongChon(room, count));
                 }
             }
-        } else if (key.equalsIgnoreCase("leastRooms")) {
-            for (ToHopPhongPhuHop thpph : toHopPhongPhuHops) {
-                if (thpph.getTongSoPhong() < thpph.getTongSoPhong()) {
-                    temp = thpph;
-                }
+            if (totalCapacity >= soKhach) {
+                ToHopPhongPhuHop comb = new ToHopPhongPhuHop(lp, totalCapacity, totalCost, totalRooms);
+                results.add(comb);
             }
+            return;
         }
-        return temp;
+
+        // Với loại phòng hiện tại, thử các giá trị từ 0 đến số phòng khả dụng
+        LoaiPhongKhaDungResponse room = loaiPhong.get(index);
+        for (int x = 0; x <= room.getSoPhongKhaDung(); x++) {
+            counts[index] = x;
+            generateCombinationsRec(index + 1, counts, loaiPhong, soKhach, results);
+        }
     }
 
-    public List<ToHopPhongPhuHop> TESTDATPHONG(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soKhach) {
+
+    public List<ToHopPhongPhuHop> ToHopPhuHop(List<ToHopPhongPhuHop> toHopPhongPhuHops, String key) {
+        if (toHopPhongPhuHops == null || toHopPhongPhuHops.isEmpty()) {
+            return toHopPhongPhuHops;
+        }
+        if (key == null || key.isBlank()){
+            return toHopPhongPhuHops;
+        }
+
+        // Tạo bản sao của danh sách để sắp xếp (để không làm thay đổi danh sách gốc nếu cần)
+        List<ToHopPhongPhuHop> sortedList = new ArrayList<>(toHopPhongPhuHops);
+
+        if (key.equalsIgnoreCase("optimalCost")) {
+            // Sắp xếp theo chi phí tối ưu (tăng dần: chi phí thấp nhất sẽ nằm đầu)
+            sortedList.sort(Comparator.comparing(ToHopPhongPhuHop::getTongChiPhi));
+        } else if (key.equalsIgnoreCase("leastRooms")) {
+            // Sắp xếp theo số phòng ít nhất (tăng dần: số phòng ít nhất sẽ nằm đầu)
+            sortedList.sort(Comparator.comparing(ToHopPhongPhuHop::getTongSoPhong));
+        }
+        return sortedList;
+    }
+
+    public Page<ToHopPhongPhuHop> paginateToHopWithPageable(List<ToHopPhongPhuHop> list, Pageable pageable) {
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), list.size());
+        List<ToHopPhongPhuHop> pageContent = list.subList(start, end);
+        return new PageImpl<>(pageContent, pageable, list.size());
+    }
+
+    public Page<ToHopPhongPhuHop> TESTDATPHONG(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi, String key, Pageable pageable) {
         List<LoaiPhongKhaDungResponse> loaiPhongKhaDungResponses = getAllLPKDR(ngayNhanPhong, ngayTraPhong);
-        List<ToHopPhongPhuHop> toHopPhongPhuHops = DanhSachToHop(loaiPhongKhaDungResponses, soKhach);
-        return toHopPhongPhuHops;
+        List<ToHopPhongPhuHop> toHopPhongPhuHops = ToHopPhuHop(DanhSachToHop(loaiPhongKhaDungResponses, soNguoi), key) ;
+        return paginateToHopWithPageable(toHopPhongPhuHops,pageable);
     }
 
     public Page<SearchResultResponse> searchAvailableRooms(LocalDateTime checkIn, LocalDateTime checkOut, Integer soNguoi, Integer soPhong, Pageable pageable) {

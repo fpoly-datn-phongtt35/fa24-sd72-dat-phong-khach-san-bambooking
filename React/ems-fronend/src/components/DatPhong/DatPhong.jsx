@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Box,
+  Paper,
   Typography,
   TextField,
   Button,
@@ -11,8 +12,6 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  Stack,
-  Chip,
   Pagination,
   Select,
   MenuItem,
@@ -21,69 +20,56 @@ import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
-// Giả sử các hàm API được định nghĩa trong file services (điều chỉnh đường dẫn tương ứng)
-import { kiemTraDa, kiemTraDon } from "../../services/LoaiPhongService";
+// Giả sử API trả về danh sách tổ hợp phòng phù hợp (trả về đối tượng Page có thuộc tính content, totalPages, number, …)
+import { toHopLoaiPhong } from "../../services/DatPhong";
 
 const DatPhong = () => {
-  // State cho ngày nhận, ngày trả, số người và số phòng (nếu cần)
+  // State cho ngày nhận, ngày trả, số người và key sắp xếp
   const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs());
   const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, "day"));
   const [soNguoi, setSoNguoi] = useState(1);
-  // State lưu kết quả trả về từ API kiểm tra
-  const [isDonAvailable, setIsDonAvailable] = useState(null);
-  const [isDaAvailable, setIsDaAvailable] = useState(null);
-  // State lưu dữ liệu các phòng đã được chọn (nếu cần)
-  const [selectData, setSelectData] = useState([]);
-  // Các state cho bảng kết quả (ví dụ hiển thị danh sách loại phòng khả dụng)
+  const [key, setKey] = useState("");
+
+  // State lưu dữ liệu phân trang trả về từ API
   const [loaiPhongKhaDung, setLoaiPhongKhaDung] = useState([]);
-  const [pageSize, setPageSize] = useState(10);
-  const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(0); // Đặt pageSize mặc định khác 0
 
-  // Hàm xử lý tìm kiếm: gọi API kiem-tra-don và kiem-tra-da
-  const handleSearch = async () => {
+  // Hàm xử lý tìm kiếm với tham số page (chỉ số bắt đầu từ 0)
+  const handleSearch = async (page = currentPage) => {
     try {
-      // Gửi ngày dưới dạng chuỗi ISO
-      const donResponse = await kiemTraDon(
+      // Gọi API với các tiêu chí: ngày nhận, ngày trả, số người, key và thông tin phân trang
+      const response = await toHopLoaiPhong(
         ngayNhanPhong.format(),
         ngayTraPhong.format(),
-        soNguoi
+        soNguoi,
+        key,
+        { page: page, size: pageSize }
       );
-      const daResponse = await kiemTraDa(
-        ngayNhanPhong.format(),
-        ngayTraPhong.format(),
-        soNguoi
-      );
-      setIsDonAvailable(donResponse.data);
-      setIsDaAvailable(daResponse.data);
-
-      // Nếu có thêm API để lấy danh sách phòng khả dụng, bạn có thể gọi và set vào loaiPhongKhaDung
-      // Ví dụ: fetchLoaiPhong();
+      // Giả sử API trả về đối tượng có cấu trúc: { content: [...], totalPages, number, ... }
+      console.log("Danh sách tổ hợp phòng:", response.data);
+      setLoaiPhongKhaDung(response.data.content);
+      setTotalPages(response.data.totalPages);
+      setCurrentPage(response.data.number);
     } catch (error) {
-      console.error("Lỗi khi kiểm tra phòng:", error);
+      console.error("Lỗi khi lấy tổ hợp phòng:", error);
     }
   };
 
-  // Hàm xử lý xóa dữ liệu phòng đã chọn
-  const handleRemoveSelectData = (index) => {
-    const newSelectData = [...selectData];
-    newSelectData.splice(index, 1);
-    setSelectData(newSelectData);
+  // Gọi API lần đầu khi component mount
+  useEffect(() => {
+    handleSearch(0);
+  }, []);
+
+  // Xử lý khi thay đổi trang (Pagination trả về page bắt đầu từ 1)
+  const handlePageChange = (e, page) => {
+    handleSearch(page - 1);
   };
 
-  // Ví dụ hàm xử lý đặt phòng ngay
-  const handleCreateBooking = (result) => {
-    console.log("Đặt ngay:", result);
-  };
-
-  // Hàm xử lý thêm vào danh sách phòng đã chọn
-  const handleSelectData = (result) => {
-    setSelectData([...selectData, result]);
-  };
-
-  // Hàm xử lý Bulk Booking (đặt hàng loạt)
-  const handleBulkBooking = () => {
-    console.log("Bulk booking với:", selectData);
+  // Khi thay đổi tiêu chí tìm kiếm (key, ngày nhận/trả, số người) reset về trang đầu tiên
+  const handleCriteriaChange = () => {
+    handleSearch(0);
   };
 
   return (
@@ -119,6 +105,7 @@ const DatPhong = () => {
                 if (newValue.isAfter(ngayTraPhong)) {
                   setNgayTraPhong(newValue.add(1, "day"));
                 }
+                handleCriteriaChange();
               }}
               renderInput={(params) => <TextField {...params} />}
             />
@@ -126,7 +113,10 @@ const DatPhong = () => {
               label="Ngày trả phòng"
               value={ngayTraPhong}
               minDate={ngayNhanPhong}
-              onChange={(newValue) => setNgayTraPhong(newValue)}
+              onChange={(newValue) => {
+                setNgayTraPhong(newValue);
+                handleCriteriaChange();
+              }}
               renderInput={(params) => <TextField {...params} />}
             />
           </LocalizationProvider>
@@ -134,150 +124,93 @@ const DatPhong = () => {
             label="Số người"
             type="number"
             value={soNguoi}
-            onChange={(e) => setSoNguoi(Math.max(1, Number(e.target.value)))}
-            inputProps={{ min: 1 }}
+            onChange={(e) => setSoNguoi(e.target.value)}
+            inputProps={{ min: 0 }}
           />
-          <Button variant="contained" color="primary" onClick={handleSearch}>
+          {/* Select để chọn key sắp xếp tổ hợp phòng */}
+          <Select
+            value={key}
+            onChange={(e) => {
+              setKey(e.target.value);
+              handleCriteriaChange();
+            }}
+            displayEmpty
+            sx={{ minWidth: "150px" }}
+          >
+            <MenuItem value="">Mặc định</MenuItem>
+            <MenuItem value="optimalCost">Chi phí tối ưu</MenuItem>
+            <MenuItem value="leastRooms">Số phòng ít</MenuItem>
+          </Select>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => handleSearch(0)}
+          >
             Tìm kiếm
           </Button>
         </Box>
       </Box>
 
-      {/* Hiển thị kết quả kiểm tra */}
-      <Box sx={{ mt: 3, textAlign: "center" }}>
-        {isDonAvailable !== null && (
-          <Typography variant="h6">
-            Kiểm tra kiểu đơn: {isDonAvailable ? "Đáp ứng" : "Không đáp ứng"}
-          </Typography>
-        )}
-        {isDaAvailable !== null && (
-          <Typography variant="h6">
-            Kiểm tra kiểu đa: {isDaAvailable ? "Đáp ứng" : "Không đáp ứng"}
-          </Typography>
-        )}
-      </Box>
-
-      {/* Phân trang & chọn số dòng hiển thị */}
-      <Stack
-        direction="row"
-        spacing={2}
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{ mb: 3, mt: 4 }}
-      >
-        {/* Nút Bulk Booking */}
-        <Button variant="contained" color="primary" onClick={handleBulkBooking}>
-          Đặt phòng
-        </Button>
-
-        {/* Phần Hiển thị số dòng */}
-        <Box display="flex" alignItems="center">
-          <Typography variant="subtitle1" noWrap>
-            Hiển thị:
-          </Typography>
-          <Select
-            value={pageSize}
-            sx={{ width: "70px", height: "40px", ml: 1 }}
-            onChange={(event) => {
-              const newPageSize = Number(event.target.value);
-              setPageSize(newPageSize);
-              setCurrentPage(0);
-              // Gọi hàm fetch nếu cần cập nhật bảng kết quả
-            }}
-          >
-            <MenuItem value={5}>5</MenuItem>
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={25}>25</MenuItem>
-            <MenuItem value={50}>50</MenuItem>
-            <MenuItem value={100}>100</MenuItem>
-          </Select>
-        </Box>
-      </Stack>
-
-      {/* Bảng hiển thị kết quả (giả lập) */}
-      <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>STT</TableCell>
-              <TableCell>Loại phòng</TableCell>
-              <TableCell>Diện tích</TableCell>
-              <TableCell>Số khách tối đa</TableCell>
-              <TableCell>Số phòng khả dụng</TableCell>
-              <TableCell>Đơn giá</TableCell>
-              <TableCell>Số phòng</TableCell>
-              <TableCell>Tổng</TableCell>
-              <TableCell>Hành động</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loaiPhongKhaDung && loaiPhongKhaDung.length > 0 ? (
-              loaiPhongKhaDung.map((result, index) => (
-                <TableRow key={result.loaiPhongResponse.id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>{result.loaiPhongResponse.tenLoaiPhong}</TableCell>
-                  <TableCell>{result.loaiPhongResponse.dienTich} m²</TableCell>
-                  <TableCell>
-                    {result.loaiPhongResponse.soKhachToiDa} khách
-                  </TableCell>
-                  <TableCell>
-                    {result.loaiPhongResponse.donGia.toLocaleString()} VND
-                  </TableCell>
-                  <TableCell>{result.danhSachCachChia.soPhongCan}</TableCell>
-                  <TableCell>{result.danhSachCachChia.soPhongKhaDung}</TableCell>
-                  <TableCell>
-                    {result.danhSachCachChia.tongGiaTien.toLocaleString()} VND
-                  </TableCell>
-                  <TableCell>
-                    {result.danhSachCachChia.isContainable ? (
-                      <Chip label="Đủ" color="success" size="small" />
-                    ) : (
-                      <Chip
-                        label="Vượt quá sức chứa"
-                        color="error"
-                        size="small"
-                      />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={1}>
-                      <Button
-                        variant="outlined"
-                        color="success"
-                        size="small"
-                        onClick={() => handleCreateBooking(result)}
-                      >
-                        Đặt ngay
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        onClick={() => handleSelectData(result)}
-                      >
-                        Chọn
-                      </Button>
-                    </Stack>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={10} align="center">
-                  Không tìm thấy loại phòng nào phù hợp.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {/* Hiển thị danh sách tổ hợp phòng (mỗi tổ hợp là 1 bảng) */}
+      {loaiPhongKhaDung && loaiPhongKhaDung.length > 0 ? (
+        loaiPhongKhaDung.map((combination, combIndex) => (
+          <Box key={combIndex} mb={4}>
+            <Typography variant="h6" gutterBottom>
+              Tổ hợp {combIndex + 1}: Tổng sức chứa {combination.tongSucChua} -
+              Tổng chi phí: {Number(combination.tongChiPhi).toLocaleString()}{" "}
+              VND - Tổng số phòng: {combination.tongSoPhong}
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>STT</TableCell>
+                    <TableCell>Loại phòng</TableCell>
+                    <TableCell>Diện tích</TableCell>
+                    <TableCell>Số khách tối đa</TableCell>
+                    <TableCell>Đơn giá</TableCell>
+                    <TableCell>Số lượng chọn</TableCell>
+                    <TableCell>Thành tiền</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {combination.phongs.map((phong, index) => (
+                    <TableRow key={phong.loaiPhong.id}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{phong.loaiPhong.tenLoaiPhong}</TableCell>
+                      <TableCell>{phong.loaiPhong.dienTich} m²</TableCell>
+                      <TableCell>
+                        {phong.loaiPhong.soKhachToiDa} khách
+                      </TableCell>
+                      <TableCell>
+                        {phong.loaiPhong.donGia.toLocaleString()} VND
+                      </TableCell>
+                      <TableCell>{phong.soLuongChon}</TableCell>
+                      <TableCell>
+                        {(
+                          phong.soLuongChon * phong.loaiPhong.donGia
+                        ).toLocaleString()}{" "}
+                        VND
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+        ))
+      ) : (
+        <Typography align="center">
+          Không tìm thấy tổ hợp phòng nào phù hợp.
+        </Typography>
+      )}
 
       {/* Phân trang */}
       <Box sx={{ mt: 3, display: "flex", justifyContent: "center" }}>
         <Pagination
           count={totalPages}
           page={currentPage + 1}
-          onChange={(e, page) => setCurrentPage(page - 1)}
+          onChange={handlePageChange}
         />
       </Box>
     </Container>
