@@ -189,7 +189,6 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         }
     }
 
-
     public List<ToHopPhongPhuHop> ToHopPhuHop(List<ToHopPhongPhuHop> toHopPhongPhuHops, String key) {
         if (toHopPhongPhuHops == null || toHopPhongPhuHops.isEmpty()) {
             return toHopPhongPhuHops;
