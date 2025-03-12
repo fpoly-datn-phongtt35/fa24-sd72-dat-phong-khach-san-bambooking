@@ -1,241 +1,84 @@
-/* Reset và thiết lập cơ bản */
-* {
+/* Đảm bảo body và html không có margin */
+html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden; /* Tránh bị tràn ngang */
 }
 
+/* Cập nhật lại navbar */
 .navbar {
-  background-color: #003580;
-  color: white;
-  padding: 10px 30px; /* Giảm chiều cao navbar */
+  width: 100vw;
+  max-width: 100vw; /* Đảm bảo nó full width */
+  margin: 0;
+  padding: 15px 20px;
+  background-color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: fixed;
-  width: 100%;
-  top: 0;
-  z-index: 1000;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  box-sizing: border-box;
 }
 
 .navbar-logo a {
-  color: white;
+  color: #333;
+  font-family: serif;
   font-size: 24px;
   text-decoration: none;
   font-weight: bold;
-  transition: color 0.3s ease;
 }
-
-.navbar-logo a:hover {
-  color: #1abc9c;
-}
-
+/* Đảm bảo phần links chiếm đúng khoảng cách */
 .navbar-links {
-  list-style: none;
+  flex-grow: 1; /* Thay vì flex: 1 */
   display: flex;
-  gap: 40px; /* Khoảng cách giữa các mục */
-  font-size: 18px;
-  flex-grow: 1;
   justify-content: center;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
+/* Đảm bảo navbar không bị co lại */
 .navbar-links li {
-  display: inline-block;
-  padding: 15px 20px;
+  margin: 0 20px;
+  white-space: nowrap; /* Tránh bị xuống dòng */
 }
 
+/* Định dạng link */
 .navbar-links a {
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.navbar-links a:hover {
-  color: #1abc9c;
-}
-
-.navbar-buttons {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-}
-
-.navbar-links li {
-  position: relative; /* Cần thiết để định vị gạch chân */
-}
-
-.navbar-links a {
-  color: white;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-  padding: 8px 0; /* Thêm padding để tạo không gian cho gạch chân */
-}
-
-.navbar-links a:hover {
-  color: #1abc9c;
-}
-
-.navbar-links a::after {
-  content: ''; /* Tạo gạch chân */
-  display: block;
-  height: 2px; /* Chiều cao gạch chân */
-  background-color: #1abc9c; /* Màu sắc gạch chân */
-  width: 100%; /* Chiều rộng gạch chân */
-  position: absolute;
-  left: 0;
-  bottom: -5px; /* Đưa gạch chân xuống dưới chữ */
-  transform: scaleX(0); /* Ẩn gạch chân */
-  transition: transform 0.3s ease; /* Hiệu ứng khi gạch chân xuất hiện */
-}
-
-.navbar-links a:hover::after,
-.navbar-links a.active::after {
-  transform: scaleX(1); /* Hiển thị gạch chân khi hover hoặc mục được chọn */
-}
-
-.login-button, .sign-button, .logout-button {
-  background-color: #1abc9c;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-  display: inline-flex; /* Dùng inline-flex để các nút có kích thước vừa đủ */
-  align-items: center;
-  justify-content: center; /* Căn giữa nội dung */
-  min-width: 85px; /* Đảm bảo nút có kích thước đồng đều */
-  height: 40px; /* Chiều cao cố định để các nút đồng đều */
-}
-
-.login-button:hover, .sign-button:hover, .logout-button:hover {
-  background-color: #16a085;
-  transform: scale(1.05);
-}
-
-/* Nút Đăng Xuất có màu nền khác */
-.logout-button {
-  background-color: #e74c3c;
-}
-
-.logout-button:hover {
-  background-color: #c0392b;
-}
-
-/* Responsive thiết kế cho màn hình nhỏ */
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 10px;
-  }
-
-  .navbar-links {
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-    text-align: center;
-  }
-
-  .navbar-buttons {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .login-button, .sign-button, .logout-button {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-/* Container của form đặt phòng */
-
-/* Đặt phòng form */
-.book-now-button {
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-bottom: 10px;
-}
-
-.book-now-button:hover {
-  background-color: #45a049;
-}
-
-.booking-form-container1 {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  z-index: 100;
-}
-
-.booking-form {
-  background-color: #f9f9f9;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  display: flex;
-  align-items: center; /* Căn giữa theo chiều dọc */
-  gap: 20px; /* Khoảng cách giữa các phần tử */
-}
-
-/* Các thành phần trong form */
-.form-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1; /* Chia đều không gian */
-}
-
-
-.form-item label {
-  font-size: 16px; /* Tăng kích thước label để dễ đọc */
   color: #333;
-  min-width: 120px; /* Đảm bảo label có kích thước đều và rõ ràng */
+  text-decoration: none;
+  font-size: 16px;
+  text-transform: uppercase;
+  padding: 10px;
+  transition: color 0.3s ease-in-out;
 }
 
-.form-item input {
-  flex: 1;
-  padding: 8px 12px; /* Cải thiện padding cho input */
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
+.navbar-links a.active,
+.navbar-links a:hover {
+  color: #007bff;
 }
 
-.confirm-button {
+/* Nút đặt phòng */
+.navbar-buttons .book-now-button {
   background-color: #007bff;
   color: white;
-  padding: 8px 16px; /* Giảm padding để nút không quá to */
-  font-size: 16px; /* Điều chỉnh font-size của nút */
   border: none;
-  border-radius: 4px;
+  padding: 10px 20px;
   cursor: pointer;
-  min-width: 120px; /* Đảm bảo nút có chiều rộng hợp lý */
-  height: 40px; /* Giữ chiều cao cố định để nút đồng đều */
+  font-size: 16px;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease-in-out;
 }
 
-.confirm-button:hover {
+.navbar-buttons .book-now-button:hover {
   background-color: #0056b3;
 }
 
-/* Responsive: Form hiển thị tốt trên màn hình nhỏ */
-@media (max-width: 768px) {
-  .booking-form {
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-  }
-}
-.form-item input[type="number"] {
-  width: auto; /* Để input số người có chiều rộng tự động */
-  min-width: 100px; /* Đảm bảo kích thước hợp lý */
-  max-width: 150px; /* Không để input quá rộng */
+.btn-custom {
+  background-color: #4A4A4A;
+  color: white;
 }
