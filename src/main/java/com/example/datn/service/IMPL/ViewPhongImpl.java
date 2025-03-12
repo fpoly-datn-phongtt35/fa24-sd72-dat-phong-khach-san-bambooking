@@ -63,7 +63,7 @@ public class ViewPhongImpl implements ViewPhongService {
                         dvsd.setNgayBatDau(LocalDateTime.now());
                         dvsd.setNgayKetThuc(null); // Nếu có thời gian kết thúc thì cập nhật
                         dvsd.setGiaSuDung(0.0); // Giả sử dịch vụ đi kèm có giá
-                        dvsd.setTrangThai(true); // Trạng thái mặc định
+                        dvsd.setTrangThai(false); // Trạng thái mặc định
                         return dvsd;
                     })
                     .collect(Collectors.toList());
