@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
 import Rooms from './pages/Rooms';
 import Profile from './components/Profile';
 import Register from './components/Register';
 import Login from './components/Login';
 import Footer from './components/Footer';
-import BookingPage from './pages/BookingPage';
-import PaymentPage from './pages/PaymentPage';
 import './App.css';
 import AboutPage from './pages/AboutPage';
-import HotelRules from './pages/HotelRules';
-import BookingConfirmation from './pages/BookingConfirmation';
-import DatPhong from './pages/DatPhong';
-import LichSuDatPhong from './pages/LichSuDatPhong'
+
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái đăng nhập
@@ -48,16 +42,9 @@ export default function App() {
         <div className="main-content">
           <div className="content-area">
             <Routes>
-              <Route path="/" element={<Home user={user} />} /> {/* Truyền user vào Home */}
+              {/* <Route path="/" element={<Home user={user} />} />  */}
               <Route path="/rooms" element={<Rooms />} />
-              <Route path="/booking" element={<BookingPage />} />
-              <Route path="/payment" element={<PaymentPage />} />
-              <Route path="/contact" element={<PaymentPage />} />
               <Route path="/about" element={<AboutPage />} />
-              <Route path="/rules" element={<HotelRules />} />
-              <Route path="/confirmation" element={<BookingConfirmation />} />
-              <Route path="/datphong" element={<DatPhong />} />
-              <Route path="/histories" element={<LichSuDatPhong />} />
               <Route
                 path="/register"
                 element={<Register handleRegister={handleLogin} />}

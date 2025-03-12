@@ -1,4 +1,4 @@
-/* Register.css */
+
 .register-container {
   display: flex;
   flex-direction: column;
@@ -14,16 +14,16 @@
   color: #333;
 }
 
-form {
+/* form {
   width: 100%;
-  max-width: 360px; /* Chiều rộng tối đa */
+  max-width: 360px;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
   background-color: white;
-}
+} */
 
-input {
+/* input {
   width: 100%;
   padding: 10px;
   margin: 10px 0;
@@ -54,7 +54,7 @@ button {
 
 button:hover {
   background-color: #3367d6;
-}
+} */
 
 .error-message {
   color: red;
