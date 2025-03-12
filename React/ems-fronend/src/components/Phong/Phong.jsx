@@ -52,7 +52,7 @@ const Phong = () => {
 
     const saveOrUpdate = (e) => {
         e.preventDefault();
-
+    
         const phong = {
             maPhong,
             tenPhong,
@@ -60,18 +60,11 @@ const Phong = () => {
             tinhTrang: id ? tinhTrang : "available",
             trangThai: trangThai ? "true" : "false"
         };
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('tenAnh', tenPhong);
-        formData.append('idPhong', id);
-        formData.append('tinhTrang', id ? tinhTrang : 'available');
-        formData.append('trangThai', id ? trangThai : 'true');
-
+    
         const handleError = (error) => {
             if (error.response && error.response.data) {
                 setErrors(error.response.data);
-                console.error("Lỗi từ API:", error.response.data); // Log dữ liệu lỗi
+                console.error("Lỗi từ API:", error.response.data);
                 Swal.fire({
                     title: 'Lỗi!',
                     text: 'Không thể hoàn thành thao tác. Vui lòng kiểm tra lại!',
@@ -88,7 +81,7 @@ const Phong = () => {
                 });
             }
         };
-
+    
         Swal.fire({
             title: id ? 'Xác nhận cập nhật' : 'Xác nhận thêm mới',
             text: id ? 'Bạn có chắc chắn muốn cập nhật thông tin phòng?' : 'Bạn có chắc chắn muốn thêm phòng mới?',
@@ -100,12 +93,19 @@ const Phong = () => {
             if (result.isConfirmed) {
                 if (id) {
                     // Cập nhật phòng
-                    updatePhong(id, phong).then((response) => {
-                        console.log("Cập nhật phòng thành công:", response.data.content);
-                        if (file) {
-                            return uploadImage(formData); // Trả về Promise để chờ
-                        }
-                    })
+                    updatePhong(id, phong)
+                        .then((response) => {
+                            console.log("Cập nhật phòng thành công:", response.data.content);
+                            if (file) {
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                formData.append('tenAnh', tenPhong);
+                                formData.append('idPhong', id); // id có sẵn từ useParams
+                                formData.append('tinhTrang', tinhTrang);
+                                formData.append('trangThai', trangThai ? 'true' : 'false');
+                                return uploadImage(formData);
+                            }
+                        })
                         .then((uploadResponse) => {
                             if (uploadResponse) {
                                 console.log('Upload thành công:', uploadResponse.data);
@@ -116,18 +116,36 @@ const Phong = () => {
                                 icon: 'success',
                                 confirmButtonText: 'OK'
                             }).then(() => navigate('/quan-ly-phong'));
-                        }).catch(handleError);
+                        })
+                        .catch(handleError);
                 } else {
                     // Thêm mới phòng
-                    createPhong(phong).then((response) => {
-                        console.log("Thêm phòng thành công:", response.data.content);
-                        Swal.fire({
-                            title: 'Thành công!',
-                            text: 'Phòng mới đã được thêm.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then(() => navigate('/quan-ly-phong'));
-                    }).catch(handleError);
+                    createPhong(phong)
+                        .then((response) => {
+                            console.log("Thêm phòng thành công:", response.data);
+                            const newPhongId = response.data.id; // Giả sử response trả về id của phòng mới
+                            if (file) {
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                formData.append('tenAnh', tenPhong);
+                                formData.append('idPhong', newPhongId); // Sử dụng id vừa tạo
+                                formData.append('tinhTrang', 'available');
+                                formData.append('trangThai', 'true');
+                                return uploadImage(formData);
+                            }
+                        })
+                        .then((uploadResponse) => {
+                            if (uploadResponse) {
+                                console.log('Upload thành công:', uploadResponse.data);
+                            }
+                            Swal.fire({
+                                title: 'Thành công!',
+                                text: 'Phòng mới đã được thêm.',
+                                icon: 'success',
+                                confirmButtonText: 'OK'
+                            }).then(() => navigate('/quan-ly-phong'));
+                        })
+                        .catch(handleError);
                 }
             }
         });
@@ -271,23 +289,22 @@ const Phong = () => {
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <div className="form-group mb-3">
-                                            <label className='form-label'>Chọn Ảnh:</label>
-                                            <div className="mb-3">
-                                                <input
-                                                    type="file"
-                                                    className="form-control-file"
-                                                    id="file"
-                                                    onChange={handleFileChange}
-                                                />
-                                            </div>
-                                        </div>
                                     </>
                                 )}
+                                <div className="form-group mb-3">
+                                    <label className='form-label'>Chọn Ảnh:</label>
+                                    <div className="mb-3">
+                                        <input
+                                            type="file"
+                                            className="form-control-file"
+                                            id="file"
+                                            onChange={handleFileChange}
+                                        />
+                                    </div>
+                                </div>
 
                                 <button className='btn btn-success' onClick={saveOrUpdate}>{id ? "Cập nhật" : "Thêm"}</button>
-                                <button className='btn btn-outline-primary' style={{ marginLeft: '10px' }} onClick={() => navigate('/phong')}>Quay lại</button>
+                                <button className='btn btn-outline-primary' style={{ marginLeft: '10px' }} onClick={() => navigate('/quan-ly-phong')}>Quay lại</button>
                             </form>
                         </div>
                     </div>
