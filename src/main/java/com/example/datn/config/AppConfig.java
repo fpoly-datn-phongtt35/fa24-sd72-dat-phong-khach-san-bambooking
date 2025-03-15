@@ -26,7 +26,7 @@ public class AppConfig {
 
     private final UserService userService;
     private final PrevFilter prevFilter;
-    private final String[] WHILE_LIST = {"/api/auth/**", "/api/*/customer/**"};
+    private final String[] WHILE_LIST = {"/api/auth/**"};
     private final String[] URI_ADMIN = {"/api/*/customer/**", "/xep-phong/**", "/ttdp/**", "/tra-phong/**",
             "/tien-ich-phong/**", "/tien-ich/**", "/thong-tin-hoa-don/**", "/phong/**", "/loai-phong/**",
             "/khach-hang-checkin/**", "/hoa-don/**", "/dich_vu_su_dung/**", "/dich_vu_di_kem/**", "/dich_vu/**",
@@ -41,7 +41,7 @@ public class AppConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults())
                 .authorizeHttpRequests(request -> request.requestMatchers(WHILE_LIST).permitAll()
-                        .requestMatchers(URI_ADMIN).hasAnyAuthority("Admin")
+//                        .requestMatchers(URI_ADMIN).hasAnyAuthority("Admin")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))

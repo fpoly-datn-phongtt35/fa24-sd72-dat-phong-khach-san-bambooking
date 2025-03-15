@@ -129,7 +129,7 @@ export default function Navbar() {
         </ul>
         <div className="navbar-buttons">
           {
-            !isAuthenticated && (<button className="book-now-button" onClick={() => navigate("/login")}>Đăng nhập</button>)
+            !isAuthenticated && (<button className="book-now-button me-2" onClick={() => navigate("/login")}>Đăng nhập</button>)
           }
           <button className="book-now-button" onClick={handleDropdown}>
             {isOpen ? 'ĐÓNG' : 'ĐẶT PHÒNG'}
