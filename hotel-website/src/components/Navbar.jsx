@@ -1,14 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
 
 export default function Navbar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const accessToken = localStorage.getItem('accessToken');
+
+  const navigate = useNavigate();
 
   const handleDropdown = () => {
     setIsOpen(!isOpen);
   }
+
+  useEffect(() => {
+    if (accessToken) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+  }, [accessToken])
+
   return (
     <>
       {
@@ -115,6 +128,9 @@ export default function Navbar() {
           </li>
         </ul>
         <div className="navbar-buttons">
+          {
+            !isAuthenticated && (<button className="book-now-button" onClick={() => navigate("/login")}>Đăng nhập</button>)
+          }
           <button className="book-now-button" onClick={handleDropdown}>
             {isOpen ? 'ĐÓNG' : 'ĐẶT PHÒNG'}
           </button>

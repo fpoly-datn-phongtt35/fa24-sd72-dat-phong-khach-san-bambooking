@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/AboutPage.css';
+import authorizedAxiosInstance from "../utils/authorizedAxios";
+import { API_ROOT } from '../utils/constants';
 
 export default function AboutPage() {
   const navigate = useNavigate();
@@ -8,6 +10,21 @@ export default function AboutPage() {
   const handleBookNow = () => {
     navigate('/booking');
   };
+
+  useEffect(() => {
+    // Test API
+    const getCustomer = async () => {
+      try {
+
+        await authorizedAxiosInstance.get(`${API_ROOT}/api/v1/customer`).then(res => {
+          console.log(res?.data?.data);
+        })
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    getCustomer();
+  }, [])
 
   return (
     <div className="about-page">
@@ -23,11 +40,11 @@ export default function AboutPage() {
         <div className="about-text">
           <h2>Về chúng tôi</h2>
           <p>
-            Khách sạn Sunrise là điểm đến lý tưởng cho những ai đang tìm kiếm sự kết hợp hoàn hảo giữa sang trọng và thoải mái. 
+            Khách sạn Sunrise là điểm đến lý tưởng cho những ai đang tìm kiếm sự kết hợp hoàn hảo giữa sang trọng và thoải mái.
             Tọa lạc tại trung tâm thành phố, chúng tôi cung cấp dịch vụ đẳng cấp 5 sao với tầm nhìn tuyệt đẹp ra biển.
           </p>
           <p>
-            Với hơn 20 năm kinh nghiệm trong ngành khách sạn, chúng tôi tự hào mang đến cho quý khách trải nghiệm lưu trú 
+            Với hơn 20 năm kinh nghiệm trong ngành khách sạn, chúng tôi tự hào mang đến cho quý khách trải nghiệm lưu trú
             đáng nhớ với dịch vụ chuyên nghiệp và tiện nghi hiện đại.
           </p>
         </div>
