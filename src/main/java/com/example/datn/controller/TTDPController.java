@@ -132,8 +132,17 @@ public class TTDPController {
                                                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
                                                         @RequestParam(required = false) Integer soNguoi,
                                                         @RequestParam(required = false) String key,
+                                                        @RequestParam(required = false) Double tongChiPhiMin,
+                                                        @RequestParam(required = false) Double tongChiPhiMax,
+                                                        @RequestParam(required = false) Integer tongSoPhongMin,
+                                                        @RequestParam(required = false) Integer tongSoPhongMax,
+                                                        @RequestParam(required = false) Integer tongSucChuaMin,
+                                                        @RequestParam(required = false) Integer tongSucChuaMax,
+                                                        @RequestParam(required = false) String loaiPhong,
+                                                        @RequestParam(required = false) Integer soLuongChonMin,
                                                         @PageableDefault(size = 5) Pageable pageable) {
-        Page<ToHopPhongPhuHop> p = loaiPhongServiceIMPL.TESTDATPHONG(ngayNhanPhong, ngayTraPhong,soNguoi, key, pageable);
+        Page<ToHopPhongPhuHop> p = loaiPhongServiceIMPL.TESTDATPHONG(ngayNhanPhong, ngayTraPhong,soNguoi, key, tongChiPhiMin,
+                tongChiPhiMax, tongSoPhongMin, tongSoPhongMax, tongSucChuaMin, tongSucChuaMax,loaiPhong, soLuongChonMin, pageable);
         return p;
     }
 }

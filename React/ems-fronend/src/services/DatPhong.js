@@ -82,13 +82,21 @@ export const XoaDatPhong = (iddp) => {
     return authorizedAxiosInstance.delete(apiXoaDatPhong, iddp);
 };
 
-export const toHopLoaiPhong = (ngayNhanPhong, ngayTraPhong, soNguoi, key, pageable) => {
+export const toHopLoaiPhong = (ngayNhanPhong, ngayTraPhong, soNguoi, key, tongChiPhiMin, tongChiPhiMax, tongSucChuaMin, tongSucChuaMax, loaiPhong, tongSoPhongMin, tongSoPhongMax, soLuongChonMin, pageable) => {
     return authorizedAxiosInstance.get(apiToHopLoaiPhong, {
         params: {
             ngayNhanPhong,
             ngayTraPhong,
             soNguoi,
             key,
+            tongChiPhiMin,
+            tongChiPhiMax,
+            tongSucChuaMin,
+            tongSucChuaMax,
+            loaiPhong,
+            tongSoPhongMin,
+            tongSoPhongMax,
+            soLuongChonMin,
             size: pageable.size,
             page: pageable.page
         }
