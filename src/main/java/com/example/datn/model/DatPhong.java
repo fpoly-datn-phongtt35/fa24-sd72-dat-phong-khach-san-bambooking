@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,5 +36,7 @@ public class DatPhong {
     @Column(name = "trang_thai")
     private String trangThai;
 
-
+    public String getFullNameKhachHang() {
+        return this.khachHang.getHo()+ " " + this.khachHang.getTen();
+    }
 }

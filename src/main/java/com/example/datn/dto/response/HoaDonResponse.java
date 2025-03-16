@@ -13,6 +13,7 @@ public class HoaDonResponse {
     String tenDangNhap;
     String tenNhanVien;
     String maDatPhong;
+    String tenKhachHang;
     Double tongTien;
     String ngayTao;
     String trangThai;

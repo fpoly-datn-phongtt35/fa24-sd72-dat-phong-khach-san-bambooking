@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { listTienNghi } from '../../services/VatTuLoaiPhong';
+import { listVatTuLoaiPhong } from '../../services/VatTuLoaiPhong';
 import FormAdd from './FormAdd';
 import FormDetail from './FormDetail';
 
@@ -12,9 +12,10 @@ const VatTuLoaiPhong = () => {
 
     // Hàm lấy dữ liệu tiện ích
     const getAllSanPham = () => {
-        listTienNghi({ page: currentPage, size: itemsPerPage }, "")
+        listVatTuLoaiPhong({ page: currentPage, size: itemsPerPage }, "")
             .then((response) => {
-                setData(response.data.content);
+                console.log(response.data)
+                setData(response.data);
                 setTotalPages(response.data.totalPages);
             }).catch((error) => {
                 console.log(error);
@@ -23,6 +24,7 @@ const VatTuLoaiPhong = () => {
 
     useEffect(() => {
         getAllSanPham();
+
     }, [data]);
 
     const handleNextPage = () => {

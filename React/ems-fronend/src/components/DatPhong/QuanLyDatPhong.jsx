@@ -84,14 +84,15 @@ function QuanLyDatPhong() {
   };
 
   useEffect(() => {
-    fetchThongTinDatPhong(currentStatus, currentPage);
-  }, [
-    currentPage,
-    currentStatus,
-    selectedStartDate,
-    selectedEndDate,
-    searchKey,
-  ]);
+    // Thiết lập interval để gọi fetchThongTinDatPhong mỗi 5 giây
+    const intervalId = setInterval(() => {
+      fetchThongTinDatPhong(currentStatus, currentPage);
+    }, 5000);
+  
+    // Xóa interval khi component unmount hoặc khi dependency thay đổi
+    return () => clearInterval(intervalId);
+  }, [currentStatus, currentPage, selectedStartDate, selectedEndDate, searchKey]);
+  
 
   const toggleStartDatePicker = () => setOpenStartDatePicker((prev) => !prev);
   const toggleEndDatePicker = () => setOpenEndDatePicker((prev) => !prev);
@@ -132,6 +133,17 @@ function QuanLyDatPhong() {
     { label: "Đã hủy", value: "Da huy" },
   ];
 
+  const selectedCheckbox = (ttdp) => {
+    setSelectedTTDPs((prev) => {
+      const exists = prev.some(item => item.id === ttdp.id);
+      if (exists) {
+        return prev.filter(item => item.id !== ttdp.id);
+      } else {
+        return [...prev, ttdp];
+      }
+    });
+  }
+  
   return (
     <Container sx={{ minWidth: "1300px" }}>
       <Box sx={{ mt: 5 }}>
@@ -271,11 +283,11 @@ function QuanLyDatPhong() {
           ))}
         </Box>
 
-        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        {/* <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Button variant="contained" color="primary" onClick={handleAssign}>
             Xếp phòng
           </Button>
-        </Box>
+        </Box> */}
 
         <TableContainer component={Paper}>
           <Table>
@@ -303,16 +315,13 @@ function QuanLyDatPhong() {
                   <TableRow key={ttdp.maThongTinDatPhong}>
                     <TableCell>
                       <Checkbox
-                        checked={selectedTTDPs.includes(ttdp)}
-                        onChange={() =>
-                          setSelectedTTDPs((prev) =>
-                            prev.includes(ttdp)
-                              ? prev.filter((item) => item !== ttdp)
-                              : [...prev, ttdp]
-                          )
-                        }
+                        checked={selectedTTDPs.some(
+                          (item) => item.id === ttdp.id
+                        )}
+                        onChange={() => selectedCheckbox(ttdp)}
                       />
                     </TableCell>
+
                     <TableCell>
                       <Typography
                         variant="body2"
@@ -375,15 +384,15 @@ function QuanLyDatPhong() {
                       {/* Nút xếp phòng: mở modal Xếp Phòng với thông tin của dòng này */}
 
                       {currentStatus === "Chua xep" && (
-                      <IconButton
-                      size="small"
-                      onClick={() => {
-                        setSelectedTTDPs([ttdp]);
-                        setShowXepPhongModal(true);
-                      }}
-                    >
-                      <MeetingRoomIcon />
-                    </IconButton>
+                        <IconButton
+                          size="small"
+                          onClick={() => {
+                            setSelectedTTDPs([ttdp]);
+                            setShowXepPhongModal(true);
+                          }}
+                        >
+                          <MeetingRoomIcon />
+                        </IconButton>
                       )}
                     </TableCell>
                   </TableRow>

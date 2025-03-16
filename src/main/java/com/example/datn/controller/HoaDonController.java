@@ -1,6 +1,5 @@
 package com.example.datn.controller;
 
-import com.example.datn.dto.request.HoaDonRequest;
 import com.example.datn.dto.response.HoaDonResponse;
 import com.example.datn.service.HoaDonService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,9 +31,12 @@ public class HoaDonController {
     }
 
     @PostMapping("/tao-hoa-don")
-    public ResponseEntity<?> createHoaDon( HttpServletRequest request) { // can username thi add HttpServletRequest
+    public ResponseEntity<?> createHoaDon(
+            HttpServletRequest request // can username thi add HttpServletRequest
+            ,@RequestParam("idTraPhong") Integer idTraPhong
+    ) {
         log.info("POST/tao-hoa-don");
-        return ResponseEntity.status(HttpStatus.CREATED).body(hoaDonService.createHoaDon(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(hoaDonService.createHoaDon(request, idTraPhong));
     }
 
     @GetMapping("/{idHoaDon}")
@@ -45,7 +47,7 @@ public class HoaDonController {
     @PutMapping("/{id}/status")
     public ResponseEntity<?> changeStatusInvoice(@PathVariable("id") Integer id) {
         try {
-            String message = hoaDonService.changeStatusHoaDon(id);
+            String message = String.valueOf(hoaDonService.changeStatusHoaDon(id));
             return ResponseEntity.ok(message);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

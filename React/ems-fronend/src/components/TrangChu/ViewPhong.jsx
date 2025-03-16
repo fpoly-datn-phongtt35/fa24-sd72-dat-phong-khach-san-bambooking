@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from 'react-router-dom';
 import { dsPhong } from '../../services/PhongService';
 import { ttXepPhong } from '../../services/XepPhongService';
 import { dsTraPhong } from "../../services/TraPhong";
@@ -11,7 +12,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-
+import {  getRoomDetail } from '../../services/ViewPhong';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -23,7 +24,7 @@ const ViewPhong = () => {
   const calendarAnchorRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const [viewDays, setViewDays] = useState(7);
-
+  const navigate = useNavigate();
   const generateDates = (startDate, numDays = viewDays) => {
     return Array.from({ length: numDays }, (_, i) =>
       dayjs(startDate).add(i, 'day').format("YYYY-MM-DD")
@@ -92,7 +93,6 @@ const ViewPhong = () => {
         });
 
         setStatus(newStatus);
-        console.log(status)
       } catch (error) {
         console.error("Lỗi khi lấy trạng thái phòng:", error);
       }
@@ -123,9 +123,27 @@ const ViewPhong = () => {
     }
   };
 
+  const handleRoomClick = async (roomId) => {
+    getRoomDetail(roomId)
+      .then((response) => {
+        if (!response) {
+          throw new Error('Không có thông tin chi tiết phòng.');
+        }
+        const ngayNhanPhong = new Date(response.thongTinDatPhong.ngayNhanPhong);
+        const ngayHienTai = new Date();
 
-
-
+        if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
+          alert(
+            `Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`
+          );
+        } else {
+          navigate(`/api/RoomDetail/${roomId}`);
+        }
+      })
+      .catch(() => {
+        alert('Chưa có xếp phòng, không thể xem chi tiết.');
+      });
+  };
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", width: "100%" }}>
@@ -208,18 +226,18 @@ const ViewPhong = () => {
           ))}
           {rooms.map((room) => {
             let isOccupiedChain = false; // Theo dõi chuỗi ngày đã nhận phòng
-            console.log(status)
             return (
               <React.Fragment key={room.id}>
                 <div
                   style={{
                     backgroundColor: "#f8f9fa",
-                    padding: "10px",
+                    padding: "4px",
                     fontWeight: "bold",
                     fontSize: "16px",
                     textAlign: "center",
-
+                    cursor: "pointer",
                   }}
+                  onClick={() => handleRoomClick(room.id)}
                 >
                   {room.maPhong}
                 </div>
@@ -245,8 +263,9 @@ const ViewPhong = () => {
                       style={{
                         backgroundColor: bgColor,
                         margin: "15px 0px 12px 0px",
+                        cursor: "pointer",
                       }}
-
+                      onClick={() => handleRoomClick(room.id)}
                     ></div>
                   );
                 })}

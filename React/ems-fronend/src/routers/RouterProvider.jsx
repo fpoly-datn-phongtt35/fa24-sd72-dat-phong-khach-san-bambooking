@@ -11,6 +11,7 @@ import DanhSach from "../components/DichVu/DanhSach";
 import DanhSachDichVuDiKem from "../components/DichVuDikem/DanhSachDichVuDiKem";
 import DanhSachDichVuSuDung from "../components/DichVuSuDung/DanhSachDichVuSuDung";
 import VatTu from "../components/VatTu/VatTu";
+import VatTuLoaiPhong from "../components/VatTuLoaiPhong/VatTuLoaiPhong";
 import ListPhong from "../components/Phong/ListPhong";
 import Phong from "../components/Phong/Phong";
 import ListImage from "../components/HinhAnh/ListImage";
@@ -30,8 +31,6 @@ import { DetailCustomer } from "../pages/customer/DetailCustomer";
 import { Employee } from "../pages/employee/Employee";
 import { NewEmployee } from "../pages/employee/NewEmployee";
 import { DetailEmployee } from "../pages/employee/DetailEmployee";
-
-
 import ThanhToanComponent from "../components/ThanhToan/ThanhToanComponent";
 import InfoHoaDon from "../components/HoaDon/InfoHoaDon";
 import DemoTaoHoaDon from "../components/HoaDon/DemoTaoHoaDon"
@@ -39,6 +38,9 @@ import Demo from "../components/HoaDon/Demo"
 import UploadQR from "../components/UploadQR";
 import QRScannerManual from "../components/QRScannerManual";
 import QuanLyPhong from "../components/QuanLyPhong/ViewPhong";
+import RoomDetail from "../components/QuanLyPhong/RoomDetail";
+import KiemTraPhong from "../components/kiemTraPhong/KiemTraPhong";
+import CreateKiemTraPhong from "../components/kiemTraPhong/CreateKiemTraPhong";
 function RouterProvider() {
 
     const UnauthorizedRoutes = () => {
@@ -96,6 +98,7 @@ function RouterProvider() {
                 <Route path="/DichVuDiKem" element={<DanhSachDichVuDiKem />} />
                 <Route path="/DichVuSuDung" element={<DanhSachDichVuSuDung />} />
                 <Route path="/VatTu" element={<VatTu />} />
+                <Route path="/VatTuLoaiPhong" element={<VatTuLoaiPhong />} />
                 <Route path="/phong" element={<ListPhong />} />
                 <Route path="/add-phong" element={<Phong />} />
                 <Route path="/update-phong/:id" element={<Phong />} />
@@ -107,7 +110,7 @@ function RouterProvider() {
                 <Route path="/tao-dat-phong" element={<TaoDatPhong />} />
                 <Route path="/thong-tin-dat-phong" element={<ChiTietDatPhong />} />
                 <Route path="/chi-tiet-ttdp" element={<ChiTietTTDP />} />
-                
+                <Route path="/api/RoomDetail/:roomId" element={<RoomDetail />} />
                 <Route path="/hoa-don" element={<ListHoaDon />} />
                 {/* <Route path="/add-hoa-don" element={<HoaDonComponent />} /> */}
                 <Route path="/add-taikhoan" element={<TaiKhoanComponent />} />
@@ -131,6 +134,10 @@ function RouterProvider() {
                 <Route path="/hoa-don/:id" element={<InfoHoaDon />} />
                 <Route path="/tao-hoa-don" element={<DemoTaoHoaDon />} />
                 
+                {/*Kiểm tra phòng */}
+                <Route path="/kiem-tra-phong" element={<KiemTraPhong/>}/>
+                <Route path="/tao-kiem-tra-phong/:idXepPhong" element={<CreateKiemTraPhong/>}/>
+
             </Route>
         </Routes>
     )

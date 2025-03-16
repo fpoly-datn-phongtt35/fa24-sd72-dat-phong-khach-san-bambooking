@@ -16,9 +16,13 @@ export const listHoaDon = (pageable, trangThai = "", keyword = "") => {
 };
 
 
-export const taoHoaDon = async () => {
+export const taoHoaDon = async (idTraPhong) => {
     try {
-        const response = await authorizedAxiosInstance.post(`${apiHoaDon}/tao-hoa-don`);
+        const response = await authorizedAxiosInstance.post(
+            `${apiHoaDon}/tao-hoa-don`,
+            null, // Không gửi dữ liệu trong body
+            { params: { idTraPhong } } // Gửi idTraPhong dưới dạng query parameter
+        );
         console.log("Tạo hóa đơn thành công:", response.data);
         return response.data;
     } catch (error) {

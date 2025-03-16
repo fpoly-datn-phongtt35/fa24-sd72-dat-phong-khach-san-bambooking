@@ -52,4 +52,5 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
                 WHERE tk.tenDangNhap = :tenDangNhap
             """)
     NhanVien searchTenDangNhap(String tenDangNhap);
+
 }

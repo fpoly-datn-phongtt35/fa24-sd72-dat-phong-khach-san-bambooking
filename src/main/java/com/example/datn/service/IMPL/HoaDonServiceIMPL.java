@@ -1,11 +1,12 @@
 package com.example.datn.service.IMPL;
 
-import com.example.datn.dto.request.HoaDonRequest;
 import com.example.datn.dto.response.HoaDonResponse;
 import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.mapper.HoaDonMapper;
+import com.example.datn.model.DatPhong;
 import com.example.datn.model.HoaDon;
 import com.example.datn.model.NhanVien;
+import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.repository.HoaDonRepository;
 import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.service.HoaDonService;
@@ -19,6 +20,7 @@ import org.apache.http.HttpHeaders;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.text.NumberFormat;
@@ -34,7 +36,7 @@ import static com.example.datn.common.TokenType.ACCESS_TOKEN;
 public class HoaDonServiceIMPL implements HoaDonService {
     HoaDonRepository hoaDonRepository;
     HoaDonMapper hoaDonMapper;
-
+    DatPhongRepository datPhongRepository;
     NhanVienRepository nhanVienRepository;
 
     JwtService jwtService;
@@ -70,7 +72,16 @@ public class HoaDonServiceIMPL implements HoaDonService {
     }
 
     @Override
-    public HoaDonResponse createHoaDon(HttpServletRequest request) {
+    @Transactional(rollbackFor = Exception.class)
+    public HoaDon createHoaDon(HttpServletRequest request, Integer idTraPhong) {
+
+        Integer idDatPhong = datPhongRepository.findIdDatPhongByIdTraPhong(idTraPhong);
+        if (idDatPhong == null) {
+            throw new EntityNotFountException("Không tìm thấy đặt phòng từ idTraPhong: " + idTraPhong);
+        }
+        DatPhong datPhong = datPhongRepository.findById(idDatPhong)
+                .orElseThrow(() -> new EntityNotFountException("Không tìm thấy đặt phòng với ID: " + idDatPhong));
+
         // Check trùng mã hóa đơn
         String maHoaDon;
 
@@ -85,7 +96,7 @@ public class HoaDonServiceIMPL implements HoaDonService {
         HoaDon hoaDon = new HoaDon();
         hoaDon.setMaHoaDon(maHoaDon);
         hoaDon.setNhanVien(nhanVien);
-        hoaDon.setDatPhong(null);
+        hoaDon.setDatPhong(datPhong);
         hoaDon.setTongTien(0.0);
         hoaDon.setNgayTao(LocalDateTime.now());
         hoaDon.setTrangThai("Chưa thanh toán");
@@ -93,36 +104,31 @@ public class HoaDonServiceIMPL implements HoaDonService {
         double tongTien = hoaDon.getTongTien();
         String formattedTongTien = formatCurrency(tongTien);
 
-        HoaDonResponse hoaDonResponse = hoaDonMapper.toHoaDonResponse(hoaDonRepository.save(hoaDon));
-        hoaDonResponse.setTongTien(Double.valueOf(formattedTongTien));
+        HoaDon hoaDonSave = hoaDonRepository.save(hoaDon);
+        hoaDonSave.setTongTien(Double.valueOf(formattedTongTien));
 
-        return hoaDonResponse;
+        return hoaDonSave;
     }
 
     @Override
     public HoaDonResponse getOneHoaDon(Integer idHoaDon) {
         HoaDon hoaDon = hoaDonRepository.findById(idHoaDon)
-                .orElseThrow(()-> new RuntimeException("Không tìm thấy hóa đơn có ID: " + idHoaDon));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn có ID: " + idHoaDon));
         return hoaDonMapper.toHoaDonResponse(hoaDon);
     }
 
     @Override
-    public String changeStatusHoaDon(Integer id) {
+    public Boolean changeStatusHoaDon(Integer id) {
         HoaDon hoaDon = hoaDonRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn có ID: " + id));
 
         if ("Chờ xác nhận".equals(hoaDon.getTrangThai())) {
             hoaDon.setTrangThai("Đã thanh toán");
             hoaDonRepository.save(hoaDon);
-            return "Hóa đơn đã được thanh toán thành công.";
+            return true;
         } else {
             throw new RuntimeException("Hóa đơn không ở trạng thái 'Chờ xác nhận', không thể thay đổi.");
         }
-    }
-
-    @Override
-    public NhanVien searchNhanVienByTenDangNhap(String tenDangNhap) {
-        return hoaDonRepository.searchTenDangNhap(tenDangNhap);
     }
 
     // Phương thức định dạng tiền tệ

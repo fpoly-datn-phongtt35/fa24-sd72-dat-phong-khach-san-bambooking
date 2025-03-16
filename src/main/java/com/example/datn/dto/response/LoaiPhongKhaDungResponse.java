@@ -7,6 +7,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class LoaiPhongKhaDungResponse {
     private Integer id;
     private String tenLoaiPhong;
@@ -18,19 +20,4 @@ public class LoaiPhongKhaDungResponse {
     private String moTa;
     private Long soLuongPhong;
     private Long soPhongKhaDung;
-
-    public LoaiPhongKhaDungResponse(Integer id, String tenLoaiPhong, String maLoaiPhong, Integer dienTich,
-                                    Integer soKhachToiDa, Double donGia, Double donGiaPhuThu, String moTa,
-                                    Long soLuongPhong, Long soPhongKhaDung) {
-        this.id = id;
-        this.tenLoaiPhong = tenLoaiPhong;
-        this.maLoaiPhong = maLoaiPhong;
-        this.dienTich = dienTich;
-        this.soKhachToiDa = soKhachToiDa;
-        this.donGia = donGia;
-        this.donGiaPhuThu = donGiaPhuThu;
-        this.moTa = moTa;
-        this.soLuongPhong = soLuongPhong;
-        this.soPhongKhaDung = soPhongKhaDung;
-    }
 }

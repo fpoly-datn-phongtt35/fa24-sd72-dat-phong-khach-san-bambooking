@@ -27,7 +27,7 @@ public class LoaiPhong {
     private Integer dienTich;
 
     @Column(name = "so_khach_toi_da")
-    private Integer soKhachToiDa;
+        private Integer soKhachToiDa;
 
     @Column(name = "don_gia")
     private Double donGia;

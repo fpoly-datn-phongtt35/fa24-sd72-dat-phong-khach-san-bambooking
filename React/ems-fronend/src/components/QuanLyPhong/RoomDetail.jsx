@@ -1,20 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getRoomDetail, getDichVuSuDungByIDXepPhong, AddDichVuSuDung } from '../../services/ViewPhong';
-import { DuLieu } from '../../services/DichVuService';
+import { getRoomDetail, getDichVuSuDungByIDXepPhong, AddDichVuSuDung, AddDVDK } from '../../services/ViewPhong';
+import { CapNhatDichVuSuDung } from "../../services/DichVuSuDungService";
 import DVSVDetail from './DVSDDetail';
+import {
+  Box,
+  Grid,
+  TextField,
+  Button,
+  Card,
+  CardContent,
+  Table,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  Typography,
+} from '@mui/material';
+import { Switch } from '@mui/joy'
 
 const RoomDetail = () => {
   const { roomId } = useParams();
+  const [idXepPhong, setIdXepPhong] = useState(null);
   const [roomDetail, setRoomDetail] = useState(null);
   const [ListDVSD, setListDVSD] = useState([]);
   const [showFormDetail, setShowFormDetail] = useState(false);
-  const [selectedDichVu, setSelectedDichVu] = useState(null); // Lưu dịch vụ được chọn
+  const [selectedDichVu, setSelectedDichVu] = useState(null);
   const [newDichVu, setNewDichVu] = useState({
     dichVu: { id: '' },
     xepPhong: { id: '' },
     soLuongSuDung: '',
-    ngayKetThuc: '', // Dữ liệu kiểu datetime-local
+    ngayKetThuc: '',
     giaSuDung: '',
     trangThai: 1,
   });
@@ -23,6 +46,7 @@ const RoomDetail = () => {
     getRoomDetail(roomId)
       .then((response) => {
         setRoomDetail(response);
+        setIdXepPhong(response.id);
         return getDichVuSuDungByIDXepPhong(response.id);
       })
       .then((dichVuResponse) => {
@@ -30,46 +54,57 @@ const RoomDetail = () => {
         setListDVSD(responseArray);
       })
       .catch((error) => {
-        console.log("Error fetching data:", error);
       });
-
-
   }, [roomId, ListDVSD]);
 
   useEffect(() => {
-    // Cập nhật id của xepPhong trong newDichVu khi roomDetail được load
     if (roomDetail) {
       setNewDichVu((prev) => ({
         ...prev,
         xepPhong: { id: roomDetail.id },
       }));
     }
+    if (idXepPhong != null) {
+      handleAddDVDK(idXepPhong);
+    }
   }, [roomDetail]);
 
-  const handleAddDV = () => {
-    setShowForm(true); // Hiển thị form khi nhấn nút
+  const handleAddDVDK = (idxp) => {
+    AddDVDK(idXepPhong)
+      .then(() => {
+        return getDichVuSuDungByIDXepPhong(idxp);
+      })
+      .then((updatedList) => {
+        setListDVSD(updatedList);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi thêm dịch vụ đi kèm:", error);
+      });
   };
 
   const handleFormSubmit = (event) => {
     event.preventDefault();
-
-    // Định dạng ngày giờ sang chuẩn LocalDateTime trước khi gửi lên backend
     const formattedData = {
       ...newDichVu,
-      ngayKetThuc: `${newDichVu.ngayKetThuc}:00`, // Đảm bảo đúng định dạng ISO 8601
+      ngayKetThuc: `${newDichVu.ngayKetThuc}:00`,
     };
-    console.log(formattedData)
     AddDichVuSuDung(formattedData)
       .then(() => {
         console.log("Dữ liệu thêm dịch vụ:", formattedData);
-        setShowForm(false); // Đóng form sau khi thêm
+        setShowForm(false);
       })
       .catch((error) => {
         console.error("Error adding service:", error);
       });
   };
 
- 
+  const DoiTrangThai = (dv) => {
+    const updatedFormData = {
+      ...dv,
+      trangThai: dv.trangThai === false ? true : false,
+    };
+    CapNhatDichVuSuDung(updatedFormData);
+  };
 
   const handleCloseFormDetail = () => {
     setShowFormDetail(false);
@@ -77,94 +112,113 @@ const RoomDetail = () => {
   };
 
   return (
-    <div className='container'>
-      <div className='row'>
-        {/*Form thông tin khách hàng */}
-        <div className='col-md-4'>
-          <div className='card'>
-            <h5 className='text-center' style={{ marginTop: '15px' }}></h5>
-            <div className='card-body'>
-              <form>
-                <div className='form-group mb-3'>
-                  <label className='form-label'>Họ tên khách hàng </label>
-                  <p>
-                    {roomDetail?.thongTinDatPhong?.datPhong?.khachHang
-                      ? roomDetail.thongTinDatPhong.datPhong.khachHang.ho +
-                      ' ' +
-                      roomDetail.thongTinDatPhong.datPhong.khachHang.ten
-                      : 'Chưa có thông tin khách hàng'}
-                  </p>
+    <Grid container spacing={2} sx={{ p: 2 }}>
+      {/* Thông tin khách hàng */}
+      <Grid item xs={12} sm={4}>
+        <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 3 }}>
+          <CardContent>
+            <Typography variant="h5" gutterBottom color="primary">
+              Thông tin khách hàng
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              <strong>Họ tên:</strong> {roomDetail?.thongTinDatPhong?.datPhong?.khachHang ? `${roomDetail.thongTinDatPhong.datPhong.khachHang.ho} ${roomDetail.thongTinDatPhong.datPhong.khachHang.ten}` : "Chưa có thông tin"}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              <strong>Số điện thoại:</strong> {roomDetail?.thongTinDatPhong?.datPhong?.khachHang?.sdt || "N/A"}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              <strong>Ngày nhận phòng:</strong> {roomDetail?.thongTinDatPhong?.ngayNhanPhong || "N/A"}
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              <strong>Ngày trả phòng:</strong> {roomDetail?.thongTinDatPhong?.ngayTraPhong || "N/A"}
+            </Typography>
+            <Typography variant="body1">
+              <strong>Giá đặt:</strong> {roomDetail?.thongTinDatPhong?.giaDat} VND
+            </Typography>
+          </CardContent>
+        </Card>
+      </Grid>
 
-                </div>
-                <div className='form-group mb-3'>
-                  <label className='form-label'>Số điện thoại: </label>
-                  <p>
-                    {roomDetail?.thongTinDatPhong?.datPhong?.khachHang?.sdt}
-                  </p>
-                </div>
-                <div className='form-group mb-3'>
-                  <label className='form-label'>Ngày nhận phòng: </label>
-                  <p>
-                    {roomDetail?.thongTinDatPhong?.ngayNhanPhong || ''}
-                  </p>
-                </div>
-                <div className='form-group mb-3'>
-                  <label className='form-label'>Ngày trả phòng: </label>
-                  <p>
-                    {roomDetail?.thongTinDatPhong?.ngayTraPhong}
-                  </p>
-                </div>
-                <div className='form-group mb-3'>
-                  <label className='form-label'>Giá đặt: </label>
-                  <p>
-                    {roomDetail?.thongTinDatPhong?.giaDat} VND
-                  </p>
-                </div>
+      {/* Thông tin dịch vụ sử dụng */}
+      <Grid item xs={12} sm={8}>
+        <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                <TableCell sx={{ fontWeight: 'bold' }}>Tên dịch vụ</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Hình ảnh</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Giá sử dụng (VND)</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Số lượng sử dụng</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Hành động</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {Array.isArray(ListDVSD) && ListDVSD.length > 0 ? (
+                ListDVSD.map((dv) => (
+                  <TableRow key={dv.id} sx={{ '&:hover': { backgroundColor: '#f9f9f9' } }}>
+                    <TableCell>{dv.dichVu?.tenDichVu}</TableCell>
+                    <TableCell>{dv.dichVu?.hinhAnh}</TableCell>
+                    <TableCell>{dv.giaSuDung}</TableCell>
+                    <TableCell>{dv.soLuongSuDung}</TableCell>
+                    <TableCell sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
+                      
+                      <Switch
+                        checked={dv.trangThai}
+                        onChange={() => DoiTrangThai(dv)}
+                        sx={{
+                          width: 70,
+                          height: 40,
+                          padding: 0,
+                          
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                    <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => {
+                          setSelectedDichVu(dv);
+                          setShowFormDetail(true);
+                        }}
+                        sx={{
+                          backgroundColor: '#1976d2',
+                          '&:hover': { backgroundColor: '#1565c0' },
+                          textTransform: 'none',
+                        }}
+                      >
+                        Chi tiết
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ fontSize: '1.2rem' }}>
+                    Không tìm thấy thông tin dịch vụ nào.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ mt: 2, textTransform: 'none' }}
+          onClick={() => {
+            setShowFormDetail(true);
+            setSelectedDichVu(null);
+          }}
+        >
+          Thêm dịch vụ
+        </Button>
+      </Grid>
 
-              </form>
-            </div>
-          </div>
-        </div>
-
-        {/*Form thông tin dịch vụ sử dụng */}
-        <div className='col-md-8'>
-          <div className='d-flex flex-wrap' style={{ width: '100%' }}>
-            {Array.isArray(ListDVSD) && ListDVSD.length > 0 ? (
-              ListDVSD.map((dv) => (
-                <div key={dv.id} className='card' style={{ width: '30%', margin: '10px' }}
-                  onClick={() => {
-                    setSelectedDichVu(dv);
-                    setShowFormDetail(true);
-                  }}>
-                  <div className='card-footer'>
-                    <label>Tên dịch vụ:</label>
-                    <p>{dv.dichVu?.tenDichVu}</p>
-                    <label>Giá sử dụng:</label>
-                    <p>{dv.giaSuDung}</p>
-                    <label>Số lượng sử dụng:</label>
-                    <p>{dv.soLuongSuDung}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p>Không tìm thấy thông tin dịch vụ nào.</p>
-            )}
-          </div>
-          <div>
-            <button className='btn btn-primary' onClick={()=>{
-              setShowFormDetail(true);
-              setSelectedDichVu(null);
-            }}>
-              Thêm dịch vụ
-            </button>
-          </div>
-
-         
-        </div>
-        {showFormDetail && <DVSVDetail show={showFormDetail} handleClose={handleCloseFormDetail} data={selectedDichVu} idxp={roomDetail?.id}/>}
-      </div>
-
-    </div>
+      {/* Form chi tiết dịch vụ */}
+      {showFormDetail && <DVSVDetail show={showFormDetail} handleClose={handleCloseFormDetail} data={selectedDichVu} idxp={roomDetail?.id} />}
+    </Grid>
   );
 };
 

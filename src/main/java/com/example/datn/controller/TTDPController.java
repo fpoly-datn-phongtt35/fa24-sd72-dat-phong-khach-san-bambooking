@@ -5,6 +5,7 @@ import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.dto.response.SearchResultResponse;
 import com.example.datn.dto.response.TTDPResponse;
+import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
@@ -31,6 +32,9 @@ public class TTDPController {
 
     @Autowired
     LoaiPhongService loaiPhongService;
+
+    @Autowired
+    LoaiPhongServiceIMPL loaiPhongServiceIMPL;
 
     @GetMapping("all")
     public Page<ThongTinDatPhong> all(Pageable pageable) {
@@ -68,7 +72,7 @@ public class TTDPController {
     }
 
 
-    @GetMapping("loai-phong-kha-dung")
+        @GetMapping("loai-phong-kha-dung")
     public ResponseEntity<?> loaiPhongKhaDung(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
                                               @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
                                               @RequestParam(required = false) Integer soNguoi,
@@ -81,15 +85,40 @@ public class TTDPController {
     }
 
     @GetMapping("/tim-kiem-loai-phong")
-    public ResponseEntity<SearchResultResponse> searchLoaiPhong(
+    public ResponseEntity<List<List<LoaiPhongKhaDungResponse>>> searchLoaiPhong(
             @RequestParam("ngayNhanPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
             @RequestParam("ngayTraPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
             @RequestParam("soNguoi") Integer soNguoi,
             @RequestParam("soPhong") Integer soPhong,
             @PageableDefault(size = 5) Pageable pageable) {
+        // Tìm các kết hợp phòng khả dụng
+        List<List<LoaiPhongKhaDungResponse>> availableCombinations = loaiPhongServiceIMPL.searchAvailableRooms(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong);
 
-        SearchResultResponse result = loaiPhongService.searchLoaiPhong(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong,pageable);
-        return ResponseEntity.ok(result);
+        // Hiển thị kết quả
+//        System.out.println("Các trường hợp phòng khả dụng:");
+//        int caseNum = 1;
+//        for (List<LoaiPhong> combination : availableCombinations) {
+//            System.out.print("TH" + caseNum + ": ");
+//            for (LoaiPhong room : combination) {
+//                System.out.print(room.getTenLoaiPhong() + " ");
+//            }
+//            System.out.println();
+//            caseNum++;
+//        }
+//        Page<LoaiPhongKhaDungResponse> result = loaiPhongService.searchLoaiPhong(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong,pageable);
+        return ResponseEntity.ok(availableCombinations);
+    }
+
+    @GetMapping("/tim-kiem-loai-phong2")
+    public ResponseEntity<Page<SearchResultResponse>> searchLoaiPhong2(
+            @RequestParam("ngayNhanPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
+            @RequestParam("ngayTraPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
+            @RequestParam("soNguoi") Integer soNguoi,
+            @RequestParam("soPhong") Integer soPhong,
+            @PageableDefault(size = 5) Pageable pageable) {
+        // Tìm các kết hợp phòng khả dụng
+        Page<SearchResultResponse> availableCombinations = loaiPhongServiceIMPL.searchAvailableRooms2(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong,pageable);
+        return ResponseEntity.ok(availableCombinations);
     }
 
     @GetMapping("chi-tiet-dat-phong")

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -56,8 +57,8 @@ public class VatTuLoaiPhongServiceIMPL implements VatTuLoaiPhongService {
     }
 
     @Override
-    public Page<VatTuLoaiPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable) {
-        return vatTuLoaiPhongRepository.findByIDLoaiPhong(idLoaiPhong,pageable);
+    public List<VatTuLoaiPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong) {
+        return vatTuLoaiPhongRepository.findByIDLoaiPhong(idLoaiPhong);
     }
 
     @Override

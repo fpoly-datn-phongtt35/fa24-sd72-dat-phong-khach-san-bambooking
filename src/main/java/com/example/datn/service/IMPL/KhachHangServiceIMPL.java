@@ -57,7 +57,22 @@ public class KhachHangServiceIMPL implements KhachHangService {
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(request.getTrangThai());
         return khachHangRepository.save(khachHang);
+    }
 
+    @Override
+    public KhachHang updateKhachHangDatPhong(KhachHangDatPhongRequest request) {
+        KhachHang khachHang = khachHangRepository.getReferenceById(request.getId());
+        khachHang.setTen(request.getTen());
+        khachHang.setHo(request.getHo());
+        khachHang.setSdt(request.getSdt());
+        khachHang.setEmail(request.getEmail());
+//        khachHang.setGioiTinh(request.getGioiTinh());
+//        khachHang.setDiaChi(request.getDiaChi());
+//        khachHang.setMatKhau(request.getMatKhau());
+        khachHang.setNgayTao(LocalDateTime.now());
+        khachHang.setNgaySua(LocalDateTime.now());
+        khachHang.setTrangThai(request.getTrangThai());
+        return khachHangRepository.save(khachHang);
     }
 
     @Override

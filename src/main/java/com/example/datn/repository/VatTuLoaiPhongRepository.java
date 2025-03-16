@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 
 public interface VatTuLoaiPhongRepository extends JpaRepository<VatTuLoaiPhong,Integer> {
     @Query("select new com.example.datn.dto.response.VatTuLoaiPhongResponse(ti.id," +
@@ -26,11 +28,10 @@ public interface VatTuLoaiPhongRepository extends JpaRepository<VatTuLoaiPhong,I
             "ti.vatTu.gia," +
             "ti.soLuong)" +
             "from VatTuLoaiPhong ti WHERE ti.loaiPhong.id = :idLoaiPhong ")
-    Page<VatTuLoaiPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable);
+    List<VatTuLoaiPhongResponse> findByIDLoaiPhong(Integer idLoaiPhong);
 
     @Query("SELECT t FROM VatTuLoaiPhong t WHERE t.loaiPhong.id = :idLoaiPhong")
     Page<Object> ListVatTuFindByIDLoaiPhong(@Param("idLoaiPhong") Integer idLoaiPhong,Pageable pageable);
 
-
-
+    List<VatTuLoaiPhong> findByLoaiPhong_Id(Integer loaiPhongId);
 }

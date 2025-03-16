@@ -9,6 +9,7 @@ import com.example.datn.model.KhachHang;
 public interface KhachHangService {
 
     KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request);
+    KhachHang updateKhachHangDatPhong(KhachHangDatPhongRequest request);
 
     void deleteKhachHangDatPhong(Integer idkh);
 
