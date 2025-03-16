@@ -16,7 +16,7 @@ export default function AboutPage() {
     const getCustomer = async () => {
       try {
 
-        await authorizedAxiosInstance.get(`${API_ROOT}/api/v1/customer`).then(res => {
+        await authorizedAxiosInstance.get(`${API_ROOT}/api/v1/customer-client`).then(res => {
           console.log(res?.data?.data);
         })
       } catch (e) {

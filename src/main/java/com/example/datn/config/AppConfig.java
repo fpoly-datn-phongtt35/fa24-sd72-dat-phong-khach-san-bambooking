@@ -26,11 +26,13 @@ public class AppConfig {
 
     private final UserService userService;
     private final PrevFilter prevFilter;
-    private final String[] WHILE_LIST = {"/api/auth/**"};
+    private final String[] WHILE_LIST = {"/api/auth/**"}; // Những đường dẫn không yêu cầu xác thực
     private final String[] URI_ADMIN = {"/api/*/customer/**", "/xep-phong/**", "/ttdp/**", "/tra-phong/**",
             "/tien-ich-phong/**", "/tien-ich/**", "/thong-tin-hoa-don/**", "/phong/**", "/loai-phong/**",
             "/khach-hang-checkin/**", "/hoa-don/**", "/dich_vu_su_dung/**", "/dich_vu_di_kem/**", "/dich_vu/**",
             "/dat-phong/**","/loai-phong/add" ,"thanh-toan/**","/dat-phong/xoa"};
+    private final String[] URI_USER = {"/api/*/customer-client/**"}; // URL yêu cầu xác thực và có ROLE_USER
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -41,7 +43,8 @@ public class AppConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(withDefaults())
                 .authorizeHttpRequests(request -> request.requestMatchers(WHILE_LIST).permitAll()
-//                        .requestMatchers(URI_ADMIN).hasAnyAuthority("Admin")
+                        .requestMatchers(URI_ADMIN).hasAnyAuthority("Admin")
+                        .requestMatchers(URI_USER).hasAnyAuthority("User")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
