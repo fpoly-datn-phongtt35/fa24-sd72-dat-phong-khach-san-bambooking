@@ -1,6 +1,6 @@
 // App.js
 import React from "react";
-import { Routes, Route } from "react-router-dom"; // Xóa BrowserRouter ở đây
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import Rooms from "./pages/Rooms";
@@ -12,24 +12,82 @@ import AboutPage from "./pages/AboutPage";
 import HotelRules from "./pages/HotelRules";
 
 function App() {
-  return (
-    <div className="app-container">
-      <Navbar />
-      <div className="main-content">
-        <div className="content-area">
-          <Routes>
-            {/* <Route path="/" element={<Home />} /> */}
-            <Route path="/rooms" element={<Rooms />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/rules" element={<HotelRules />} />
-          </Routes>
+  const UnauthorizedRoutes = () => {
+    // const accessToken = localStorage.getItem("accessToken");
+    // if (accessToken) {
+    //   return <Navigate to="/" replace={true} />;
+    // }
+    return (
+      <div className="app-container">
+        <Navbar />
+        <div className="main-content">
+          <div className="content-area">
+            <Outlet />
+          </div>
         </div>
+        <Footer />
       </div>
-      <Footer />
-    </div>
+    );
+  };
+
+  const ProtectedRoutes = () => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (!accessToken) {
+      return <Navigate to="/login" replace={true} />;
+    }
+    return (
+      <div className="app-container">
+        <Navbar />
+        <div className="main-content">
+          <div className="content-area">
+            <Outlet />
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  };
+
+  // return (
+  //   <div className="app-container">
+  //     <Navbar />
+  //     <div className="main-content">
+  //       <div className="content-area">
+  //         <Routes>
+  //           {/* <Route path="/" element={<Home />} /> */}
+  //           <Route path="/rooms" element={<Rooms />} />
+  //           <Route path="/register" element={<Register />} />
+  //           <Route path="/login" element={<Login />} />
+  //           <Route path="/profile" element={<Profile />} />
+  //           <Route path="/about" element={<AboutPage />} />
+  //           <Route path="/rules" element={<HotelRules />} />
+  //         </Routes>
+  //       </div>
+  //     </div>
+  //     <Footer />
+  //   </div>
+  // );
+  return (
+    <Routes>
+      <Route path="*" element={<Navigate to="/" replace={true} />} />
+
+      <Route element={<UnauthorizedRoutes />}>
+        {/* Pages không cần đăng nhập */}
+        <Route path="/" element={<Rooms />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/rooms" element={<Rooms />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Profile />} />
+        {/* <Route path="/about" element={<AboutPage />} /> */}
+        <Route path="/rules" element={<HotelRules />} />
+      </Route>
+
+      <Route element={<ProtectedRoutes />}>
+        {/* Pages cần đăng nhập */}
+        <Route path="/about" element={<AboutPage />} />
+      </Route>
+    </Routes>
   );
 }
 
