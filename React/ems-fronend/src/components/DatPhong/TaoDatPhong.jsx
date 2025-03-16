@@ -40,7 +40,6 @@ import {
   deleteThongTinDatPhong,
 } from "../../services/TTDP";
 
-// Hàm chuyển đổi giá trị đầu vào thành đối tượng dayjs hợp lệ
 const parseToDayjs = (value) => {
   if (!value) return dayjs();
   try {
@@ -138,7 +137,6 @@ const TaoDatPhong = () => {
       const updatedThongTinDatPhong = thongTinDatPhong.filter(
         (item) => item.maThongTinDatPhong !== room.maThongTinDatPhong
       );
-      // Update the state with the filtered array (if using state to manage thongTinDatPhong)
       setTtdpData(updatedThongTinDatPhong);
       fetchThongTinDatPhongById(datPhong.id);
     } catch (error) {
@@ -502,7 +500,7 @@ const TaoDatPhong = () => {
       <ChinhSuaPhongDialog
         open={showDialog}
         onClose={() => setShowDialog(false)}
-        roomToEdit={roomToEdit}
+        thongTinDatPhong={roomToEdit}
         onSave={handleSaveRoom}
       />
     </Container>
