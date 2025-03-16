@@ -1,8 +1,65 @@
+// import { useState } from 'react';
+// import './App.css';
+// import RouterProvider from '../src/routers/RouterProvider';
+// import { Box } from '@mui/joy';
+// import SlideBar from '../src/components/Slidebar';
+
+// function App() {
+//   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Mặc định mở SlideBar
+
+//   return (
+//     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+//       {/* Sidebar */}
+//       <SlideBar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+
+//       {/* Nội dung chính */}
+//       <Box
+//         component="main"
+//         sx={{
+//           flexGrow: 1,
+//           width: isSidebarOpen ? `calc(100% - 190px)` : '100%',
+//           transition: 'width 0.3s ease',
+//           overflowX: 'hidden',
+//         }}
+//       >
+//         <RouterProvider isSidebarOpen={isSidebarOpen} />
+//       </Box>
+//     </Box>
+//   );
+// }
+
+// export default App;
+
+import { useState } from 'react';
 import './App.css';
-import RouterProvider from './routers/RouterProvider.jsx';
+import RouterProvider from '../src/routers/RouterProvider';
+import { Box } from '@mui/joy';
+import SlideBar from '../src/components/Slidebar';
+
 function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Mặc định mở SlideBar
+
   return (
-    <RouterProvider />
+    <Box sx={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
+      {/* Sidebar */}
+      <SlideBar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+
+      {/* Nội dung chính */}
+      <Box
+        component="main"
+        className="main-content"
+        sx={{
+          flexGrow: 1,
+          width: '100%',
+          transition: 'margin-left 0.3s ease',
+          marginLeft: isSidebarOpen ? '190px' : '0', // Điều chỉnh margin-left
+          overflowX: 'hidden',
+        }}
+      >
+        <RouterProvider isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      </Box>
+    </Box>
   );
 }
+
 export default App;

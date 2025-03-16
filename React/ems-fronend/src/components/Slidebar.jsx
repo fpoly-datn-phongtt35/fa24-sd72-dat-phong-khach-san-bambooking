@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom'; // Thêm useLocation
 import {
   Drawer,
   List,
@@ -7,25 +7,56 @@ import {
   ListItemText,
   Collapse,
   Divider,
-  IconButton
+  IconButton,
 } from '@mui/material';
 import { ExpandLess, ExpandMore, Menu, ChevronLeft } from '@mui/icons-material';
 
-function Sidebar() {
-  const [open, setOpen] = useState(true);
+function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
   const [openSubmenu, setOpenSubmenu] = useState({});
+  const location = useLocation(); // Lấy thông tin route hiện tại
 
   const handleToggle = (menu) => {
     setOpenSubmenu((prev) => ({ ...prev, [menu]: !prev[menu] }));
   };
 
+  const handleOpenSidebar = () => {
+    console.log('Nút Menu được nhấp! isSidebarOpen hiện tại:', isSidebarOpen);
+    if (typeof setIsSidebarOpen === 'function') {
+      setIsSidebarOpen(true);
+    }
+  };
+
+  const handleCloseSidebar = () => {
+    console.log('Nút đóng được nhấp! isSidebarOpen hiện tại:', isSidebarOpen);
+    if (typeof setIsSidebarOpen === 'function') {
+      setIsSidebarOpen(false);
+    }
+  };
+
+  // Kiểm tra xem route hiện tại có phải là /login hay không
+  const isLoginRoute = location.pathname === '/login';
+
   return (
     <>
-      {/* Nút mở Sidebar */}
-      {!open && (
+      {/* Nút mở SlideBar chỉ hiển thị khi SlideBar đã bị ẩn và không ở màn đăng nhập */}
+      {!isSidebarOpen && !isLoginRoute && (
         <IconButton
-          onClick={() => setOpen(true)}
-          sx={{ position: 'absolute', top: 10, left: 10 }}
+          onClick={handleOpenSidebar}
+          sx={{
+            position: 'fixed',
+            top: 10,
+            left: 10,
+            zIndex: 1300,
+            color: '#fff',
+            backgroundColor: '#1976d2',
+            '&:hover': {
+              backgroundColor: '#1565c0',
+            },
+            padding: '8px',
+            borderRadius: '50%',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+            transition: 'all 0.3s ease',
+          }}
         >
           <Menu />
         </IconButton>
@@ -33,36 +64,39 @@ function Sidebar() {
 
       <Drawer
         variant="persistent"
-        open={open}
+        open={isSidebarOpen}
+        onClose={handleCloseSidebar}
         sx={{
-          width: open ? 200 : 0,
+          width: isSidebarOpen ? 190 : 0,
           flexShrink: 0,
           transition: 'width 0.3s ease',
           '& .MuiDrawer-paper': {
-            width: open ? 200 : 0,
+            width: isSidebarOpen ? 190 : 0,
             boxSizing: 'border-box',
             overflow: 'hidden',
             transition: 'width 0.3s ease',
+            display: isSidebarOpen ? 'block' : 'none',
           },
         }}
       >
-        {/* Nút thu Sidebar */}
-        <IconButton
-          onClick={() => setOpen(false)}
-          sx={{
-            width: 40,
-            height: 40,
-            padding: 1,
-            minWidth: "unset",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            marginLeft: "auto" 
-          }}
-        >
-          <ChevronLeft fontSize="small" />
-        </IconButton>
-
+        {/* Nút đóng SlideBar chỉ hiển thị khi mở */}
+        {isSidebarOpen && (
+          <IconButton
+            onClick={handleCloseSidebar}
+            sx={{
+              width: 40,
+              height: 40,
+              padding: 1,
+              minWidth: 'unset',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginLeft: 'auto',
+            }}
+          >
+            <ChevronLeft fontSize="small" />
+          </IconButton>
+        )}
 
         <List>
           <ListItemButton component={Link} to="/TrangChu">
@@ -129,10 +163,10 @@ function Sidebar() {
             <ListItemText primary="Nhân viên" />
           </ListItemButton>
           <ListItemButton component={Link} to="/TaiKhoan">
-            <ListItemText primary="Tài Khoản" />
+            <ListItemText primary="Tài khoản" />
           </ListItemButton>
           <ListItemButton component={Link} to="/VaiTro">
-            <ListItemText primary="Vai Trò" />
+            <ListItemText primary="Vai trò" />
           </ListItemButton>
           <ListItemButton component={Link} to="/khach-hang">
             <ListItemText primary="Khách hàng" />
@@ -143,4 +177,4 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
+export default SlideBar;
