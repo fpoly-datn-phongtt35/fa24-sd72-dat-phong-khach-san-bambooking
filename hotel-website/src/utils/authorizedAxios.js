@@ -1,6 +1,7 @@
 import axios from "axios";
 import { refreshTokenAPI } from "../api";
 
+
 let authorizedAxiosInstance = axios.create();
 
 authorizedAxiosInstance.defaults.timeout = 1000 * 60 * 10;
@@ -33,6 +34,7 @@ authorizedAxiosInstance.interceptors.response.use(
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("user");
         window.location.href = "/login";
+
       }
     }
 
@@ -56,7 +58,8 @@ authorizedAxiosInstance.interceptors.response.use(
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("user");
-          window.location.href = "/login";
+
+          window.location.href = '/login';
 
           return Promise.reject(_error);
         });
@@ -64,6 +67,7 @@ authorizedAxiosInstance.interceptors.response.use(
 
     if (error?.response?.status === 403) {
       window.location.href = "/login";
+
       return Promise.reject(error);
     }
     if (error?.response?.status !== 410) {
