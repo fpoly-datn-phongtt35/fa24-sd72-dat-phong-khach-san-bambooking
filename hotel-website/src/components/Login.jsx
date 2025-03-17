@@ -1,56 +1,43 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
+import { useForm } from 'react-hook-form';
+import axios from 'axios';
+import { API_ROOT } from '../utils/constants';
 
 export default function Login() {
-  const [email, setEmail] = useState(''); // Trạng thái email
-  const [matKhau, setMatKhau] = useState(''); // Trạng thái mật khẩu
-  const [loading, setLoading] = useState(false); // Trạng thái loading
-  const [errorMessage, setErrorMessage] = useState(''); // Thông báo lỗi
-  const navigate = useNavigate(); // Hook điều hướng trang
+  const [serverError, setServerError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMessage('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-    try {
-      const response = await fetch('http://localhost:8080/sign-in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, matKhau })
-      });
+  const onSubmit = async (data) => {
+    const result = {
+      username: data.username,
+      password: data.password
+    };
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Data received:', data); // Log dữ liệu nhận được
-        alert('Đăng nhập thành công!');
-
-        // Lưu thông tin đăng nhập vào localStorage
-        localStorage.setItem('user', JSON.stringify(data));
-        navigate('/profile'); // Điều hướng đến trang chủ sau khi đăng nhập
-        window.location.reload();
-      } else {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const data = await response.json();
-          console.log('Error data:', data.message); // Log chi tiết lỗi
-          setErrorMessage(data.message || 'Đăng nhập thất bại!');
-        } else {
-          const errorText = await response.text();
-          console.log('Error text:', errorText); // Log lỗi nếu không phải JSON
-          setErrorMessage(errorText || 'Đăng nhập thất bại!');
+    await axios.post(`${API_ROOT}/api/auth/access`, result).then((res) => {
+      if (res.status === 200) {
+        if (res.data.role[0].authority !== "User") {
+          alert("Bạn không phải User!")
+          return;
         }
+        localStorage.setItem("accessToken", res.data.accessToken);
+        localStorage.setItem("refreshToken", res.data.refreshToken);
+        localStorage.setItem("user", res.data.username);
+        navigate("/TrangChu")
       }
-    } catch (error) {
-      console.error('Error connecting to server:', error); // Log lỗi kết nối
-      setErrorMessage('Không thể kết nối đến server.');
-    } finally {
-      setLoading(false);
-    }
-  };
+
+    }).catch((err) => {
+      alert(err?.response?.data?.message);
+
+    })
+  }
 
   return (
     <div className="login-body">
@@ -58,30 +45,34 @@ export default function Login() {
         <h2>Đăng Nhập</h2>
 
         {/* Hiển thị thông báo lỗi nếu có */}
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        {serverError && <p className="error-message">{serverError}</p>}
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           {/* Trường nhập email */}
           <input
-            type="email"
-            placeholder="Nhập email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            type="text"
+            placeholder="Tên đăng nhập"
+            {...register("username", { required: true })}
             required
           />
+          {errors.username && (
+            <p className="error-message">Vui lòng nhập tên đăng nhập!</p>
+          )}
 
           {/* Trường nhập mật khẩu */}
           <input
             type="password"
-            placeholder="Nhập mật khẩu"
-            value={matKhau}
-            onChange={(e) => setMatKhau(e.target.value)}
+            placeholder="Mật khẩu"
+            {...register("password", { required: true })}
             required
           />
+          {errors.password && (
+            <p className="error-message">Vui lòng nhập mật khẩu!</p>
+          )}
 
           {/* Nút đăng nhập */}
-          <button type="submit" disabled={loading}>
-            {loading ? 'Vui lòng đợi...' : 'Đăng Nhập'}
+          <button type="submit">
+            Đăng Nhập
           </button>
         </form>
       </div>

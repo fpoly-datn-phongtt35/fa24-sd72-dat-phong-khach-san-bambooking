@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DuLieu } from "../../services/DichVuService";
-import { CapNhatDichVuSuDung } from "../../services/DichVuSuDungService";
+import { CapNhatDichVuSuDung,XoaDichVuSuDung } from "../../services/DichVuSuDungService";
 import { AddDichVuSuDung } from "../../services/ViewPhong";
 
 import {
@@ -29,7 +29,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
     ngayBatDau: data?.ngayBatDau || "",
     ngayKetThuc: data?.ngayKetThuc || "",
     giaSuDung: data?.giaSuDung || "",
-    trangThai: data?.trangThai ?? 1,
+    trangThai: data?.trangThai ?? 0,
   });
 
   useEffect(() => {
@@ -53,7 +53,6 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
     }
   }, [data, idxp]);
 
-  // Hàm xử lý thay đổi giá trị input
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
@@ -72,10 +71,8 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
     }
   };
 
-  // Hàm xử lý submit form
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Giá trị formData:", formData);
     if (data != null) {
       CapNhatDichVuSuDung(formData)
         .then((response) => {
@@ -97,29 +94,9 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
     }
   };
 
-  const DoiTrangThai = () => {
-    console.log(formData);
-    const updatedFormData = {
-      ...formData,
-      trangThai: formData.trangThai === false ? true : false,
-    };
-
-    CapNhatDichVuSuDung(updatedFormData)
-      .then((response) => {
-        setFormData(updatedFormData);
-      })
-      .catch((error) => {
-        console.error("Lỗi :", error);
-      });
-  };
 
   const HuyDichVu = () => {
-    const updatedFormData = {
-      ...formData,
-      trangThai: 0,
-    };
-
-    CapNhatDichVuSuDung(updatedFormData)
+    XoaDichVuSuDung(formData.id)
       .then((response) => {
         console.log("Dịch vụ đã bị hủy:", response.data);
         handleClose();
@@ -134,7 +111,6 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
       <DialogTitle>Dịch vụ sử dụng</DialogTitle>
       <DialogContent>
         <form onSubmit={handleSubmit}>
-          {/* Tên dịch vụ */}
           <FormControl fullWidth margin="dense">
             <InputLabel>Tên dịch vụ</InputLabel>
             <Select
@@ -172,7 +148,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             value={formData.ngayBatDau}
             onChange={handleInputChange}
             required
-            InputProps={{ readOnly: true }}
+            InputLabelProps={{ shrink: true }} 
           />
 
           <TextField
@@ -184,6 +160,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             value={formData.ngayKetThuc}
             onChange={handleInputChange}
             required
+            InputLabelProps={{ shrink: true }} 
           />
 
           <TextField
@@ -194,11 +171,8 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             name="giaSuDung"
             value={formData.giaSuDung}
             onChange={handleInputChange}
-            required
-            InputProps={{ readOnly: true }}
           />
-
-          {/* Trạng thái */}
+          {data &&(
           <FormControl component="fieldset" margin="dense">
             <label>Trạng thái</label>
             <RadioGroup row name="trangThai" value={formData.trangThai} onChange={handleInputChange}>
@@ -206,6 +180,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
               <FormControlLabel value="false" control={<Radio />} label="Chưa sử dụng" />
             </RadioGroup>
           </FormControl>
+          )}
         </form>
       </DialogContent>
 
@@ -215,9 +190,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             Hủy dịch vụ
           </Button>
         )}
-        <Button variant="outlined" onClick={DoiTrangThai}>
-          Đổi trạng thái
-        </Button>
+
         <Button variant="contained" color="primary" onClick={handleSubmit}>
           Lưu
         </Button>

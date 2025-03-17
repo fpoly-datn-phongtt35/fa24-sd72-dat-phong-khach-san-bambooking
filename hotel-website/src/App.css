@@ -7,9 +7,11 @@
 
 .main-content {
   display: flex;
-  flex: 1; /* Chiếm toàn bộ chiều cao còn lại */
-  overflow: hidden; /* Ngăn nội dung bị tràn ra */
+  flex: 1;
+  height: 100vh;
+  overflow: visible; /* Đảm bảo dropdown có thể hiển thị đầy đủ */
 }
+
 
 .content-area {
   flex: 1;

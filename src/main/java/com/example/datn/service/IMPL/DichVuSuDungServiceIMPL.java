@@ -46,11 +46,16 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
         if (dichVuSuDung != null) {
             dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
             dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
+            dichVuSuDung.setNgayBatDau(dichVuSuDungRequest.getNgayBatDau());
             dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
             // Thiết lập ngày kết thúc từ yêu cầu
             dichVuSuDung.setNgayKetThuc(dichVuSuDungRequest.getNgayKetThuc());
-            dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
             dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
+            if(dichVuSuDungRequest.getGiaSuDung() == null){
+                dichVuSuDung.setGiaSuDung(0.0);
+            }else{
+                dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
+            }
             return phieuDichVuRepository.save(dichVuSuDung);
         }
         return null;
@@ -90,7 +95,7 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
         dichVuSuDung.setNgayBatDau(LocalDateTime.now());
         dichVuSuDung.setNgayKetThuc(dichVuSuDungRequest.getNgayKetThuc()); // Ví dụ cộng 1 ngày
         dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
-        dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
+        dichVuSuDung.setTrangThai(false);
         return phieuDichVuRepository.save(dichVuSuDung);
     }
 }

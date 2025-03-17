@@ -49,6 +49,7 @@ const QuanLyPhong = () => {
       .then(async (roomList) => {
         if (Array.isArray(roomList)) {
           setRooms(roomList);
+          console.log(roomList)
           const images = await Promise.all(
             roomList.map((room) =>
               searchByIDPhong(room.id).then((response) => ({
@@ -255,8 +256,9 @@ const QuanLyPhong = () => {
                 <TableCell>Ảnh</TableCell>
                 <TableCell>Mã phòng</TableCell>
                 <TableCell>Tên phòng</TableCell>
-                <TableCell>Tình trạng</TableCell>
                 <TableCell>Giá (VND)</TableCell>
+                <TableCell>Tình trạng</TableCell>
+                <TableCell>Trạng thái</TableCell>
                 <TableCell>Hành động</TableCell>
               </TableRow>
             </TableHead>
@@ -282,8 +284,9 @@ const QuanLyPhong = () => {
                     </TableCell>
                     <TableCell>{room.maPhong}</TableCell>
                     <TableCell>{room.tenPhong}</TableCell>
-                    <TableCell>{room.tinhTrang}</TableCell>
                     <TableCell>{room.loaiPhong?.donGia}</TableCell>
+                    <TableCell>{room.tinhTrang}</TableCell>
+                    <TableCell>{room.trangThai === true ? "Hoạt động" : "Ngừng hoạt động"}</TableCell>
                     <TableCell>
                       <Button
                         variant="contained"

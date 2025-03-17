@@ -20,7 +20,6 @@ public class AuthController {
 
     @PostMapping("/access")
     public ResponseEntity<?> accessToken(@Valid @RequestBody SigninRequest req) {
-        System.out.printf("Cloud Name: %s%n", cloudName);
         return ResponseEntity.ok(this.authService.authenticate(req));
     }
 
