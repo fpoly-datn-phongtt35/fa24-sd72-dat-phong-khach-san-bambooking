@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './FormAdd.css'; // CSS cho modal
 import { ThemDichVu } from '../../services/DichVuService'; // Import API service
 import Swal from 'sweetalert2'; // down npm install sweetalert2
 
@@ -13,22 +12,18 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
         trangThai: true, // Dùng boolean, mặc định là true (Hoạt động)
     });
 
+    const [errors, setErrors] = useState({}); // State lưu lỗi
+
     // Hàm xử lý thay đổi giá trị input
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: name === "trangThai" ? value === 'true' : value,
+        });
 
-        // Nếu là select của trangThai, chuyển đổi giá trị từ chuỗi thành boolean
-        if (name === "trangThai") {
-            setFormData({
-                ...formData,
-                [name]: value === 'true',  // Chuyển đổi chuỗi 'true' hoặc 'false' thành boolean
-            });
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value,  // Cập nhật formData dựa trên thuộc tính name của input
-            });
-        }
+        // Xóa lỗi khi người dùng nhập lại
+        setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
     };
 
     // Hàm xử lý khi chọn file hình ảnh
@@ -38,11 +33,27 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
             ...formData,
             hinhAnh: file, // Lưu file hình ảnh vào state
         });
+
+        // Xóa lỗi khi người dùng chọn file
+        setErrors((prevErrors) => ({ ...prevErrors, hinhAnh: '' }));
     };
 
     // Hàm xử lý khi nhấn nút lưu
     const handleSubmit = (e) => {
         e.preventDefault();
+        let newErrors = {};
+
+        // Kiểm tra nếu các trường bị bỏ trống
+        if (!formData.tenDichVu.trim()) newErrors.tenDichVu = 'Vui lòng nhập tên dịch vụ!';
+        if (!formData.donGia.trim()) newErrors.donGia = 'Vui lòng nhập giá!';
+        if (!formData.moTa.trim()) newErrors.moTa = 'Vui lòng nhập mô tả!';
+        if (!formData.hinhAnh) newErrors.hinhAnh = 'Vui lòng chọn hình ảnh!';
+
+        // Nếu có lỗi, cập nhật state và không gửi dữ liệu
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
 
         // Tạo FormData để gửi file hình ảnh cùng với các dữ liệu khác
         const data = new FormData();
@@ -55,8 +66,8 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
         // Gọi API ThemDichVu để thêm dịch vụ
         ThemDichVu(data)
             .then(response => {
-                 // Hiển thị thông báo thành công khi thêm dịch vụ
-                 Swal.fire({
+                // Hiển thị thông báo thành công khi thêm dịch vụ
+                Swal.fire({
                     icon: 'success',
                     title: 'Thành công',
                     text: 'Thêm thành công',
@@ -83,70 +94,59 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
     if (!show) return null; // Không hiển thị modal nếu không mở
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-container">
-                <h2>Thêm Dịch Vụ Mới</h2>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="tenDichVu">Tên Dịch Vụ:</label>
-                        <input
-                            type="text"
-                            id="tenDichVu"
-                            name="tenDichVu"
-                            value={formData.tenDichVu}
-                            onChange={handleInputChange}
-                            required
-                        />
+        <div className={`modal fade ${show ? 'show d-block' : ''}`} tabIndex={-1} role="dialog" style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
+            <div className="modal-dialog modal-lg" role="document">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">Thêm Dịch Vụ</h5>
+                        <button type="button" className="btn-close" onClick={handleClose}></button>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="donGia">Giá:</label>
-                        <input
-                            type="number"
-                            id="donGia"
-                            name="donGia"
-                            value={formData.donGia}
-                            onChange={handleInputChange}
-                            required
-                        />
+                    <div className="modal-body">
+                        <form onSubmit={handleSubmit}>
+                            {/* Tên dịch vụ */}
+                            <div className="mb-3">
+                                <label htmlFor="tenDichVu" className="form-label">Tên Dịch Vụ</label>
+                                <input type="text" className={`form-control ${errors.tenDichVu ? 'is-invalid' : ''}`} id="tenDichVu" name="tenDichVu" value={formData.tenDichVu} onChange={handleInputChange} />
+                                {errors.tenDichVu && <div className="invalid-feedback">{errors.tenDichVu}</div>}                            
+                            </div>
+
+                            {/* Giá dịch vụ */}
+                            <div className="mb-3">
+                                <label htmlFor="donGia" className="form-label">Giá</label>
+                                <input type="number" className={`form-control ${errors.donGia ? 'is-invalid' : ''}`} id="donGia" name="donGia" value={formData.donGia} onChange={handleInputChange} />
+                                {errors.donGia && <div className="invalid-feedback">{errors.donGia}</div>}
+                            </div>
+
+                            {/* Mô tả */}
+                            <div className="mb-3">
+                                <label htmlFor="moTa" className="form-label">Mô Tả</label>
+                                <textarea className={`form-control ${errors.moTa ? 'is-invalid' : ''}`} id="moTa" name="moTa" value={formData.moTa} onChange={handleInputChange}></textarea>
+                                {errors.moTa && <div className="invalid-feedback">{errors.moTa}</div>}
+                            </div>
+
+                            {/* Hình ảnh */}
+                            <div className="mb-3">
+                                <label className="form-label">Chọn Hình Ảnh</label>
+                                <input type="file" className={`form-control-file ${errors.hinhAnh ? 'is-invalid' : ''}`} id="file" onChange={handleFileChange} />
+                                {errors.hinhAnh && <div className="text-danger">{errors.hinhAnh}</div>}
+                            </div>
+
+                            {/* Trạng thái */}
+                            <div className="mb-3">
+                                <label htmlFor="trangThai" className="form-label">Trạng Thái</label>
+                                <select className="form-control" id="trangThai" name="trangThai" value={formData.trangThai} onChange={handleInputChange}>
+                                    <option value={true}>Hoạt động</option>
+                                    <option value={false}>Ngừng hoạt động</option>
+                                </select>
+                            </div>
+
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={handleClose}>Đóng</button>
+                                <button type="submit" className="btn btn-primary">Lưu</button>
+                            </div>
+                        </form>
                     </div>
-                    <div className="form-group">
-                        <label htmlFor="moTa">Mô Tả:</label>
-                        <textarea
-                            id="moTa"
-                            name="moTa"
-                            value={formData.moTa}
-                            onChange={handleInputChange}
-                            required
-                        ></textarea>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="hinhAnh">Chọn Hình Ảnh:</label>
-                        <input
-                            type="file"
-                            id="hinhAnh"
-                            name="hinhAnh"
-                            accept="image/*" // Chỉ cho phép chọn hình ảnh
-                            onChange={handleFileChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="trangThai">Trạng Thái:</label>
-                        <select
-                            id="trangThai"
-                            name="trangThai"
-                            value={formData.trangThai}
-                            onChange={handleInputChange}
-                        >
-                            <option value={true}>Hoạt động</option>
-                            <option value={false}>Ngừng hoạt động</option>
-                        </select>
-                    </div>
-                    <div className="modal-actions">
-                        <button type="button" onClick={handleClose}>Đóng</button>
-                        <button type="submit">Lưu</button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     );
