@@ -106,6 +106,9 @@ function Sidebar() {
         <ListItemButton component={Link} to="/khach-hang">
           <ListItemText primary="Khách hàng" />
         </ListItemButton>
+        <ListItemButton component={Link} to="/dat-phong">
+          <ListItemText primary="Đặt phòng" />  
+        </ListItemButton>
       </List>
     </Drawer>
   );

@@ -7,7 +7,7 @@ const apiLoaiPhongKhaDung = "http://localhost:8080/ttdp/loai-phong-kha-dung"
 const apiTimKiem = "http://localhost:8080/ttdp/tim-kiem"
 const apiHuyTTDP = "http://localhost:8080/ttdp/huy-ttdp"
 const apiGetTTDP = "http://localhost:8080/ttdp/detail-ttdp"
-const apiTimLoaiPhong = "http://localhost:8080/ttdp/tim-kiem-loai-phong2"
+const apiTimLoaiPhong = "http://localhost:8080/ttdp/tim-kiem-loai-phong"
 const apiTTDP = "http://localhost:8080/ttdp/hien-thi-by-iddp"
 const apiXoaTTDP = "http://localhost:8080/ttdp/xoa-ttdp" 
 export const getThongTinDatPhong = (idDP) => {

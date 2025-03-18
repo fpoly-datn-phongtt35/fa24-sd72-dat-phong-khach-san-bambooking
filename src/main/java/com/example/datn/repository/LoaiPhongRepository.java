@@ -183,13 +183,34 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             "        (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
             "         AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS date) " +
             "         AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS date) " +
-            "         AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o', 'Den han'))" +
+            "         AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o'))" +
             ") >= :soPhong")
     List<LoaiPhongResponse> findLoaiPhongResponse(
             @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
             @Param("soPhong") Integer soPhong);
 
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongResponse(" +
+            "lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, lp.soKhachToiDa, " +
+            "lp.donGia, lp.donGiaPhuThu, lp.moTa) " +
+            "FROM LoaiPhong lp " +
+            "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+            "WHERE p.trangThai = true " +
+            "GROUP BY lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, lp.soKhachToiDa, " +
+            "         lp.donGia, lp.donGiaPhuThu, lp.moTa " +
+            "HAVING (COUNT(p.id) - " +
+            "        (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            "         AND xp.ngayNhanPhong < :ngayTraPhong " +
+            "         AND xp.ngayTraPhong > :ngayNhanPhong " +
+            "         AND xp.trangThai = true) - " +
+            "        (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            "         AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS date) " +
+            "         AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS date) " +
+            "         AND tp.trangThai IN ('Chua xac nhan','Da xep', 'Chua xep', 'Dang o'))" +
+            ") > 0")
+    List<LoaiPhongResponse> findLoaiPhongResponseTest(
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong);
 
 
     @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(lp.id, lp.tenLoaiPhong,lp.maLoaiPhong, lp.dienTich, " +
@@ -247,7 +268,33 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong);
 
-
+    @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(" +
+            "lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, lp.soKhachToiDa, " +
+            "lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
+            "(SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
+            "(SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            "  AND xp.ngayNhanPhong < CAST(:ngayTraPhong AS LocalDate) AND xp.ngayTraPhong > CAST(:ngayNhanPhong AS LocalDate) " +
+            "  AND xp.trangThai = true) - " +
+            "(SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            "  AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
+            "  AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o', 'Den han'))" +
+            ") AS soPhongKhaDung) " +
+            "FROM LoaiPhong lp " +
+            "JOIN Phong p ON p.loaiPhong.id = lp.id " +
+            "WHERE p.trangThai = true " +
+            "GROUP BY lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, lp.soKhachToiDa, " +
+            "         lp.donGia, lp.donGiaPhuThu, lp.moTa " +
+            "HAVING (SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
+            "        (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
+            "         AND xp.ngayNhanPhong < CAST(:ngayTraPhong AS LocalDate) AND xp.ngayTraPhong > CAST(:ngayNhanPhong AS LocalDate) " +
+            "         AND xp.trangThai = true) - " +
+            "        (SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
+            "         AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
+            "         AND tp.trangThai IN ('Da xep', 'Chua xep', 'Dang o', 'Den han'))" +
+            ") >= 1")
+    List<LoaiPhongKhaDungResponse> findLoaiPhongKhaDungResponseList(
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong);
 
 
 

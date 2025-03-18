@@ -33,11 +33,6 @@ public interface LoaiPhongService {
                             Double donGiaPhuThuMax,
                             Pageable pageable);
 
-    Page<LoaiPhongKhaDungResponse> LoaiPhongKhaDung(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
-                                                    Integer soNguoi,Integer soPhong,Pageable pageable);
-
-    Page<LoaiPhongKhaDungResponse> searchLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi,
-                                         Integer soPhong,Pageable pageable);
     LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
                                                      Integer idLoaiPhong);
 
