@@ -2,6 +2,7 @@ package com.example.datn.service;
 import com.example.datn.dto.request.LoaiPhongRequest;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
+import com.example.datn.model.HinhAnh;
 import com.example.datn.model.LoaiPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,5 +38,7 @@ public interface LoaiPhongService {
                                                      Integer idLoaiPhong);
 
     LoaiPhong findByID(Integer idLoaiPhong);
+
+    List<HinhAnh> getAnhLP(Integer idLoaiPhong);
 
 }

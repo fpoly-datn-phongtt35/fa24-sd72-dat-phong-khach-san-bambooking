@@ -2,6 +2,7 @@ package com.example.datn.repository;
 
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
+import com.example.datn.model.HinhAnh;
 import com.example.datn.model.LoaiPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -299,5 +300,15 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
 
 
     LoaiPhong findLoaiPhongById(@Param("idLoaiPhong") Integer idLoaiPhong);
+
+    @Query("""
+    select ha from HinhAnh ha
+    join Phong p ON ha.phong.id = p.id
+    join LoaiPhong lp on lp.id = p.loaiPhong.id
+    where lp.id = :idLoaiPhong
+"""
+    )
+    List<HinhAnh> getAnhLP (int idLoaiPhong);
+
 
 }
