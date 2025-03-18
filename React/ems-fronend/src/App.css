@@ -1,36 +1,39 @@
 *{
   font-family: Archivo, sans-serif;
-  /* color: #101828; */
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-.app-container {
+
+ .app-container {
   display: flex;
-  height: 100vh;
-}
-.content-area {
-  margin-top: 10px; /* Cách header 100px */
+  min-height: 100vh;
+  width: 100%;
 }
 
 .slidebar {
-  width: 180px;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
+  flex-shrink: 0;
 }
 
 .main-content {
-  flex: 1;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  overflow: auto;
+  width: 100%;
+  margin-left: 0 !important; 
+  transition: margin-left 0.3s ease;
 }
 
 .header {
-  background-color: #ffffff;
-  height: 60px;
-  display: flex;
-  align-items: center; /* Căn giữa nội dung theo chiều dọc */
+  flex-shrink: 0;
 }
 
+.content-area {
+  flex-grow: 1;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}

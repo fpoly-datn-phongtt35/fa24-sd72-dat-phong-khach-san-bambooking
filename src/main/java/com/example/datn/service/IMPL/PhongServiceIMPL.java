@@ -86,6 +86,9 @@ public class PhongServiceIMPL implements PhongService {
 
     @Override
     public List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDateTime ngayNhanPhong,LocalDateTime ngayTraPhong) {
+        System.out.println(idLoaiPhong);
+        System.out.println(ngayNhanPhong);
+        System.out.println(ngayTraPhong);
         return phongRepository.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong);
     }
 

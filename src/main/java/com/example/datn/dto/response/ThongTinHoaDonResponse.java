@@ -20,4 +20,5 @@ public class ThongTinHoaDonResponse {
     String ngayNhanPhong;
     String ngayTraPhong;
     Double giaPhong;
+    Double tienKhauTru;
 }

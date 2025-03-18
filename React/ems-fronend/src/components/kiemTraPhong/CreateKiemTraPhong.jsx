@@ -2,10 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getAllNhanVien, hienThiVatTu, performRoomCheck } from '../../services/KiemTraPhongService';
 import { Container, Box, Typography, Sheet, Table, Input, Button, Select, Option } from '@mui/joy';
+import { useTheme, useMediaQuery } from '@mui/material';
 
 const CreateKiemTraPhong = () => {
   const { idXepPhong } = useParams();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [materials, setMaterials] = useState([]);
   const [checkData, setCheckData] = useState([]);
@@ -25,7 +28,6 @@ const CreateKiemTraPhong = () => {
         console.error("Lỗi khi tải danh sách nhân viên: ", error);
       });
   }, []);
-  
 
   useEffect(() => {
     if (idXepPhong) {
@@ -33,7 +35,6 @@ const CreateKiemTraPhong = () => {
         .then((response) => {
           const fetchedMaterials = response.data.data;
           setMaterials(fetchedMaterials);
-          // Khởi tạo checkData với số lượng thực tế mặc định bằng số lượng tiêu chuẩn, tình trạng mặc định "Đủ"
           const initialData = fetchedMaterials.map(mat => ({
             idVatTu: mat.id,
             soLuongThucTe: mat.soLuongTieuChuan,
@@ -72,20 +73,38 @@ const CreateKiemTraPhong = () => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
   };
 
-
   return (
     <Container>
-      <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mt: 7 }}>
-        <Typography level="h4" sx={{ mb: 3, fontWeight: "bold", color: "primary.main" }}>
+      <Box sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        mt: isMobile ? 4 : 7,
+        px: isMobile ? 2 : 0
+      }}>
+        <Typography level="h4" sx={{ mb: 3, fontWeight: "bold", fontSize: isMobile ? "1.2rem" : "1.5rem" }}>
           Kiểm tra phòng - Danh sách vật tư
         </Typography>
 
-        <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 1, pr: 3 }}>
-          <Typography level="h6" sx={{ fontSize: "1.1rem" }}>
+        {/* Chọn nhân viên */}
+        <Box sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          justifyContent: isMobile ? "center" : "flex-end",
+          alignItems: "center",
+          gap: 1,
+          px: isMobile ? 0 : 3
+        }}>
+          <Typography level="h6" sx={{ fontSize: isMobile ? "1rem" : "1.1rem" }}>
             Chọn nhân viên:
           </Typography>
           <Select
-            sx={{ width: 180, bgcolor: "background.paper", borderRadius: 1 }}
+            sx={{
+              width: isMobile ? "100%" : 180,
+              bgcolor: "background.paper",
+              borderRadius: 1
+            }}
             value={selectedNhanVien}
             onChange={(event, newValue) => setSelectedNhanVien(newValue)}
           >
@@ -98,14 +117,27 @@ const CreateKiemTraPhong = () => {
         </Box>
       </Box>
 
-      <Box>
+      {/* Bảng danh sách vật tư */}
+      <Box sx={{ width: "100%", overflowX: "auto", mt: 2 }}>
         {materials.length > 0 ? (
-          <Sheet sx={{ marginTop: 2, padding: '2px', borderRadius: '5px' }}>
-            <Table borderAxis="x" size="lg" stickyHeader variant="outlined">
+          <Sheet sx={{
+            minWidth: 600,
+            padding: isMobile ? 1 : 2,
+            borderRadius: 2
+          }}>
+            <Table
+              borderAxis="x"
+              size="md"
+              stickyHeader
+              variant="outlined"
+              sx={{
+                minWidth: isMobile ? "700px" : "100%", // Giữ bảng có thể cuộn ngang trên mobile
+              }}
+            >
               <thead>
                 <tr>
                   <th>Tên vật tư</th>
-                  <th>Đơn giá</th>
+                  {/* <th>Đơn giá</th> */}
                   <th>Số lượng tiêu chuẩn</th>
                   <th>Số lượng thực tế</th>
                   <th>Ghi chú</th>
@@ -115,14 +147,14 @@ const CreateKiemTraPhong = () => {
                 {materials.map((item, index) => (
                   <tr key={item.id}>
                     <td>{item.tenVatTu}</td>
-                    <td>{formatCurrency(item.donGia)}</td>
+                    {/* <td>{formatCurrency(item.donGia)}</td> */}
                     <td>{item.soLuongTieuChuan}</td>
                     <td>
                       <Input
                         type="number"
                         value={checkData[index]?.soLuongThucTe ?? 0}
                         onChange={(e) =>
-                          handleInputChange(index, 'soLuongThucTe', Number(e.target.value))}
+                          handleInputChange(index, 'soLuongThucTe', Number(e.target.value)) }
                         size="small"
                         min={0}
                       />
@@ -131,8 +163,7 @@ const CreateKiemTraPhong = () => {
                       <Input
                         value={checkData[index]?.ghiChu || ""}
                         onChange={(e) =>
-                          handleInputChange(index, 'ghiChu', e.target.value)
-                        }
+                          handleInputChange(index, 'ghiChu', e.target.value) }
                         size="small"
                       />
                     </td>
@@ -148,8 +179,22 @@ const CreateKiemTraPhong = () => {
         )}
       </Box>
 
-      <Box sx={{ textAlign: 'center', mt: 2 }}>
-        <Button variant="plain" color="primary" onClick={handleSubmit}>
+      {/* Nút gửi kiểm tra phòng */}
+      <Box sx={{
+        textAlign: 'center',
+        mt: 3,
+        px: isMobile ? 2 : 0
+      }}>
+        <Button
+          variant="soft"
+          color="primary"
+          onClick={handleSubmit}
+          sx={{
+            width: isMobile ? "100%" : "auto",
+            fontSize: isMobile ? "1rem" : "1.1rem",
+            padding: isMobile ? "10px" : "8px 16px"
+          }}
+        >
           Gửi Kiểm Tra Phòng
         </Button>
       </Box>

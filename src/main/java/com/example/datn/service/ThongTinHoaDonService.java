@@ -1,6 +1,7 @@
 package com.example.datn.service;
 
 import com.example.datn.dto.response.DichVuSuDungResponse;
+import com.example.datn.dto.response.PhuThuResponse;
 import com.example.datn.dto.response.ThongTinHoaDonResponse;
 import com.example.datn.model.ThongTinHoaDon;
 import com.example.datn.model.TraPhong;
@@ -14,4 +15,6 @@ public interface ThongTinHoaDonService {
     List<ThongTinHoaDonResponse> getThongTinHoaDonByHoaDonId(Integer idHoaDon);
     List<ThongTinHoaDon> createThongTinHoaDon(Integer idHD, List<TraPhong> listTraPhong);
     List<DichVuSuDungResponse> getDichVuSuDung(Integer idHoaDon);
+    void capNhatTienKhauTru(Integer idHoaDon, Integer idThongTinHoaDon, Double tienKhauTru);
+    List<PhuThuResponse> getPhuThu(Integer idHoaDon);
 }
