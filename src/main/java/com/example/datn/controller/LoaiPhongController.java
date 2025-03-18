@@ -4,6 +4,7 @@ package com.example.datn.controller;
 
 import com.example.datn.dto.request.LoaiPhongRequest;
 import com.example.datn.dto.response.LoaiPhongResponse;
+import com.example.datn.model.HinhAnh;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.service.IMPL.DichVuDiKemServiceIMPL;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;

@@ -6,8 +6,9 @@ const apiUD = "http://localhost:8080/loai-phong/update";
 const apiDE = "http://localhost:8080/loai-phong/delete";
 const apiTi = "http://localhost:8080/tien-ich-phong/home";
 const apiFilter = "http://localhost:8080/loai-phong/filter";
-const apiGetAll = "http://localhost:8080/loai-phong";
+const apiGetAll = "http://localhost:8080/api/loai-phong";
 const apiAdd = "http://localhost:8080/dich_vu_di_kem/add";
+const apiGetAnhLP = "http://localhost:8080/api/loai-phong/getAnhLP";
 export const ThemDichVuDiKem = (dvDiKem) => {
     return authorizedAxiosInstance.post(apiAdd, dvDiKem);
 };
@@ -22,7 +23,8 @@ export const listLoaiPhong = (pageable) => {
     });
 };
 
-export const getAllLoaiPhong = () => {
+// ../services/Rooms.js
+export const getAllLoaiPhong = async () => {
     return authorizedAxiosInstance.get(apiGetAll);
 };
 
@@ -91,6 +93,12 @@ export const filterLoaiPhong = (tenLoaiPhong, dienTichMin, dienTichMax, soKhach,
 
     // Gọi API filter với các params hợp lệ
     return authorizedAxiosInstance.get(apiFilter, { params });
+
+
+};
+
+export const getAnhLP = async (idLoaiPhong) => {
+    return authorizedAxiosInstance.get(`${apiGetAnhLP}/${idLoaiPhong}`);
 };
 
 

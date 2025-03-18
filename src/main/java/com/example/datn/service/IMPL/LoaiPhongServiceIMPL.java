@@ -9,6 +9,7 @@ import com.example.datn.dto.response.SearchResultResponse;
 import com.example.datn.dto.response.datphong.LoaiPhongChon;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.DichVuDiKem;
+import com.example.datn.model.HinhAnh;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.repository.DichVuDiKemRepository;
 import com.example.datn.repository.LoaiPhongRepository;
@@ -371,4 +372,10 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         }
         return extraNeeded <= extraCapacity;
     }
+
+    @Override
+    public List<HinhAnh> getAnhLP(Integer idLoaiPhong) {
+        return loaiPhongRepository.getAnhLP(idLoaiPhong);
+    }
+
 }
