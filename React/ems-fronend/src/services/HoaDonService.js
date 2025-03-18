@@ -15,6 +15,24 @@ export const listHoaDon = (pageable, trangThai = "", keyword = "") => {
     });
 };
 
+export const updateTienKhauTru = async (idHoaDon, idThongTinHoaDon, tienKhauTru) => {
+    try {
+        const response = await authorizedAxiosInstance.put(
+            `http://localhost:8080/thong-tin-hoa-don/tien-khau-tru`,
+            {
+                idHoaDon,
+                idThongTinHoaDon,
+                tienKhauTru
+            }
+        );
+        console.log("Cập nhật tiền khấu trừ thành công:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi cập nhật tiền khấu trừ:", error.response?.data || "Không xác định", error.message);
+        throw error;
+    }
+};
+
 
 export const taoHoaDon = async (idTraPhong) => {
     try {

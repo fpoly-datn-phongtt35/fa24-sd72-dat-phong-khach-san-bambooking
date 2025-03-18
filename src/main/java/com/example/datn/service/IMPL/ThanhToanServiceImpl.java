@@ -20,8 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 import static com.example.datn.common.TokenType.ACCESS_TOKEN;
 
 @Service

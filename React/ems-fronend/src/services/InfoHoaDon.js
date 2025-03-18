@@ -15,4 +15,8 @@ export const getThongTinHoaDonByHoaDonId = (idHoaDon) => {
 
 export const getDichVuSuDung = (idHoaDon) =>{
     return authorizedAxiosInstance.get(`${apiDichVuSuDung}/${idHoaDon}`);
+};
+
+export const getPhuThuByHoaDonId = (idHoaDon) =>{
+    return authorizedAxiosInstance.get(`http://localhost:8080/thong-tin-hoa-don/phu-thu/${idHoaDon}`)
 }

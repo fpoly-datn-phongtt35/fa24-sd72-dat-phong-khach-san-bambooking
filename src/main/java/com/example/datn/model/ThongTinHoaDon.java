@@ -27,4 +27,6 @@ public class ThongTinHoaDon {
     Double tienPhong;
     @Column(name = "tien_phu_thu")
     Double tienPhuThu;
+    @Column(name = "tien_khau_tru")
+    Double tienKhauTru;
 }
