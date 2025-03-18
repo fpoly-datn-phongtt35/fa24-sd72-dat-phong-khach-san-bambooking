@@ -105,7 +105,7 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
           <ListItemButton component={Link} to="/quan-ly-phong">
             <ListItemText primary="Quản lý phòng" />
           </ListItemButton>
-          <ListItemButton component={Link} to="/giao-dien-tao-dp">
+          <ListItemButton component={Link} to="/dat-phong">
             <ListItemText primary="Đặt phòng" />
           </ListItemButton>
           <ListItemButton component={Link} to="/quan-ly-dat-phong">

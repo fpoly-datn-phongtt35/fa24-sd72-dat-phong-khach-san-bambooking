@@ -49,9 +49,20 @@ const InfoHoaDon = () => {
     const calculateDays = (startDate, endDate) => {
         const start = new Date(startDate);
         const end = new Date(endDate);
-        const diffTime = Math.abs(end - start);
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+        if (isNaN(start) || isNaN(end)) {
+            return 1; // Or another fallback value
+        }
+    
+        start.setHours(0, 0, 0, 0);
+        end.setHours(0, 0, 0, 0);
+    
+        const diffTime = end - start;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    
+        return Math.ceil(Math.max(diffDays, 1));
     };
+    
 
     if (!hoaDon) {
         return (

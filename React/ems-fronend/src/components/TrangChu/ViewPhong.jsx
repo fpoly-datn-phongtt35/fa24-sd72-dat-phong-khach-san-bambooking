@@ -282,7 +282,7 @@ const ViewPhong = () => {
 
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <div style={{ width: "20px", height: "20px", backgroundColor: "#00B2BF", border: "1px solid #000" }}></div>
-            <span>Phòng đã được đặt</span>
+            <span>Phòng đã được xếp</span>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>

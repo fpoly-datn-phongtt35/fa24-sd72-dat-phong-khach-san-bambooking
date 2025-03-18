@@ -19,7 +19,6 @@ const Checkin = ({ show, handleClose, thongTinDatPhong }) => {
     const [ngayNhanPhongTime, setNgayNhanPhongTime] = useState('');
     const [ngayTraPhongTime, setNgayTraPhongTime] = useState('');
     const navigate = useNavigate();
-
     const handleCheckin = async () => {
         console.log(thongTinDatPhong);
 

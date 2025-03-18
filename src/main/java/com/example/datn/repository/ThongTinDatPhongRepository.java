@@ -34,22 +34,27 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
 
     @Query("SELECT new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong," +
             " CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
-            " ttdp.giaDat,ttdp.ghiChu) " +
+            " ttdp.giaDat, ttdp.ghiChu) " +
             "FROM ThongTinDatPhong ttdp " +
             "JOIN ttdp.loaiPhong lp " +
             "JOIN ttdp.datPhong dp " +
+            "JOIN ttdp.datPhong.khachHang kh " +
             "WHERE (:startDate IS NULL OR ttdp.ngayNhanPhong >= :startDate) " +
             "AND (:endDate IS NULL OR ttdp.ngayTraPhong <= :endDate) " +
             "AND (:trangThai IS NULL OR ttdp.trangThai LIKE %:trangThai%) " +
             "AND (:key IS NULL OR (ttdp.maThongTinDatPhong LIKE %:key% " +
-                "OR lp.tenLoaiPhong LIKE %:key% " +
-            "OR dp.maDatPhong LIKE %:key%))")
+            "OR lp.tenLoaiPhong LIKE %:key% " +
+            "OR dp.maDatPhong LIKE %:key% " +
+            "OR CONCAT(kh.ho, ' ', kh.ten) LIKE %:key% " +
+            "OR kh.sdt LIKE %:key% " +
+            "OR kh.email LIKE %:key%))")
     Page<TTDPResponse> findByDateRangeAndKey(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("key") String key,
             @Param("trangThai") String trangThai,
             Pageable pageable);
+
 
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.id = :id")
     ThongTinDatPhong getTTDPById(@Param("id") Integer id);
