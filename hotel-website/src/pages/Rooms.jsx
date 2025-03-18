@@ -1,30 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Rooms.css'; // CSS file để tùy chỉnh giao diện
-import { getAllLoaiPhong } from '../services/Rooms.js';
+import './Rooms.css';
+import { getAllLoaiPhong, getAnhLP } from '../services/Rooms.js';
 
 export default function Rooms() {
-  const [roomTypes, setRoomTypes] = useState([]); // State để lưu danh sách loại phòng
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [roomImages, setRoomImages] = useState({});
+  const [error, setError] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentImages, setCurrentImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const navigate = useNavigate();
 
-  
-  useEffect(() => {
-    const fetchRoomTypes = async () => {
-      try {
-        const data = await getAllLoaiPhong(); 
-        setRoomTypes(data); 
-        console.log(data)
-      } catch (error) {
-        console.error('Lỗi khi lấy danh sách loại phòng:', error);
-      }
-    };
+  const fetchRoomTypes = async () => {
+    try {
+      const response = await getAllLoaiPhong();
+      console.log(response.data);
+      setRoomTypes(response.data || []);
+    } catch (error) {
+      setError(error.message || 'Không thể tải danh sách phòng.');
+      console.error('Lỗi khi lấy danh sách loại phòng:', error);
+    }
+  };
 
+  const fetchRoomImages = async (idLoaiPhong) => {
+    try {
+      const response = await getAnhLP(idLoaiPhong);
+      console.log(`Ảnh cho ${idLoaiPhong}:`, response.data);
+      const imagePaths = response.data.map((item) => item.duongDan).filter(Boolean);
+      setRoomImages((prev) => ({
+        ...prev,
+        [idLoaiPhong]: imagePaths,
+      }));
+      console.log(`imagePaths cho ${idLoaiPhong}:`, imagePaths);
+    } catch (error) {
+      console.error(`Lỗi khi lấy ảnh cho ${idLoaiPhong}:`, error);
+      setRoomImages((prev) => ({
+        ...prev,
+        [idLoaiPhong]: [],
+      }));
+    }
+  };
+
+  useEffect(() => {
     fetchRoomTypes();
   }, []);
 
+  useEffect(() => {
+    if (roomTypes.length > 0) {
+      roomTypes.forEach((room) => {
+        fetchRoomImages(room.id);
+      });
+    }
+  }, [roomTypes]);
 
-  const handleRoomClick = (maLoaiPhong) => {
-    navigate(`/room/${maLoaiPhong}`); 
+  const handleRoomClick = (idLoaiPhong) => {
+    navigate(`/room/${idLoaiPhong}`);
+  };
+
+  const openModal = (images, initialIndex = 0) => {
+    setCurrentImages(images);
+    setCurrentImageIndex(initialIndex);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setCurrentImages([]);
+    setCurrentImageIndex(0);
+  };
+
+  const showPreviousImage = () => {
+    setCurrentImageIndex((prev) => (prev === 0 ? currentImages.length - 1 : prev - 1));
+  };
+
+  const showNextImage = () => {
+    setCurrentImageIndex((prev) => (prev === currentImages.length - 1 ? 0 : prev + 1));
   };
 
   return (
@@ -33,44 +84,80 @@ export default function Rooms() {
       <div className="room-list">
         {roomTypes.length > 0 ? (
           roomTypes.map((room) => (
-            <div
-              key={room.maLoaiPhong}
-              className="room-card"
-              onClick={() => handleRoomClick(room.maLoaiPhong)}
-            >
-              {/* Hiển thị danh sách ảnh */}
-              <div className="room-images">
-                {room.images && room.images.length > 0 ? (
-                  <img
-                    src={room.images[0]} // Hiển thị ảnh đầu tiên
-                    alt={room.tenLoaiPhong}
-                    className="main-image"
-                  />
-                ) : (
-                  <div className="no-image">Không có ảnh</div>
-                )}
-                {/* Hiển thị các ảnh phụ nếu có */}
-                <div className="thumbnail-images">
-                  {room.images &&
-                    room.images.slice(1, 4).map((img, index) => (
-                      <img
-                        key={index}
-                        src={img}
-                        alt={`${room.tenLoaiPhong}-${index}`}
-                        className="thumbnail"
-                      />
-                    ))}
-                </div>
-              </div>
+            <div key={room.id} className="room-card">
+              <div className="room-images-container">
+                {roomImages[room.id] && roomImages[room.id].length > 0 ? (
+                  <>
+                    <img
+                      src={roomImages[room.id][0]}
+                      alt={`${room.tenLoaiPhong} - Ảnh chính`}
+                      className="main-room-image"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openModal(roomImages[room.id]);
+                      }}
+                    />
+                    {roomImages[room.id].length > 1 && (
+                      <div className="additional-images">
+                        <div className="thumbnail-row">
+                          {roomImages[room.id].slice(1, 4).map((imagePath, index) => (
+                            <img
+                              key={index + 1}
+                              src={imagePath}
+                              alt={`${room.tenLoaiPhong} - Ảnh ${index + 2}`}
+                              className="thumbnail-room-image"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openModal(roomImages[room.id], index + 1);
+                              }}
+                            />
+                          ))}
+                          {roomImages[room.id].length > 4 && (
+                            <div className="show-more-overlay"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openModal(roomImages[room.id]);
+                              }}
+                            >
+                              <img
+                                src={roomImages[room.id][3]}
+                                alt={`${room.tenLoaiPhong} - Ảnh 4`}
+                                className="thumbnail-room-image show-more-image"
+                              />
+                              <button
+                                className="show-more-text"
 
-              {/* Thông tin loại phòng */}
+                              >
+                                Xem thêm
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <p>Đang tải ảnh...</p>
+                )}
+              </div>
               <div className="room-info">
-                <h3>{room.tenLoaiPhong}</h3>
-                <p className="room-code">Mã loại phòng: {room.maLoaiPhong}</p>
-                <p className="room-area">Diện tích: {room.dienTich} m²</p>
-                <p className="room-capacity">Số khách tối đa: {room.soKhachToiDa}</p>
-                <p className="room-price">Đơn giá: {room.donGia.toLocaleString('vi-VN')} VNĐ</p>
-                <p className="room-description">{room.moTa}</p>
+                <div className="room-details">
+                  <h3>{room.tenLoaiPhong}</h3>
+                  <p className="room-code">Mã loại phòng: {room.maLoaiPhong}</p>
+                  <p className="room-area">Diện tích: {room.dienTich} m²</p>
+                  <p className="room-capacity">Số khách tối đa: {room.soKhachToiDa}</p>
+                  <p className="room-price">Đơn giá: {room.donGia.toLocaleString('vi-VN')} VNĐ</p>
+                  <p className="room-description">{room.moTa}</p>
+                </div>
+                <button
+                  className="book-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRoomClick(room.id);
+                  }}
+                >
+                  Đặt phòng
+                </button>
               </div>
             </div>
           ))
@@ -78,6 +165,37 @@ export default function Rooms() {
           <p>Không có loại phòng nào để hiển thị.</p>
         )}
       </div>
+
+      {modalOpen && (
+        <div className="image-modal">
+          <div className="modal-content">
+            <button className="close-button" onClick={closeModal}>X</button>
+            <div className="main-image-container">
+              <button className="nav-button left" onClick={showPreviousImage}>❮</button>
+              <img
+                src={currentImages[currentImageIndex]}
+                alt={`Ảnh ${currentImageIndex + 1}`}
+                className="modal-main-image"
+              />
+              <button className="nav-button right" onClick={showNextImage}>❯</button>
+              <div className="image-counter">
+                {currentImageIndex + 1}/{currentImages.length}
+              </div>
+            </div>
+            <div className="thumbnails-container">
+              {currentImages.map((image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt={`Ảnh thu nhỏ ${index + 1}`}
+                  className={`thumbnail-image ${index === currentImageIndex ? 'active' : ''}`}
+                  onClick={() => setCurrentImageIndex(index)}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

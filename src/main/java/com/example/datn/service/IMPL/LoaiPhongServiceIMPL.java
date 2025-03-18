@@ -7,6 +7,7 @@ import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
 import com.example.datn.dto.response.SearchResultResponse;
 import com.example.datn.model.DichVuDiKem;
+import com.example.datn.model.HinhAnh;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.repository.DichVuDiKemRepository;
 import com.example.datn.repository.LoaiPhongRepository;
@@ -229,6 +230,11 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     public LoaiPhong findByID(Integer idLoaiPhong) {
         return loaiPhongRepository.findById(idLoaiPhong)
                 .orElseThrow(() -> new EntityNotFoundException("LoaiPhong with ID " + idLoaiPhong + " not found"));
+    }
+
+    @Override
+    public List<HinhAnh> getAnhLP(Integer idLoaiPhong) {
+        return loaiPhongRepository.getAnhLP(idLoaiPhong);
     }
 
 
