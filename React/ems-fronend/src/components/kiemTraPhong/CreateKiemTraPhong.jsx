@@ -137,7 +137,7 @@ const CreateKiemTraPhong = () => {
               <thead>
                 <tr>
                   <th>Tên vật tư</th>
-                  <th>Đơn giá</th>
+                  {/* <th>Đơn giá</th> */}
                   <th>Số lượng tiêu chuẩn</th>
                   <th>Số lượng thực tế</th>
                   <th>Ghi chú</th>
@@ -147,7 +147,7 @@ const CreateKiemTraPhong = () => {
                 {materials.map((item, index) => (
                   <tr key={item.id}>
                     <td>{item.tenVatTu}</td>
-                    <td>{formatCurrency(item.donGia)}</td>
+                    {/* <td>{formatCurrency(item.donGia)}</td> */}
                     <td>{item.soLuongTieuChuan}</td>
                     <td>
                       <Input

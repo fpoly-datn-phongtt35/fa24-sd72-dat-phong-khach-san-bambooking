@@ -93,7 +93,7 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         return hoaDonRepository.findDichVuSuDungByIdHoaDon(idHoaDon);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void capNhatTienKhauTru(Integer idHoaDon, Integer idThongTinHoaDon, Double tienKhauTru) {
         log.info("===== Bắt đầu cập nhật tiền khấu trừ =====");
@@ -138,19 +138,11 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         LocalDateTime ngayTraThucTe = traPhong.getNgayTraThucTe();
         Duration duration = Duration.between(ngayNhanPhong, ngayTraThucTe);
 
-        long soNgay = duration.toDays();
-        long gioCheckIn = ngayNhanPhong.getHour();
+        long soNgay = duration.toDays() <= 0 ? 1 : duration.toDays();
+        log.info("SoNgay: {}", soNgay);
         double giaPhong = traPhong.getXepPhong().getThongTinDatPhong().getGiaDat();
         double tienPhong = 0;
-
-        if (gioCheckIn < 6) {
-            soNgay += 1;
-            tienPhong = giaPhong * soNgay;
-        } else if (gioCheckIn >= 6 && gioCheckIn <= 12) {
-            tienPhong = giaPhong * soNgay + (0.5 * giaPhong);
-        } else {
-            tienPhong = giaPhong * soNgay;
-        }
+        tienPhong = giaPhong * soNgay;
 
         return tienPhong;
     }
