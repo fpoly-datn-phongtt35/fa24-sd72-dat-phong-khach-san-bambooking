@@ -77,9 +77,7 @@ const ChinhSuaPhongDialog = ({ open, onClose, thongTinDatPhong, onSave }) => {
                 value={loaiPhong}
                 onChange={(e) => setLoaiPhong(e.target.value)}
               >
-                <MenuItem value="Phòng đơn">Phòng đơn</MenuItem>
-                <MenuItem value="Phòng đôi">Phòng đôi</MenuItem>
-                <MenuItem value="Phòng VIP">Phòng VIP</MenuItem>
+                <MenuItem value="">Phòng</MenuItem>
                 {/* Add more room types if needed */}
               </Select>
             </FormControl>

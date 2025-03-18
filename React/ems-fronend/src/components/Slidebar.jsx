@@ -38,7 +38,7 @@ function Sidebar() {
         <ListItemButton component={Link} to="/quan-ly-phong">
           <ListItemText primary="Quản lý phòng" />
         </ListItemButton>
-        <ListItemButton component={Link} to="/giao-dien-tao-dp">
+        <ListItemButton component={Link} to="/dat-phong">
           <ListItemText primary="Đặt phòng" />
         </ListItemButton>
         <ListItemButton component={Link} to="/quan-ly-dat-phong">
@@ -105,9 +105,6 @@ function Sidebar() {
         </ListItemButton>
         <ListItemButton component={Link} to="/khach-hang">
           <ListItemText primary="Khách hàng" />
-        </ListItemButton>
-        <ListItemButton component={Link} to="/dat-phong">
-          <ListItemText primary="Đặt phòng" />  
         </ListItemButton>
       </List>
     </Drawer>

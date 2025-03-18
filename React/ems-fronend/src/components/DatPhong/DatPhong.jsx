@@ -42,8 +42,12 @@ import {
 import { addThongTinDatPhong } from "../../services/TTDP";
 
 const DatPhong = () => {
-  const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs());
-  const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, "day"));
+  const [ngayNhanPhong, setNgayNhanPhong] = useState(
+      dayjs().hour(14).minute(0)
+    );
+    const [ngayTraPhong, setNgayTraPhong] = useState(
+      dayjs().add(1, "day").hour(12).minute(0)
+    );
   const [soNguoi, setSoNguoi] = useState(1);
   const [key, setKey] = useState("");
   const [tongChiPhiMin, setTongChiPhiMin] = useState("");
@@ -460,8 +464,6 @@ const DatPhong = () => {
                       sx={{ borderRadius: 1, backgroundColor: "#fff" }}
                     >
                       <MenuItem value="">Tất cả loại phòng</MenuItem>
-                      <MenuItem value="Loại 1">Loại 1</MenuItem>
-                      <MenuItem value="Loại 2">Loại 2</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -565,7 +567,6 @@ const DatPhong = () => {
                             }}
                           >
                             <BookmarkAddIcon sx={{ mr: 0.5 }} />
-                            Đặt phòng
                           </Button>
                         </Stack>
                       </TableCell>
