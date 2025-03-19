@@ -60,8 +60,6 @@ public class ViewPhongImpl implements ViewPhongService {
                         dvsd.setDichVu(dichVu);
                         dvsd.setXepPhong(xepPhong);
                         dvsd.setSoLuongSuDung(dvdk.getSoLuong()); // Mặc định 1, có thể chỉnh lại
-                        dvsd.setNgayBatDau(LocalDateTime.now());
-                        dvsd.setNgayKetThuc(null); // Nếu có thời gian kết thúc thì cập nhật
                         dvsd.setGiaSuDung(0.0); // Giả sử dịch vụ đi kèm có giá
                         dvsd.setTrangThai(false); // Trạng thái mặc định
                         return dvsd;
@@ -81,8 +79,6 @@ public class ViewPhongImpl implements ViewPhongService {
                         dvsd.setDichVu(dichVu);
                         dvsd.setXepPhong(xepPhong);
                         dvsd.setSoLuongSuDung(dvdk.getSoLuong()); // Mặc định 1, có thể chỉnh lại
-                        dvsd.setNgayBatDau(LocalDateTime.now());
-                        dvsd.setNgayKetThuc(null); // Nếu có thời gian kết thúc thì cập nhật
                         dvsd.setGiaSuDung(0.0); // Giả sử dịch vụ đi kèm có giá
                         dvsd.setTrangThai(true); // Trạng thái mặc định
                         return dvsd;

@@ -98,14 +98,7 @@ const RoomDetail = () => {
       });
   };
 
-  const DoiTrangThai = (dv) => {
-    const updatedFormData = {
-      ...dv,
-      trangThai: dv.trangThai === false ? true : false,
-    };
-    CapNhatDichVuSuDung(updatedFormData);
-  };
-
+ 
   const handleCloseFormDetail = () => {
     setShowFormDetail(false);
     setSelectedDichVu(null);
@@ -114,7 +107,7 @@ const RoomDetail = () => {
   return (
     <Grid container spacing={2} sx={{ p: 2 }}>
       {/* Thông tin khách hàng */}
-      <Grid item xs={12} sm={4}>
+      <Grid item xs={12} sm={3.5}>
         <Card variant="outlined" sx={{ borderRadius: 2, boxShadow: 3 }}>
           <CardContent>
             <Typography variant="h5" gutterBottom color="primary">
@@ -140,7 +133,7 @@ const RoomDetail = () => {
       </Grid>
 
       {/* Thông tin dịch vụ sử dụng */}
-      <Grid item xs={12} sm={8}>
+      <Grid item xs={12} sm={8.5}>
         <TableContainer component={Paper} sx={{ boxShadow: 3 }}>
           <Table>
             <TableHead>
@@ -149,7 +142,7 @@ const RoomDetail = () => {
                 <TableCell sx={{ fontWeight: 'bold' }}>Hình ảnh</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Giá sử dụng (VND)</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Số lượng sử dụng</TableCell>
-                <TableCell sx={{ fontWeight: 'bold' }}>Trạng thái</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Tổng chi phí (VND)</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Hành động</TableCell>
               </TableRow>
             </TableHead>
@@ -158,24 +151,21 @@ const RoomDetail = () => {
                 ListDVSD.map((dv) => (
                   <TableRow key={dv.id} sx={{ '&:hover': { backgroundColor: '#f9f9f9' } }}>
                     <TableCell>{dv.dichVu?.tenDichVu}</TableCell>
-                    <TableCell>{dv.dichVu?.hinhAnh}</TableCell>
+                    <TableCell>
+                      <img src={dv.dichVu?.hinhAnh}
+                        style={{
+                          width: '130px',
+                          height: '86px',
+                          objectFit: 'cover',
+                          borderRadius: '4px',
+                        }}
+                      ></img></TableCell>
+
                     <TableCell>{dv.giaSuDung}</TableCell>
                     <TableCell>{dv.soLuongSuDung}</TableCell>
-                    <TableCell sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
-                      
-                      <Switch
-                        checked={dv.trangThai}
-                        onChange={() => DoiTrangThai(dv)}
-                        sx={{
-                          width: 70,
-                          height: 40,
-                          padding: 0,
-                          
-                        }}
-                      />
-                    </TableCell>
+                    <TableCell>{dv.giaSuDung* dv.soLuongSuDung}</TableCell>
                     <TableCell>
-                    <Button
+                      <Button
                         variant="contained"
                         size="small"
                         onClick={() => {

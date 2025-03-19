@@ -26,8 +26,6 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
     dichVu: { id: data?.dichVu?.id } || "",
     xepPhong: { id: idxp },
     soLuongSuDung: data?.soLuongSuDung || "",
-    ngayBatDau: data?.ngayBatDau || "",
-    ngayKetThuc: data?.ngayKetThuc || "",
     giaSuDung: data?.giaSuDung || "",
     trangThai: data?.trangThai ?? 0,
   });
@@ -45,8 +43,6 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
         dichVu: { id: data.dichVu?.id || "" },
         xepPhong: { id: idxp },
         soLuongSuDung: data.soLuongSuDung || "",
-        ngayBatDau: data.ngayBatDau || "",
-        ngayKetThuc: data.ngayKetThuc || "",
         giaSuDung: data.giaSuDung || "",
         trangThai: data.trangThai === true,
       });
@@ -139,29 +135,6 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             required
           />
 
-          <TextField
-            label="Ngày bắt đầu"
-            type="datetime-local"
-            fullWidth
-            margin="dense"
-            name="ngayBatDau"
-            value={formData.ngayBatDau}
-            onChange={handleInputChange}
-            required
-            InputLabelProps={{ shrink: true }} 
-          />
-
-          <TextField
-            label="Ngày kết thúc"
-            type="datetime-local"
-            fullWidth
-            margin="dense"
-            name="ngayKetThuc"
-            value={formData.ngayKetThuc}
-            onChange={handleInputChange}
-            required
-            InputLabelProps={{ shrink: true }} 
-          />
 
           <TextField
             label="Giá sử dụng"
@@ -172,15 +145,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             value={formData.giaSuDung}
             onChange={handleInputChange}
           />
-          {data &&(
-          <FormControl component="fieldset" margin="dense">
-            <label>Trạng thái</label>
-            <RadioGroup row name="trangThai" value={formData.trangThai} onChange={handleInputChange}>
-              <FormControlLabel value="true" control={<Radio />} label="Đã sử dụng" />
-              <FormControlLabel value="false" control={<Radio />} label="Chưa sử dụng" />
-            </RadioGroup>
-          </FormControl>
-          )}
+          
         </form>
       </DialogContent>
 

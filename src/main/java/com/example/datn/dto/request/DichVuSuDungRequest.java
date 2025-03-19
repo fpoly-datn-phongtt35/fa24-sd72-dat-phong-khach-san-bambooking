@@ -20,8 +20,6 @@ public class DichVuSuDungRequest {
     private DichVu dichVu;
     private XepPhong xepPhong;
     private Integer soLuongSuDung;
-    private LocalDateTime ngayBatDau;
-    private LocalDateTime ngayKetThuc;
     private Double giaSuDung;
     private Boolean trangThai;
 }

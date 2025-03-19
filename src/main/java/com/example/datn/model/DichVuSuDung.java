@@ -25,10 +25,6 @@ public class DichVuSuDung {
     XepPhong xepPhong;
     @Column(name = "so_luong_su_dung")
     Integer soLuongSuDung;
-    @Column(name = "ngay_bat_dau")
-    LocalDateTime ngayBatDau;
-    @Column(name = "ngay_ket_thuc")
-    LocalDateTime ngayKetThuc;
     @Column(name = "gia_su_dung")
     Double giaSuDung;
     @Column(name = "trang_thai")

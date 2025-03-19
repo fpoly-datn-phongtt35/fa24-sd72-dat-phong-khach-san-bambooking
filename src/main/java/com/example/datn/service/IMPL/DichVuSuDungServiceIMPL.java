@@ -25,9 +25,6 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
         dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
         dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
         dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
-        // Ngày bắt đầu và kết thúc tự động
-        dichVuSuDung.setNgayBatDau(LocalDateTime.now());
-        dichVuSuDung.setNgayKetThuc(LocalDateTime.now().plusDays(1)); // Ví dụ cộng 1 ngày
         dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
         dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
         return phieuDichVuRepository.save(dichVuSuDung);
@@ -46,10 +43,7 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
         if (dichVuSuDung != null) {
             dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
             dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
-            dichVuSuDung.setNgayBatDau(dichVuSuDungRequest.getNgayBatDau());
             dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
-            // Thiết lập ngày kết thúc từ yêu cầu
-            dichVuSuDung.setNgayKetThuc(dichVuSuDungRequest.getNgayKetThuc());
             dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
             if(dichVuSuDungRequest.getGiaSuDung() == null){
                 dichVuSuDung.setGiaSuDung(0.0);
@@ -91,9 +85,6 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
         dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
         dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
         dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
-        // Ngày bắt đầu và kết thúc tự động
-        dichVuSuDung.setNgayBatDau(LocalDateTime.now());
-        dichVuSuDung.setNgayKetThuc(dichVuSuDungRequest.getNgayKetThuc()); // Ví dụ cộng 1 ngày
         dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
         dichVuSuDung.setTrangThai(false);
         return phieuDichVuRepository.save(dichVuSuDung);
