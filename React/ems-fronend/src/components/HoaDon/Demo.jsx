@@ -6,10 +6,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
 import { ThemPhuThu } from '../../services/PhuThuService';
 
-
 const Demo = ({ thongTinDatPhong }) => {
     const [key, setKey] = useState('');
     const [traPhong, setTraPhong] = useState([]);
+    const [errorMessage, setErrorMessage] = useState(''); // Thêm state để lưu thông báo lỗi
     const navigate = useNavigate();
 
     const FindCheckOut = (key) => {
@@ -17,6 +17,7 @@ const Demo = ({ thongTinDatPhong }) => {
             .then((response) => {
                 console.log(response.data);
                 setTraPhong(response.data);
+                setErrorMessage(''); // Xóa thông báo lỗi khi tìm kiếm thành công
             })
             .catch((error) => {
                 console.log('Lỗi khi tìm kiếm thông tin phòng', error);
@@ -29,14 +30,11 @@ const Demo = ({ thongTinDatPhong }) => {
                 await checkOut(item.id);
                 console.log(`✅ Checkout thành công cho phòng ID: ${item.id}`);
 
-
-                // Kiểm tra xem item.xepPhong có tồn tại không
                 if (!item.xepPhong) {
                     console.warn(`⚠️ Không tìm thấy thông tin xếp phòng cho phòng ID: ${item.id}`);
-                    continue; // Bỏ qua nếu không có thông tin xếp phòng
+                    continue;
                 }
 
-                // Lấy ngày trả phòng dự kiến từ xếp phòng
                 const ngayTraPhong = new Date(item.xepPhong.ngayTraPhong);
                 const ngayTraThucTe = new Date(item.ngayTraThucTe);
 
@@ -45,7 +43,6 @@ const Demo = ({ thongTinDatPhong }) => {
                     continue;
                 }
 
-                // Mốc 12h trưa của ngày trả phòng
                 const gio12Trua = new Date(ngayTraPhong);
                 gio12Trua.setHours(12, 0, 0, 0);
 
@@ -54,7 +51,6 @@ const Demo = ({ thongTinDatPhong }) => {
                 console.log("Ngày trả thực tế:", ngayTraThucTe);
                 console.log("Mốc 12h trưa:", gio12Trua);
 
-                // Nếu trả phòng sau 12h trưa => Thêm phụ thu
                 if (ngayTraThucTe > gio12Trua) {
                     const phuThuRequest = {
                         xepPhong: { id: item.xepPhong.id },
@@ -65,7 +61,6 @@ const Demo = ({ thongTinDatPhong }) => {
                     };
 
                     console.log('➕ Đang thêm phụ thu:', phuThuRequest);
-
                     await ThemPhuThu(phuThuRequest);
                     console.log(`💰 Phụ thu đã được thêm cho phòng ${item.xepPhong.id}`);
                     alert(`Phụ thu do trả phòng muộn đã được thêm cho phòng ${item.xepPhong.id}`);
@@ -74,15 +69,15 @@ const Demo = ({ thongTinDatPhong }) => {
                 }
             }
 
-            // Lưu vào localStorage và chuyển hướng
             localStorage.setItem('traPhong', JSON.stringify(traPhong));
             navigate('/tao-hoa-don');
         } catch (error) {
             console.error('❌ Lỗi khi thực hiện checkout:', error);
-            alert('Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng kiểm tra lại.');
+            // Lấy thông báo lỗi từ response của BE
+            const message = error.response?.data?.message || 'Đã xảy ra lỗi khi thực hiện thao tác.';
+            setErrorMessage(message); // Cập nhật state để hiển thị lỗi
         }
     };
-
 
     const removeTraPhong = (id) => {
         setTraPhong(traPhong.filter((item) => item.id !== id));
@@ -133,6 +128,15 @@ const Demo = ({ thongTinDatPhong }) => {
                     </Stack>
                 </Box>
 
+                {/* Hiển thị thông báo lỗi nếu có */}
+                {errorMessage && (
+                    <Box sx={{ textAlign: 'center', marginTop: 2 }}>
+                        <Typography level="body1" color="danger">
+                            {errorMessage}
+                        </Typography>
+                    </Box>
+                )}
+
                 {/* Hiển thị danh sách trả phòng */}
                 <Box sx={{ marginTop: 4 }}>
                     {traPhong.length === 0 ? (
@@ -176,7 +180,8 @@ const Demo = ({ thongTinDatPhong }) => {
                                         margin: '0 auto',
                                         textAlign: 'center',
                                         boxShadow: 'sm',
-                                    }}>
+                                    }}
+                                >
                                     <IconButton
                                         color="danger"
                                         onClick={() => removeTraPhong(item.id)}
@@ -200,14 +205,12 @@ const Demo = ({ thongTinDatPhong }) => {
                                         </Typography>
                                     </Box>
                                 </Card>
-
                             ))}
                         </Stack>
                     )}
                 </Box>
             </Box>
         </Container>
-
     );
 };
 
