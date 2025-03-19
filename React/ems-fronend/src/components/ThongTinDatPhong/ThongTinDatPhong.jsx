@@ -30,13 +30,13 @@ import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { huyTTDP } from "../../services/TTDP";
-import {findDatPhongByKey} from "../../services/DatPhong";
-const Checkin = () => {
+
+const ThongTinDatPhong = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
-  const [datPhong, setDatPhong] = useState([]);
+  const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
   const [ngayNhan, setNgayNhan] = useState(null);
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
@@ -45,24 +45,24 @@ const Checkin = () => {
   const pageSize = 5;
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-  const searchDatPhong = (key, currentPage) => {
+  const searchThongTinDatPhong = (ngayNhan, ngayTra, key, currentPage) => {
     const pageable = { page: currentPage, size: pageSize };
     const formattedNgayNhan = ngayNhan ? ngayNhan.format("YYYY-MM-DD") : "";
     const formattedNgayTra = ngayTra ? ngayTra.format("YYYY-MM-DD") : "";
-    findDatPhongByKey(key, "", pageable)
+    findTTDPS(formattedNgayNhan, formattedNgayTra, key, "", pageable)
       .then((res) => {
         console.log(res.data);
-        setDatPhong(res.data.content || []);
+        setThongTinDatPhong(res.data.content || []);
         setTotalPages(res.data.totalPages || 0);
       })
       .catch((err) => {
         console.error("Error fetching data:", err);
-        setDatPhong([]);
+        setThongTinDatPhong([]);
       });
   };
 
   useEffect(() => {
-    searchDatPhong(key, page);
+    searchThongTinDatPhong(ngayNhan, ngayTra, key, page);
   });
 
   const handlePageChange = (event, newPage) => {
@@ -93,8 +93,16 @@ const Checkin = () => {
     }
   };
 
+  const fetchThongTinDatPhong = (currentPage) => {
+    searchThongTinDatPhong(ngayNhan, ngayTra, key, currentPage);
+  };
+
   const handleCheckin = (ttdp) => {
     console.log("Checkin:", ttdp);
+  };
+
+  const setShowXepPhongModal = (value) => {
+    console.log("Show modal:", value);
   };
 
   const phongData = {};
@@ -121,7 +129,7 @@ const Checkin = () => {
             align="center"
             sx={{ fontWeight: "bold" }}
           >
-            Nhận phòng
+            Tra cứu thông tin đặt phòng
           </Typography>
         </Box>
 
@@ -241,69 +249,79 @@ const Checkin = () => {
       </Paper>
 
       {/* Table Section */}
-      {datPhong.length > 0 ? (
+      {thongTinDatPhong.length > 0 ? (
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Mã Đặt Phòng</TableCell>
+                <TableCell>Đặt Phòng</TableCell>
+                <TableCell>Thông Tin Đặt Phòng</TableCell>
                 <TableCell>Khách Hàng</TableCell>
-                <TableCell>Số điện thoại</TableCell>
                 <TableCell>Số Người</TableCell>
-                <TableCell>Số Phòng</TableCell>
-                <TableCell>Ngày Đặt</TableCell>
-                <TableCell>Tổng Tiền</TableCell>
-                <TableCell>Ghi Chú</TableCell>
+                <TableCell>Loại Phòng</TableCell>
+                <TableCell>Ngày Nhận</TableCell>
+                <TableCell>Ngày Trả</TableCell>
+                <TableCell>Giá Phòng</TableCell>
                 <TableCell>Trạng thái</TableCell>
                 <TableCell>Hành Động</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {datPhong.map((dp) => (
-                <TableRow key={dp.maDatPhong}>
+              {thongTinDatPhong.map((ttdp) => (
+                <TableRow key={ttdp.maThongTinDatPhong}>
                   <TableCell>
                     <Typography
                       variant="body2"
                       sx={{ color: "blue", cursor: "pointer" }}
-                      onClick={() => handleViewDetails(dp.maDatPhong)}
+                      onClick={() => handleViewDetails(ttdp.maDatPhong)}
                     >
-                      {dp.maDatPhong}
+                      {ttdp.maDatPhong}
                     </Typography>
                   </TableCell>
-                  <TableCell>{dp.khachHang.ho + ' ' + dp.khachHang.ten}</TableCell>
-                  <TableCell>{dp.khachHang.sdt}</TableCell>
-                  <TableCell>{dp.soNguoi}</TableCell>
-                  <TableCell>{dp.soPhong}</TableCell>
-                  <TableCell>{dp.ngayDat}</TableCell>
-                  <TableCell>{dp.tongTien} VND</TableCell>
-                  <TableCell>{dp.ghiChu}</TableCell>
-                  <TableCell>{dp.trangThai}</TableCell>
+                  <TableCell>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: "blue", cursor: "pointer" }}
+                      onClick={() =>
+                        handleViewDetailsTTDPTTDP(ttdp.maThongTinDatPhong)
+                      }
+                    >
+                      {ttdp.maThongTinDatPhong}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>{ttdp.tenKhachHang}</TableCell>
+                  <TableCell>{ttdp.soNguoi}</TableCell>
+                  <TableCell>{ttdp.loaiPhong.tenLoaiPhong}</TableCell>
+                  <TableCell>{ttdp.ngayNhanPhong}</TableCell>
+                  <TableCell>{ttdp.ngayTraPhong}</TableCell>
+                  <TableCell>{ttdp.giaDat} VND</TableCell>
+                  <TableCell>{ttdp.trangThai}</TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={1}>
-                      {dp.trangThai === "Chua xep" && (
+                      {ttdp.trangThai === "Chua xep" && (
                         <IconButton
                           size="small"
                           onClick={() => {
-                            setSelectedTTDPs([dp]);
+                            setSelectedTTDPs([ttdp]);
                             setShowXepPhongModal(true);
                           }}
                         >
                           <MeetingRoomIcon />
                         </IconButton>
                       )}
-                      {dp.trangThai === "Da xep" && (
+                      {ttdp.trangThai === "Da xep" && (
                         <IconButton
                           size="small"
-                          onClick={() => handleCheckin(dp)}
+                          onClick={() => handleCheckin(ttdp)}
                         >
                           <CheckCircleIcon />
                         </IconButton>
                       )}
-                      {["Chua xep", "Da xep"].includes(dp.trangThai) && (
+                      {["Chua xep", "Da xep"].includes(ttdp.trangThai) && (
                         <IconButton
                           size="small"
                           color="error"
-                          onClick={() => handleHuyTTDP(dp.maThongTinDatPhong)}
+                          onClick={() => handleHuyTTDP(ttdp.maThongTinDatPhong)}
                         >
                           <RemoveCircleOutlineIcon />
                         </IconButton>
@@ -335,4 +353,4 @@ const Checkin = () => {
   );
 };
 
-export default Checkin;
+export default ThongTinDatPhong;

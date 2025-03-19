@@ -431,7 +431,7 @@ function QuanLyDatPhong() {
                     </TableCell>
                     <TableCell>{ttdp.ngayNhanPhong}</TableCell>
                     <TableCell>{ttdp.ngayTraPhong}</TableCell>
-                    <TableCell>{ttdp.donGia.toLocaleString()} VND</TableCell>
+                    <TableCell>{ttdp.donGia} VND</TableCell>
                     <TableCell>
                       {/* Nút hủy đặt phòng */}
                       <IconButton

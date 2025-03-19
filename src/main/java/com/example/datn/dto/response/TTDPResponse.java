@@ -21,6 +21,7 @@ public class TTDPResponse {
     LoaiPhong loaiPhong;
     LocalDate ngayNhanPhong;
     LocalDate ngayTraPhong;
-    Double donGia;
+    Double giaDat;
     String ghiChu;
+    String trangThai;
 }

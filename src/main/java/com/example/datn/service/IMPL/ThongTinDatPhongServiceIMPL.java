@@ -61,9 +61,6 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setTrangThai(request.getTrangThai());
         datPhongRepository.save(dp);
         return thongTinDatPhongRepository.save(ttdp);
-
-
-        
     }
 
     @Override

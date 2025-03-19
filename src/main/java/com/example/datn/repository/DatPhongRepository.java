@@ -63,13 +63,15 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
     DatPhong findByMaDatPhong(@Param("maDatPhong") String maDatPhong);
 
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(" +
-            "dp.id, dp.khachHang, " +
-            "dp.maDatPhong,dp.soNguoi,dp.soPhong, dp.ngayDat , dp.tongTien, dp.ghiChu, dp.trangThai) " +
-            " FROM DatPhong dp " +
-            " WHERE (:keyword IS NULL OR dp.trangThai LIKE %:keyword%" +
-            " OR CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten) LIKE %:keyword%" +
-            " OR dp.maDatPhong LIKE %:keyword%)" +
-            " ORDER BY dp.ngayDat DESC")
+            "dp.id, dp.khachHang," +
+            "dp.maDatPhong, dp.soNguoi, dp.soPhong, dp.ngayDat, dp.tongTien, dp.ghiChu, dp.trangThai) " +
+            "FROM DatPhong dp " +
+            "WHERE (:keyword IS NULL OR dp.trangThai LIKE :keyword " +
+            "OR CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten) LIKE :keyword " +
+            "OR dp.maDatPhong LIKE :keyword " +
+            "OR dp.khachHang.sdt LIKE :keyword " +
+            "OR dp.khachHang.email LIKE :keyword) " +
+            "ORDER BY dp.ngayDat DESC")
     Page<DatPhongResponse> findAll(@Param("keyword") String keyword, Pageable pageable);
 
     @Query(

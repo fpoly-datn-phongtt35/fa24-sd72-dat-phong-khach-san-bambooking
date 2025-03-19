@@ -38,6 +38,8 @@ import CreateKiemTraPhong from '../components/kiemTraPhong/CreateKiemTraPhong';
 import ViewPhong from "../components/TrangChu/ViewPhong";
 import { XoaDichVuDiKem } from "../services/DichVuDiKemService";
 import DatPhong from "../components/DatPhong/DatPhong";
+import ThongTinDatPhong from '../components/ThongTinDatPhong/ThongTinDatPhong';
+import Checkin from '../components/Checkin/Checkin';
 function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
   const UnauthorizedRoutes = () => {
     const accessToken = localStorage.getItem('accessToken');
@@ -119,6 +121,8 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/kiem-tra-phong" element={<KiemTraPhong />} />
         <Route path="/tao-kiem-tra-phong/:idXepPhong" element={<CreateKiemTraPhong />} />
         <Route path="/dat-phong" element={<DatPhong/>}/>
+        <Route path="/thong-tin-dat-phong-search" element={<ThongTinDatPhong/>}/>
+        <Route path="/nhan-phong" element={<Checkin/>}/>
       </Route>
     </Routes>
   );
