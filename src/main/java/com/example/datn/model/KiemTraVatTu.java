@@ -33,4 +33,5 @@ public class KiemTraVatTu {
 
     @Column(name = "ghi_chu")
     private String ghiChu;
+
 }

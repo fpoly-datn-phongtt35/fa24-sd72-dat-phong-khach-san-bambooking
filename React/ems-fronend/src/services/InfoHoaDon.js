@@ -20,3 +20,7 @@ export const getDichVuSuDung = (idHoaDon) =>{
 export const getPhuThuByHoaDonId = (idHoaDon) =>{
     return authorizedAxiosInstance.get(`http://localhost:8080/thong-tin-hoa-don/phu-thu/${idHoaDon}`)
 }
+
+export const getListVatTuHongThieu =(idHoaDon) =>{
+    return authorizedAxiosInstance.get(`http://localhost:8080/thong-tin-hoa-don/list-vat-tu-hong-thieu/${idHoaDon}`)
+}

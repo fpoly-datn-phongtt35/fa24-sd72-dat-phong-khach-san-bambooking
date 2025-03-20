@@ -27,4 +27,17 @@ public interface KiemTraPhongRepository extends JpaRepository<KiemTraPhong, Inte
             "AND xp.thongTinDatPhong.trangThai IN (:trangThai)")
     List<XepPhong> findByKeyNotChecked(@Param("key") String key, @Param("trangThai") List<String> trangThai);
 
+    //lấy danh sách phòng chưa kiểm tra
+    @Query("""
+                SELECT xp.phong.id, p.tenPhong
+                FROM XepPhong xp
+                JOIN xp.phong p
+                JOIN xp.thongTinDatPhong ttdp
+                JOIN ttdp.datPhong dp
+                WHERE dp.maDatPhong = :maDatPhong
+                AND NOT EXISTS (
+                    SELECT 1 FROM KiemTraPhong ktp WHERE ktp.xepPhong.id = xp.id
+                )
+            """)
+    List<Object[]> findUnverifiedRooms(String maDatPhong);
 }

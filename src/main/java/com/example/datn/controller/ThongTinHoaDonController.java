@@ -4,7 +4,10 @@ import com.example.datn.controller.response.ResponseData;
 import com.example.datn.dto.request.ThongTinHoaDonRequest;
 import com.example.datn.dto.request.UpdateThongTinHoaDonRequest;
 import com.example.datn.dto.response.DichVuSuDungResponse;
+import com.example.datn.dto.response.KiemTraVatTuResponse;
+import com.example.datn.dto.response.KiemTraVatTuResponseList;
 import com.example.datn.dto.response.PhuThuResponse;
+import com.example.datn.repository.KiemTraVatTuRepository;
 import com.example.datn.service.ThongTinHoaDonService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -69,5 +72,11 @@ public class ThongTinHoaDonController {
     public ResponseEntity<?> getPhuThu(@PathVariable("idHoaDon") Integer idHoaDon) {
         List<PhuThuResponse> phuThuResponses = thongTinHoaDonService.getPhuThu(idHoaDon);
         return ResponseEntity.ok(phuThuResponses);
+    }
+
+    @GetMapping("/list-vat-tu-hong-thieu/{idHoaDon}")
+    public ResponseEntity<?> getListVatTuHongOrThieu(@PathVariable("idHoaDon") Integer idHoaDon) {
+        List<KiemTraVatTuResponseList> result = thongTinHoaDonService.getListVatTuHongOrThieuByHoaDon(idHoaDon);
+        return ResponseEntity.ok(result);
     }
 }

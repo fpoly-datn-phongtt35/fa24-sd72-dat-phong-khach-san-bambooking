@@ -2,11 +2,14 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.TraPhongRequest;
 import com.example.datn.dto.response.TraPhongResponse;
+import com.example.datn.exception.EntityNotFountException;
+import com.example.datn.exception.RoomNotCheckedException;
 import com.example.datn.mapper.TraPhongMapper;
 import com.example.datn.model.Phong;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.model.TraPhong;
 import com.example.datn.model.XepPhong;
+import com.example.datn.repository.KiemTraPhongRepository;
 import com.example.datn.repository.TraPhongRepository;
 import com.example.datn.repository.XepPhongRepository;
 import com.example.datn.service.TraPhongService;
@@ -16,6 +19,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +31,7 @@ public class TraPhongServiceImpl implements TraPhongService {
     TraPhongRepository traPhongRepository;
     XepPhongRepository xepPhongRepository;
     TraPhongMapper traPhongMapper;
+    KiemTraPhongRepository kiemTraPhongRepository;
 
     @Override
     public Page<TraPhongResponse> getAllTraPhong(Pageable pageable) {
@@ -53,10 +58,23 @@ public class TraPhongServiceImpl implements TraPhongService {
         return traPhong;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public TraPhong CheckOut(Integer idTraPhong) {
-        TraPhong traPhong = traPhongRepository.findById(idTraPhong).get();
+        TraPhong traPhong = traPhongRepository.findById(idTraPhong)
+                .orElseThrow(()-> new EntityNotFountException("Không tìm thấy trả phòng có id: " + idTraPhong));
+
         XepPhong xepPhong = traPhong.getXepPhong();
+        String maDatPhong = xepPhong.getThongTinDatPhong().getDatPhong().getMaDatPhong();
+
+        List<Object[]> unverifiedRooms = kiemTraPhongRepository.findUnverifiedRooms(maDatPhong);
+        if (!unverifiedRooms.isEmpty()) {
+            List<String> roomNames = unverifiedRooms.stream()
+                    .map(room -> String.valueOf(room[1])).toList();
+            throw new RoomNotCheckedException("Danh sách phòng chưa kiểm tra: "
+                    + roomNames + ", nhân viên vui lòng kiểm tra phòng trước khi trả phòng!");
+        }
+
         ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
         Phong p = xepPhong.getPhong();
 

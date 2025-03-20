@@ -30,7 +30,8 @@ public class GlobalExceptionHandler {
             ConstraintViolationException.class,
             EntityExistsException.class,
             AccessDeniedException.class,
-            InvalidDataException.class
+            InvalidDataException.class,
+            RuntimeException.class,
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionResponse handleValidException(Exception ex, WebRequest request){
