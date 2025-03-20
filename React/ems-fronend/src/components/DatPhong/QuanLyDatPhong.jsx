@@ -84,6 +84,7 @@ function QuanLyDatPhong() {
   };
 
   useEffect(() => {
+    fetchThongTinDatPhong(currentStatus, currentPage);
     // Thiết lập interval để gọi fetchThongTinDatPhong mỗi 5 giây
     const intervalId = setInterval(() => {
       fetchThongTinDatPhong(currentStatus, currentPage);

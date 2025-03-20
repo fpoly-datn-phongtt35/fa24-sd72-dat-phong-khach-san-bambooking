@@ -142,7 +142,7 @@ const DatPhong = () => {
         ngayDat: new Date().toISOString(),
         tongTien: combination.tongChiPhi,
         ghiChu: "Đặt phòng từ tổ hợp được chọn",
-        trangThai: "Cho xu ly",
+        trangThai: "Đang đặt phòng",
       };
       datPhongResponse = await ThemMoiDatPhong(datPhongRequest);
       if (!datPhongResponse || !datPhongResponse.data) {
@@ -160,7 +160,7 @@ const DatPhong = () => {
               ngayTraPhong: ngayTraPhong.toISOString(),
               soNguoi: phong.loaiPhong.soKhachToiDa,
               giaDat: phong.loaiPhong.donGia,
-              trangThai: "Chua xac nhan",
+              trangThai: "Đang đặt phòng",
             };
             const response = await addThongTinDatPhong(thongTinDatPhongRequest);
             if (!response || !response.data) {

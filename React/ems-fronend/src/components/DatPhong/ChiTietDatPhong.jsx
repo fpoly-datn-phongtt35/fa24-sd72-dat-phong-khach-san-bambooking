@@ -22,10 +22,11 @@ import {
   findDatPhongByMaDatPhong,
   CapNhatDatPhong,
 } from "../../services/DatPhong";
-import { phongDaXep } from "../../services/XepPhongService";
+import { checkIn, phongDaXep } from "../../services/XepPhongService";
 import XepPhong from "../XepPhong/XepPhong";
 import DeleteIcon from "@mui/icons-material/Delete";
-
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { ThemPhuThu } from "../../services/PhuThuService";
 const ChiTietDatPhong = () => {
   const [datPhong, setDatPhong] = useState();
   const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
@@ -119,6 +120,92 @@ const ChiTietDatPhong = () => {
 
   const handleTTDPClick = (maThongTinDatPhong) => {
     navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
+  };
+
+  const handleCheckin = async (thongTinDatPhong) => {
+    console.log(thongTinDatPhong);
+    try {
+      let xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong))
+        .data;
+      console.log("Phòng trước khi check-in:", xepPhong);
+
+      if (!xepPhong) {
+        alert("Không tìm thấy phòng đã xếp.");
+        return;
+      }
+
+      const loaiPhong = xepPhong.phong.loaiPhong;
+      console.log("Loại phòng: ", loaiPhong);
+
+      const xepPhongRequest = {
+        id: xepPhong.id,
+        phong: xepPhong.phong,
+        thongTinDatPhong: xepPhong.thongTinDatPhong,
+        ngayNhanPhong: new Date(),
+        ngayTraPhong: new Date(
+          new Date(thongTinDatPhong.ngayTraPhong).setHours(12, 0, 0, 0)
+        ),
+        trangThai: xepPhong.trangThai,
+      };
+      console.log("Đang thực hiện check-in với:", xepPhongRequest);
+      await checkIn(xepPhongRequest);
+      alert("Check-in thành công!");
+
+      xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
+      console.log("Phòng sau khi check-in:", xepPhong);
+
+      const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
+      console.log("Ngày nhận phòng sau cập nhật:", ngayNhanPhongXepPhong);
+      const ngayTraPhongXepPhong = new Date(xepPhong.ngayTraPhong);
+      console.log("Ngày trả phòng sau cập nhật:", ngayTraPhongXepPhong);
+
+      const gio14Chieu = new Date(ngayNhanPhongXepPhong);
+      gio14Chieu.setHours(14, 0, 0, 0);
+
+      if (ngayNhanPhongXepPhong < gio14Chieu) {
+        const phuThuRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: "Phụ thu do nhận phòng sớm",
+          tienPhuThu: 50000,
+          soLuong: 1,
+          trangThai: true,
+        };
+        console.log("Đang thêm phụ thu:", phuThuRequest);
+        const phuThuResponse = await ThemPhuThu(phuThuRequest);
+        console.log("Phụ thu được thêm:", phuThuResponse.data);
+        alert("Phụ thu do nhận phòng sớm đã được thêm.");
+      } else {
+        console.log("Không cần phụ thu: nhận phòng sau 14h.");
+      }
+
+      if (thongTinDatPhong.soNguoi > loaiPhong.soKhachToiDa) {
+        const soNguoiVuot = thongTinDatPhong.soNguoi - loaiPhong.soKhachToiDa;
+        const tienPhuThuThem = soNguoiVuot * loaiPhong.donGiaPhuThu;
+        const phuThuThemRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người)`,
+          tienPhuThu: tienPhuThuThem,
+          soLuong: 1,
+          trangThai: true,
+        };
+        console.log(
+          "Đang thêm phụ thu do vượt số khách tối đa:",
+          phuThuThemRequest
+        );
+        const phuThuThemResponse = await ThemPhuThu(phuThuThemRequest);
+        console.log(
+          "Phụ thu do vượt số khách tối đa đã được thêm:",
+          phuThuThemResponse.data
+        );
+        alert(
+          `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`
+        );
+      }
+    } catch (error) {
+      console.error("Lỗi xảy ra:", error);
+      alert("Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng kiểm tra lại.");
+    }
+    getDetailDatPhong(maDatPhong);
   };
 
   return (
@@ -267,6 +354,13 @@ const ChiTietDatPhong = () => {
                           Assign
                         </Button>
                       )}
+
+                      <IconButton
+                        size="small"
+                        onClick={() => handleCheckin(ttdp)}
+                      >
+                        <CheckCircleIcon />
+                      </IconButton>
                     </TableCell>
                   </TableRow>
                 ))
@@ -286,6 +380,9 @@ const ChiTietDatPhong = () => {
         >
           <Button variant="contained" color="primary" onClick={updateDatPhong}>
             Lưu
+          </Button>
+          <Button variant="contained" color="primary">
+            Checkin
           </Button>
           <Button
             variant="outlined"

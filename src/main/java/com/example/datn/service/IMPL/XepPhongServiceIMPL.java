@@ -2,13 +2,11 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.XepPhongRequest;
 import com.example.datn.dto.response.XepPhongResponse;
+import com.example.datn.model.DatPhong;
 import com.example.datn.model.Phong;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.model.XepPhong;
-import com.example.datn.repository.KiemTraPhongRepository;
-import com.example.datn.repository.PhongRepository;
-import com.example.datn.repository.ThongTinDatPhongRepository;
-import com.example.datn.repository.XepPhongRepository;
+import com.example.datn.repository.*;
 import com.example.datn.service.XepPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +28,9 @@ public class XepPhongServiceIMPL implements XepPhongService {
     PhongRepository phongRepository;
     @Autowired
     private KiemTraPhongRepository kiemTraPhongRepository;
+
+    @Autowired
+    DatPhongRepository datPhongRepository;
 
     @Override
     public List<XepPhong> getAll() {
@@ -75,10 +76,12 @@ public class XepPhongServiceIMPL implements XepPhongService {
 
     @Override
     public XepPhong checkIn(XepPhongRequest xepPhongRequest) {
-
         try {
             XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId()).orElse(null);
             if (xp != null) {
+                DatPhong dp = datPhongRepository.findByMaDatPhong(xp.getThongTinDatPhong().getDatPhong().getMaDatPhong());
+                dp.setTrangThai("Đã nhận phòng");
+                datPhongRepository.save(dp);
                 ThongTinDatPhong ttdp = xp.getThongTinDatPhong();
                 Phong p = xp.getPhong();
                 ttdp.setTrangThai("Dang o");

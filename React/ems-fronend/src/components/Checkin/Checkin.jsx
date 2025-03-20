@@ -30,7 +30,8 @@ import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { huyTTDP } from "../../services/TTDP";
-import {findDatPhongByKey} from "../../services/DatPhong";
+import { findDatPhongToCheckin } from "../../services/DatPhong";
+
 const Checkin = () => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -40,16 +41,14 @@ const Checkin = () => {
   const [ngayNhan, setNgayNhan] = useState(null);
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const pageSize = 5;
+  const [page, setPage] = useState(0); // Trang hiện tại (bắt đầu từ 0)
+  const [totalPages, setTotalPages] = useState(0); // Tổng số trang
+  const pageSize = 5; // Số mục trên mỗi trang
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   const searchDatPhong = (key, currentPage) => {
     const pageable = { page: currentPage, size: pageSize };
-    const formattedNgayNhan = ngayNhan ? ngayNhan.format("YYYY-MM-DD") : "";
-    const formattedNgayTra = ngayTra ? ngayTra.format("YYYY-MM-DD") : "";
-    findDatPhongByKey(key, "", pageable)
+    findDatPhongToCheckin(key, pageable) // Sửa lại để chỉ truyền 2 tham số
       .then((res) => {
         console.log(res.data);
         setDatPhong(res.data.content || []);
@@ -62,11 +61,15 @@ const Checkin = () => {
   };
 
   useEffect(() => {
-    searchDatPhong(key, page);
-  });
+    const intervalId = setInterval(() => {
+      searchDatPhong(key, page);
+    }, 3000); // Làm mới mỗi 3 giây
+    return () => clearInterval(intervalId);
+  }, [ngayNhan, ngayTra, key, page]);
 
   const handlePageChange = (event, newPage) => {
-    setPage(newPage - 1);
+    setPage(newPage - 1); // Chuyển đổi từ 1-based (Pagination) sang 0-based (API)
+    searchDatPhong(key, newPage - 1); // Tải dữ liệu trang mới
   };
 
   const handleViewDetails = (maDatPhong) => {
@@ -84,7 +87,7 @@ const Checkin = () => {
     if (confirmCancel) {
       huyTTDP(maThongTinDatPhong)
         .then(() => {
-          fetchThongTinDatPhong(page); // Cập nhật lại danh sách sau khi hủy
+          searchDatPhong(key, page); // Cập nhật lại danh sách sau khi hủy
           console.log(`Đã hủy TTDP: ${maThongTinDatPhong}`);
         })
         .catch((err) => {
@@ -145,7 +148,7 @@ const Checkin = () => {
               variant="contained"
               color="primary"
               size="large"
-              onClick={() => searchThongTinDatPhong(ngayNhan, ngayTra, key, 0)}
+              onClick={() => searchDatPhong(key, 0)}
               sx={{
                 width: { xs: "100%", sm: "auto" },
                 minWidth: { sm: "120px" },
@@ -222,7 +225,7 @@ const Checkin = () => {
                       slotProps={{
                         textField: {
                           fullWidth: true,
-                          size: "medium",
+                          size:"medium",
                           sx: {
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -270,7 +273,7 @@ const Checkin = () => {
                       {dp.maDatPhong}
                     </Typography>
                   </TableCell>
-                  <TableCell>{dp.khachHang.ho + ' ' + dp.khachHang.ten}</TableCell>
+                  <TableCell>{dp.khachHang.ho + " " + dp.khachHang.ten}</TableCell>
                   <TableCell>{dp.khachHang.sdt}</TableCell>
                   <TableCell>{dp.soNguoi}</TableCell>
                   <TableCell>{dp.soPhong}</TableCell>
@@ -321,11 +324,12 @@ const Checkin = () => {
         </Typography>
       )}
 
-      {totalPages > 1 && (
+      {/* Pagination Section */}
+      {totalPages > 0 && (
         <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
           <Pagination
-            count={totalPages}
-            page={page + 1}
+            count={totalPages} // Tổng số trang từ API
+            page={page + 1} // Chuyển từ 0-based sang 1-based cho Pagination
             onChange={handlePageChange}
             color="primary"
           />

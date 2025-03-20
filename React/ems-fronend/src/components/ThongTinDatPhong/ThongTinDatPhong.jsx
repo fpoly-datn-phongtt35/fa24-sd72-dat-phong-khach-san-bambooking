@@ -30,7 +30,9 @@ import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { huyTTDP } from "../../services/TTDP";
-
+import XepPhong from "../XepPhong/XepPhong";
+import { checkIn, phongDaXep } from "../../services/XepPhongService";
+import { ThemPhuThu } from "../../services/PhuThuService";
 const ThongTinDatPhong = () => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -44,6 +46,7 @@ const ThongTinDatPhong = () => {
   const [totalPages, setTotalPages] = useState(0);
   const pageSize = 5;
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showXepPhongModal, setShowXepPhongModal] = useState(false);
 
   const searchThongTinDatPhong = (ngayNhan, ngayTra, key, currentPage) => {
     const pageable = { page: currentPage, size: pageSize };
@@ -61,12 +64,16 @@ const ThongTinDatPhong = () => {
       });
   };
 
-  useEffect(() => {
-    searchThongTinDatPhong(ngayNhan, ngayTra, key, page);
-  });
+  // useEffect(() => {
+  //   const intervalId = setInterval(() => {
+  //     searchThongTinDatPhong(ngayNhan, ngayTra, key, page);
+  //   }, 60000);
+  //   return () => clearInterval(intervalId);
+  // }, [ngayNhan, ngayTra, key, page]);
 
   const handlePageChange = (event, newPage) => {
-    setPage(newPage - 1);
+    setPage(newPage - 1); // Chuyển từ 1-based (Pagination) sang 0-based (API)
+    searchThongTinDatPhong(ngayNhan, ngayTra, key, newPage - 1); // Tải dữ liệu trang mới
   };
 
   const handleViewDetails = (maDatPhong) => {
@@ -97,12 +104,79 @@ const ThongTinDatPhong = () => {
     searchThongTinDatPhong(ngayNhan, ngayTra, key, currentPage);
   };
 
-  const handleCheckin = (ttdp) => {
-    console.log("Checkin:", ttdp);
-  };
+  const handleCheckin = async (thongTinDatPhong) => {
+    console.log(thongTinDatPhong);
+    try {
+      let xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
+      console.log("Phòng trước khi check-in:", xepPhong);
 
-  const setShowXepPhongModal = (value) => {
-    console.log("Show modal:", value);
+      if (!xepPhong) {
+        alert("Không tìm thấy phòng đã xếp.");
+        return;
+      }
+
+      const loaiPhong = xepPhong.phong.loaiPhong;
+      console.log("Loại phòng: ", loaiPhong);
+
+      const xepPhongRequest = {
+        id: xepPhong.id,
+        phong: xepPhong.phong,
+        thongTinDatPhong: xepPhong.thongTinDatPhong,
+        ngayNhanPhong: new Date(),
+        ngayTraPhong: new Date(new Date(thongTinDatPhong.ngayTraPhong).setHours(12, 0, 0, 0)),
+        trangThai: xepPhong.trangThai,
+      };
+      console.log("Đang thực hiện check-in với:", xepPhongRequest);
+      await checkIn(xepPhongRequest);
+      alert("Check-in thành công!");
+
+      xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
+      console.log("Phòng sau khi check-in:", xepPhong);
+
+      const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
+      console.log("Ngày nhận phòng sau cập nhật:", ngayNhanPhongXepPhong);
+      const ngayTraPhongXepPhong = new Date(xepPhong.ngayTraPhong);
+      console.log("Ngày trả phòng sau cập nhật:", ngayTraPhongXepPhong);
+
+      const gio14Chieu = new Date(ngayNhanPhongXepPhong);
+      gio14Chieu.setHours(14, 0, 0, 0);
+
+      if (ngayNhanPhongXepPhong < gio14Chieu) {
+        const phuThuRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: "Phụ thu do nhận phòng sớm",
+          tienPhuThu: 50000,
+          soLuong: 1,
+          trangThai: true,
+        };
+        console.log("Đang thêm phụ thu:", phuThuRequest);
+        const phuThuResponse = await ThemPhuThu(phuThuRequest);
+        console.log("Phụ thu được thêm:", phuThuResponse.data);
+        alert("Phụ thu do nhận phòng sớm đã được thêm.");
+      } else {
+        console.log("Không cần phụ thu: nhận phòng sau 14h.");
+      }
+
+      if (thongTinDatPhong.soNguoi > loaiPhong.soKhachToiDa) {
+        const soNguoiVuot = thongTinDatPhong.soNguoi - loaiPhong.soKhachToiDa;
+        const tienPhuThuThem = soNguoiVuot * loaiPhong.donGiaPhuThu;
+        const phuThuThemRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người)`,
+          tienPhuThu: tienPhuThuThem,
+          soLuong: 1,
+          trangThai: true,
+        };
+        console.log("Đang thêm phụ thu do vượt số khách tối đa:", phuThuThemRequest);
+        const phuThuThemResponse = await ThemPhuThu(phuThuThemRequest);
+        console.log("Phụ thu do vượt số khách tối đa đã được thêm:", phuThuThemResponse.data);
+        alert(`Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`);
+      }
+    } catch (error) {
+      console.error("Lỗi xảy ra:", error);
+      alert("Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng kiểm tra lại.");
+    }
+    fetchThongTinDatPhong(page); // Sửa lỗi: loại bỏ tham số không cần thiết
   };
 
   const phongData = {};
@@ -230,7 +304,7 @@ const ThongTinDatPhong = () => {
                       slotProps={{
                         textField: {
                           fullWidth: true,
-                          size: "medium",
+                          size:"medium",
                           sx: {
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -339,7 +413,8 @@ const ThongTinDatPhong = () => {
         </Typography>
       )}
 
-      {totalPages > 1 && (
+      {/* Pagination Section */}
+      {totalPages > 0 && (
         <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
           <Pagination
             count={totalPages}
@@ -349,6 +424,13 @@ const ThongTinDatPhong = () => {
           />
         </Box>
       )}
+
+      {/* Modal Xếp Phòng */}
+      <XepPhong
+        show={showXepPhongModal}
+        handleClose={() => setShowXepPhongModal(false)}
+        selectedTTDPs={selectedTTDPs}
+      />
     </Container>
   );
 };

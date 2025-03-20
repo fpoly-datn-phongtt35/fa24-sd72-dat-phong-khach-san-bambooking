@@ -23,7 +23,7 @@ public interface DatPhongService {
 
     DatPhong findByMaDatPhong(String maDatPhong);
 
-    Double sumTotalAmountByIDDatPhong(Integer idDP);
+//    Double sumTotalAmountByIDDatPhong(Integer idDP);
 
 
     //Gnut
