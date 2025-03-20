@@ -1,35 +1,51 @@
 import React, { useEffect, useState } from 'react';
-import { listImage, searchTienIch } from '../../services/VatTuService';
+import { listImage } from '../../services/VatTuService';
 import FormAdd from './FormAdd';
 import FormDetail from './FormDetail';
+import {
+    Box,
+    TextField,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Button,
+    Pagination,
+    Typography,
+    Grid,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Card,
+    CardContent,
+} from '@mui/material';
 
 const VatTu = () => {
-    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
-    const [totalPages, setTotalPages] = useState(0); // Tổng số trang
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
     const itemsPerPage = 4;
     const [selectedData, setSelectedData] = useState(null);
     const [images, setImages] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Hàm lấy dữ liệu vật tư
     const getAllSanPham = () => {
         listImage({ page: currentPage, size: itemsPerPage }, searchQuery)
             .then((response) => {
                 setImages(response.data.content);
                 setTotalPages(response.data.totalPages);
-
             })
             .catch((error) => {
                 console.log("Lỗi : " + error);
             });
     };
 
-
-
-    // Gọi API khi currentPage hoặc searchTerm thay đổi
     useEffect(() => {
         getAllSanPham();
-    }, [totalPages, currentPage, searchQuery, images]);
+    }, [totalPages, currentPage, searchQuery]);
 
     const handleNextPage = () => {
         if (currentPage < totalPages - 1) {
@@ -43,106 +59,109 @@ const VatTu = () => {
         }
     };
 
-    // State quản lý form thêm và chi tiết
-    const [showAddForm, setShowAddForm] = useState(false); // Quản lý trạng thái hiển thị form thêm
-    const [showDetailForm, setShowDetailForm] = useState(false); // Quản lý trạng thái hiển thị form chi tiết
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [showDetailForm, setShowDetailForm] = useState(false);
 
     const handleOpenFormAdd = () => {
-        setShowAddForm(true); // Mở form thêm
+        setShowAddForm(true);
     };
 
     const handleCloseFormAdd = () => {
-        setShowAddForm(false); // Đóng form thêm
+        setShowAddForm(false);
     };
 
     const handleOpenFormDetail = (id) => {
         const selectedItem = images.find(item => item.id === id);
-        console.log("Selected Item: ", selectedItem); // Kiểm tra giá trị của selectedItem
         setSelectedData(selectedItem);
         setShowDetailForm(true);
     };
 
     const handleCloseFormDetail = () => {
-        setShowDetailForm(false); // Đóng form chi tiết
-        setSelectedData(null); // Xóa dữ liệu đã chọn
+        setShowDetailForm(false);
+        setSelectedData(null);
+        getAllSanPham();
     };
 
     const handleInputChange = (e) => {
         setSearchQuery(e.target.value);
-        currentPage(0);
-    }
-
+        setCurrentPage(0);
+    };
 
     return (
-        <div className="container">
-            <div className="card p-3">
-                <div className='d-flex justify-content-between mb-3'>
-                    <button className="btn btn-outline-success" onClick={handleOpenFormAdd}>
-                        <i className="bi bi-plus-circle"></i> Thêm mới
-                    </button>
-                </div>
+        <Box sx={{ p: 3 }}>
+            <Card>
+                <CardContent>
+                    {/* Thanh công cụ chứa nút thêm và ô tìm kiếm */}
+                    <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+                        <Grid item>
+                            <Button variant="contained" color="success" onClick={handleOpenFormAdd}>
+                                Thêm Vật Tư
+                            </Button>
+                        </Grid>
 
-                <div className="mb-3">
-                    <input
-                        type="text"
-                        className="form-control form-control-lg"
-                        id="search"
-                        name="search"
-                        value={searchQuery}
-                        onChange={handleInputChange}
-                        placeholder="Tìm kiếm theo tên vật tư"
-                    />
-                </div>
-                <table className="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tên vật tư</th>
-                            <th>Giá</th>
-                            <th>Hình ảnh</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {images.length > 0 ? (
-                            images.map(image => (
-                                <tr key={image.id} className="table-row" onClick={() => handleOpenFormDetail(image.id)}>
-                                    <td>{image.id}</td>
-                                    <td>{image.tenVatTu}</td>
-                                    <td>{image.gia}</td>
-                                    <td>
-                                        <img
-                                            src={image.hinhAnh}
-                                            alt={image.tenVatTu}
-                                            className="img-thumbnail"
-                                            style={{ width: '150px', height: '100px' }}
-                                        />
-                                    </td>
-                                </tr>
-                            ))
-                        ) : (
-                            <tr>
-                                <td colSpan="4" className="text-center">Không có dữ liệu tìm kiếm</td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Tìm kiếm theo tên vật tư"
+                                variant="outlined"
+                                value={searchQuery}
+                                onChange={handleInputChange}
+                            />
+                        </Grid>
+                    </Grid>
 
-                <div className="d-flex justify-content-center my-3">
-                    <button className="btn btn-outline-primary me-2" onClick={handlePreviousPage} disabled={currentPage === 0}>
-                        Trang trước
-                    </button>
-                    <span className="align-self-center" style={{ marginTop: '7px' }}>
-                        Trang {currentPage + 1} / {totalPages}
-                    </span>
-                    <button className="btn btn-outline-primary ms-2" onClick={handleNextPage} disabled={currentPage >= totalPages - 1}>
-                        Trang sau
-                    </button>
-                </div>
+                    {/* Bảng danh sách vật tư */}
+                    <TableContainer component={Paper} sx={{ mt: 3 }}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>ID</TableCell>
+                                    <TableCell>Tên vật tư</TableCell>
+                                    <TableCell>Giá</TableCell>
+                                    <TableCell>Hình ảnh</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {images.length > 0 ? (
+                                    images.map(image => (
+                                        <TableRow key={image.id} onClick={() => handleOpenFormDetail(image.id)}>
+                                            <TableCell>{image.id}</TableCell>
+                                            <TableCell>{image.tenVatTu}</TableCell>
+                                            <TableCell>{image.gia}</TableCell>
+                                            <TableCell>
+                                                <img
+                                                    src={image.hinhAnh}
+                                                    alt={image.tenVatTu}
+                                                    style={{ width: '100px', height: 'auto' }}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan="4" align="center">Không có dữ liệu tìm kiếm</TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
 
-                {showAddForm && <FormAdd show={showAddForm} handleClose={handleCloseFormAdd} />}
-                {showDetailForm && <FormDetail show={showDetailForm} handleClose={handleCloseFormDetail} data={selectedData} />}
-            </div>
-        </div>
+                    {/* Phân trang */}
+                    <Box display="flex" justifyContent="center" mt={3}>
+                        <Pagination
+                            count={totalPages}
+                            page={currentPage + 1}
+                            onChange={(event, value) => setCurrentPage(value - 1)}
+                            color="primary"
+                        />
+                    </Box>
+
+                    {/* Form thêm và chi tiết */}
+                    {showAddForm && <FormAdd show={showAddForm} handleClose={handleCloseFormAdd} />}
+                    {showDetailForm && <FormDetail show={showDetailForm} handleClose={handleCloseFormDetail} data={selectedData} />}
+                </CardContent>
+            </Card>
+        </Box>
     );
 };
 
