@@ -1,104 +1,76 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { findCheckOut, checkOut } from '../../services/HoaDonDat';
-import { Box, Button, Card, Container, IconButton, Input, Stack, Typography } from '@mui/joy';
-import CloseIcon from '@mui/icons-material/Close';
+import { Box, Button, Container, Input, Stack, Table, Typography } from '@mui/joy';
 import SearchIcon from '@mui/icons-material/Search';
 import { ThemPhuThu } from '../../services/PhuThuService';
 
-const Demo = ({ thongTinDatPhong }) => {
+const Demo = () => {
     const [key, setKey] = useState('');
     const [traPhong, setTraPhong] = useState([]);
-    const [errorMessage, setErrorMessage] = useState(''); // Thêm state để lưu thông báo lỗi
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
     const FindCheckOut = (key) => {
         findCheckOut(key)
             .then((response) => {
-                console.log(response.data);
                 setTraPhong(response.data);
-                setErrorMessage(''); // Xóa thông báo lỗi khi tìm kiếm thành công
+                setErrorMessage('');
             })
             .catch((error) => {
-                console.log('Lỗi khi tìm kiếm thông tin phòng', error);
+                console.error(error);
+                setErrorMessage('Không tìm thấy thông tin trả phòng.');
             });
     };
 
     const CheckOut = async () => {
         try {
-            for (const item of traPhong) {
-                await checkOut(item.id);
-                console.log(`✅ Checkout thành công cho phòng ID: ${item.id}`);
+            await Promise.all(
+                traPhong.map(async (item) => {
+                    await checkOut(item.id);
 
-                if (!item.xepPhong) {
-                    console.warn(`⚠️ Không tìm thấy thông tin xếp phòng cho phòng ID: ${item.id}`);
-                    continue;
-                }
+                    if (!item.xepPhong) return;
 
-                const ngayTraPhong = new Date(item.xepPhong.ngayTraPhong);
-                const ngayTraThucTe = new Date(item.ngayTraThucTe);
+                    const ngayTraPhong = new Date(item.xepPhong.ngayTraPhong);
+                    const ngayTraThucTe = new Date(item.ngayTraThucTe);
 
-                if (isNaN(ngayTraPhong) || isNaN(ngayTraThucTe)) {
-                    console.warn(`⚠️ Ngày không hợp lệ cho phòng ID: ${item.id}`);
-                    continue;
-                }
+                    if (isNaN(ngayTraPhong) || isNaN(ngayTraThucTe)) {
+                        throw new Error(`Ngày không hợp lệ cho phòng ID: ${item.id}`);
+                    }
 
-                const gio12Trua = new Date(ngayTraPhong);
-                gio12Trua.setHours(12, 0, 0, 0);
+                    const gio12Trua = new Date(ngayTraPhong);
+                    gio12Trua.setHours(12, 0, 0, 0);
 
-                console.log("⏳ Kiểm tra phụ thu...");
-                console.log("Ngày trả phòng dự kiến:", ngayTraPhong);
-                console.log("Ngày trả thực tế:", ngayTraThucTe);
-                console.log("Mốc 12h trưa:", gio12Trua);
-
-                if (ngayTraThucTe > gio12Trua) {
-                    const phuThuRequest = {
-                        xepPhong: { id: item.xepPhong.id },
-                        tenPhuThu: 'Phụ thu do trả phòng muộn',
-                        tienPhuThu: 70000,
-                        soLuong: 1,
-                        trangThai: true,
-                    };
-
-                    console.log('➕ Đang thêm phụ thu:', phuThuRequest);
-                    await ThemPhuThu(phuThuRequest);
-                    console.log(`💰 Phụ thu đã được thêm cho phòng ${item.xepPhong.id}`);
-                    alert(`Phụ thu do trả phòng muộn đã được thêm cho phòng ${item.xepPhong.id}`);
-                } else {
-                    console.log(`✅ Không cần phụ thu: Phòng ${item.xepPhong.id} trả trước 12h trưa.`);
-                }
-            }
+                    if (ngayTraThucTe > gio12Trua) {
+                        const phuThuRequest = {
+                            xepPhong: { id: item.xepPhong.id },
+                            tenPhuThu: 'Phụ thu do trả phòng muộn',
+                            tienPhuThu: 70000,
+                            soLuong: 1,
+                            trangThai: true,
+                        };
+                        await ThemPhuThu(phuThuRequest);
+                        alert(`Phụ thu đã được thêm cho phòng ${item.xepPhong.id}`);
+                    }
+                })
+            );
 
             localStorage.setItem('traPhong', JSON.stringify(traPhong));
             navigate('/tao-hoa-don');
         } catch (error) {
-            console.error('❌ Lỗi khi thực hiện checkout:', error);
-            // Lấy thông báo lỗi từ response của BE
-            const message = error.response?.data?.message || 'Đã xảy ra lỗi khi thực hiện thao tác.';
-            setErrorMessage(message); // Cập nhật state để hiển thị lỗi
+            const message = error.response?.data?.message || error.message || 'Đã xảy ra lỗi khi thực hiện thao tác.';
+            setErrorMessage(message);
         }
-    };
-
-    const removeTraPhong = (id) => {
-        setTraPhong(traPhong.filter((item) => item.id !== id));
     };
 
     const formatDate = (dateString) => {
         const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-        const date = new Date(dateString);
-        return date.toLocaleString('vi-VN', options);
+        return new Date(dateString).toLocaleString('vi-VN', options);
     };
 
     const formatDateTime = (dateString) => {
-        const options = {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-        };
-        const date = new Date(dateString);
-        return date.toLocaleString('vi-VN', options);
+        const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+        return new Date(dateString).toLocaleString('vi-VN', options);
     };
 
     return (
@@ -118,11 +90,7 @@ const Demo = ({ thongTinDatPhong }) => {
                             startDecorator={<SearchIcon />}
                             sx={{ maxWidth: 400 }}
                         />
-                        <Button
-                            variant="solid"
-                            color="primary"
-                            onClick={() => FindCheckOut(key)}
-                        >
+                        <Button variant="solid" color="primary" onClick={() => FindCheckOut(key)}>
                             Tìm kiếm
                         </Button>
                     </Stack>
@@ -149,64 +117,35 @@ const Demo = ({ thongTinDatPhong }) => {
                             </Typography>
                         </Box>
                     ) : (
-                        <Stack spacing={2}>
-                            <Box
-                                sx={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    marginBottom: 2,
-                                }}
-                            >
+                        <Box sx={{ overflowX: 'auto' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
                                 <Typography level="h4">Chi tiết trả phòng</Typography>
-                                <Button
-                                    variant="solid"
-                                    color="success"
-                                    onClick={CheckOut}
-                                >
+                                <Button variant="solid" color="success" onClick={CheckOut}>
                                     Trả phòng
                                 </Button>
                             </Box>
 
-                            {traPhong.map((item, index) => (
-                                <Card
-                                    key={index}
-                                    variant="outlined"
-                                    sx={{
-                                        position: 'relative',
-                                        padding: 3,
-                                        gap: 2,
-                                        maxWidth: 300,
-                                        margin: '0 auto',
-                                        textAlign: 'center',
-                                        boxShadow: 'sm',
-                                    }}
-                                >
-                                    <IconButton
-                                        color="danger"
-                                        onClick={() => removeTraPhong(item.id)}
-                                        size="sm"
-                                        sx={{
-                                            position: 'absolute',
-                                            top: 8,
-                                            right: 8,
-                                        }}
-                                    >
-                                        <CloseIcon />
-                                    </IconButton>
-
-                                    <Box>
-                                        <Typography level="h6" sx={{ fontSize: '1rem' }}>
-                                            Tên phòng: {item.xepPhong.phong.tenPhong}
-                                        </Typography>
-                                        <Typography level="body2" sx={{ fontSize: '0.85rem' }}>
-                                            <strong>Ngày nhận phòng:</strong> {formatDate(item.xepPhong.ngayNhanPhong)} <br />
-                                            <strong>Ngày trả phòng:</strong> {formatDateTime(item.ngayTraThucTe)}
-                                        </Typography>
-                                    </Box>
-                                </Card>
-                            ))}
-                        </Stack>
+                            <Table borderAxis="x" size="md" stickyHeader variant="outlined">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Tên phòng</th>
+                                        <th>Ngày nhận</th>
+                                        <th>Ngày trả thực tế</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {traPhong.map((item, index) => (
+                                        <tr key={index}>
+                                            <td>{index + 1}</td>
+                                            <td>{item.xepPhong?.phong?.tenPhong || 'Không có dữ liệu'}</td>
+                                            <td>{formatDate(item.xepPhong?.ngayNhanPhong)}</td>
+                                            <td>{formatDateTime(item.ngayTraThucTe)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </Box>
                     )}
                 </Box>
             </Box>

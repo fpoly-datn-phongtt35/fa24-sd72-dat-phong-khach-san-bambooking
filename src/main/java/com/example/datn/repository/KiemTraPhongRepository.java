@@ -40,6 +40,4 @@ public interface KiemTraPhongRepository extends JpaRepository<KiemTraPhong, Inte
                 )
             """)
     List<Object[]> findUnverifiedRooms(String maDatPhong);
-
-
 }

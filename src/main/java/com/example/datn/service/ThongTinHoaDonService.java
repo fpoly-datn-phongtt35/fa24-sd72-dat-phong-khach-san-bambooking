@@ -1,8 +1,6 @@
 package com.example.datn.service;
 
-import com.example.datn.dto.response.DichVuSuDungResponse;
-import com.example.datn.dto.response.PhuThuResponse;
-import com.example.datn.dto.response.ThongTinHoaDonResponse;
+import com.example.datn.dto.response.*;
 import com.example.datn.model.ThongTinHoaDon;
 import com.example.datn.model.TraPhong;
 import org.springframework.data.domain.Page;
@@ -17,4 +15,5 @@ public interface ThongTinHoaDonService {
     List<DichVuSuDungResponse> getDichVuSuDung(Integer idHoaDon);
     void capNhatTienKhauTru(Integer idHoaDon, Integer idThongTinHoaDon, Double tienKhauTru);
     List<PhuThuResponse> getPhuThu(Integer idHoaDon);
+    List<KiemTraVatTuResponseList> getListVatTuHongOrThieuByHoaDon(Integer idHoaDon);
 }

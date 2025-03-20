@@ -1,8 +1,6 @@
 package com.example.datn.service.IMPL;
 
-import com.example.datn.dto.response.DichVuSuDungResponse;
-import com.example.datn.dto.response.PhuThuResponse;
-import com.example.datn.dto.response.ThongTinHoaDonResponse;
+import com.example.datn.dto.response.*;
 import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.mapper.ThongTinHoaDonMapper;
 import com.example.datn.model.*;
@@ -21,6 +19,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -131,6 +132,27 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         return hoaDonRepository.findPhuThuByIdHoaDon(idHoaDon);
     }
 
+    @Override
+    public List<KiemTraVatTuResponseList> getListVatTuHongOrThieuByHoaDon(Integer idHoaDon) {
+
+        if (idHoaDon == null) {
+            throw new IllegalArgumentException("idHoaDon is null");
+        }
+
+        List<String> tinhTrang = List.of("Thiếu", "Hỏng");
+
+        List<Object[]> result = kiemTraVatTuRepository.findByIdHoaDonAndTinhTrangIn(idHoaDon, tinhTrang);
+
+        return result.stream()
+                .map(row -> new KiemTraVatTuResponseList(
+                        (String) row[0], // ten_phong
+                        (String) row[1], // ten_vat_tu
+                        ((Number) row[2]).doubleValue(), // gia
+                        ((Number) row[3]).intValue(), // so_luong_thieu
+                        row[4] != null ? ((Number) row[4]).doubleValue() : null // tien_khau_tru
+                ))
+                .collect(Collectors.toList());
+    }
 
     private double tinhTienPhong(TraPhong traPhong) {
         log.info("============= Start charging room fees =============");
@@ -186,8 +208,6 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         return tongTienDichVu;
     }
 
-
-
     private double tinhTienBoiThuong(TraPhong traPhong) {
         log.info("============= Start calculating compensation =============");
         List<String> tinhTrangList = List.of("Hỏng", "Thiếu");
@@ -219,11 +239,11 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
                 tienBoiThuong += thanhTien;
 
                 System.out.println("Bồi thường: " + vatTu.getTenVatTu() +
-                        " | Tiêu chuẩn: " + soLuongTieuChuan +
-                        " | Thực tế: " + soLuongThucTe +
-                        " | Thiếu: " + soLuongBoiThuong +
-                        " | Đơn giá: " + giaBoiThuong +
-                        " | Thành tiền: " + thanhTien);
+                                   " | Tiêu chuẩn: " + soLuongTieuChuan +
+                                   " | Thực tế: " + soLuongThucTe +
+                                   " | Thiếu: " + soLuongBoiThuong +
+                                   " | Đơn giá: " + giaBoiThuong +
+                                   " | Thành tiền: " + thanhTien);
             }
         }
 

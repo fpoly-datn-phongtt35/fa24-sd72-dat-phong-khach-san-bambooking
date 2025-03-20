@@ -17,7 +17,6 @@ import java.util.List;
 
 
 @RestController
-//@CrossOrigin("*")
 @RequiredArgsConstructor
 @RequestMapping("/tra-phong")
 public class TraPhongController {

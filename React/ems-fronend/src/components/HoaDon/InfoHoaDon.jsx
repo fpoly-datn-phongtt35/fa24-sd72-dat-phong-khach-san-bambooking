@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getDichVuSuDung, getHoaDonById, getThongTinHoaDonByHoaDonId, getPhuThuByHoaDonId } from "../../services/InfoHoaDon";
+import { getDichVuSuDung, getHoaDonById, getThongTinHoaDonByHoaDonId, getPhuThuByHoaDonId, getListVatTuHongThieu } from "../../services/InfoHoaDon";
 import { Container, Box, Sheet, Table, Button, Typography, Accordion, AccordionDetails } from "@mui/joy";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -11,22 +11,25 @@ const InfoHoaDon = () => {
     const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
     const [dichVuSuDung, setDichVuSuDung] = useState([]);
     const [phuThu, setPhuThu] = useState([]);
+    const [danhSachVatTu, setDanhSachVatTu] = useState([]);
     const [expanded, setExpanded] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [hoaDonResponse, thongTinHoaDonResponse, dichVuSuDungResponse, phuThuResponse] = await Promise.all([
+                const [hoaDonResponse, thongTinHoaDonResponse, dichVuSuDungResponse, phuThuResponse, vatTuResponse] = await Promise.all([
                     getHoaDonById(id),
                     getThongTinHoaDonByHoaDonId(id),
                     getDichVuSuDung(id),
-                    getPhuThuByHoaDonId(id)
+                    getPhuThuByHoaDonId(id),
+                    getListVatTuHongThieu(id)
                 ]);
 
                 setHoaDon(hoaDonResponse?.data || null);
                 setThongTinHoaDon(thongTinHoaDonResponse?.data || []);
                 setDichVuSuDung(dichVuSuDungResponse?.data || []);
                 setPhuThu(phuThuResponse?.data || []);
+                setDanhSachVatTu(vatTuResponse?.data || []);
             } catch (error) {
                 console.error("Lỗi khi lấy dữ liệu:", error);
             }
@@ -204,6 +207,37 @@ const InfoHoaDon = () => {
                                                                         </Table>
                                                                     </>
                                                                 )}
+
+                                                                {danhSachVatTu.some(vt => vt.tenPhong === item.tenPhong) && (
+                                                                    <>
+                                                                        <Typography variant="h6" sx={{ mt: 3 }}>Danh sách vật tư hỏng/thiếu</Typography>
+                                                                        <Table borderAxis="x" size="lg" stickyHeader variant="outlined">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th>Tên vật tư</th>
+                                                                                    <th>Giá vật tư</th>
+                                                                                    <th>Số lượng thiếu</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                {danhSachVatTu.filter(vt => vt.tenPhong === item.tenPhong).map((vt, i) => (
+                                                                                    <tr key={i}>
+                                                                                        <td>{vt.tenVatTu}</td>
+                                                                                        <td>{formatCurrency(vt.donGia)}</td>
+                                                                                        <td>{vt.soLuongThieu}</td>
+                                                                                    </tr>
+                                                                                ))}
+                                                                            </tbody>
+                                                                        </Table>
+                                                                    </>
+                                                                )}
+
+                                                                {item.tienKhauTru > 0 && (
+                                                                    <Typography variant="h6" sx={{ mt: 2 }}>
+                                                                        Tiền khấu trừ của phòng: {formatCurrency(item.tienKhauTru)}
+                                                                    </Typography>
+                                                                )}
+
                                                             </Sheet>
                                                         </Box>
                                                     </AccordionDetails>
