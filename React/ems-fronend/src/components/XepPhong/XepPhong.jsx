@@ -92,7 +92,6 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
           window.location.reload();
         }
         alert('Xếp phòng thành công cho tất cả các đặt phòng đã chọn!');
-        navigate('/quan-ly-dat-phong');
         handleClose();
       })
       .catch(() => {

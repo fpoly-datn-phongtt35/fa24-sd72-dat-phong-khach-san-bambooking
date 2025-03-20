@@ -132,13 +132,13 @@ const ViewPhong = () => {
         const ngayNhanPhong = new Date(response.thongTinDatPhong.ngayNhanPhong);
         const ngayHienTai = new Date();
 
-        if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
-          alert(
-            `Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`
-          );
-        } else {
+        // if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
+        //   alert(
+        //     `Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`
+        //   );
+        // } else {
           navigate(`/api/RoomDetail/${roomId}`);
-        }
+        // }
       })
       .catch(() => {
         alert('Chưa có xếp phòng, không thể xem chi tiết.');
@@ -282,7 +282,7 @@ const ViewPhong = () => {
 
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <div style={{ width: "20px", height: "20px", backgroundColor: "#00B2BF", border: "1px solid #000" }}></div>
-            <span>Phòng đã được đặt</span>
+            <span>Phòng đã được xếp</span>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>

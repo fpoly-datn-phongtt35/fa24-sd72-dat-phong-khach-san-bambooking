@@ -14,14 +14,14 @@ import java.util.List;
 
 @Repository
 public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPhong, Integer> {
-    @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp and t.trangThai= 'Chua xac nhan'")
-    List<ThongTinDatPhong> findByDatPhongId(@Param("iddp") Integer iddp);
+    @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp and t.trangThai IN (:trangThai)")
+    List<ThongTinDatPhong> findByDatPhongId(@Param("iddp") Integer iddp, @Param("trangThai") List<String> trangThai);
 
 
     @Query(
             "select new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong, " +
                     "CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong, " +
-                    "ttdp.giaDat,ttdp.ghiChu) " +
+                    "ttdp.giaDat,ttdp.ghiChu,ttdp.trangThai) " +
                     "from ThongTinDatPhong ttdp " +
                     "where ttdp.trangThai = :trangThai " +
                     "order by ttdp.datPhong.ngayDat")
@@ -33,23 +33,29 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     List<ThongTinDatPhong> findByMaDatPhong(@Param("maDatPhong") String maDatPhong);
 
     @Query("SELECT new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong," +
-            " CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
-            " ttdp.giaDat,ttdp.ghiChu) " +
+            " CONCAT(dp.khachHang.ho ,' ', dp.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
+            " ttdp.giaDat, ttdp.ghiChu, ttdp.trangThai) " +
             "FROM ThongTinDatPhong ttdp " +
             "JOIN ttdp.loaiPhong lp " +
             "JOIN ttdp.datPhong dp " +
+            "JOIN ttdp.datPhong.khachHang kh " +
             "WHERE (:startDate IS NULL OR ttdp.ngayNhanPhong >= :startDate) " +
             "AND (:endDate IS NULL OR ttdp.ngayTraPhong <= :endDate) " +
             "AND (:trangThai IS NULL OR ttdp.trangThai LIKE %:trangThai%) " +
             "AND (:key IS NULL OR (ttdp.maThongTinDatPhong LIKE %:key% " +
-                "OR lp.tenLoaiPhong LIKE %:key% " +
-            "OR dp.maDatPhong LIKE %:key%))")
+            "OR lp.tenLoaiPhong LIKE %:key% " +
+            "OR dp.maDatPhong LIKE %:key% " +
+            "OR CONCAT(kh.ho, ' ', kh.ten) LIKE %:key% " +
+            "OR kh.sdt LIKE %:key% " +
+            "OR kh.email LIKE %:key%))" +
+            "ORDER BY dp.ngayDat DESC")
     Page<TTDPResponse> findByDateRangeAndKey(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("key") String key,
             @Param("trangThai") String trangThai,
             Pageable pageable);
+
 
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.id = :id")
     ThongTinDatPhong getTTDPById(@Param("id") Integer id);

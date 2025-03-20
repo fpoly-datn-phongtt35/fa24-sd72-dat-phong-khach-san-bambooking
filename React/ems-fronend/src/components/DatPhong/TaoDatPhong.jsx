@@ -109,27 +109,27 @@ const TaoDatPhong = () => {
     setShowDialog(true);
   };
 
-  const handleSaveRoom = (updatedRoom) => {
-    if (roomToEdit) {
-      const updatedSelectData = selectData.map((item) =>
-        item.selectedRooms.id === updatedRoom.loaiPhongResponse.id
-          ? { ...item, selectedRooms: updatedRoom.loaiPhongResponse }
-          : item
-      );
-      setSelectData(updatedSelectData);
-    } else {
-      const newData = {
-        selectedRooms: updatedRoom.loaiPhongResponse,
-        ngayNhanPhong: bookingData.ngayNhanPhong.toISOString(),
-        ngayTraPhong: bookingData.ngayTraPhong.toISOString(),
-        soNguoi: bookingData.soNguoi,
-        soPhong: bookingData.soPhong,
-      };
-      setSelectData([...selectData, newData]);
-    }
-    setShowDialog(false);
-    setRoomToEdit(null);
-  };
+  // const handleSaveRoom = (updatedRoom) => {
+  //   if (roomToEdit) {
+  //     const updatedSelectData = selectData.map((item) =>
+  //       item.selectedRooms.id === updatedRoom.loaiPhongResponse.id
+  //         ? { ...item, selectedRooms: updatedRoom.loaiPhongResponse }
+  //         : item
+  //     );
+  //     setSelectData(updatedSelectData);
+  //   } else {
+  //     const newData = {
+  //       selectedRooms: updatedRoom.loaiPhongResponse,
+  //       ngayNhanPhong: bookingData.ngayNhanPhong.toISOString(),
+  //       ngayTraPhong: bookingData.ngayTraPhong.toISOString(),
+  //       soNguoi: bookingData.soNguoi,
+  //       soPhong: bookingData.soPhong,
+  //     };
+  //     setSelectData([...selectData, newData]);
+  //   }
+  //   setShowDialog(false);
+  //   setRoomToEdit(null);
+  // };
 
   const handleRemoveRoom = async (room) => {
     try {
@@ -175,7 +175,7 @@ const TaoDatPhong = () => {
         ngayDat: datPhong ? datPhong.ngayDat : new Date().toISOString(),
         tongTien: calculateTotalAmount(),
         ghiChu: "Ghi chú thêm nếu cần",
-        trangThai: "Chờ xác nhận",
+        trangThai: "Đã xác nhận",
       };
       datPhongResponse = await CapNhatDatPhong(datPhongRequest);
       if (!datPhongResponse || !datPhongResponse.data) {
@@ -204,7 +204,7 @@ const TaoDatPhong = () => {
         }
       }
       alert("Đặt phòng thành công!");
-      navigate("/quan-ly-dat-phong");
+      navigate("/thong-tin-dat-phong-search");
     } catch (error) {
       console.error("Lỗi khi đặt phòng:", error);
       if (datPhongResponse && datPhongResponse.data) {
@@ -393,7 +393,7 @@ const TaoDatPhong = () => {
                 >
                   Chi Tiết Phòng Đã Chọn ({ttdpData.length})
                 </Typography>
-                <Button 
+                {/* <Button 
                   variant="outlined" 
                   onClick={openDialog}
                   sx={{
@@ -408,7 +408,7 @@ const TaoDatPhong = () => {
                   }}
                 >
                   Thêm phòng
-                </Button>
+                </Button> */}
               </Box>
 
               <TableContainer sx={{ mb: 2, borderRadius: 2, bgcolor: "#fff" }}>
@@ -497,12 +497,12 @@ const TaoDatPhong = () => {
         </Grid>
       </Paper>
 
-      <ChinhSuaPhongDialog
+      {/* <ChinhSuaPhongDialog
         open={showDialog}
         onClose={() => setShowDialog(false)}
         thongTinDatPhong={roomToEdit}
         onSave={handleSaveRoom}
-      />
+      /> */}
     </Container>
   );
 };

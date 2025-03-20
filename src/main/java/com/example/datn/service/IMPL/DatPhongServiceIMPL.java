@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -51,7 +52,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTongTien(datPhongRequest.getTongTien());
         datPhong.setNgayDat(LocalDate.now());
-        datPhong.setTrangThai("Chưa xác nhận");
+        datPhong.setTrangThai(datPhongRequest.getTrangThai());
         DatPhong dp = datPhongRepository.save(datPhong);
 
 
@@ -103,25 +104,26 @@ public class DatPhongServiceIMPL implements DatPhongService {
     public DatPhong findByMaDatPhong(String maDatPhong) {
         return datPhongRepository.findByMaDatPhong(maDatPhong);
     }
-    @Override
-    public Double sumTotalAmountByIDDatPhong(Integer idDP) {
-        Double tongTien = 0.0;
-        List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByDatPhongId(idDP);
-        for (ThongTinDatPhong ttdp : ttdps) {
-            LocalDate ngayNhanPhong = ttdp.getNgayNhanPhong();
-            LocalDate ngayTraPhong = ttdp.getNgayTraPhong();
-            Double giaDat = ttdp.getGiaDat();
 
-            if (ngayNhanPhong != null && ngayTraPhong != null && giaDat != null) {
-                long days = java.time.temporal.ChronoUnit.DAYS.between(ngayNhanPhong, ngayTraPhong);
-                if (days == 0) {
-                    days = 1;
-                }
-                tongTien += days * giaDat;
-            }
-        }
-        return tongTien;
-    }
+//    @Override
+//    public Double sumTotalAmountByIDDatPhong(Integer idDP) {
+//        Double tongTien = 0.0;
+//        List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByDatPhongId(idDP);
+//        for (ThongTinDatPhong ttdp : ttdps) {
+//            LocalDate ngayNhanPhong = ttdp.getNgayNhanPhong();
+//            LocalDate ngayTraPhong = ttdp.getNgayTraPhong();
+//            Double giaDat = ttdp.getGiaDat();
+//
+//            if (ngayNhanPhong != null && ngayTraPhong != null && giaDat != null) {
+//                long days = java.time.temporal.ChronoUnit.DAYS.between(ngayNhanPhong, ngayTraPhong);
+//                if (days == 0) {
+//                    days = 1;
+//                }
+//                tongTien += days * giaDat;
+//            }
+//        }
+//        return tongTien;
+//    }
 
     @Override
     public Page<DatPhongResponse> findAll(String keyword, Pageable pageable) {
@@ -150,5 +152,9 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhongRepository.deleteById(iddp);
     }
 
-
+    public  Page<DatPhongResponse> findDatPhongToCheckin(Pageable pageable){
+        List<String> trangThai = new ArrayList<>();
+        trangThai.add("Đã xác nhận");
+        return datPhongRepository.DatPhongTheoTrangThai(trangThai,pageable);
+    }
 }

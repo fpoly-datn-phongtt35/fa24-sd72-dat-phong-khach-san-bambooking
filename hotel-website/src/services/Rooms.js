@@ -1,4 +1,3 @@
-
 import authorizedAxiosInstance from "../utils/authorizedAxios";
 
 const api = "http://localhost:8080/loai-phong/index";

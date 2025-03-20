@@ -143,7 +143,10 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
 
     @Override
     public List<XepPhongResponse> timKiemXepPhong(String key) {
-        List<XepPhong> danhSachPhong = kiemTraPhongRepository.findByKeyNotChecked(key);
+        List<String> l1 = new ArrayList<>();
+        l1.add("Dang o");
+        l1.add("Den han");
+        List<XepPhong> danhSachPhong = kiemTraPhongRepository.findByKeyNotChecked(key, l1);
 
         return danhSachPhong.stream()
                 .map(xp -> new XepPhongResponse(

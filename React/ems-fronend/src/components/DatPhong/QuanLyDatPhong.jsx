@@ -26,9 +26,10 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom"; // Icon cho nút Xếp Phòng
 import { useNavigate } from "react-router-dom";
 import { findTTDPS, huyTTDP } from "../../services/TTDP";
-import { phongDaXep } from "../../services/XepPhongService";
 import XepPhong from "../XepPhong/XepPhong";
 import Checkin from "../Checkin/Checkin"; // Import modal Checkin
+import { checkIn, phongDaXep } from "../../services/XepPhongService";
+import { ThemPhuThu } from "../../services/PhuThuService";
 
 function QuanLyDatPhong() {
   const navigate = useNavigate();
@@ -70,8 +71,7 @@ function QuanLyDatPhong() {
       .then((response) => {
         setThongTinDatPhong(response.data.content);
         setTotalPages(response.data.totalPages);
-        setCurrentPage(page);
-
+        setCurrentPage(page); // Cập nhật lại trang hiện tại sau mỗi lần gọi API
         if (["Da xep", "Dang o", "Da tra phong"].includes(status)) {
           response.data.content.forEach((ttdp) => {
             fetchPhongDaXep(ttdp.maThongTinDatPhong);
@@ -84,15 +84,21 @@ function QuanLyDatPhong() {
   };
 
   useEffect(() => {
+    fetchThongTinDatPhong(currentStatus, currentPage);
     // Thiết lập interval để gọi fetchThongTinDatPhong mỗi 5 giây
     const intervalId = setInterval(() => {
       fetchThongTinDatPhong(currentStatus, currentPage);
     }, 5000);
-  
+
     // Xóa interval khi component unmount hoặc khi dependency thay đổi
     return () => clearInterval(intervalId);
-  }, [currentStatus, currentPage, selectedStartDate, selectedEndDate, searchKey]);
-  
+  }, [
+    currentStatus,
+    currentPage,
+    selectedStartDate,
+    selectedEndDate,
+    searchKey,
+  ]);
 
   const toggleStartDatePicker = () => setOpenStartDatePicker((prev) => !prev);
   const toggleEndDatePicker = () => setOpenEndDatePicker((prev) => !prev);
@@ -135,15 +141,95 @@ function QuanLyDatPhong() {
 
   const selectedCheckbox = (ttdp) => {
     setSelectedTTDPs((prev) => {
-      const exists = prev.some(item => item.id === ttdp.id);
+      const exists = prev.some((item) => item.id === ttdp.id);
       if (exists) {
-        return prev.filter(item => item.id !== ttdp.id);
+        return prev.filter((item) => item.id !== ttdp.id);
       } else {
         return [...prev, ttdp];
       }
     });
-  }
-  
+  };
+
+  const handleCheckin = async (thongTinDatPhong) => {
+    console.log(thongTinDatPhong);
+    try {
+      let xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
+      console.log("Phòng trước khi check-in:", xepPhong);
+
+      if (!xepPhong) {
+        alert("Không tìm thấy phòng đã xếp.");
+        return;
+      }
+
+      const loaiPhong = xepPhong.phong.loaiPhong;
+      console.log("Loại phòng: ", loaiPhong);
+
+      const xepPhongRequest = {
+        id: xepPhong.id,
+        phong: xepPhong.phong,
+        thongTinDatPhong: xepPhong.thongTinDatPhong,
+        ngayNhanPhong: new Date(),
+        ngayTraPhong: new Date(new Date(thongTinDatPhong.ngayTraPhong).setHours(12, 0, 0, 0)),
+        trangThai: xepPhong.trangThai,
+      };
+      console.log("Đang thực hiện check-in với:", xepPhongRequest);
+      await checkIn(xepPhongRequest);
+      alert("Check-in thành công!");
+
+      xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
+      console.log("Phòng sau khi check-in:", xepPhong);
+
+      const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
+      console.log("Ngày nhận phòng sau cập nhật:", ngayNhanPhongXepPhong);
+      const ngayTraPhongXepPhong = new Date(xepPhong.ngayTraPhong);
+      console.log("Ngày trả phòng sau cập nhật:", ngayTraPhongXepPhong);
+
+      const gio14Chieu = new Date(ngayNhanPhongXepPhong);
+      gio14Chieu.setHours(14, 0, 0, 0);
+
+      if (ngayNhanPhongXepPhong < gio14Chieu) {
+        const phuThuRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: "Phụ thu do nhận phòng sớm",
+          tienPhuThu: 50000,
+          soLuong: 1,
+          trangThai: true,
+        };
+        console.log("Đang thêm phụ thu:", phuThuRequest);
+        const phuThuResponse = await ThemPhuThu(phuThuRequest);
+        console.log("Phụ thu được thêm:", phuThuResponse.data);
+        alert("Phụ thu do nhận phòng sớm đã được thêm.");
+      } else {
+        console.log("Không cần phụ thu: nhận phòng sau 14h.");
+      }
+
+      if (thongTinDatPhong.soNguoi > loaiPhong.soKhachToiDa) {
+        const soNguoiVuot = thongTinDatPhong.soNguoi - loaiPhong.soKhachToiDa;
+        const tienPhuThuThem = soNguoiVuot * loaiPhong.donGiaPhuThu;
+        const phuThuThemRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người)`,
+          tienPhuThu: tienPhuThuThem,
+          soLuong: 1,
+          trangThai: true,
+        };
+        console.log("Đang thêm phụ thu do vượt số khách tối đa:", phuThuThemRequest);
+        const phuThuThemResponse = await ThemPhuThu(phuThuThemRequest);
+        console.log("Phụ thu do vượt số khách tối đa đã được thêm:", phuThuThemResponse.data);
+        alert(`Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`);
+      }
+    } catch (error) {
+      console.error("Lỗi xảy ra:", error);
+      alert("Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng kiểm tra lại.");
+    }
+    fetchThongTinDatPhong(currentStatus, currentPage);
+  };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value - 1);  // Cập nhật lại trang hiện tại khi người dùng chuyển trang
+    fetchThongTinDatPhong(currentStatus, value - 1);  // Lấy dữ liệu cho trang mới
+  };
+
   return (
     <Container sx={{ minWidth: "1300px" }}>
       <Box sx={{ mt: 5 }}>
@@ -273,21 +359,13 @@ function QuanLyDatPhong() {
           {statuses.map((status) => (
             <Button
               key={status.value}
-              variant={
-                currentStatus === status.value ? "contained" : "outlined"
-              }
+              variant={currentStatus === status.value ? "contained" : "outlined"}
               onClick={() => handleStatusChange(status.value)}
             >
               {status.label}
             </Button>
           ))}
         </Box>
-
-        {/* <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-          <Button variant="contained" color="primary" onClick={handleAssign}>
-            Xếp phòng
-          </Button>
-        </Box> */}
 
         <TableContainer component={Paper}>
           <Table>
@@ -354,7 +432,7 @@ function QuanLyDatPhong() {
                     </TableCell>
                     <TableCell>{ttdp.ngayNhanPhong}</TableCell>
                     <TableCell>{ttdp.ngayTraPhong}</TableCell>
-                    <TableCell>{ttdp.donGia.toLocaleString()} VND</TableCell>
+                    <TableCell>{ttdp.donGia} VND</TableCell>
                     <TableCell>
                       {/* Nút hủy đặt phòng */}
                       <IconButton
@@ -368,21 +446,19 @@ function QuanLyDatPhong() {
                       >
                         <DeleteIcon />
                       </IconButton>
-                      {/* Nút checkin: mở modal Checkin với thông tin của dòng này */}
+                      {/* Nút checkin */}
                       {currentStatus === "Da xep" && (
                         <IconButton
                           size="small"
-                          onClick={() => {
-                            setSelectedTTDPs([ttdp]);
-                            setShowCheckinModal(true);
-                          }}
+                          onClick={() =>
+                            handleCheckin(ttdp)
+                          }
                         >
                           <CheckCircleIcon />
                         </IconButton>
                       )}
 
-                      {/* Nút xếp phòng: mở modal Xếp Phòng với thông tin của dòng này */}
-
+                      {/* Nút xếp phòng */}
                       {currentStatus === "Chua xep" && (
                         <IconButton
                           size="small"
@@ -412,7 +488,7 @@ function QuanLyDatPhong() {
           <Pagination
             count={totalPages}
             page={currentPage + 1}
-            onChange={(e, value) => setCurrentPage(value - 1)}
+            onChange={handlePageChange}
             color="primary"
           />
         </Box>
@@ -424,20 +500,6 @@ function QuanLyDatPhong() {
         handleClose={() => setShowXepPhongModal(false)}
         selectedTTDPs={selectedTTDPs}
       />
-
-      {/* Modal Checkin */}
-      {showCheckinModal && (
-        <Checkin
-          show={showCheckinModal}
-          handleClose={() => {
-            setShowCheckinModal(false);
-            // Sau khi checkin có thể cập nhật lại danh sách đặt phòng
-            fetchThongTinDatPhong(currentStatus, currentPage);
-          }}
-          // Vì modal Checkin xử lý 1 thông tin đặt phòng tại 1 thời điểm nên truyền selectedTTDPs[0]
-          thongTinDatPhong={selectedTTDPs[0]}
-        />
-      )}
     </Container>
   );
 }

@@ -11,6 +11,8 @@ const apiDetailDP = "http://localhost:8080/dat-phong/chi-tiet-dat-phong";
 const apiDeleteKHDP = "http://localhost:8080/khach-hang/delete-kh-dp";
 const apiXoaDatPhong = "http://localhost:8080/dat-phong/xoa";
 const apiToHopLoaiPhong  = "http://localhost:8080/ttdp/to-hop-loai-phong-kha-dung";
+const apiFindByKey = "http://localhost:8080/dat-phong/findAll";
+const apiFindDatPhongToCheckin = "http://localhost:8080/dat-phong/dat-phong-to-checkin";
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
     return authorizedAxiosInstance.get(apiDP, {
@@ -97,6 +99,25 @@ export const toHopLoaiPhong = (ngayNhanPhong, ngayTraPhong, soNguoi, key, tongCh
             tongSoPhongMin,
             tongSoPhongMax,
             soLuongChonMin,
+            size: pageable.size,
+            page: pageable.page
+        }
+    });
+};
+
+export const findDatPhongByKey = (keyword, pageable) => {
+    return authorizedAxiosInstance.get(apiFindByKey, {
+        params: {
+            keyword: keyword,
+            size: pageable.size,
+            page: pageable.page
+        }
+    });
+};
+
+export const findDatPhongToCheckin = (pageable) => {
+    return authorizedAxiosInstance.get(apiFindDatPhongToCheckin, {
+        params: {
             size: pageable.size,
             page: pageable.page
         }

@@ -125,13 +125,13 @@ const QuanLyPhong = () => {
         const ngayNhanPhong = new Date(response.thongTinDatPhong.ngayNhanPhong);
         const ngayHienTai = new Date();
 
-        if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
-          alert(
-            `Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`
-          );
-        } else {
+        // if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
+        //   alert(
+        //     `Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`
+        //   );
+        // } else {
           navigate(`/api/RoomDetail/${roomId}`);
-        }
+        // }
       })
       .catch(() => {
         alert('Chưa có xếp phòng, không thể xem chi tiết.');

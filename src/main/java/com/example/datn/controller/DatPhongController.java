@@ -113,4 +113,11 @@ public class DatPhongController {
                     .body("Đã xảy ra lỗi trong quá trình xóa đặt phòng.");
         }
     }
+
+    @GetMapping("dat-phong-to-checkin")
+    public ResponseEntity<?> findDatPhongToCheckin(Pageable pageable) {
+        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(responses);
+    }
+
 }

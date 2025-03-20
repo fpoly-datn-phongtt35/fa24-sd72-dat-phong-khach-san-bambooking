@@ -105,13 +105,18 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
           <ListItemButton component={Link} to="/quan-ly-phong">
             <ListItemText primary="Quản lý phòng" />
           </ListItemButton>
-          <ListItemButton component={Link} to="/giao-dien-tao-dp">
+          <ListItemButton component={Link} to="/dat-phong">
             <ListItemText primary="Đặt phòng" />
           </ListItemButton>
           <ListItemButton component={Link} to="/quan-ly-dat-phong">
             <ListItemText primary="Quản lý đặt phòng" />
           </ListItemButton>
-
+          <ListItemButton component={Link} to="/thong-tin-dat-phong-search">
+            <ListItemText primary="Quản lý" />
+          </ListItemButton>
+          <ListItemButton component={Link} to="/nhan-phong">
+            <ListItemText primary="Nhận phòng" />
+          </ListItemButton>
           <ListItemButton onClick={() => handleToggle('quanLyPhong')}>
             <ListItemText primary="Quản lý phòng" />
             {openSubmenu['quanLyPhong'] ? <ExpandLess /> : <ExpandMore />}
