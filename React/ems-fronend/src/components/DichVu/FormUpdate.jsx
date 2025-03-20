@@ -114,9 +114,20 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
                             {/* Hình ảnh */}
                             <div className="mb-3">
                                 <label className="form-label">Chọn Hình Ảnh</label>
-                                <input type="file" className="form-control-file" accept="image/*" onChange={(e) => setHinhAnh(e.target.files[0])} />
-                                {dichVu.hinhAnh && (
-                                    <img src={dichVu.hinhAnh} alt="Hình ảnh dịch vụ" className="img-fluid mt-2 rounded" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+                                <input
+                                    type="file"
+                                    className="form-control-file"
+                                    accept="image/*"
+                                    onChange={(e) => setHinhAnh(e.target.files[0])}
+                                />
+
+                                {dichVu?.hinhAnh && ( // Sử dụng ?. để tránh lỗi nếu dichVu là null
+                                    <img
+                                        src={dichVu.hinhAnh}
+                                        alt="Hình ảnh dịch vụ"
+                                        className="img-fluid mt-2 rounded"
+                                        style={{ maxWidth: '100%', maxHeight: '200px' }}
+                                    />
                                 )}
                             </div>
 

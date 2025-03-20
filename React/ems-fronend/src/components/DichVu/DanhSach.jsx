@@ -2,30 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { DuLieu, XoaDichVu } from '../../services/DichVuService';
 import FormAdd from './FormAdd';
 import FormUpdate from './FormUpdate';
-import DetailDichVu from './DetailDichVu';
-import Swal from 'sweetalert2'; // down npm install sweetalert2
+import Swal from 'sweetalert2';
+import {
+    Box,
+    TextField,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Button,
+    Pagination,
+    Typography,
+    Grid,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Card,
+    CardContent,
+} from '@mui/material';
 
 const DanhSach = () => {
     const [dichVuList, setDichVuList] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [showUpdateForm, setShowUpdateForm] = useState(false);
     const [currentDichVu, setCurrentDichVu] = useState(null);
-    const [showDetail, setShowDetail] = useState(false);
-    const [searchKeyword, setSearchKeyword] = useState(''); // Tìm kiếm
-    const [filterStatus, setFilterStatus] = useState(''); // Lọc trạng thái
-    const [currentPage, setCurrentPage] = useState(0); // Trang hiện tại
-    const [totalPages, setTotalPages] = useState(0); // Tổng số trang
-    const itemsPerPage = 5; // Số lượng item trên mỗi trang
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const itemsPerPage = 5;
+
+    useEffect(() => {
+        loadDichVu();
+    }, [searchKeyword, filterStatus, currentPage]);
 
     const loadDichVu = () => {
         DuLieu()
             .then(response => {
                 const filteredData = response.data.filter(dv => {
-                    // Lọc theo trạng thái boolean
-                    const matchesStatus = filterStatus !== ''
-                        ? dv.trangThai === (filterStatus === 'true')
-                        : true;
-
+                    const matchesStatus = filterStatus !== '' ? dv.trangThai === (filterStatus === 'true') : true;
                     const matchesKeyword = searchKeyword
                         ? dv.tenDichVu.toLowerCase().includes(searchKeyword.toLowerCase()) ||
                         dv.moTa.toLowerCase().includes(searchKeyword.toLowerCase())
@@ -34,42 +53,14 @@ const DanhSach = () => {
                     return matchesStatus && matchesKeyword;
                 });
 
-                // Phân trang dữ liệu
                 const startIndex = currentPage * itemsPerPage;
                 const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
                 setDichVuList(paginatedData);
-                setTotalPages(Math.ceil(filteredData.length / itemsPerPage)); // Cập nhật tổng số trang
+                setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
             })
             .catch(error => {
                 console.error("Lỗi khi tải danh sách dịch vụ:", error);
             });
-    };
-
-    useEffect(() => {
-        loadDichVu();
-    }, [searchKeyword, filterStatus, currentPage]); // Tự động tải lại khi từ khóa, trạng thái hoặc trang thay đổi
-
-    const openForm = () => setShowForm(true);
-    const closeForm = () => setShowForm(false);
-
-    const openUpdateForm = (dv) => {
-        setCurrentDichVu(dv);
-        setShowUpdateForm(true);
-    };
-
-    const closeUpdateForm = () => {
-        setShowUpdateForm(false);
-        setCurrentDichVu(null);
-    };
-
-    const openDetail = (dv) => {
-        setCurrentDichVu(dv);
-        setShowDetail(true);
-    };
-
-    const closeDetail = () => {
-        setShowDetail(false);
-        setCurrentDichVu(null);
     };
 
     const handleDelete = (id) => {
@@ -78,8 +69,8 @@ const DanhSach = () => {
             text: "Hành động này không thể hoàn tác!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33', // Màu nút xác nhận
-            cancelButtonColor: '#3085d6', // Màu nút hủy
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
             confirmButtonText: 'Xóa',
             cancelButtonText: 'Hủy'
         }).then((result) => {
@@ -90,7 +81,7 @@ const DanhSach = () => {
                             icon: 'success',
                             title: 'Đã xóa!',
                             text: 'Dịch vụ đã được xóa thành công.',
-                            confirmButtonColor: '#6a5acd' // Màu nút OK
+                            confirmButtonColor: '#6a5acd'
                         });
                         loadDichVu();
                     })
@@ -107,105 +98,97 @@ const DanhSach = () => {
         });
     };
 
-    const handleNextPage = () => {
-        if (currentPage < totalPages - 1) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-
-    const handlePreviousPage = () => {
-        if (currentPage > 0) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
-
     return (
-        <div className='container'>
-            <div className='card'>
-                <div className='card-body'>
-                    <div className='d-flex justify-content-between mb-3'>
-                        <button className='btn btn-outline-success btn-lg fs-6' onClick={openForm}>
-                            <i className='bi bi-plus-circle'></i> Thêm Dịch Vụ
-                        </button>
-                        <div className='d-flex w-50'>
-                            <input
-                                type='text'
-                                className='form-control form-control-lg fs-6 me-2'
-                                placeholder='Tìm kiếm theo tên hoặc mô tả...'
+        <Box sx={{ p: 3 }}>
+            <Card>
+                <CardContent>
+                    <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+                        <Grid item>
+                            <Button variant="contained" color="success" onClick={() => setShowForm(true)}>
+                                Thêm Dịch Vụ
+                            </Button>
+                        </Grid>
+
+                        <Grid item xs={12} sm={6} md={4}>
+                            <TextField
+                                fullWidth
+                                label="Tìm kiếm..."
+                                variant="outlined"
                                 value={searchKeyword}
                                 onChange={(e) => setSearchKeyword(e.target.value)}
                             />
-                            <select className='form-select form-select-lg fs-6' value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
-                                <option value=''>Tất cả trạng thái</option>
-                                <option value='true'>Hoạt động</option>
-                                <option value='false'>Ngừng hoạt động</option>
-                            </select>
-                            <button className='btn btn-outline-primary btn-lg ms-2' onClick={loadDichVu}>Lọc</button>
-                        </div>
-                    </div>
+                        </Grid>
 
-                    <table className='table table-hover'>
-                        <thead>
-                            <tr>
-                                <th>Tên Dịch Vụ</th>
-                                <th>Giá</th>
-                                <th>Mô Tả</th>
-                                <th>Hình ảnh</th>
-                                <th>Trạng Thái</th>
-                                <th>Hành Động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {dichVuList.length > 0 ? (
-                                dichVuList.map((dv) => (
-                                    <tr key={dv.id}>
-                                        <td>{dv.tenDichVu}</td>
-                                        <td>{dv.donGia}</td>
-                                        <td>{dv.moTa}</td>
-                                        <td>
-                                            <img src={dv.hinhAnh} alt={dv.tenDichVu} style={{ width: '100px', height: 'auto' }} />
-                                        </td>
-                                        <td>{dv.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</td>
-                                        <td>
-                                            <button className='btn btn-outline-warning me-2' onClick={() => openUpdateForm(dv)}>Sửa</button>
-                                            <button className='btn btn-outline-danger me-2' onClick={() => handleDelete(dv.id)}>Xóa</button>
-                                            {/* <button className='btn btn-outline-info' onClick={() => openDetail(dv)}>Chi Tiết</button> */}
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan='6' className='text-center'>Không có dịch vụ</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                        <Grid item xs={12} sm={4} md={3}>
+                            <FormControl fullWidth>
+                                <InputLabel>Trạng thái</InputLabel>
+                                <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                                    <MenuItem value="">Tất cả</MenuItem>
+                                    <MenuItem value="true">Hoạt động</MenuItem>
+                                    <MenuItem value="false">Ngừng hoạt động</MenuItem>
+                                </Select>
+                            </FormControl>
+                        </Grid>
 
-                    {/* Phân trang */}
-                    <div className='d-flex justify-content-center my-3'>
-                        <button
-                            className='btn btn-outline-primary me-2'
-                            onClick={handlePreviousPage}
-                            disabled={currentPage === 0}>
-                            Previous
-                        </button>
-                        <span className='align-self-center' style={{ marginTop: '7px' }}>
-                            Trang {currentPage + 1} / {totalPages}
-                        </span>
-                        <button
-                            className='btn btn-outline-primary ms-2'
-                            onClick={handleNextPage}
-                            disabled={currentPage + 1 >= totalPages}>
-                            Next
-                        </button>
-                    </div>
+                        <Grid item>
+                            <Button variant="outlined" onClick={loadDichVu}>
+                                Lọc
+                            </Button>
+                        </Grid>
+                    </Grid>
 
-                    {showForm && <FormAdd show={showForm} handleClose={closeForm} refreshData={loadDichVu} />}
-                    {showUpdateForm && <FormUpdate show={showUpdateForm} handleClose={closeUpdateForm} refreshData={loadDichVu} dichVu={currentDichVu} />}
-                    {/* {showDetail && <DetailDichVu dichVu={currentDichVu} handleClose={closeDetail} />} */}
-                </div>
-            </div>
-        </div>
+                    <TableContainer component={Paper} sx={{ mt: 3 }}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Tên Dịch Vụ</TableCell>
+                                    <TableCell>Giá</TableCell>
+                                    <TableCell>Mô Tả</TableCell>
+                                    <TableCell>Hình ảnh</TableCell>
+                                    <TableCell>Trạng Thái</TableCell>
+                                    <TableCell>Hành Động</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {dichVuList.length > 0 ? (
+                                    dichVuList.map((dv) => (
+                                        <TableRow key={dv.id}>
+                                            <TableCell>{dv.tenDichVu}</TableCell>
+                                            <TableCell>{dv.donGia}</TableCell>
+                                            <TableCell>{dv.moTa}</TableCell>
+                                            <TableCell>
+                                                <img src={dv.hinhAnh} alt={dv.tenDichVu} style={{ width: '100px', height: 'auto' }} />
+                                            </TableCell>
+                                            <TableCell>{dv.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</TableCell>
+                                            <TableCell>
+                                                <Button variant="outlined" color="warning" onClick={() => { setCurrentDichVu(dv); setShowUpdateForm(true); }}>Sửa</Button>
+                                                <Button variant="outlined" color="error" onClick={() => handleDelete(dv.id)} sx={{ ml: 1 }}>Xóa</Button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan="6" align="center">Không có dịch vụ</TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+
+                    <Box display="flex" justifyContent="center" mt={3}>
+                        <Pagination
+                            count={totalPages}
+                            page={currentPage + 1}
+                            onChange={(event, page) => setCurrentPage(page - 1)}
+                            color="primary"
+                        />
+                    </Box>
+
+                    {showForm && <FormAdd show={showForm} handleClose={() => setShowForm(false)} refreshData={loadDichVu} />}
+                    {showUpdateForm && <FormUpdate show={showUpdateForm} handleClose={() => setShowUpdateForm(false)} refreshData={loadDichVu} dichVu={currentDichVu} />}
+                </CardContent>
+            </Card>
+        </Box>
     );
 };
 
