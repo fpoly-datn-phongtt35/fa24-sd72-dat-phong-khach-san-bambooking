@@ -1,5 +1,6 @@
 package com.example.datn.repository;
 
+import com.example.datn.model.KiemTraPhong;
 import com.example.datn.model.KiemTraVatTu;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -36,4 +37,6 @@ public interface KiemTraVatTuRepository extends JpaRepository<KiemTraVatTu, Inte
             @Param("idHoaDon") Integer idHoaDon,
             @Param("tinhTrang") List<String> tinhTrang
     );
+
+    List<KiemTraVatTu> findByKiemTraPhong(KiemTraPhong kiemTraPhong);
 }

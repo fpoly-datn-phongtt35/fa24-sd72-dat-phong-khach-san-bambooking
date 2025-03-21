@@ -14,6 +14,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.8.3",
     "bootstrap": "^5.3.3",
+    "hotel-website": "file:",
     "html-webpack-plugin": "^5.6.3",
     "lodash": "^4.17.21",
     "lucide-react": "^0.456.0",

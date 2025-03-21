@@ -4,11 +4,7 @@ import com.example.datn.dto.request.TraPhongRequest;
 import com.example.datn.dto.response.TraPhongResponse;
 import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.exception.RoomNotCheckedException;
-import com.example.datn.mapper.TraPhongMapper;
-import com.example.datn.model.Phong;
-import com.example.datn.model.ThongTinDatPhong;
-import com.example.datn.model.TraPhong;
-import com.example.datn.model.XepPhong;
+import com.example.datn.model.*;
 import com.example.datn.repository.KiemTraPhongRepository;
 import com.example.datn.repository.TraPhongRepository;
 import com.example.datn.repository.XepPhongRepository;
@@ -30,21 +26,25 @@ import java.util.List;
 public class TraPhongServiceImpl implements TraPhongService {
     TraPhongRepository traPhongRepository;
     XepPhongRepository xepPhongRepository;
-    TraPhongMapper traPhongMapper;
     KiemTraPhongRepository kiemTraPhongRepository;
 
     @Override
     public Page<TraPhongResponse> getAllTraPhong(Pageable pageable) {
         return traPhongRepository.findAll(pageable)
-                .map(traPhongMapper::toTraPhongResponse);
+                .map(this::convertToTraPhongResponse);
     }
 
     @Override
     public TraPhongResponse createTraPhong(TraPhongRequest request) {
         XepPhong xepPhong = xepPhongRepository.findById(request.getIdXepPhong())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy xếp phòng"));
-        TraPhong traPhong = traPhongMapper.toTraPhong(request, xepPhong);
-        return traPhongMapper.toTraPhongResponse(traPhongRepository.save(traPhong));
+
+        TraPhong traPhong = new TraPhong();
+        traPhong.setXepPhong(xepPhong);
+        traPhong.setNgayTraThucTe(LocalDateTime.now());
+        traPhong.setTrangThai(true);
+
+        return convertToTraPhongResponse(traPhongRepository.save(traPhong));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class TraPhongServiceImpl implements TraPhongService {
     @Override
     public TraPhong CheckOut(Integer idTraPhong) {
         TraPhong traPhong = traPhongRepository.findById(idTraPhong)
-                .orElseThrow(()-> new EntityNotFountException("Không tìm thấy trả phòng có id: " + idTraPhong));
+                .orElseThrow(() -> new EntityNotFountException("Không tìm thấy trả phòng có id: " + idTraPhong));
 
         XepPhong xepPhong = traPhong.getXepPhong();
         String maDatPhong = xepPhong.getThongTinDatPhong().getDatPhong().getMaDatPhong();
@@ -72,15 +72,19 @@ public class TraPhongServiceImpl implements TraPhongService {
             List<String> roomNames = unverifiedRooms.stream()
                     .map(room -> String.valueOf(room[1])).toList();
             throw new RoomNotCheckedException("Danh sách phòng chưa kiểm tra: "
-                    + roomNames + ", nhân viên vui lòng kiểm tra phòng trước khi trả phòng!");
+                                              + roomNames + ", nhân viên vui lòng kiểm tra phòng trước khi trả phòng!");
         }
 
+        System.out.println("Danh sách phòng chưa kiểm tra: " + unverifiedRooms);
+
         ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
+        DatPhong datPhong = xepPhong.getThongTinDatPhong().getDatPhong();
         Phong p = xepPhong.getPhong();
 
         thongTinDatPhong.setTrangThai("Da tra phong");
+        datPhong.setTrangThai("Đã trả phòng");
         xepPhong.setTrangThai(false);
-        p.setTinhTrang("available");
+
         traPhong.setTrangThai(true);
         traPhongRepository.save(traPhong);
         return traPhong;
@@ -88,6 +92,18 @@ public class TraPhongServiceImpl implements TraPhongService {
 
     @Override
     public List<TraPhong> DSTraPhong() {
-        return  traPhongRepository.findAll();
+        return traPhongRepository.findAll();
     }
+
+    private TraPhongResponse convertToTraPhongResponse(TraPhong traPhong) {
+        XepPhong xepPhong = traPhong.getXepPhong();
+        return new TraPhongResponse(
+                traPhong.getId(),
+                xepPhong.getId(),
+                traPhong.getNgayTraThucTe(),
+                traPhong.getTrangThai()
+        );
+    }
+
+
 }

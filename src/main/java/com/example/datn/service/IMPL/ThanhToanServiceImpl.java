@@ -4,6 +4,7 @@ import com.example.datn.dto.request.ThanhToanRequest;
 import com.example.datn.dto.response.ThanhToanResponse;
 import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.mapper.ThanhToanMapper;
+import com.example.datn.model.DatPhong;
 import com.example.datn.model.HoaDon;
 import com.example.datn.model.NhanVien;
 import com.example.datn.model.ThanhToan;
@@ -69,6 +70,7 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         if (thanhToanRequest.getTienThanhToan() < hoaDon.getTongTien()) {
             throw new RuntimeException("Tiền thanh toán phải lớn hơn hoặc bằng tổng tiền của hóa đơn");
         } else {
+            DatPhong datPhong = hoaDon.getDatPhong();
             thanhToan.setNhanVien(nhanVien);
             thanhToan.setTienThanhToan(thanhToanRequest.getTienThanhToan());
             thanhToan.setTienThua(thanhToanRequest.getTienThanhToan() - hoaDon.getTongTien());
@@ -76,6 +78,7 @@ public class ThanhToanServiceImpl implements ThanhToanService {
             thanhToan.setTrangThai(true);
 
             hoaDon.setTrangThai("Chờ xác nhận");
+            datPhong.setTrangThai("Đã thanh toán");
             hoaDonRepository.save(hoaDon);
 
             thanhToanRepository.save(thanhToan);
