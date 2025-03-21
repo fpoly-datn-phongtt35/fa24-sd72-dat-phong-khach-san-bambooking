@@ -76,36 +76,46 @@ public class XepPhongServiceIMPL implements XepPhongService {
 
     @Override
     public XepPhong checkIn(XepPhongRequest xepPhongRequest) {
-        try {
-            XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId()).orElse(null);
-            if (xp != null) {
-                DatPhong dp = datPhongRepository.findByMaDatPhong(xp.getThongTinDatPhong().getDatPhong().getMaDatPhong());
-                dp.setTrangThai("Đã nhận phòng");
-                datPhongRepository.save(dp);
-                ThongTinDatPhong ttdp = xp.getThongTinDatPhong();
-                Phong p = xp.getPhong();
-                ttdp.setTrangThai("Dang o");
-                p.setTinhTrang("occupied");
-                xp.setPhong(xp.getPhong());
-                xp.setThongTinDatPhong(ttdp);
-                xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
-                xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
-                xp.setTrangThai(true);
-                return xepPhongRepository.save(xp);
-            } else {
-                XepPhong xpNew = this.addXepPhong(xepPhongRequest);
-                ThongTinDatPhong ttdp = xpNew.getThongTinDatPhong();
-                Phong p = xpNew.getPhong();
-                ttdp.setTrangThai("Dang o");
-                p.setTinhTrang("occupied");
-                xpNew.setTrangThai(true);
-                return xepPhongRepository.save(xpNew);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Chưa được xếp phòng");
+        if (xepPhongRequest == null) {
+            throw new IllegalArgumentException("XepPhongRequest cannot be null");
         }
-        return null;
+        LocalDateTime ngayNhanPhong = xepPhongRequest.getNgayNhanPhong();
+        if (ngayNhanPhong == null) {
+            throw new IllegalArgumentException("Ngày nhận phòng không được null");
+        }
+        LocalDateTime now = java.time.LocalDateTime.now();
+        if (ngayNhanPhong.isAfter(now)) {
+            throw new IllegalStateException("Chưa đến ngày nhận phòng vui lòng kiểm tra lại");
+        }
+        System.out.println(ngayNhanPhong);
+        System.out.println(now);
+        try {
+            XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId())
+                    .orElseGet(() -> this.addXepPhong(xepPhongRequest));
+            if (xp == null) {
+                throw new RuntimeException("Không thể tạo mới XepPhong");
+            }
+            DatPhong dp = datPhongRepository.findByMaDatPhong(
+                    xp.getThongTinDatPhong().getDatPhong().getMaDatPhong());
+            if (dp == null) {
+                throw new RuntimeException("Không tìm thấy đặt phòng");
+            }
+            ThongTinDatPhong ttdp = xp.getThongTinDatPhong();
+            Phong p = xp.getPhong();
+            if (ttdp == null || p == null) {
+                throw new RuntimeException("Thông tin đặt phòng hoặc phòng không hợp lệ");
+            }
+            dp.setTrangThai("Đã nhận phòng");
+            ttdp.setTrangThai("Dang o");
+            p.setTinhTrang("occupied");
+            xp.setNgayNhanPhong(ngayNhanPhong);
+            xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
+            xp.setTrangThai(true);
+            datPhongRepository.save(dp);
+            return xepPhongRepository.save(xp);
+        } catch (Exception e) {
+            throw new RuntimeException("Lỗi khi check-in: " + e.getMessage(), e);
+        }
     }
 
     @Override

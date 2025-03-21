@@ -10,6 +10,7 @@ const apiGetAll = "http://localhost:8080/loai-phong";
 const apiAdd = "http://localhost:8080/dich_vu_di_kem/add";
 const apiKiemTraDon = "http://localhost:8080/loai-phong/kiem-tra-don";
 const apiKiemTraDa = "http://localhost:8080/loai-phong/kiem-tra-da";
+const apiGetLPKDR = "http://localhost:8080/loai-phong/loai-phong-kha-dung-list";
 export const ThemDichVuDiKem = (dvDiKem) => {
     return authorizedAxiosInstance.post(apiAdd, dvDiKem);
 };
@@ -115,3 +116,11 @@ export const kiemTraDa = (ngayNhanPhong, ngayTraPhong, soNguoi) => {
     });
 };
 
+export const getLPKDR = (ngayNhanPhong, ngayTraPhong) => {
+    return authorizedAxiosInstance.get(apiGetLPKDR, {
+        params: {
+            ngayNhanPhong,
+            ngayTraPhong
+        }
+    });
+};

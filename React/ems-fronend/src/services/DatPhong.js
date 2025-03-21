@@ -1,4 +1,4 @@
-import authorizedAxiosInstance from '../utils/authorizedAxios';
+import authorizedAxiosInstance from "../utils/authorizedAxios";
 const apiDP = "http://localhost:8080/dat-phong/hien-thi";
 const apiDPAdd = "http://localhost:8080/dat-phong/them-moi";
 const apiDPUpdate = "http://localhost:8080/dat-phong/cap-nhat";
@@ -10,116 +10,136 @@ const apiUpdateKHDP = "http://localhost:8080/khach-hang/update-kh-dp";
 const apiDetailDP = "http://localhost:8080/dat-phong/chi-tiet-dat-phong";
 const apiDeleteKHDP = "http://localhost:8080/khach-hang/delete-kh-dp";
 const apiXoaDatPhong = "http://localhost:8080/dat-phong/xoa";
-const apiToHopLoaiPhong  = "http://localhost:8080/ttdp/to-hop-loai-phong-kha-dung";
+const apiToHopLoaiPhong =
+  "http://localhost:8080/dat-phong/to-hop-loai-phong-kha-dung";
 const apiFindByKey = "http://localhost:8080/dat-phong/findAll";
-const apiFindDatPhongToCheckin = "http://localhost:8080/dat-phong/dat-phong-to-checkin";
+const apiFindDatPhongToCheckin =
+  "http://localhost:8080/dat-phong/dat-phong-to-checkin";
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
-    return authorizedAxiosInstance.get(apiDP, {
-        params: { 
-            page: pageable.page, 
-            size: pageable.size,
-            trangThai: trangThai
-        }
-    });
+  return authorizedAxiosInstance.get(apiDP, {
+    params: {
+      page: pageable.page,
+      size: pageable.size,
+      trangThai: trangThai,
+    },
+  });
 };
 export const findDatPhongByMaDatPhong = (maDatPhong) => {
-    return authorizedAxiosInstance.get(apiDetailDP, {
-        params: {
-            maDatPhong: maDatPhong,
-        }
-    });
+  return authorizedAxiosInstance.get(apiDetailDP, {
+    params: {
+      maDatPhong: maDatPhong,
+    },
+  });
 };
 // Hàm lấy danh sách nhân viên
 export const DanhSachNhanVien = () => {
-    return authorizedAxiosInstance.get(apiNV);
+  return authorizedAxiosInstance.get(apiNV);
 };
 
 // Hàm lấy danh sách khách hàng
 export const DanhSachKhachHang = () => {
-    return authorizedAxiosInstance.get(apiKH);
+  return authorizedAxiosInstance.get(apiKH);
 };
 
 // Hàm thêm mới đặt phòng (POST)
 export const ThemMoiDatPhong = (DatPhongRequest) => {
-    return authorizedAxiosInstance.post(apiDPAdd, DatPhongRequest);
+  return authorizedAxiosInstance.post(apiDPAdd, DatPhongRequest);
 };
 
 export const DatPhongDetail = (id) => {
-    return authorizedAxiosInstance.get(`${apiDetail}/${id}`);
+  return authorizedAxiosInstance.get(`${apiDetail}/${id}`);
 };
 
 export const CapNhatDatPhong = (DatPhongRequest) => {
-    return authorizedAxiosInstance.put(apiDPUpdate, DatPhongRequest);
+  return authorizedAxiosInstance.put(apiDPUpdate, DatPhongRequest);
 };
 
 export const HienThiTheoLoc = (pageable, trangThai) => {
-    const params = new URLSearchParams({
-        page: pageable.page,
-        size: pageable.size
+  const params = new URLSearchParams({
+    page: pageable.page,
+    size: pageable.size,
+  });
+
+  // Nếu trangThai là một mảng và có phần tử, thêm chúng vào params
+  if (trangThai && trangThai.length > 0) {
+    trangThai.forEach((status) => {
+      params.append("trangThai", status);
     });
-    
-    // Nếu trangThai là một mảng và có phần tử, thêm chúng vào params
-    if (trangThai && trangThai.length > 0) {
-        trangThai.forEach((status) => {
-            params.append("trangThai", status);
-        });
-    }
-    
-    return authorizedAxiosInstance.get(apiLoc, { params: params });
+  }
+
+  return authorizedAxiosInstance.get(apiLoc, { params: params });
 };
 
 export const ThemKhachHangDatPhong = (khachHangRequest) => {
-    return authorizedAxiosInstance.post(apiCreateKHDP, khachHangRequest);
+  return authorizedAxiosInstance.post(apiCreateKHDP, khachHangRequest);
 };
 
 export const SuaKhachHangDatPhong = (khachHangRequest) => {
-    return authorizedAxiosInstance.put(apiUpdateKHDP, khachHangRequest);
+  return authorizedAxiosInstance.put(apiUpdateKHDP, khachHangRequest);
 };
 
 export const XoaKhachHangDatPhong = (khachHang) => {
-    return authorizedAxiosInstance.delete(apiDeleteKHDP, khachHang);
+  return authorizedAxiosInstance.delete(apiDeleteKHDP, khachHang);
 };
 export const XoaDatPhong = (iddp) => {
-    return authorizedAxiosInstance.delete(apiXoaDatPhong, iddp);
+  return authorizedAxiosInstance.delete(apiXoaDatPhong, iddp);
 };
 
-export const toHopLoaiPhong = (ngayNhanPhong, ngayTraPhong, soNguoi, key, tongChiPhiMin, tongChiPhiMax, tongSucChuaMin, tongSucChuaMax, loaiPhong, tongSoPhongMin, tongSoPhongMax, soLuongChonMin, pageable) => {
-    return authorizedAxiosInstance.get(apiToHopLoaiPhong, {
-        params: {
-            ngayNhanPhong,
-            ngayTraPhong,
-            soNguoi,
-            key,
-            tongChiPhiMin,
-            tongChiPhiMax,
-            tongSucChuaMin,
-            tongSucChuaMax,
-            loaiPhong,
-            tongSoPhongMin,
-            tongSoPhongMax,
-            soLuongChonMin,
-            size: pageable.size,
-            page: pageable.page
-        }
-    });
+export const toHopLoaiPhong = async (
+  ngayNhanPhong,
+  ngayTraPhong,
+  soNguoi,
+  key,
+  tongChiPhiMin,
+  tongChiPhiMax,
+  tongSucChuaMin,
+  tongSucChuaMax,
+  tongSoPhongMin,
+  tongSoPhongMax,
+  loaiPhongChons,
+  pageable
+) => {
+  const response = await authorizedAxiosInstance.post(
+    apiToHopLoaiPhong,
+    {
+      ngayNhanPhong,
+      ngayTraPhong,
+      soNguoi,
+      key,
+      tongChiPhiMin: tongChiPhiMin || null,
+      tongChiPhiMax: tongChiPhiMax || null,
+      tongSucChuaMin: tongSucChuaMin || null,
+      tongSucChuaMax: tongSucChuaMax || null,
+      tongSoPhongMin: tongSoPhongMin || null,
+      tongSoPhongMax: tongSoPhongMax || null,
+      loaiPhongChons,
+    },
+    {
+      params: {
+        page: pageable.page,
+        size: pageable.size,
+      },
+    }
+  );
+  return response.data;
 };
 
 export const findDatPhongByKey = (keyword, pageable) => {
-    return authorizedAxiosInstance.get(apiFindByKey, {
-        params: {
-            keyword: keyword,
-            size: pageable.size,
-            page: pageable.page
-        }
-    });
+  return authorizedAxiosInstance.get(apiFindByKey, {
+    params: {
+      keyword: keyword,
+      size: pageable.size,
+      page: pageable.page,
+    },
+  });
 };
 
 export const findDatPhongToCheckin = (pageable) => {
-    return authorizedAxiosInstance.get(apiFindDatPhongToCheckin, {
-        params: {
-            size: pageable.size,
-            page: pageable.page
-        }
-    });
+  return authorizedAxiosInstance.get(apiFindDatPhongToCheckin, {
+    params: {
+      size: pageable.size,
+      page: pageable.page,
+    },
+  });
 };

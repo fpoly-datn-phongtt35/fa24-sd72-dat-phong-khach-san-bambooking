@@ -32,32 +32,31 @@ import HotelIcon from "@mui/icons-material/Hotel";
 import PersonIcon from "@mui/icons-material/Person";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
-
-// Import services
 import {
   toHopLoaiPhong,
   ThemKhachHangDatPhong,
   ThemMoiDatPhong,
 } from "../../services/DatPhong";
 import { addThongTinDatPhong } from "../../services/TTDP";
+import { getLPKDR } from "../../services/LoaiPhongService";
 
 const DatPhong = () => {
   const [ngayNhanPhong, setNgayNhanPhong] = useState(
-      dayjs().hour(14).minute(0)
-    );
-    const [ngayTraPhong, setNgayTraPhong] = useState(
-      dayjs().add(1, "day").hour(12).minute(0)
-    );
+    dayjs().hour(14).minute(0)
+  );
+  const [ngayTraPhong, setNgayTraPhong] = useState(
+    dayjs().add(1, "day").hour(12).minute(0)
+  );
   const [soNguoi, setSoNguoi] = useState(1);
   const [key, setKey] = useState("");
   const [tongChiPhiMin, setTongChiPhiMin] = useState("");
   const [tongChiPhiMax, setTongChiPhiMax] = useState("");
   const [tongSucChuaMin, setTongSucChuaMin] = useState("");
   const [tongSucChuaMax, setTongSucChuaMax] = useState("");
-  const [loaiPhong, setLoaiPhong] = useState("");
   const [tongSoPhongMin, setTongSoPhongMin] = useState("");
   const [tongSoPhongMax, setTongSoPhongMax] = useState("");
-  const [soLuongChonMin, setSoLuongChonMin] = useState("");
+  const [loaiPhongChons, setLoaiPhongChons] = useState([]);
+  const [loaiPhongList, setLoaiPhongList] = useState([]);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [loaiPhongKhaDung, setLoaiPhongKhaDung] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -74,6 +73,20 @@ const DatPhong = () => {
     setOpenSnackbar(true);
   };
 
+  const fetchLoaiPhong = async () => {
+    try {
+      console.log(ngayNhanPhong.format(), ngayTraPhong.format());
+      const response = await getLPKDR(
+        ngayNhanPhong.format(),
+        ngayTraPhong.format()
+      );
+      setLoaiPhongList(response.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy loại phòng:", error);
+      handleSnackbar("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
+    }
+  };
+
   // Handle search function
   const handleSearch = async (page = currentPage) => {
     try {
@@ -82,20 +95,19 @@ const DatPhong = () => {
         ngayTraPhong.format(),
         soNguoi,
         key,
-        tongChiPhiMin || null,
-        tongChiPhiMax || null,
-        tongSucChuaMin || null,
-        tongSucChuaMax || null,
-        loaiPhong,
-        tongSoPhongMin || null,
-        tongSoPhongMax || null,
-        soLuongChonMin || null,
-        { page: page, size: pageSize }
+        tongChiPhiMin,
+        tongChiPhiMax,
+        tongSucChuaMin,
+        tongSucChuaMax,
+        tongSoPhongMin,
+        tongSoPhongMax,
+        loaiPhongChons,
+        { page, size: pageSize }
       );
 
-      setLoaiPhongKhaDung(response.data.content);
-      setTotalPages(response.data.totalPages);
-      setCurrentPage(response.data.pageable.pageNumber);
+      setLoaiPhongKhaDung(response.content);
+      setTotalPages(response.totalPages);
+      setCurrentPage(response.number);
     } catch (error) {
       console.error("Lỗi khi lấy tổ hợp phòng:", error);
       handleSnackbar("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
@@ -104,6 +116,7 @@ const DatPhong = () => {
 
   useEffect(() => {
     handleSearch(0);
+    fetchLoaiPhong();
   }, [pageSize]);
 
   const handleSearchClick = () => {
@@ -439,33 +452,116 @@ const DatPhong = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <TextField
-                    label="Số lượng chọn tối thiểu"
-                    type="number"
-                    value={soLuongChonMin}
-                    onChange={(e) => setSoLuongChonMin(e.target.value)}
-                    fullWidth
-                    sx={{
-                      "& .MuiInputBase-root": {
-                        borderRadius: 1,
-                        backgroundColor: "#fff",
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={6}>
                   <FormControl fullWidth>
-                    <InputLabel>Loại phòng</InputLabel>
+                    <InputLabel id="search-method-label">
+                      Phương thức tìm kiếm
+                    </InputLabel>
                     <Select
-                      value={loaiPhong}
-                      onChange={(e) => setLoaiPhong(e.target.value)}
-                      label="Loại phòng"
-                      sx={{ borderRadius: 1, backgroundColor: "#fff" }}
+                      labelId="search-method-label"
+                      value={key}
+                      onChange={(e) => setKey(e.target.value)}
+                      fullWidth
+                      label="Phương thức tìm kiếm"
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#fff",
+                        },
+                      }}
                     >
-                      <MenuItem value="">Tất cả loại phòng</MenuItem>
+                      <MenuItem value="">Lựa chọn</MenuItem>
+                      <MenuItem value="leastRooms">
+                        Tổ hợp ít phòng nhất
+                      </MenuItem>
                     </Select>
                   </FormControl>
+                </Grid>
+                {loaiPhongChons.map((lpc, index) => (
+                  <Grid container item spacing={2} key={index}>
+                    <Grid item xs={6}>
+                      <FormControl fullWidth>
+                        <InputLabel>Loại phòng</InputLabel>
+                        <Select
+                          value={lpc.loaiPhong?.tenLoaiPhong || ""}
+                          onChange={(e) => {
+                            const newList = [...loaiPhongChons];
+                            const selectedLoaiPhong = loaiPhongList.find(
+                              (lp) => lp.tenLoaiPhong === e.target.value
+                            );
+                            newList[index] = {
+                              ...newList[index],
+                              loaiPhong: selectedLoaiPhong,
+                            };
+                            setLoaiPhongChons(newList);
+                          }}
+                          label="Loại phòng"
+                          sx={{ borderRadius: 1, backgroundColor: "#fff" }}
+                        >
+                          <MenuItem value="">Chọn loại phòng</MenuItem>
+                          {loaiPhongList.map((lp) => (
+                            <MenuItem key={lp.id} value={lp.tenLoaiPhong}>
+                              {lp.tenLoaiPhong}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <TextField
+                        label="Số lượng"
+                        type="number"
+                        value={lpc.soLuongChon || ""}
+                        onChange={(e) => {
+                          const newList = [...loaiPhongChons];
+                          newList[index] = {
+                            ...newList[index],
+                            soLuongChon: e.target.value
+                              ? Number(e.target.value)
+                              : null,
+                          };
+                          setLoaiPhongChons(newList);
+                        }}
+                        fullWidth
+                        sx={{
+                          "& .MuiInputBase-root": {
+                            borderRadius: 1,
+                            backgroundColor: "#fff",
+                          },
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={2}>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => {
+                          const newList = loaiPhongChons.filter(
+                            (_, i) => i !== index
+                          );
+                          setLoaiPhongChons(newList);
+                        }}
+                        sx={{ borderRadius: 1 }}
+                      >
+                        Xóa
+                      </Button>
+                    </Grid>
+                  </Grid>
+                ))}
+                <Grid item xs={12}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={() =>
+                      setLoaiPhongChons([
+                        ...loaiPhongChons,
+                        { loaiPhong: null, soLuongChon: null },
+                      ])
+                    }
+                    sx={{ borderRadius: 1 }}
+                  >
+                    Thêm loại phòng
+                  </Button>
                 </Grid>
               </Grid>
             </Box>
@@ -495,7 +591,9 @@ const DatPhong = () => {
                 fontWeight: 600,
               }}
             >
-              Tổ hợp {combIndex + 1}: Tổng sức chứa {combination.tongSucChua} - Tổng chi phí: {Number(combination.tongChiPhi).toLocaleString()} VND - Tổng số phòng: {combination.tongSoPhong}
+              Tổ hợp {combIndex + 1}: Tổng sức chứa {combination.tongSucChua} -
+              Tổng chi phí: {Number(combination.tongChiPhi).toLocaleString()}{" "}
+              VND - Tổng số phòng: {combination.tongSoPhong}
             </Typography>
             <Button
               variant="outlined"
@@ -542,13 +640,18 @@ const DatPhong = () => {
                       <TableCell>{idx + 1}</TableCell>
                       <TableCell>{phong.loaiPhong.tenLoaiPhong}</TableCell>
                       <TableCell>{phong.loaiPhong.dienTich} m²</TableCell>
-                      <TableCell>{phong.loaiPhong.soKhachToiDa} khách</TableCell>
-                      <TableCell>{phong.loaiPhong.donGia.toLocaleString()} VND</TableCell>
+                      <TableCell>
+                        {phong.loaiPhong.soKhachToiDa} khách
+                      </TableCell>
+                      <TableCell>
+                        {phong.loaiPhong.donGia.toLocaleString()} VND
+                      </TableCell>
                       <TableCell>{phong.soLuongChon}</TableCell>
                       <TableCell>
                         {(
                           phong.soLuongChon * phong.loaiPhong.donGia
-                        ).toLocaleString()} VND
+                        ).toLocaleString()}{" "}
+                        VND
                       </TableCell>
                       <TableCell>
                         <Stack direction="row" spacing={1}>

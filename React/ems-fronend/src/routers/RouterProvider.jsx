@@ -37,7 +37,7 @@ import KiemTraPhong from '../components/kiemTraPhong/KiemTraPhong';
 import CreateKiemTraPhong from '../components/kiemTraPhong/CreateKiemTraPhong';
 import ViewPhong from "../components/TrangChu/ViewPhong";
 import { XoaDichVuDiKem } from "../services/DichVuDiKemService";
-import DatPhong from "../components/DatPhong/DatPhong";
+import DatPhong from '../pages/datphong/DatPhong'
 import ThongTinDatPhong from '../components/ThongTinDatPhong/ThongTinDatPhong';
 import Checkin from '../components/Checkin/Checkin';
 function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {

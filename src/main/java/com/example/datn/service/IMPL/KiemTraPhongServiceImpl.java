@@ -46,7 +46,6 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
                 .orElseThrow(() -> new EntityNotFountException("Không tìm thấy xếp phòng với ID: " + request.getIdXepPhong()));
         NhanVien nhanVien = nhanVienRepository.findById(request.getIdNhanVien())
                 .orElseThrow(() -> new EntityNotFountException("Không tìm thấy nhân viên với ID: " + request.getIdNhanVien()));
-
         // Tạo bản ghi kiểm tra phòng mới
         KiemTraPhong kiemTraPhong = new KiemTraPhong();
         kiemTraPhong.setXepPhong(xepPhong);

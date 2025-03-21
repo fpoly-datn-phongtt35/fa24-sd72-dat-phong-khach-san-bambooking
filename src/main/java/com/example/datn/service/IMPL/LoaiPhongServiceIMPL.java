@@ -191,74 +191,38 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         }
     }
 
-    public List<ToHopPhongPhuHop> ToHopPhuHop(List<ToHopPhongPhuHop> toHopPhongPhuHops, String key, Double tongChiPhiMin,
+    public List<ToHopPhongPhuHop> toHopPhuHop(List<ToHopPhongPhuHop> toHopPhongPhuHops, String key, Double tongChiPhiMin,
                                               Double tongChiPhiMax, Integer tongSoPhongMin, Integer tongSoPhongMax,
-                                              Integer tongSucChuaMin, Integer tongSucChuaMax, String loaiPhong,
-                                              Integer soLuongChonMin) {
+                                              Integer tongSucChuaMin, Integer tongSucChuaMax, List<LoaiPhongChon> loaiPhongChons) {
         if (toHopPhongPhuHops == null || toHopPhongPhuHops.isEmpty()) {
             return toHopPhongPhuHops;
         }
 
-        // Tạo bản sao của danh sách để tránh thay đổi danh sách gốc
+        // Tạo bản sao của danh sách
         List<ToHopPhongPhuHop> filteredList = new ArrayList<>(toHopPhongPhuHops);
 
-        // Bộ lọc theo chi phí
-        if (tongChiPhiMin != null) {
-            filteredList = filteredList.stream()
-                    .filter(p -> p.getTongChiPhi() >= tongChiPhiMin)
-                    .collect(Collectors.toList());
-        }
-        if (tongChiPhiMax != null) {
-            filteredList = filteredList.stream()
-                    .filter(p -> p.getTongChiPhi() <= tongChiPhiMax)
-                    .collect(Collectors.toList());
-        }
+        // Lọc một lần với tất cả các điều kiện
+        filteredList = filteredList.stream()
+                .filter(p -> (tongChiPhiMin == null || p.getTongChiPhi() >= tongChiPhiMin) &&
+                        (tongChiPhiMax == null || p.getTongChiPhi() <= tongChiPhiMax) &&
+                        (tongSoPhongMin == null || p.getTongSoPhong() >= tongSoPhongMin) &&
+                        (tongSoPhongMax == null || p.getTongSoPhong() <= tongSoPhongMax) &&
+                        (tongSucChuaMin == null || p.getTongSucChua() >= tongSucChuaMin) &&
+                        (tongSucChuaMax == null || p.getTongSucChua() <= tongSucChuaMax) &&
+                        // Kiểm tra danh sách loaiPhongChons
+                        (loaiPhongChons == null || loaiPhongChons.isEmpty() ||
+                                loaiPhongChons.stream().allMatch(lpc ->
+                                        p.getPhongs().stream()
+                                                .filter(phong -> phong.getLoaiPhong().getTenLoaiPhong()
+                                                        .equalsIgnoreCase(lpc.getLoaiPhong().getTenLoaiPhong()))
+                                                .mapToInt(LoaiPhongChon::getSoLuongChon)
+                                                .sum() >= (lpc.getSoLuongChon() == null ? 0 : lpc.getSoLuongChon()))))
+                .collect(Collectors.toList());
 
-        // Bộ lọc theo số phòng
-        if (tongSoPhongMin != null) {
-            filteredList = filteredList.stream()
-                    .filter(p -> p.getTongSoPhong() >= tongSoPhongMin)
-                    .collect(Collectors.toList());
-        }
-        if (tongSoPhongMax != null) {
-            filteredList = filteredList.stream()
-                    .filter(p -> p.getTongSoPhong() <= tongSoPhongMax)
-                    .collect(Collectors.toList());
-        }
-
-        // Bộ lọc theo sức chứa
-        if (tongSucChuaMin != null) {
-            filteredList = filteredList.stream()
-                    .filter(p -> p.getTongSucChua() >= tongSucChuaMin)
-                    .collect(Collectors.toList());
-        }
-        if (tongSucChuaMax != null) {
-            filteredList = filteredList.stream()
-                    .filter(p -> p.getTongSucChua() <= tongSucChuaMax)
-                    .collect(Collectors.toList());
-        }
-
-        // Bộ lọc theo loại phòng và số lượng chọn
-        if (loaiPhong != null && !loaiPhong.isBlank()) {
-            filteredList = filteredList.stream()
-                    .filter(p -> p.getPhongs().stream()
-                            .anyMatch(phong -> phong.getLoaiPhong().getTenLoaiPhong().equalsIgnoreCase(loaiPhong)))
-                    .collect(Collectors.toList());
-        }
-
-        if (soLuongChonMin != null) {
-            filteredList = filteredList.stream()
-                    .filter(p -> p.getPhongs().stream()
-                            .anyMatch(phong -> phong.getSoLuongChon() >= soLuongChonMin))
-                    .collect(Collectors.toList());
-        }
-
-        // Sắp xếp theo key nếu có
+        // Sắp xếp theo key
         if (key == null || key.isBlank()) {
-            // Sắp xếp theo chi phí tối ưu (tăng dần)
             filteredList.sort(Comparator.comparing(ToHopPhongPhuHop::getTongChiPhi));
         } else if (key.equalsIgnoreCase("leastRooms")) {
-            // Sắp xếp theo số phòng ít nhất (tăng dần)
             filteredList.sort(Comparator.comparing(ToHopPhongPhuHop::getTongSoPhong));
         }
 
@@ -273,14 +237,13 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return new PageImpl<>(pageContent, pageable, list.size());
     }
 
-    public Page<ToHopPhongPhuHop> TESTDATPHONG(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi,
+    public Page<ToHopPhongPhuHop> getToHopPhongPhuHop(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi,
                                                String key, Double tongChiPhiMin,
                                                Double tongChiPhiMax, Integer tongSoPhongMin, Integer tongSoPhongMax,
-                                               Integer tongSucChuaMin, Integer tongSucChuaMax, String loaiPhong,
-                                               Integer soLuongChonMin, Pageable pageable) {
+                                               Integer tongSucChuaMin, Integer tongSucChuaMax, List<LoaiPhongChon> loaiPhongChons , Pageable pageable) {
         List<LoaiPhongKhaDungResponse> loaiPhongKhaDungResponses = getAllLPKDR(ngayNhanPhong, ngayTraPhong);
-        List<ToHopPhongPhuHop> toHopPhongPhuHops = ToHopPhuHop(DanhSachToHop(loaiPhongKhaDungResponses, soNguoi), key, tongChiPhiMin,
-                tongChiPhiMax, tongSoPhongMin, tongSoPhongMax, tongSucChuaMin, tongSucChuaMax, loaiPhong, soLuongChonMin) ;
+        List<ToHopPhongPhuHop> toHopPhongPhuHops = toHopPhuHop(DanhSachToHop(loaiPhongKhaDungResponses, soNguoi), key, tongChiPhiMin,
+                tongChiPhiMax, tongSoPhongMin, tongSoPhongMax, tongSucChuaMin, tongSucChuaMax, loaiPhongChons) ;
         return paginateToHopWithPageable(toHopPhongPhuHops,pageable);
     }
 

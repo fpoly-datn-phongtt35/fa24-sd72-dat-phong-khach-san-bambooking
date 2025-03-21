@@ -81,27 +81,11 @@ public class LoaiPhongController {
         return ResponseEntity.ok(lp);
     }
 
-    @GetMapping("/kiem-tra-don")
-    public ResponseEntity<Boolean> kiemTraDon(
-            @RequestParam("ngayNhanPhong")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
-            @RequestParam("ngayTraPhong")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
-            @RequestParam("soNguoi") Integer soNguoi) {
+    @GetMapping("/loai-phong-kha-dung-list")
+    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
+                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong){
+        return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
 
-        boolean isAvailable = loaiPhongServiceIMPL.KiemTraDon(ngayNhanPhong, ngayTraPhong, soNguoi);
-        return ResponseEntity.ok(isAvailable);
-    }
-
-    @GetMapping("/kiem-tra-da")
-    public ResponseEntity<Boolean> kiemTraDa(
-            @RequestParam("ngayNhanPhong")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
-            @RequestParam("ngayTraPhong")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
-            @RequestParam("soNguoi") Integer soNguoi) {
-        boolean isAvailable = loaiPhongServiceIMPL.KiemTraDa(ngayNhanPhong, ngayTraPhong, soNguoi);
-        return ResponseEntity.ok(isAvailable);
     }
 
 }
