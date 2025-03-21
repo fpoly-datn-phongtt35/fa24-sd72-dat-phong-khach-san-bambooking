@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { updateVatTu, deleteVatTu } from '../../services/VatTuService';
+import { updateVatTu, deleteVatTu, KiemTraVatTu } from '../../services/VatTuService';
 import Swal from 'sweetalert2';
 
 
@@ -12,7 +12,7 @@ const FormDetail = ({ show, handleClose, data }) => {
     // Cập nhật formData và imagePreview khi prop data thay đổi
     useEffect(() => {
         if (data) {
-        
+
             setFile(data.hinhAnh);
             setImagePreview(data.hinhAnh); // Cập nhật hình ảnh
             setIdVatTu(data.id);
@@ -75,42 +75,74 @@ const FormDetail = ({ show, handleClose, data }) => {
     };
 
 
-    const handleDelete = () => {
-        // Hiển thị hộp thoại xác nhận với SweetAlert2
-        Swal.fire({
-            title: 'Xác nhận xóa',
-            text: 'Bạn có chắc chắn muốn xóa vật tư này?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Đồng ý',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Thực hiện gọi API xóa
-                deleteVatTu(idVatTu)
-                    .then(response => {
-                        console.log("Xóa thành công:", response.data);
-                        Swal.fire({
-                            title: 'Thành công!',
-                            text: 'Vật tư đã được xóa thành công.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        });
-                        handleClose(); // Đóng modal sau khi xóa
-                    })
-                    .catch(error => {
-                        console.error("Lỗi khi xóa:", error);
-                        Swal.fire({
-                            title: 'Lỗi!',
-                            text: 'Không thể xóa vật tư. Vui lòng thử lại sau!',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
-                    });
+    const handleDelete = async () => {
+        try {
+            if (!idVatTu) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không tìm thấy ID vật tư!',
+                    confirmButtonColor: '#d33'
+                });
+                return;
             }
-        });
-    };
-
+    
+            // Gọi API kiểm tra xem vật tư có đang được sử dụng không
+            const response = await KiemTraVatTu(idVatTu);
+            console.log("Kết quả kiểm tra:", response.data); // 🛠 Debug API
+    
+            if (response.data.isUsed) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Không thể xóa',
+                    text: 'Vật tư đang được sử dụng!',
+                    confirmButtonColor: '#3085d6'
+                });
+                return; // Dừng lại nếu vật tư đang được sử dụng
+            }
+    
+            // Nếu không có dữ liệu liên quan, hiển thị hộp thoại xác nhận xóa
+            Swal.fire({
+                title: 'Bạn có chắc chắn muốn xóa vật tư này?',
+                text: "Hành động này không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteVatTu(idVatTu)
+                        .then(() => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã xóa!',
+                                text: 'Vật tư đã được xóa thành công.',
+                                confirmButtonColor: '#6a5acd'
+                            });
+                            handleClose(); // Đóng modal sau khi xóa
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: 'Không thể xóa vật tư. Vui lòng thử lại!',
+                                confirmButtonColor: '#d33'
+                            });
+                        });
+                }
+            });
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra vật tư:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Có lỗi xảy ra, vui lòng thử lại!',
+                confirmButtonColor: '#d33'
+            });
+        }
+    };    
 
 
     return (
@@ -153,7 +185,7 @@ const FormDetail = ({ show, handleClose, data }) => {
                             )}
 
                             <button type="submit" className="btn btn-primary">Lưu thay đổi</button>
-                            <button type="button" className="btn btn-danger" onClick={handleDelete}>Xóa tiện ích</button>
+                            <button type="button" className="btn btn-danger" onClick={handleDelete}>Xóa vật tư</button>
                         </form>
                     </div>
                 </div>

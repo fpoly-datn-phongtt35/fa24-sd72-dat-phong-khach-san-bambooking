@@ -34,4 +34,7 @@ public interface VatTuLoaiPhongRepository extends JpaRepository<VatTuLoaiPhong,I
     Page<Object> ListVatTuFindByIDLoaiPhong(@Param("idLoaiPhong") Integer idLoaiPhong,Pageable pageable);
 
     List<VatTuLoaiPhong> findByLoaiPhong_Id(Integer loaiPhongId);
+
+    // ✅ Thêm phương thức kiểm tra dịch vụ có tồn tại hay không
+    boolean existsByVatTu_Id(Integer idVatTu);
 }

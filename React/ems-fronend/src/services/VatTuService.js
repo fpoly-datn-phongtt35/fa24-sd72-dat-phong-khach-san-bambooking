@@ -60,4 +60,8 @@ export const listImage = (pageable, searchQuery = '') => {
 };
 
 
+const apiCheck = "http://localhost:8080/vat-tu/check";
+export const KiemTraVatTu = (id) => {
+    return authorizedAxiosInstance.get(`${apiCheck}/${id}`);
+};
 

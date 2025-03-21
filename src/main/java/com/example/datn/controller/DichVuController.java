@@ -2,6 +2,8 @@ package com.example.datn.controller;
 
 import com.example.datn.model.DichVu;
 import com.example.datn.model.NhanVien;
+import com.example.datn.repository.DichVuDiKemRepository;
+import com.example.datn.repository.DichVuSuDungRepository;
 import com.example.datn.service.IMPL.DichVuServiceIMPL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 //@CrossOrigin("*")
 @RestController
@@ -30,6 +33,10 @@ public class DichVuController {
 
     @Autowired
     DichVuServiceIMPL dichVuServiceIMPL;
+    @Autowired
+    DichVuSuDungRepository dichVuSuDungRepository;
+    @Autowired
+    DichVuDiKemRepository dichVuDiKemRepository;
 
     @GetMapping("")
     public List<DichVu> dichVuHome() {
@@ -72,6 +79,12 @@ public class DichVuController {
     public String delete(@PathVariable("id") Integer id) {
         dichVuServiceIMPL.deleteDichVu(id);
         return "redirect:/dich-vu";
+    }
+
+    @GetMapping("/check/{id}")
+    public ResponseEntity<Map<String, Boolean>> checkDichVu(@PathVariable("id") Integer id) {
+        boolean isUsed = dichVuSuDungRepository.existsByDichVu_Id(id) || dichVuDiKemRepository.existsByDichVu_Id(id);
+        return ResponseEntity.ok(Map.of("isUsed", isUsed));
     }
 
     @GetMapping("/dich-vu/detail/{id}")

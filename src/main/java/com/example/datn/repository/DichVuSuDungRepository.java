@@ -16,4 +16,8 @@ public interface DichVuSuDungRepository extends JpaRepository<DichVuSuDung, Inte
 
     @Query("SELECT p FROM DichVuSuDung p WHERE p.xepPhong.id = :idXepPhong")
     public List<DichVuSuDung> getByIDXepPhong(Integer idXepPhong);
+
+    // Thêm phương thức kiểm tra dịch vụ có tồn tại hay không
+    boolean existsByDichVu_Id(Integer idDichVu);
+
 }
