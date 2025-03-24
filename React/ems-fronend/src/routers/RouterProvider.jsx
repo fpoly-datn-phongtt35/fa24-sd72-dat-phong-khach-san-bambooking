@@ -13,7 +13,7 @@ import ListImage from '../components/HinhAnh/ListImage';
 import HinhAnh from '../components/HinhAnh/HinhAnh';
 import QuanLyDatPhong from '../components/DatPhong/QuanLyDatPhong';
 import BookingForm from '../components/DatPhong/BookingForm';
-import TaoDatPhong from '../components/DatPhong/TaoDatPhong';
+import TaoDatPhong from '../pages/datphong/TaoDatPhong';
 import ChiTietDatPhong from '../components/DatPhong/ChiTietDatPhong';
 import ChiTietTTDP from '../components/DatPhong/ChiTietTTDP';
 import ListHoaDon from '../components/HoaDon/ListHoaDon';

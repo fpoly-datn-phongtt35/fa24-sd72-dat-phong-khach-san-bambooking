@@ -623,7 +623,6 @@ const DatPhong = () => {
                     <TableCell>Đơn giá</TableCell>
                     <TableCell>Số lượng chọn</TableCell>
                     <TableCell>Thành tiền</TableCell>
-                    <TableCell>Hành động</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -652,26 +651,6 @@ const DatPhong = () => {
                           phong.soLuongChon * phong.loaiPhong.donGia
                         ).toLocaleString()}{" "}
                         VND
-                      </TableCell>
-                      <TableCell>
-                        <Stack direction="row" spacing={1}>
-                          <Button
-                            variant="outlined"
-                            color="success"
-                            size="small"
-                            onClick={() => handleCreateBooking(combination)}
-                            sx={{
-                              borderRadius: 1,
-                              textTransform: "none",
-                              px: 2,
-                              "&:hover": {
-                                bgcolor: "rgba(46, 125, 50, 0.04)",
-                              },
-                            }}
-                          >
-                            <BookmarkAddIcon sx={{ mr: 0.5 }} />
-                          </Button>
-                        </Stack>
                       </TableCell>
                     </TableRow>
                   ))}

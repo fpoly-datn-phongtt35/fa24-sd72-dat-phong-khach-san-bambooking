@@ -147,8 +147,6 @@ const ViewPhong = () => {
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", width: "100%" }}>
-      <h2 style={{ textAlign: "center" }}>Quản lý tình trạng phòng</h2>
-
       {/* Khu vực chứa thanh cuộn */}
       <div
         ref={scrollContainerRef}

@@ -109,14 +109,31 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
     @Override
     public ThongTinDatPhong huyTTDP(String maTTDP) {
+        // Lấy thông tin đặt phòng theo mã
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByMa(maTTDP);
         XepPhong xp = xepPhongRepository.getByMaTTDP(maTTDP);
+        DatPhong dp = datPhongRepository.findByMaDatPhong(ttdp.getDatPhong().getMaDatPhong());
+
+        // Nếu có XepPhong liên quan, cập nhật trạng thái thành false
         if (xp != null) {
             xp.setTrangThai(false);
             xepPhongRepository.save(xp);
         }
+
+        // Cập nhật trạng thái của TTDP thành "Da huy"
         ttdp.setTrangThai("Da huy");
         thongTinDatPhongRepository.save(ttdp);
+
+        // Kiểm tra tất cả TTDP liên quan đến DatPhong
+        List<ThongTinDatPhong> allTtdp = thongTinDatPhongRepository.findByIDDatPhong(dp.getId());
+        boolean allCancelled = allTtdp.stream().allMatch(item -> "Da huy".equals(item.getTrangThai()));
+
+        // Nếu tất cả TTDP đều ở trạng thái "Da huy", cập nhật trạng thái DatPhong
+        if (allCancelled) {
+            dp.setTrangThai("Đã hủy");
+            datPhongRepository.save(dp);
+        }
+
         return ttdp;
     }
 
