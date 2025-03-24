@@ -14,6 +14,7 @@ const Demo = () => {
     const FindCheckOut = (key) => {
         findCheckOut(key)
             .then((response) => {
+                console.log(response.data)
                 setTraPhong(response.data);
                 setErrorMessage('');
             })
@@ -132,15 +133,21 @@ const Demo = () => {
                                         <th>Tên phòng</th>
                                         <th>Ngày nhận</th>
                                         <th>Ngày trả thực tế</th>
+                                        <th>Trạng thái KTP</th>
+                                        <th>Thời gian KTP</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {traPhong.map((item, index) => (
                                         <tr key={index}>
                                             <td>{index + 1}</td>
-                                            <td>{item.xepPhong?.phong?.tenPhong || 'Không có dữ liệu'}</td>
-                                            <td>{formatDate(item.xepPhong?.ngayNhanPhong)}</td>
+                                            <td>{item.tenPhong || 'Không có dữ liệu'}</td>
+                                            {/* <td>{item.xepPhong?.phong?.tenPhong || 'Không có dữ liệu'}</td> */}
+                                            <td>{formatDate(item.ngayNhan)}</td>
+                                            {/* <td>{formatDate(item.xepPhong?.ngayNhanPhong)}</td> */}
                                             <td>{formatDateTime(item.ngayTraThucTe)}</td>
+                                            <td>{item.trangThaiKTP}</td>
+                                            <td>{item.thoiGianKTP ? formatDateTime(item.thoiGianKTP) : "N/A"}</td>
                                         </tr>
                                     ))}
                                 </tbody>

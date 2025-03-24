@@ -1,5 +1,6 @@
 package com.example.datn.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,9 @@ public class ThongTinHoaDonResponse {
     Double tienPhong;
     Double tienPhuThu;
     String tenPhong;
+
     String ngayNhanPhong;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     String ngayTraPhong;
     Double giaPhong;
     Double tienKhauTru;

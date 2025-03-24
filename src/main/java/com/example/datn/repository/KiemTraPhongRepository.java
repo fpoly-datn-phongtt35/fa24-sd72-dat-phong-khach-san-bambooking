@@ -42,5 +42,8 @@ public interface KiemTraPhongRepository extends JpaRepository<KiemTraPhong, Inte
             """)
     List<Object[]> findUnverifiedRooms(String maDatPhong);
 
+    @Query("SELECT k FROM KiemTraPhong k WHERE k.xepPhong = :xepPhong")
     Optional<KiemTraPhong> findByXepPhong(XepPhong xepPhong);
+
+    Optional<KiemTraPhong> findByXepPhongId(Integer id);
 }

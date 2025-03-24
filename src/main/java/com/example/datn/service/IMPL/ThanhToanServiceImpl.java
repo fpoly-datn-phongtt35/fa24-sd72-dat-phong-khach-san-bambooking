@@ -8,6 +8,7 @@ import com.example.datn.model.DatPhong;
 import com.example.datn.model.HoaDon;
 import com.example.datn.model.NhanVien;
 import com.example.datn.model.ThanhToan;
+import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.repository.HoaDonRepository;
 import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.repository.ThanhToanRepository;
@@ -33,6 +34,7 @@ public class ThanhToanServiceImpl implements ThanhToanService {
     NhanVienRepository nhanVienRepository;
     HoaDonRepository hoaDonRepository;
     JwtService jwtService;
+    DatPhongRepository datPhongRepository;
 
     @Override
     public ThanhToan createThanhToan(ThanhToanRequest thanhToanRequest, HttpServletRequest request) {
@@ -80,7 +82,7 @@ public class ThanhToanServiceImpl implements ThanhToanService {
             hoaDon.setTrangThai("Chờ xác nhận");
             datPhong.setTrangThai("Đã thanh toán");
             hoaDonRepository.save(hoaDon);
-
+            datPhongRepository.save(datPhong);
             thanhToanRepository.save(thanhToan);
             return thanhToanMapper.toThanhToanResponse(thanhToan);
         }

@@ -64,7 +64,8 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
 
       <Drawer
         variant="persistent"
-        open={isSidebarOpen}
+        // open={isSidebarOpen}
+        open={isSidebarOpen && !isLoginRoute}
         onClose={handleCloseSidebar}
         sx={{
           width: isSidebarOpen ? 190 : 0,

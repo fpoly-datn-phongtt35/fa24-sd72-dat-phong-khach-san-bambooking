@@ -18,22 +18,55 @@ const DemoTaoHoaDon = () => {
         }
     }, []);
 
+    // const createHoaDon = async () => {
+    //     try {
+    //         const storedIdTraPhong = JSON.parse(localStorage.getItem("traPhong"));
+    //         const idTraPhong = storedIdTraPhong?.length ? Number(storedIdTraPhong[0].id) : null;
+    //         if (!idTraPhong) return;
+
+    //         const hdResponse = await taoHoaDon(idTraPhong);
+    //         setIdHoaDon(hdResponse.id);
+
+    //         const response = await createThongTinHoaDon({
+    //             idHoaDon: hdResponse.id,
+    //             listTraPhong: storedIdTraPhong,
+    //         });
+    //         setThongTinHoaDon(response.data || []);
+    //     } catch (error) {
+    //         console.error("Lỗi tạo hóa đơn:", error);
+    //     }
+    // };
+
     const createHoaDon = async () => {
         try {
             const storedIdTraPhong = JSON.parse(localStorage.getItem("traPhong"));
+            console.log("storedIdTraPhong:", JSON.stringify(storedIdTraPhong, null, 2));
+    
             const idTraPhong = storedIdTraPhong?.length ? Number(storedIdTraPhong[0].id) : null;
-            if (!idTraPhong) return;
-
+            if (!idTraPhong) {
+                console.error("Không tìm thấy idTraPhong trong localStorage.");
+                return;
+            }
+    
+            // Chuyển TraPhongResponse thành TraPhong entity
+            const listTraPhong = storedIdTraPhong.map(item => ({
+                id: item.id,
+                ngayTraThucTe: item.ngayTraThucTe,
+                trangThai: item.trangThai,
+                xepPhong: item.idXepPhong ? { id: item.idXepPhong } : null
+            }));
+            console.log(listTraPhong);
             const hdResponse = await taoHoaDon(idTraPhong);
             setIdHoaDon(hdResponse.id);
-
+    
             const response = await createThongTinHoaDon({
                 idHoaDon: hdResponse.id,
-                listTraPhong: storedIdTraPhong,
+                listTraPhong: listTraPhong,
             });
             setThongTinHoaDon(response.data || []);
         } catch (error) {
             console.error("Lỗi tạo hóa đơn:", error);
+            alert("Không thể tạo hóa đơn: " + (error.response?.data?.message || "Lỗi không xác định"));
         }
     };
 

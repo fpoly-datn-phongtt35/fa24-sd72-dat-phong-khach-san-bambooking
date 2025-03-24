@@ -15,13 +15,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +33,8 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
     KiemTraVatTuRepository kiemTraVatTuRepository;
     VatTuLoaiPhongRepository vatTuLoaiPhongRepository;
     PhuThuRepository phuThuRepository;
+    ThongTinDatPhongRepository thongTinDatPhongRepository;
+    private final XepPhongRepository xepPhongRepository;
 
     @Override
     public Page<ThongTinHoaDonResponse> getAllThongTinHoaDon(Pageable pageable) {
@@ -62,6 +62,12 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         double tongTien = hoaDon.getTongTien() != null ? hoaDon.getTongTien() : 0.0;
 
         for (TraPhong traPhong : listTraPhong) {
+            if (traPhong.getXepPhong() == null) {
+                log.error("TraPhong ID {} không có XepPhong được gán.", traPhong.getId());
+                throw new EntityNotFountException("TraPhong ID " + traPhong.getId() + " không có thông tin XepPhong.");
+            }
+            System.out.println(traPhong.getId());
+
             double tienPhong = tinhTienPhong(traPhong);
             double tienPhuThu = tinhTienPhuThu(traPhong);
             double tienDichVu = tinhTienDichVu(traPhong);
@@ -156,18 +162,52 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
 
     private double tinhTienPhong(TraPhong traPhong) {
         log.info("============= Start charging room fees =============");
-        LocalDateTime ngayNhanPhong = traPhong.getXepPhong().getNgayNhanPhong();
-        LocalDateTime ngayTraThucTe = traPhong.getNgayTraThucTe();
-        Duration duration = Duration.between(ngayNhanPhong, ngayTraThucTe);
 
-        long soNgay = duration.toDays() <= 0 ? 1 : duration.toDays();
-        log.info("SoNgay: {}", soNgay);
-        double giaPhong = traPhong.getXepPhong().getThongTinDatPhong().getGiaDat();
-        double tienPhong = 0;
-        tienPhong = giaPhong * soNgay;
+        // Kiểm tra null cho TraPhong và các trường liên quan
+        if (traPhong == null || traPhong.getXepPhong() == null) {
+            log.error("TraPhong hoặc XepPhong là null.");
+            throw new IllegalArgumentException("TraPhong hoặc XepPhong không được null.");
+        }
+
+        XepPhong xepPhong = xepPhongRepository.findById(traPhong.getXepPhong().getId())
+                .orElseThrow(()-> new EntityNotFountException("Không tìm thấy idXepPhong: " + traPhong.getXepPhong()));
+
+        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById(xepPhong.getId());
+        if (ttdp == null) {
+            log.error("ThongTinDatPhong là null cho XepPhong ID: {}", xepPhong.getId());
+            throw new IllegalArgumentException("ThongTinDatPhong không được null.");
+        }
+
+        // Lấy ngày nhận phòng và ngày trả phòng (cả hai đều là LocalDateTime)
+        LocalDateTime ngayNhanPhong = xepPhong.getNgayNhanPhong();
+        LocalDateTime ngayTraThucTe = traPhong.getNgayTraThucTe();
+
+        // Kiểm tra null cho ngày nhận và ngày trả
+        if (ngayNhanPhong == null || ngayTraThucTe == null) {
+            log.error("Ngày nhận phòng hoặc ngày trả thực tế là null cho TraPhong ID: {}", traPhong.getId());
+            throw new IllegalArgumentException("Ngày nhận phòng và ngày trả thực tế không được null.");
+        }
+
+        // Tính số ngày giữa ngày nhận và ngày trả
+        long soNgay = ChronoUnit.DAYS.between(ngayNhanPhong, ngayTraThucTe);
+        // Đảm bảo ít nhất 1 ngày nếu thời gian chênh lệch nhỏ hơn 1 ngày
+        soNgay = soNgay <= 0 ? 1 : soNgay;
+
+        log.info("Số ngày sử dụng: {}", soNgay);
+
+        // Lấy giá phòng từ ThongTinDatPhong
+        double giaPhong = ttdp.getGiaDat();
+        if (giaPhong <= 0) {
+            log.warn("Giá phòng không hợp lệ (giaPhong = {}) cho TraPhong ID: {}", giaPhong, traPhong.getId());
+            throw new IllegalArgumentException("Giá phòng phải lớn hơn 0.");
+        }
+
+        double tienPhong = giaPhong * soNgay;
+        log.info("Tiền phòng cho TraPhong ID {}: {}", traPhong.getId(), tienPhong);
 
         return tienPhong;
     }
+
 
     private double tinhTienPhuThu(TraPhong traPhong) {
         log.info("============= Start charging surcharges =============");
