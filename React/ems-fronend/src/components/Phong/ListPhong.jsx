@@ -2,7 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { listPhong, updateStatus } from '../../services/PhongService';
 import Swal from 'sweetalert2';
-
+import {
+    Table, TableHead, TableBody, TableRow, TableCell,
+    Button, TextField, TableContainer, Paper, Pagination
+} from '@mui/material';
 
 const ListPhong = () => {
 
@@ -91,94 +94,87 @@ const ListPhong = () => {
 
     return (
         <div className='container'>
-            <div className='card'>
-                <div className='card-body'>
-                    <div className='d-flex justify-content-between'>
-                        <button
-                            className='btn btn-outline-success btn-lg fs-6'
-                            onClick={handleCreatePhong} >
-                            <i className='bi bi-plus-circle'></i> Thêm
-                        </button>
-                        <div className="input-group ms-2 w-25">
-                            <input
-                                type="text"
-                                className='form-control form-control-lg fs-6'
-                                placeholder='Tìm kiếm phòng...'
-                                value={searchQuery}
-                                onChange={handleSearchInput}
-                            />
-                        </div>
-                    </div>
-
-                    <table className='table table-hover'>
-                        <thead>
-                            <tr>
-                                <th>ID Phòng</th>
-                                <th>Tên loại phòng</th>
-                                <th>Mã phòng</th>
-                                <th>Tên phòng</th>
-                                <th>Tình trạng</th>
-                                <th>Trạng thái</th>
-                                <th>Chức năng</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {p.length > 0 ? (
-                                p.map(phong =>
-                                    <tr key={phong.id}>
-                                        <td>{phong.id}</td>
-                                        <td>{phong.loaiPhong?.tenLoaiPhong}</td>
-                                        <td>{phong.maPhong}</td>
-                                        <td>{phong.tenPhong}</td>
-                                        <td>{phong.tinhTrang}</td>
-                                        <td>{phong.trangThai ? "Hoạt động" : "Không hoạt động"}</td>
-                                        <td>
-                                            <button
-                                                className='btn btn-outline-warning'
-                                                onClick={() => handleUpdateStatus(phong.id)}
-                                            >Đổi trạng thái
-                                            </button>
-                                            <button
-                                                className='btn btn-outline-info'
-                                                style={{ marginLeft: '10px' }}
-                                                onClick={() => handleUpdatePhong(phong.id)}
-                                            >Thông tin</button>
-                                        </td>
-                                    </tr>
-                                )
-                            ) : (
-                                <tr>
-                                    <td colSpan="8" className='text-center'>Không có phòng</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-
-                    {/* Phân trang */}
-                    <div className='d-flex justify-content-center my-3'>
-                        <button
-                            className='btn btn-outline-primary me-2'
-                            disabled={currentPage === 0}
-                            onClick={handlePreviousPage}
-                        >
-                            Previous
-                        </button>
-                        <span className='align-self-center' style={{ marginTop: '7px' }}>
-                            Trang {currentPage + 1} / {totalPages}
-                        </span>
-                        <button
-                            className='btn btn-outline-primary ms-2'
-                            disabled={currentPage + 1 >= totalPages}
-                            onClick={handleNextPage}
-                        >
-                            Next
-                        </button>
-                    </div>
-
+            <Paper elevation={3} sx={{ padding: 2 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                    <Button
+                        variant="contained"
+                        color="success"
+                        onClick={handleCreatePhong}
+                        startIcon={<i className="bi bi-plus-circle"></i>}
+                    >
+                        Thêm Phòng
+                    </Button>
+                    <TextField
+                        variant="outlined"
+                        label="Tìm kiếm phòng..."
+                        value={searchQuery}
+                        onChange={handleSearchInput}
+                        size="small"
+                    />
                 </div>
-            </div>
+
+                <TableContainer>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell><b>ID Phòng</b></TableCell>
+                                <TableCell><b>Tên loại phòng</b></TableCell>
+                                <TableCell><b>Mã phòng</b></TableCell>
+                                <TableCell><b>Tên phòng</b></TableCell>
+                                <TableCell><b>Tình trạng</b></TableCell>
+                                <TableCell><b>Trạng thái</b></TableCell>
+                                <TableCell><b>Chức năng</b></TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {p.length > 0 ? (
+                                p.map(phong => (
+                                    <TableRow key={phong.id}>
+                                        <TableCell>{phong.id}</TableCell>
+                                        <TableCell>{phong.loaiPhong?.tenLoaiPhong}</TableCell>
+                                        <TableCell>{phong.maPhong}</TableCell>
+                                        <TableCell>{phong.tenPhong}</TableCell>
+                                        <TableCell>{phong.tinhTrang}</TableCell>
+                                        <TableCell>{phong.trangThai ? "Hoạt động" : "Không hoạt động"}</TableCell>
+                                        <TableCell>
+                                            <Button
+                                                variant="outlined"
+                                                color="warning"
+                                                onClick={() => handleUpdateStatus(phong.id)}
+                                            >
+                                                Đổi trạng thái
+                                            </Button>
+                                            <Button
+                                                variant="outlined"
+                                                color="info"
+                                                sx={{ marginLeft: '10px' }}
+                                                onClick={() => handleUpdatePhong(phong.id)}
+                                            >
+                                                Thông tin
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={7} align="center">Không có phòng</TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '15px' }}>
+                    <Pagination
+                        count={totalPages}
+                        page={currentPage + 1}
+                        onChange={(_, value) => setCurrentPage(value - 1)}
+                        color="primary"
+                    />
+                </div>
+            </Paper>
         </div>
-    )
+    );
 }
 
 export default ListPhong;
