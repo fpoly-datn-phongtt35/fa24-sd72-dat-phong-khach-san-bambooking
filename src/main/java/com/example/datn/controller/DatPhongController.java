@@ -132,7 +132,7 @@ public class DatPhongController {
 
     @GetMapping("danh-sach-dat-phong")
     public ResponseEntity<Page<DatPhongResponse>> findDatPhong(
-            @RequestParam(value = "key", defaultValue = "") String key,
+            @RequestParam(value = "key", defaultValue = "", required = false) String key,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "ngayNhanPhong", required = false)

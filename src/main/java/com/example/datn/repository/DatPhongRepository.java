@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -56,6 +57,20 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
             @Param("trangThai") List<String> trangThai,
             @Param("key") String key);
 
+    @Query("SELECT DISTINCT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, dp.maDatPhong, dp.soNguoi, dp.soPhong, dp.ngayDat, dp.tongTien, dp.ghiChu, dp.trangThai) " +
+            "FROM ThongTinDatPhong ttdp " +
+            "JOIN ttdp.datPhong dp " +
+            "WHERE dp.trangThai IN :trangThai " +
+            "AND (:key IS NULL OR :key = '' OR dp.maDatPhong LIKE %:key% OR dp.khachHang.ho LIKE %:key% OR dp.khachHang.ten LIKE %:key%) " +
+            "AND ttdp.trangThai IN ('Chua xep', 'Da xep') " +
+            "AND (:ngayNhanPhong IS NULL OR ttdp.ngayNhanPhong >= :ngayNhanPhong) " +
+            "AND (:ngayTraPhong IS NULL OR ttdp.ngayTraPhong <= :ngayTraPhong)")
+    Page<DatPhongResponse> findDatPhong(
+            @Param("trangThai") List<String> trangThai,
+            @Param("key") String key,
+            @Param("ngayNhanPhong") LocalDate ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDate ngayTraPhong,
+            Pageable pageable);
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, " +
             "dp.maDatPhong,dp.soNguoi,dp.soPhong, dp.ngayDat , dp.tongTien, dp.ghiChu, dp.trangThai) " +
             " FROM DatPhong dp" +

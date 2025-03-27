@@ -163,46 +163,11 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
     public Page<DatPhongResponse> findDatPhong(String key, LocalDate ngayNhanPhong, LocalDate ngayTraPhong, int page, int size) {
         System.out.println("test: " + ngayNhanPhong);
-        List<String> trangThai = new ArrayList<>();
-        trangThai.add("Đang đặt phòng");
-        trangThai.add("Đã xác nhận");
-        trangThai.add("Đã nhận phòng");
-        trangThai.add("Đã trả phòng");
-        trangThai.add("Đã thanh toán");
+        System.out.println("test1: " + ngayTraPhong);
+        List<String> trangThai = Arrays.asList("Đang đặt phòng", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
         Pageable pageable = PageRequest.of(page, size);
-        Page<DatPhongResponse> result = datPhongRepository.DatPhongTheoTrangThai(trangThai, key, pageable);
-        List<DatPhongResponse> filteredList = new ArrayList<>();
-        List<String> ttXepPhong = Arrays.asList("Chua xep", "Da xep");
 
-        for (DatPhongResponse dpr : result.getContent()) {
-            List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByDatPhongId(dpr.getId(), ttXepPhong);
-            if (ttdps.isEmpty()) {
-                continue; // Bỏ qua nếu không có ThongTinDatPhong
-            }
-
-            for (ThongTinDatPhong ttdp : ttdps) {
-                LocalDate ttdpNgayNhanTime = ttdp.getNgayNhanPhong();
-                LocalDate ttdpNgayTraTime = ttdp.getNgayTraPhong();
-
-                // Chuyển về LocalDate để so sánh
-                LocalDate ttdpNgayNhan = ttdpNgayNhanTime != null ? ttdpNgayNhanTime : null;
-                LocalDate ttdpNgayTra = ttdpNgayTraTime != null ? ttdpNgayTraTime : null;
-
-                System.out.println("ttdpNgayNhan: " + ttdpNgayNhan + ", ttdpNgayTra: " + ttdpNgayTra);
-
-                boolean isWithinRange =
-                        (ngayNhanPhong == null || (ttdpNgayNhan != null && !ttdpNgayNhan.isBefore(ngayNhanPhong))) &&
-                                (ngayTraPhong == null || (ttdpNgayTra != null && !ttdpNgayTra.isAfter(ngayTraPhong)));
-
-                if (isWithinRange) {
-                    filteredList.add(dpr);
-                    break;
-                }
-            }
-        }
-
-        // Sử dụng totalElements từ result gốc để giữ nguyên tổng số bản ghi
-        return new PageImpl<>(filteredList, pageable, result.getTotalElements());
+        return datPhongRepository.findDatPhong(trangThai, key, ngayNhanPhong, ngayTraPhong, pageable);
     }
 
 //    public void updateTrangThaiDatPhong() {
