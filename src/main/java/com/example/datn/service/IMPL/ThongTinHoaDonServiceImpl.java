@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,7 +67,10 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
                 log.error("TraPhong ID {} không có XepPhong được gán.", traPhong.getId());
                 throw new EntityNotFountException("TraPhong ID " + traPhong.getId() + " không có thông tin XepPhong.");
             }
-            System.out.println(traPhong.getId());
+
+            XepPhong xepPhong = xepPhongRepository.findById(traPhong.getXepPhong().getId())
+                    .orElseThrow(() -> new EntityNotFountException("Không tìm thấy XepPhong với ID: " + traPhong.getXepPhong().getId()));
+            traPhong.setXepPhong(xepPhong);
 
             double tienPhong = tinhTienPhong(traPhong);
             double tienPhuThu = tinhTienPhuThu(traPhong);
@@ -81,12 +85,9 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
             thongTinHoaDon.setTienKhauTru(0.0);
 
             thongTinList.add(thongTinHoaDon);
-
-            // Tổng tiền
             tongTien += tienPhong + tienPhuThu + tienDichVu;
         }
 
-        // Lưu danh sách thông tin hóa đơn và cập nhật tổng tiền
         thongTinHoaDonRepository.saveAll(thongTinList);
         hoaDon.setTongTien(tongTien);
         hoaDonRepository.save(hoaDon);
@@ -178,24 +179,20 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
             throw new IllegalArgumentException("ThongTinDatPhong không được null.");
         }
 
-        // Lấy ngày nhận phòng và ngày trả phòng (cả hai đều là LocalDateTime)
         LocalDateTime ngayNhanPhong = xepPhong.getNgayNhanPhong();
         LocalDateTime ngayTraThucTe = traPhong.getNgayTraThucTe();
 
-        // Kiểm tra null cho ngày nhận và ngày trả
         if (ngayNhanPhong == null || ngayTraThucTe == null) {
             log.error("Ngày nhận phòng hoặc ngày trả thực tế là null cho TraPhong ID: {}", traPhong.getId());
             throw new IllegalArgumentException("Ngày nhận phòng và ngày trả thực tế không được null.");
         }
 
-        // Tính số ngày giữa ngày nhận và ngày trả
         long soNgay = ChronoUnit.DAYS.between(ngayNhanPhong, ngayTraThucTe);
         // Đảm bảo ít nhất 1 ngày nếu thời gian chênh lệch nhỏ hơn 1 ngày
         soNgay = soNgay <= 0 ? 1 : soNgay;
 
         log.info("Số ngày sử dụng: {}", soNgay);
 
-        // Lấy giá phòng từ ThongTinDatPhong
         double giaPhong = ttdp.getGiaDat();
         if (giaPhong <= 0) {
             log.warn("Giá phòng không hợp lệ (giaPhong = {}) cho TraPhong ID: {}", giaPhong, traPhong.getId());
@@ -250,13 +247,35 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
 
     private double tinhTienBoiThuong(TraPhong traPhong) {
         log.info("============= Start calculating compensation =============");
+        XepPhong xepPhong = xepPhongRepository.findById(traPhong.getXepPhong().getId())
+                .orElseThrow(() -> new EntityNotFountException("Không tìm thấy xếp phòng với ID: " + traPhong.getXepPhong().getId()));
+
+        ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
+        if (thongTinDatPhong == null) {
+            throw new IllegalStateException("XepPhong với ID " + xepPhong.getId() + " không có ThongTinDatPhong liên kết!");
+        }
+
+        LoaiPhong loaiPhong = thongTinDatPhong.getLoaiPhong();
+        if (loaiPhong == null) {
+            throw new IllegalStateException("ThongTinDatPhong không có LoaiPhong liên kết!");
+        }
+
+        // Lấy danh sách vật tư tiêu chuẩn của loại phòng
+        List<VatTuLoaiPhong> dsVatTuTieuChuan = vatTuLoaiPhongRepository.findByLoaiPhong_Id(loaiPhong.getId());
+        if (dsVatTuTieuChuan.isEmpty()) {
+            log.warn("Loại phòng với ID {} không có vật tư tiêu chuẩn!", loaiPhong.getId());
+        }
+
+        // Tạo map: idVatTu -> số lượng tiêu chuẩn
+        Map<Integer, Integer> soLuongVatTuTieuChuan = dsVatTuTieuChuan.stream()
+                .collect(Collectors.toMap(v -> v.getVatTu().getId(), VatTuLoaiPhong::getSoLuong));
+
+        // Lấy danh sách vật tư bị hỏng hoặc thiếu
         List<String> tinhTrangList = List.of("Hỏng", "Thiếu");
-
-        // Lấy danh sách vật tư bị hỏng hoặc thiếu theo phòng
         List<KiemTraVatTu> danhSachKiemTra = kiemTraVatTuRepository
-                .findByKiemTraPhong_XepPhongIdAndTinhTrangIn(traPhong.getXepPhong().getId(), tinhTrangList);
+                .findByKiemTraPhong_XepPhongIdAndTinhTrangIn(xepPhong.getId(), tinhTrangList);
 
-        System.out.println("Danh sách vật tư hỏng/thiếu của phòng " + traPhong.getXepPhong().getId() + ":");
+        log.info("Danh sách vật tư hỏng/thiếu của phòng {}: Số lượng = {}", xepPhong.getId(), danhSachKiemTra.size());
 
         double tienBoiThuong = 0;
 
@@ -264,12 +283,13 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
             VatTu vatTu = kiemTra.getVatTu();
             int soLuongThucTe = kiemTra.getSoLuong();
 
-            // Truy vấn số lượng tiêu chuẩn của vật tư này trong loại phòng
-            VatTuLoaiPhong vatTuLoaiPhong = (VatTuLoaiPhong) vatTuLoaiPhongRepository
-                    .findByLoaiPhongIdAndVatTuId(traPhong.getXepPhong().getThongTinDatPhong().getLoaiPhong().getId(), vatTu.getId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy số lượng tiêu chuẩn của vật tư: " + vatTu.getTenVatTu()));
+            // Lấy số lượng tiêu chuẩn từ map
+            Integer soLuongTieuChuan = soLuongVatTuTieuChuan.get(vatTu.getId());
+            if (soLuongTieuChuan == null) {
+                log.warn("Không tìm thấy số lượng tiêu chuẩn của vật tư {} trong loại phòng {}", vatTu.getTenVatTu(), loaiPhong.getId());
+                continue; // Bỏ qua vật tư này
+            }
 
-            int soLuongTieuChuan = vatTuLoaiPhong.getSoLuong();
             int soLuongBoiThuong = soLuongTieuChuan - soLuongThucTe;
 
             // Nếu số lượng bồi thường > 0, mới tính phí
@@ -278,16 +298,12 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
                 double thanhTien = soLuongBoiThuong * giaBoiThuong;
                 tienBoiThuong += thanhTien;
 
-                System.out.println("Bồi thường: " + vatTu.getTenVatTu() +
-                                   " | Tiêu chuẩn: " + soLuongTieuChuan +
-                                   " | Thực tế: " + soLuongThucTe +
-                                   " | Thiếu: " + soLuongBoiThuong +
-                                   " | Đơn giá: " + giaBoiThuong +
-                                   " | Thành tiền: " + thanhTien);
+                log.info("Bồi thường: {} | Tiêu chuẩn: {} | Thực tế: {} | Thiếu: {} | Đơn giá: {} | Thành tiền: {}",
+                        vatTu.getTenVatTu(), soLuongTieuChuan, soLuongThucTe, soLuongBoiThuong, giaBoiThuong, thanhTien);
             }
         }
 
-        System.out.println("Tổng tiền bồi thường của phòng " + traPhong.getXepPhong().getId() + ": " + tienBoiThuong);
+        log.info("Tổng tiền bồi thường của phòng {}: {}", xepPhong.getId(), tienBoiThuong);
         return tienBoiThuong;
     }
 }

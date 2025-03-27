@@ -31,7 +31,9 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
     private final VatTuRepository vatTuRepository;
     private final KiemTraVatTuRepository kiemTraVatTuRepository;
     private final PhongRepository phongRepository;
+    private final ThongTinDatPhongRepository thongTinDatPhongRepository;
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public KiemTraPhongResponse performRoomCheck(KiemTraPhongRequest request) {
         log.info("Bắt đầu kiểm tra phòng với ID Xếp Phòng = {}, ID Nhân Viên = {}",
@@ -59,7 +61,13 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
         // Giả sử ban đầu các vật tư đều đạt tiêu chuẩn
         boolean isSufficient = true;
 
-        Integer idLoaiPhong = xepPhong.getThongTinDatPhong().getLoaiPhong().getId();
+        //Check ThongTinDatPhong
+        ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
+        if (thongTinDatPhong == null) {
+            throw new IllegalArgumentException("XepPhong với ID " + request.getIdXepPhong() + "không có ThongTinDatPhong liên kết!");
+        }
+
+        Integer idLoaiPhong = thongTinDatPhong.getLoaiPhong().getId();
         log.info("ID Loại Phòng: {}", idLoaiPhong);
 
         // Lấy danh sách vật tư tiêu chuẩn của loại phòng
@@ -90,13 +98,29 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
                     .collect(Collectors.toMap(ktvt -> ktvt.getVatTu().getId(), ktvt -> ktvt));
 
             for (KiemTraVatTuRequest ktvtr : request.getDanhSachVatTu()) {
+                if (ktvtr.getSoLuongThucTe() < 0) {
+                    throw new IllegalArgumentException("Số lượng nhập phải lớn hơn 0: " + ktvtr.getSoLuongThucTe());
+                }
+
                 Integer soLuongTieuChuan = soLuongVatTuTieuChuan.get(ktvtr.getIdVatTu());
                 String tinhTrang;
+
+                VatTu vatTu = vatTuRepository.findById(ktvtr.getIdVatTu())
+                        .orElseThrow(() -> new EntityNotFountException("Không tìm thấy vật tư với ID: " + ktvtr.getIdVatTu()));
+
                 if (soLuongTieuChuan == null) {
                     soLuongTieuChuan = 0;
                     tinhTrang = "Thiếu";
                     isSufficient = false;
                 } else {
+
+                    if (ktvtr.getSoLuongThucTe() > soLuongTieuChuan) {
+                        throw new IllegalArgumentException(
+                                String.format("Số lượng thực tế (%d) không được lớn hơn số lượng tiêu chuẩn (%d) cho vật tư %s.",
+                                        ktvtr.getSoLuongThucTe(), soLuongTieuChuan, vatTu.getTenVatTu())
+                        );
+                    }
+
                     int soLuongThieu = soLuongTieuChuan - ktvtr.getSoLuongThucTe();
                     if (soLuongThieu > 0) {
                         tinhTrang = "Thiếu";
@@ -106,12 +130,8 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
                     }
                 }
 
-                VatTu vatTu = vatTuRepository.findById(ktvtr.getIdVatTu())
-                        .orElseThrow(() -> new EntityNotFountException("Không tìm thấy vật tư với ID: " + ktvtr.getIdVatTu()));
-
-                // Kiểm tra xem vật tư này đã có trong danh sách KiemTraVatTu cũ chưa
                 KiemTraVatTu kiemTraVatTu = existingKiemTraVatTuMap.getOrDefault(ktvtr.getIdVatTu(), new KiemTraVatTu());
-                kiemTraVatTu.setKiemTraPhong(savedKiemTraPhong); // Sử dụng bản đã lưu
+                kiemTraVatTu.setKiemTraPhong(savedKiemTraPhong);
                 kiemTraVatTu.setVatTu(vatTu);
                 kiemTraVatTu.setSoLuong(ktvtr.getSoLuongThucTe());
                 kiemTraVatTu.setTinhTrang(tinhTrang);
@@ -141,6 +161,9 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
         phong.setTinhTrang("available");
         phongRepository.save(phong);
 
+        thongTinDatPhong.setTrangThai("Đã kiểm tra phòng");
+        thongTinDatPhongRepository.save(thongTinDatPhong);
+
         // Build trả về response tổng kết
         return KiemTraPhongResponse.builder()
                 .id(finalSavedKTP.getId())
@@ -156,7 +179,11 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
 
     @Override
     public List<XepPhongResponse> timKiemXepPhong(String key) {
-        List<XepPhong> danhSachPhong = kiemTraPhongRepository.findByKeyNotChecked(key);
+        log.info("Find xepPhong by key");
+        List<String> trangThaiThongTinDatPhong = new ArrayList<>();
+        trangThaiThongTinDatPhong.add("Đang ở");
+        trangThaiThongTinDatPhong.add("Đã kiểm tra phòng");
+        List<XepPhong> danhSachPhong = kiemTraPhongRepository.findByKeyNotChecked(key, trangThaiThongTinDatPhong);
 
         return danhSachPhong.stream()
                 .map(xp -> new XepPhongResponse(

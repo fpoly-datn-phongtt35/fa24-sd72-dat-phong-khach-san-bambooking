@@ -25,8 +25,8 @@ public interface KiemTraPhongRepository extends JpaRepository<KiemTraPhong, Inte
            "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.ten) = LOWER(:key) " +
            "OR LOWER(CONCAT(COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ho, ''), ' ' , COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ten, ''))) = LOWER(:key) " +
            ") " +
-           "AND xp.thongTinDatPhong.trangThai IN ('Dang o', 'Den han')")
-    List<XepPhong> findByKeyNotChecked(@Param("key") String key);
+           "AND xp.thongTinDatPhong.trangThai IN (:trangThaiThongTinDatPhong)")
+    List<XepPhong> findByKeyNotChecked(@Param("key") String key, List<String> trangThaiThongTinDatPhong);
 
     //lấy danh sách phòng chưa kiểm tra
     @Query("""

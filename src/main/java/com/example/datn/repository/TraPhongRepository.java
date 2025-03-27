@@ -11,8 +11,6 @@ import java.util.Optional;
 
 @Repository
 public interface TraPhongRepository extends JpaRepository<TraPhong, Integer> {
-//
-
     @Query("SELECT tp FROM TraPhong tp JOIN FETCH tp.xepPhong WHERE tp.xepPhong = :xepPhong")
     Optional<TraPhong> findByXepPhong(@Param("xepPhong") XepPhong xepPhong);
 }

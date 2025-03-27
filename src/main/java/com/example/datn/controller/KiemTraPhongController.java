@@ -7,6 +7,7 @@ import com.example.datn.dto.response.NhanVienResponse;
 import com.example.datn.dto.response.VatTuResponseByNVT;
 import com.example.datn.dto.response.XepPhongResponse;
 import com.example.datn.service.KiemTraPhongService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,7 +32,7 @@ public class KiemTraPhongController {
     }
 
     @PostMapping("/kiem-tra")
-    public ResponseData<KiemTraPhongResponse> kiemTraPhong(@RequestBody KiemTraPhongRequest request) {
+    public ResponseData<KiemTraPhongResponse> kiemTraPhong(@RequestBody @Valid KiemTraPhongRequest request) {
         log.info("Kiểm tra phòng: ID Xếp Phòng = {}, ID Nhân viên = {}",
                 request.getIdXepPhong(), request.getIdNhanVien());
         KiemTraPhongResponse response = this.kiemTraPhongService.performRoomCheck(request);

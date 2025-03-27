@@ -1,6 +1,5 @@
 package com.example.datn.service.IMPL;
 
-import com.example.datn.dto.request.TraPhongRequest;
 import com.example.datn.dto.response.TraPhongResponse;
 import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.exception.RoomNotCheckedException;
@@ -18,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-@Slf4j
+@Slf4j(topic = "TRA_PHONG_SERVICE")
 public class TraPhongServiceImpl implements TraPhongService {
     TraPhongRepository traPhongRepository;
     XepPhongRepository xepPhongRepository;
@@ -41,41 +41,8 @@ public class TraPhongServiceImpl implements TraPhongService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public TraPhongResponse createTraPhong(TraPhongRequest request) {
-        XepPhong xepPhong = xepPhongRepository.findById(request.getIdXepPhong())
-                .orElseThrow(() -> new EntityNotFountException("Không tìm thấy xếp phòng"));
-
-        TraPhong traPhong = new TraPhong();
-        traPhong.setXepPhong(xepPhong);
-        traPhong.setNgayTraThucTe(LocalDateTime.now());
-        traPhong.setTrangThai(true);
-
-        return convertToTraPhongResponse(traPhongRepository.save(traPhong));
-    }
-
-//    @Override
-//    public TraPhong checkOut(String maThongTinDatPhong) {
-//        XepPhong xepPhong = xepPhongRepository.getByMaTTDP(maThongTinDatPhong);
-//
-//        if (xepPhong == null) {
-//            throw new EntityNotFountException("Không tìm thấy thông tin đặt phòng với mã: " + maThongTinDatPhong);
-//        }
-//
-//        Optional<TraPhong> existingTraPhong = traPhongRepository.findByXepPhong(xepPhong);
-//        if (existingTraPhong.isPresent()) {
-//            return existingTraPhong.get();
-//        }
-//
-//        TraPhong traPhong = new TraPhong();
-//        traPhong.setXepPhong(xepPhong);
-//        traPhong.setNgayTraThucTe(LocalDateTime.now());
-//        traPhong.setTrangThai(false);
-//        return traPhongRepository.save(traPhong);
-//    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
     public TraPhong checkOutById(Integer idTraPhong) {
+        log.info("================ Start checkOutById ================");
         TraPhong traPhong = traPhongRepository.findById(idTraPhong)
                 .orElseThrow(() -> new EntityNotFountException("Không tìm thấy trả phòng có id: " + idTraPhong));
 
@@ -93,7 +60,7 @@ public class TraPhongServiceImpl implements TraPhongService {
         ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
         DatPhong datPhong = thongTinDatPhong.getDatPhong();
 
-        thongTinDatPhong.setTrangThai("Da tra phong");
+        thongTinDatPhong.setTrangThai("Đã trả phòng");
         datPhong.setTrangThai("Đã trả phòng");
         xepPhong.setTrangThai(false);
 
@@ -104,40 +71,18 @@ public class TraPhongServiceImpl implements TraPhongService {
         return traPhongRepository.save(traPhong);
     }
 
-//    @Override
-//    public List<TraPhongResponse> checkOutByKey(String key) {
-//        return xepPhongRepository.findByKey(key).stream()
-//                .map(xepPhong -> {
-//                    // Kiểm tra và lấy hoặc tạo TraPhong
-//                    Optional<TraPhong> existingTraPhong = traPhongRepository.findByXepPhong(xepPhong);
-//                    TraPhong traPhong;
-//                    if (existingTraPhong.isPresent()) {
-//                        traPhong = existingTraPhong.get();
-//                    } else {
-//                        traPhong = new TraPhong();
-//                        traPhong.setXepPhong(xepPhong);
-//                        traPhong.setNgayTraThucTe(LocalDateTime.now());
-//                        traPhong.setTrangThai(false);
-//                        traPhong = traPhongRepository.save(traPhong);
-//                    }
-//
-//                    // Lấy thông tin kiểm tra phòng
-//                    KiemTraPhong kiemTraPhong = kiemTraPhongRepository.findByXepPhongId(xepPhong.getId()).orElse(null);
-//                    return convertToTraPhongResponse(traPhong, xepPhong, kiemTraPhong);
-//                })
-//                .distinct()
-//                .collect(Collectors.toList());
-//    }
-
     @Override
     public List<TraPhongResponse> checkOutByKey(String key) {
-        return xepPhongRepository.findByKey(key).stream()
+        log.info("================ Start checkOutByKey ===============");
+        List<String> trangThaiThongTinDatPhong = new ArrayList<>();
+        trangThaiThongTinDatPhong.add("Đang ở");
+        trangThaiThongTinDatPhong.add("Đã kiểm tra phòng");
+        return xepPhongRepository.findByKey(key, trangThaiThongTinDatPhong).stream()
                 .map(xepPhong -> {
                     Optional<TraPhong> existingTraPhong = traPhongRepository.findByXepPhong(xepPhong);
                     TraPhong traPhong;
                     if (existingTraPhong.isPresent()) {
                         traPhong = existingTraPhong.get();
-                        // Đảm bảo XepPhong được tải
                         if (traPhong.getXepPhong() == null) {
                             log.warn("TraPhong ID {} thiếu XepPhong, gán lại.", traPhong.getId());
                             traPhong.setXepPhong(xepPhong);
