@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { findTTDPS } from "../../services/TTDP";
 import {
   Container,
   Box,
@@ -21,7 +20,6 @@ import {
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import { useNavigate } from "react-router-dom";
@@ -31,6 +29,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { huyTTDP } from "../../services/TTDP";
 import { findDatPhongToCheckin } from "../../services/DatPhong";
+import { checkIn, phongDaXep } from "../../services/XepPhongService";
+import { ThemPhuThu } from "../../services/PhuThuService";
+import XepPhong from "../../components/XepPhong/XepPhong"; // Thêm import modal XepPhong
 
 const Checkin = () => {
   const navigate = useNavigate();
@@ -41,14 +42,15 @@ const Checkin = () => {
   const [ngayNhan, setNgayNhan] = useState(null);
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
-  const [page, setPage] = useState(0); // Trang hiện tại (bắt đầu từ 0)
-  const [totalPages, setTotalPages] = useState(0); // Tổng số trang
-  const pageSize = 5; // Số mục trên mỗi trang
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = "";
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showXepPhongModal, setShowXepPhongModal] = useState(false); // Thêm state cho modal
 
   const searchDatPhong = (key, currentPage) => {
     const pageable = { page: currentPage, size: pageSize };
-    findDatPhongToCheckin(key, pageable) // Sửa lại để chỉ truyền 2 tham số
+    findDatPhongToCheckin(pageable, key)
       .then((res) => {
         console.log(res.data);
         setDatPhong(res.data.content || []);
@@ -61,15 +63,16 @@ const Checkin = () => {
   };
 
   useEffect(() => {
+    searchDatPhong(key, page); // Gọi lần đầu khi component mount
     const intervalId = setInterval(() => {
       searchDatPhong(key, page);
     }, 3000); // Làm mới mỗi 3 giây
     return () => clearInterval(intervalId);
-  }, [ngayNhan, ngayTra, key, page]);
+  }, [key, page]); // Loại bỏ ngayNhan, ngayTra khỏi dependency nếu không dùng
 
   const handlePageChange = (event, newPage) => {
-    setPage(newPage - 1); // Chuyển đổi từ 1-based (Pagination) sang 0-based (API)
-    searchDatPhong(key, newPage - 1); // Tải dữ liệu trang mới
+    setPage(newPage - 1); // Chuyển từ 1-based sang 0-based
+    searchDatPhong(key, newPage - 1);
   };
 
   const handleViewDetails = (maDatPhong) => {
@@ -87,7 +90,7 @@ const Checkin = () => {
     if (confirmCancel) {
       huyTTDP(maThongTinDatPhong)
         .then(() => {
-          searchDatPhong(key, page); // Cập nhật lại danh sách sau khi hủy
+          searchDatPhong(key, page); // Cập nhật lại danh sách
           console.log(`Đã hủy TTDP: ${maThongTinDatPhong}`);
         })
         .catch((err) => {
@@ -96,11 +99,69 @@ const Checkin = () => {
     }
   };
 
-  const handleCheckin = (ttdp) => {
-    console.log("Checkin:", ttdp);
+  const handleCheckin = async (dp) => {
+    try {
+      let xepPhong = (await phongDaXep(dp.maThongTinDatPhong)).data;
+      if (!xepPhong) {
+        alert("Không tìm thấy phòng đã xếp.");
+        return;
+      }
+
+      const loaiPhong = xepPhong.phong.loaiPhong;
+      const xepPhongRequest = {
+        id: xepPhong.id,
+        phong: xepPhong.phong,
+        thongTinDatPhong: xepPhong.thongTinDatPhong,
+        ngayNhanPhong: new Date(),
+        ngayTraPhong: new Date(new Date(dp.ngayTraPhong).setHours(12, 0, 0, 0)),
+        trangThai: "Dang o", // Cập nhật trạng thái khi check-in
+      };
+      await checkIn(xepPhongRequest);
+      alert("Check-in thành công!");
+
+      xepPhong = (await phongDaXep(dp.maThongTinDatPhong)).data;
+      const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
+      const gio14Chieu = new Date(ngayNhanPhongXepPhong);
+      gio14Chieu.setHours(14, 0, 0, 0);
+
+      if (ngayNhanPhongXepPhong < gio14Chieu) {
+        const phuThuRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: "Phụ thu do nhận phòng sớm",
+          tienPhuThu: 50000,
+          soLuong: 1,
+          trangThai: true,
+        };
+        await ThemPhuThu(phuThuRequest);
+        alert("Phụ thu do nhận phòng sớm đã được thêm.");
+      }
+
+      if (dp.soNguoi > loaiPhong.soKhachToiDa) {
+        const soNguoiVuot = dp.soNguoi - loaiPhong.soKhachToiDa;
+        const tienPhuThuThem = soNguoiVuot * loaiPhong.donGiaPhuThu;
+        const phuThuThemRequest = {
+          xepPhong: { id: xepPhong.id },
+          tenPhuThu: `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người)`,
+          tienPhuThu: tienPhuThuThem,
+          soLuong: 1,
+          trangThai: true,
+        };
+        await ThemPhuThu(phuThuThemRequest);
+        alert(
+          `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`
+        );
+      }
+    } catch (error) {
+      console.error("Lỗi xảy ra khi check-in:", error);
+      alert("Đã xảy ra lỗi khi thực hiện check-in.");
+    }
+    searchDatPhong(key, page); // Cập nhật danh sách sau check-in
   };
 
-  const phongData = {};
+  const handleAssign = (dp) => {
+    setSelectedTTDPs([dp]);
+    setShowXepPhongModal(true);
+  };
 
   return (
     <Container sx={{ minWidth: "1300px" }}>
@@ -225,7 +286,7 @@ const Checkin = () => {
                       slotProps={{
                         textField: {
                           fullWidth: true,
-                          size:"medium",
+                          size: "medium",
                           sx: {
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -273,7 +334,9 @@ const Checkin = () => {
                       {dp.maDatPhong}
                     </Typography>
                   </TableCell>
-                  <TableCell>{dp.khachHang.ho + " " + dp.khachHang.ten}</TableCell>
+                  <TableCell>
+                    {dp.khachHang.ho + " " + dp.khachHang.ten}
+                  </TableCell>
                   <TableCell>{dp.khachHang.sdt}</TableCell>
                   <TableCell>{dp.soNguoi}</TableCell>
                   <TableCell>{dp.soPhong}</TableCell>
@@ -286,10 +349,7 @@ const Checkin = () => {
                       {dp.trangThai === "Chua xep" && (
                         <IconButton
                           size="small"
-                          onClick={() => {
-                            setSelectedTTDPs([dp]);
-                            setShowXepPhongModal(true);
-                          }}
+                          onClick={() => handleAssign(dp)}
                         >
                           <MeetingRoomIcon />
                         </IconButton>
@@ -317,6 +377,17 @@ const Checkin = () => {
               ))}
             </TableBody>
           </Table>
+          {/* Pagination Section */}
+          {totalPages > 0 && (
+            <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+              <Pagination
+                count={totalPages}
+                page={page + 1}
+                onChange={handlePageChange}
+                color="primary"
+              />
+            </Box>
+          )}
         </TableContainer>
       ) : (
         <Typography variant="h6" align="center" sx={{ mt: 4 }}>
@@ -324,17 +395,12 @@ const Checkin = () => {
         </Typography>
       )}
 
-      {/* Pagination Section */}
-      {totalPages > 0 && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-          <Pagination
-            count={totalPages} // Tổng số trang từ API
-            page={page + 1} // Chuyển từ 0-based sang 1-based cho Pagination
-            onChange={handlePageChange}
-            color="primary"
-          />
-        </Box>
-      )}
+      {/* Modal Xếp Phòng */}
+      <XepPhong
+        show={showXepPhongModal}
+        handleClose={() => setShowXepPhongModal(false)}
+        selectedTTDPs={selectedTTDPs}
+      />
     </Container>
   );
 };

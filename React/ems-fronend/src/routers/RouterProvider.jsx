@@ -11,8 +11,7 @@ import ListPhong from '../components/Phong/ListPhong';
 import Phong from '../components/Phong/Phong';
 import ListImage from '../components/HinhAnh/ListImage';
 import HinhAnh from '../components/HinhAnh/HinhAnh';
-import QuanLyDatPhong from '../components/DatPhong/QuanLyDatPhong';
-import BookingForm from '../components/DatPhong/BookingForm';
+import QuanLyDatPhongCu from '../pages/quanlydatphong/QuanLyDatPhongCu';
 import TaoDatPhong from '../pages/datphong/TaoDatPhong';
 import ChiTietDatPhong from '../components/DatPhong/ChiTietDatPhong';
 import ChiTietTTDP from '../components/DatPhong/ChiTietTTDP';
@@ -38,8 +37,8 @@ import CreateKiemTraPhong from '../components/kiemTraPhong/CreateKiemTraPhong';
 import ViewPhong from "../components/TrangChu/ViewPhong";
 import { XoaDichVuDiKem } from "../services/DichVuDiKemService";
 import DatPhong from '../pages/datphong/DatPhong'
-import ThongTinDatPhong from '../components/ThongTinDatPhong/ThongTinDatPhong';
-import Checkin from '../components/Checkin/Checkin';
+import QuanLyDatPhong from '../pages/quanlydatphong/QuanLyDatPhong';
+import Checkin from '../pages/checkin/Checkin';
 function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
   const UnauthorizedRoutes = () => {
     const accessToken = localStorage.getItem('accessToken');
@@ -98,8 +97,6 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/hinh-anh" element={<ListImage />} />
         <Route path="/add-hinh-anh" element={<HinhAnh />} />
         <Route path="/TrangChu" element={<ViewPhong />} />
-        <Route path="/quan-ly-dat-phong" element={<QuanLyDatPhong />} />
-        <Route path="/giao-dien-tao-dp" element={<BookingForm />} />
         <Route path="/tao-dat-phong" element={<TaoDatPhong />} />
         <Route path="/thong-tin-dat-phong" element={<ChiTietDatPhong />} />
         <Route path="/chi-tiet-ttdp" element={<ChiTietTTDP />} />
@@ -121,7 +118,7 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/kiem-tra-phong" element={<KiemTraPhong />} />
         <Route path="/tao-kiem-tra-phong/:idXepPhong" element={<CreateKiemTraPhong />} />
         <Route path="/dat-phong" element={<DatPhong/>}/>
-        <Route path="/thong-tin-dat-phong-search" element={<ThongTinDatPhong/>}/>
+        <Route path="/quan-ly-dat-phong" element={<QuanLyDatPhong/>}/>
         <Route path="/nhan-phong" element={<Checkin/>}/>
       </Route>
     </Routes>

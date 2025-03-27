@@ -30,11 +30,31 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
     DatPhongResponse findByIdDatPhong(@Param("id") Integer id);
 
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, " +
-            "dp.maDatPhong,dp.soNguoi,dp.soPhong, dp.ngayDat , dp.tongTien, dp.ghiChu, dp.trangThai) " +
-            " FROM DatPhong dp " +
-            " WHERE dp.trangThai IN :trangThai" +
-            " ORDER BY dp.ngayDat DESC")
-    Page<DatPhongResponse> DatPhongTheoTrangThai(@Param("trangThai") List<String> trangThai, Pageable pageable);
+            "dp.maDatPhong, dp.soNguoi, dp.soPhong, dp.ngayDat, dp.tongTien, dp.ghiChu, dp.trangThai) " +
+            "FROM DatPhong dp " +
+            "WHERE dp.trangThai IN :trangThai " +
+            "AND (dp.khachHang.sdt LIKE :key " +
+            "OR dp.khachHang.ho LIKE :key " +
+            "OR dp.khachHang.ten LIKE :key " +
+            "OR CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten) LIKE :key " +
+            "OR dp.maDatPhong LIKE :key) " +
+            "ORDER BY dp.ngayDat DESC")
+    Page<DatPhongResponse> DatPhongTheoTrangThai(
+            @Param("trangThai") List<String> trangThai,
+            @Param("key") String key,
+            Pageable pageable);
+
+    @Query("SELECT dp FROM DatPhong dp " +
+            "WHERE dp.trangThai IN :trangThai " +
+            "AND (dp.khachHang.sdt LIKE :key " +
+            "OR dp.khachHang.ho LIKE :key " +
+            "OR dp.khachHang.ten LIKE :key " +
+            "OR CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten) LIKE :key " +
+            "OR dp.maDatPhong LIKE :key) " +
+            "ORDER BY dp.ngayDat DESC")
+    List<DatPhong> findDatPhongByTrangThais(
+            @Param("trangThai") List<String> trangThai,
+            @Param("key") String key);
 
     @Query("SELECT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, " +
             "dp.maDatPhong,dp.soNguoi,dp.soPhong, dp.ngayDat , dp.tongTien, dp.ghiChu, dp.trangThai) " +

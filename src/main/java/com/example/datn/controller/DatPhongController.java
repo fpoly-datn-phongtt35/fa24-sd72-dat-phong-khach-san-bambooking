@@ -14,10 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -65,13 +67,13 @@ public class DatPhongController {
         return ResponseEntity.status(HttpStatus.OK).body(datPhongServiceIMPL.updateDatPhong(datPhongRequest));
     }
 
-    @GetMapping("bo-loc")
-    public ResponseEntity<?> HienThiTheoLoc(
-            @RequestParam() List<String> trangThai,
-            Pageable pageable) {
-        Page<DatPhongResponse> dp = datPhongServiceIMPL.LocTheoTrangThai(trangThai, pageable);
-        return ResponseEntity.ok(dp);
-    }
+//    @GetMapping("bo-loc")
+//    public ResponseEntity<?> HienThiTheoLoc(
+//            @RequestParam() List<String> trangThai,
+//            Pageable pageable) {
+//        Page<DatPhongResponse> dp = datPhongServiceIMPL.LocTheoTrangThai(trangThai, pageable);
+//        return ResponseEntity.ok(dp);
+//    }
 
     @GetMapping("tim-kiem")
     public ResponseEntity<?> HienThiTimKiem(
@@ -121,9 +123,25 @@ public class DatPhongController {
     }
 
     @GetMapping("dat-phong-to-checkin")
-    public ResponseEntity<?> findDatPhongToCheckin(Pageable pageable) {
-        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(pageable);
+    public ResponseEntity<?> findDatPhongToCheckin(@RequestParam("key") String key,
+                                                   @RequestParam(value = "page", defaultValue = "0") int page,
+                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
+        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(key, page, size);
         return ResponseEntity.status(HttpStatus.OK).body(responses);
+    }
+
+    @GetMapping("danh-sach-dat-phong")
+    public ResponseEntity<Page<DatPhongResponse>> findDatPhong(
+            @RequestParam(value = "key", defaultValue = "") String key,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "ngayNhanPhong", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+            @RequestParam(value = "ngayTraPhong", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong) {
+        Page<DatPhongResponse> result = datPhongServiceIMPL.findDatPhong(
+                key, ngayNhanPhong, ngayTraPhong, page, size);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/to-hop-loai-phong-kha-dung")

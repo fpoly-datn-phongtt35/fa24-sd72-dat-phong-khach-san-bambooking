@@ -15,6 +15,8 @@ const apiToHopLoaiPhong =
 const apiFindByKey = "http://localhost:8080/dat-phong/findAll";
 const apiFindDatPhongToCheckin =
   "http://localhost:8080/dat-phong/dat-phong-to-checkin";
+const apiFindDatPhong = "http://localhost:8080/dat-phong/danh-sach-dat-phong";
+
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
   return authorizedAxiosInstance.get(apiDP, {
@@ -135,11 +137,32 @@ export const findDatPhongByKey = (keyword, pageable) => {
   });
 };
 
-export const findDatPhongToCheckin = (pageable) => {
+export const findDatPhongToCheckin = (pageable, key) => {
   return authorizedAxiosInstance.get(apiFindDatPhongToCheckin, {
     params: {
       size: pageable.size,
       page: pageable.page,
+      key: key,
     },
   });
+};
+
+export const findDatPhong = async (key, ngayNhanPhong, ngayTraPhong, pageable) => {
+  try {
+    return await authorizedAxiosInstance
+      .get(apiFindDatPhong, {
+        params: {
+          key: key || "",
+          ngayNhanPhong: ngayNhanPhong
+            ? ngayNhanPhong.format("YYYY-MM-DD")
+            : null,
+          ngayTraPhong: ngayTraPhong ? ngayTraPhong.format("YYYY-MM-DD") : null,
+          page: pageable.page,
+          size: pageable.size,
+        },
+      });
+  } catch (error) {
+    console.error("Error in findDatPhong:", error);
+    throw error; // Ném lỗi để component xử lý
+  }
 };

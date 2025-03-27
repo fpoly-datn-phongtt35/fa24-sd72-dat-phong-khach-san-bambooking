@@ -12,14 +12,15 @@ import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.service.DatPhongService;
 import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
 
 @Service
 public class DatPhongServiceIMPL implements DatPhongService {
@@ -74,11 +75,11 @@ public class DatPhongServiceIMPL implements DatPhongService {
     }
 
     @Override
-    public Page<DatPhongResponse> LocTheoTrangThai(List<String> trangThai, Pageable pageable) {
+    public Page<DatPhongResponse> LocTheoTrangThai(List<String> trangThai,String key, Pageable pageable) {
         if (trangThai == null || trangThai.isEmpty()) {
             return datPhongRepository.findAllDP(pageable);
         } else {
-            return datPhongRepository.DatPhongTheoTrangThai(trangThai, pageable);
+            return datPhongRepository.DatPhongTheoTrangThai(trangThai,key, pageable);
         }
     }
 
@@ -152,9 +153,92 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhongRepository.deleteById(iddp);
     }
 
-    public  Page<DatPhongResponse> findDatPhongToCheckin(Pageable pageable){
+    public  Page<DatPhongResponse> findDatPhongToCheckin(String key, int page, int size){
         List<String> trangThai = new ArrayList<>();
         trangThai.add("Đã xác nhận");
-        return datPhongRepository.DatPhongTheoTrangThai(trangThai,pageable);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<DatPhongResponse> result = datPhongRepository.DatPhongTheoTrangThai(trangThai,key,pageable);
+        return result;
     }
+
+    public Page<DatPhongResponse> findDatPhong(String key, LocalDate ngayNhanPhong, LocalDate ngayTraPhong, int page, int size) {
+        System.out.println("test: " + ngayNhanPhong);
+        List<String> trangThai = new ArrayList<>();
+        trangThai.add("Đang đặt phòng");
+        trangThai.add("Đã xác nhận");
+        trangThai.add("Đã nhận phòng");
+        trangThai.add("Đã trả phòng");
+        trangThai.add("Đã thanh toán");
+        Pageable pageable = PageRequest.of(page, size);
+        Page<DatPhongResponse> result = datPhongRepository.DatPhongTheoTrangThai(trangThai, key, pageable);
+        List<DatPhongResponse> filteredList = new ArrayList<>();
+        List<String> ttXepPhong = Arrays.asList("Chua xep", "Da xep");
+
+        for (DatPhongResponse dpr : result.getContent()) {
+            List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByDatPhongId(dpr.getId(), ttXepPhong);
+            if (ttdps.isEmpty()) {
+                continue; // Bỏ qua nếu không có ThongTinDatPhong
+            }
+
+            for (ThongTinDatPhong ttdp : ttdps) {
+                // Giả định getNgayNhanPhong và getNgayTraPhong trả về LocalDateTime
+                LocalDate ttdpNgayNhanTime = ttdp.getNgayNhanPhong();
+                LocalDate ttdpNgayTraTime = ttdp.getNgayTraPhong();
+
+                // Chuyển về LocalDate để so sánh
+                LocalDate ttdpNgayNhan = ttdpNgayNhanTime != null ? ttdpNgayNhanTime : null;
+                LocalDate ttdpNgayTra = ttdpNgayTraTime != null ? ttdpNgayTraTime : null;
+
+                System.out.println("ttdpNgayNhan: " + ttdpNgayNhan + ", ttdpNgayTra: " + ttdpNgayTra);
+
+                boolean isWithinRange =
+                        (ngayNhanPhong == null || (ttdpNgayNhan != null && !ttdpNgayNhan.isBefore(ngayNhanPhong))) &&
+                                (ngayTraPhong == null || (ttdpNgayTra != null && !ttdpNgayTra.isAfter(ngayTraPhong)));
+
+                if (isWithinRange) {
+                    filteredList.add(dpr);
+                    break;
+                }
+            }
+        }
+
+        // Sử dụng totalElements từ result gốc để giữ nguyên tổng số bản ghi
+        return new PageImpl<>(filteredList, pageable, result.getTotalElements());
+    }
+
+//    public void updateTrangThaiDatPhong() {
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        for (DatPhong dp : datPhongs) {
+//            List<String> trangThaiTTDPs = Arrays.asList("Chua xep", "Da xep", "Dang o");
+//            List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByDatPhongId(dp.getId(),trangThaiTTDPs);
+//            for(ThongTinDatPhong ttdp : ttdps) {
+//                String status = "";
+//                if(ttdp.getTrangThai().equalsIgnoreCase("Chua xep")){
+//                    status = "Cần xếp phòng";
+//                }
+//            }
+//
+//            String currentTrangThai = dp.getTrangThai();
+//            String newTrangThai = currentTrangThai;
+//
+//            // Logic cập nhật trạng thái
+//            if ("Chua xep".equals(currentTrangThai)) {
+//                if (now.isAfter(dp.getNgayNhanPhong())) {
+//                    newTrangThai = "Dang o"; // Nếu đã qua giờ nhận phòng
+//                }
+//            } else if ("Dang o".equals(currentTrangThai)) {
+//                if (now.isAfter(dp.getNgayTraPhong())) {
+//                    newTrangThai = "Da tra phong"; // Nếu đã qua giờ trả phòng
+//                }
+//            }
+//
+//            // Nếu trạng thái thay đổi, cập nhật và gửi thông báo
+//            if (!newTrangThai.equals(currentTrangThai)) {
+//                dp.setTrangThai(newTrangThai);
+//                datPhongRepository.save(dp);
+//                sendTrangThaiUpdate(dp); // Gửi thông báo qua WebSocket
+//            }
+//        }
+//    }
 }

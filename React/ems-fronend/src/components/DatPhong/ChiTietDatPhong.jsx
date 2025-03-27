@@ -144,8 +144,8 @@ const ChiTietDatPhong = () => {
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('vi-VN', options);
+    const options = { year: "numeric", month: "numeric", day: "numeric" };
+    return new Date(dateString).toLocaleDateString("vi-VN", options);
   };
 
   const handleCheckin = async (thongTinDatPhong) => {
@@ -225,10 +225,15 @@ const ChiTietDatPhong = () => {
         return "error";
       case "Cho nhan phong":
         return "warning";
+      case "Dang dat phong":
+        return "info"; // Thêm màu cho trạng thái "Đang đặt phòng"
       default:
         return "default";
     }
   };
+
+  // Kiểm tra nếu có bất kỳ thongTinDatPhong nào đang ở trạng thái "Dang dat phong"
+  const isDangDatPhong = thongTinDatPhong.some((ttdp) => ttdp.trangThai === "Dang dat phong");
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -238,7 +243,7 @@ const ChiTietDatPhong = () => {
           Chi Tiết Đặt Phòng
         </Typography>
       </Box>
-      
+
       <Divider sx={{ mb: 4 }} />
 
       {/* Thông tin tổng quan */}
@@ -336,7 +341,7 @@ const ChiTietDatPhong = () => {
           <Typography variant="h6" color="primary">Danh sách phòng đặt</Typography>
         </Box>
       </Box>
-      
+
       <TableContainer component={Paper} elevation={3} sx={{ mb: 3 }}>
         <Table>
           <TableHead>
@@ -352,6 +357,7 @@ const ChiTietDatPhong = () => {
                       setSelectedTTDPs([...thongTinDatPhong]);
                     }
                   }}
+                  disabled={isDangDatPhong} // Vô hiệu hóa checkbox nếu có trạng thái "Đang đặt phòng"
                 />
               </TableCell>
               <TableCell><Typography sx={{ fontWeight: "bold", color: "primary.contrastText" }}>Mã TTDP</Typography></TableCell>
@@ -368,8 +374,8 @@ const ChiTietDatPhong = () => {
           <TableBody>
             {thongTinDatPhong.length > 0 ? (
               thongTinDatPhong.map((ttdp) => (
-                <TableRow 
-                  key={ttdp.id} 
+                <TableRow
+                  key={ttdp.id}
                   hover
                   sx={{
                     "&:hover": {
@@ -381,12 +387,13 @@ const ChiTietDatPhong = () => {
                     <Checkbox
                       checked={selectedTTDPs.includes(ttdp)}
                       onChange={() => handleCheckboxChange(ttdp)}
+                      disabled={ttdp.trangThai === "Dang dat phong"} // Vô hiệu hóa checkbox riêng nếu trạng thái là "Đang đặt phòng"
                     />
                   </TableCell>
                   <TableCell
                     onClick={() => handleTTDPClick(ttdp.maThongTinDatPhong)}
-                    sx={{ 
-                      color: "primary.main", 
+                    sx={{
+                      color: "primary.main",
                       cursor: "pointer",
                       fontWeight: "medium",
                       "&:hover": {
@@ -398,18 +405,18 @@ const ChiTietDatPhong = () => {
                   </TableCell>
                   <TableCell>{ttdp?.datPhong?.khachHang?.ho} {ttdp?.datPhong?.khachHang?.ten}</TableCell>
                   <TableCell>
-                    <Chip 
-                      size="small" 
-                      label={ttdp.soNguoi} 
+                    <Chip
+                      size="small"
+                      label={ttdp.soNguoi}
                       variant="outlined"
                     />
                   </TableCell>
                   <TableCell>
-                    {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong || 
-                      <Chip 
-                        size="small" 
+                    {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong ||
+                      <Chip
+                        size="small"
                         label={ttdp.loaiPhong.tenLoaiPhong}
-                        color="info" 
+                        color="info"
                         variant="outlined"
                       />
                     }
@@ -436,6 +443,7 @@ const ChiTietDatPhong = () => {
                             color="primary"
                             onClick={() => openXepPhongModal(ttdp)}
                             startIcon={<MeetingRoomIcon />}
+                            disabled={ttdp.trangThai === "Đang đặt phòng"} // Vô hiệu hóa nút Xếp phòng
                           >
                             Xếp phòng
                           </Button>
@@ -446,7 +454,10 @@ const ChiTietDatPhong = () => {
                           color="success"
                           onClick={() => handleCheckin(ttdp)}
                           size="small"
-                          disabled={!phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong}
+                          disabled={
+                            !phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong ||
+                            ttdp.trangThai === "Đang đặt phòng" // Vô hiệu hóa nút Check-in
+                          }
                         >
                           <CheckCircleIcon />
                         </IconButton>
@@ -468,15 +479,15 @@ const ChiTietDatPhong = () => {
 
       {/* Nút hành động */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
-        <Button 
-          variant="outlined" 
+        <Button
+          variant="outlined"
           onClick={() => navigate(-1)}
         >
           Quay lại
         </Button>
-        <Button 
-          variant="contained" 
-          color="primary" 
+        <Button
+          variant="contained"
+          color="primary"
           onClick={updateDatPhong}
           startIcon={<AssignmentIcon />}
         >
@@ -487,7 +498,7 @@ const ChiTietDatPhong = () => {
           color="success"
           startIcon={<CheckCircleIcon />}
           onClick={() => selectedTTDPs.forEach((ttdp) => handleCheckin(ttdp))}
-          disabled={selectedTTDPs.length === 0}
+          disabled={selectedTTDPs.length === 0 || isDangDatPhong}
         >
           Check-in {selectedTTDPs.length > 0 ? `(${selectedTTDPs.length})` : ""}
         </Button>
@@ -496,7 +507,7 @@ const ChiTietDatPhong = () => {
           color="secondary"
           startIcon={<MeetingRoomIcon />}
           onClick={() => setShowXepPhongModal(true)}
-          disabled={selectedTTDPs.length === 0}
+          disabled={selectedTTDPs.length === 0 || isDangDatPhong}
         >
           Xếp phòng {selectedTTDPs.length > 0 ? `(${selectedTTDPs.length})` : ""}
         </Button>
@@ -512,12 +523,12 @@ const ChiTietDatPhong = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbar.severity} 
-          sx={{ width: '100%' }}
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbar.severity}
+          sx={{ width: "100%" }}
           variant="filled"
         >
           {snackbar.message}

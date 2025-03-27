@@ -83,12 +83,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
         if (ngayNhanPhong == null) {
             throw new IllegalArgumentException("Ngày nhận phòng không được null");
         }
-        LocalDateTime now = java.time.LocalDateTime.now();
-        if (ngayNhanPhong.isAfter(now)) {
-            throw new IllegalStateException("Chưa đến ngày nhận phòng vui lòng kiểm tra lại");
-        }
         System.out.println(ngayNhanPhong);
-        System.out.println(now);
         try {
             XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId())
                     .orElseGet(() -> this.addXepPhong(xepPhongRequest));

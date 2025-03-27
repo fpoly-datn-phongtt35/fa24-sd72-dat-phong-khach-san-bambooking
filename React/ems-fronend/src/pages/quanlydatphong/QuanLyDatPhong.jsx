@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { findTTDPS } from "../../services/TTDP";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Container,
   Box,
@@ -18,62 +17,65 @@ import {
   Input,
   Grid,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useNavigate } from "react-router-dom";
 import { useTheme, useMediaQuery } from "@mui/material";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import { findDatPhong } from "../../services/DatPhong";
 import { huyTTDP } from "../../services/TTDP";
-import XepPhong from "../XepPhong/XepPhong";
+import XepPhong from "../../components/XepPhong/XepPhong";
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
 import { ThemPhuThu } from "../../services/PhuThuService";
-const ThongTinDatPhong = () => {
+
+const QuanLyDatPhong = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
-  const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
+  const [datPhong, setDatPhong] = useState([]);
   const [ngayNhan, setNgayNhan] = useState(null);
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const pageSize = 5;
+  const [pageSize, setPageSize] = useState(10);
+  const [loading, setLoading] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [showXepPhongModal, setShowXepPhongModal] = useState(false);
 
-  const searchThongTinDatPhong = (ngayNhan, ngayTra, key, currentPage) => {
-    const pageable = { page: currentPage, size: pageSize };
-    const formattedNgayNhan = ngayNhan ? ngayNhan.format("YYYY-MM-DD") : "";
-    const formattedNgayTra = ngayTra ? ngayTra.format("YYYY-MM-DD") : "";
-    findTTDPS(formattedNgayNhan, formattedNgayTra, key, "", pageable)
-      .then((res) => {
-        console.log(res.data);
-        setThongTinDatPhong(res.data.content || []);
-        setTotalPages(res.data.totalPages || 0);
-      })
-      .catch((err) => {
-        console.error("Error fetching data:", err);
-        setThongTinDatPhong([]);
-      });
-  };
+  const searchDatPhong = useCallback(
+    (searchKey, ngayNhan, searchNgayTra, currentPage) => {
+      setLoading(true);
+      console.log("searchDatPhong", searchKey, ngayNhan, searchNgayTra);
+      const pageable = { page: currentPage, size: pageSize };
+      findDatPhong(searchKey, ngayNhan, searchNgayTra, pageable)
+        .then((res) => {
+          console.log(res.data);
+          setDatPhong(res.data.content || []);
+          setTotalPages(res.data.totalPages || 0);
+        })
+        .catch((err) => {
+          console.error("Error fetching data:", err);
+          setDatPhong([]);
+        })
+        .finally(() => setLoading(false));
+    },
+    [pageSize]
+  );
 
-  // useEffect(() => {
-  //   const intervalId = setInterval(() => {
-  //     searchThongTinDatPhong(ngayNhan, ngayTra, key, page);
-  //   }, 60000);
-  //   return () => clearInterval(intervalId);
-  // }, [ngayNhan, ngayTra, key, page]);
+  useEffect(() => {
+    searchDatPhong(key, ngayNhan, ngayTra, page);
+  }, [key, ngayNhan, ngayTra, page, searchDatPhong]);
 
   const handlePageChange = (event, newPage) => {
-    setPage(newPage - 1); // Chuyển từ 1-based (Pagination) sang 0-based (API)
-    searchThongTinDatPhong(ngayNhan, ngayTra, key, newPage - 1); // Tải dữ liệu trang mới
+    setPage(newPage - 1);
   };
 
   const handleViewDetails = (maDatPhong) => {
@@ -91,7 +93,7 @@ const ThongTinDatPhong = () => {
     if (confirmCancel) {
       huyTTDP(maThongTinDatPhong)
         .then(() => {
-          fetchThongTinDatPhong(page); // Cập nhật lại danh sách sau khi hủy
+          searchDatPhong(key, ngayNhan, ngayTra, page);
           console.log(`Đã hủy TTDP: ${maThongTinDatPhong}`);
         })
         .catch((err) => {
@@ -100,44 +102,30 @@ const ThongTinDatPhong = () => {
     }
   };
 
-  const fetchThongTinDatPhong = (currentPage) => {
-    searchThongTinDatPhong(ngayNhan, ngayTra, key, currentPage);
-  };
-
-  const handleCheckin = async (thongTinDatPhong) => {
-    console.log(thongTinDatPhong);
+  const handleCheckin = async (datPhongItem) => {
     try {
-      let xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
-      console.log("Phòng trước khi check-in:", xepPhong);
-
+      let xepPhong = (await phongDaXep(datPhongItem.maThongTinDatPhong)).data;
       if (!xepPhong) {
         alert("Không tìm thấy phòng đã xếp.");
         return;
       }
 
       const loaiPhong = xepPhong.phong.loaiPhong;
-      console.log("Loại phòng: ", loaiPhong);
-
       const xepPhongRequest = {
         id: xepPhong.id,
         phong: xepPhong.phong,
         thongTinDatPhong: xepPhong.thongTinDatPhong,
         ngayNhanPhong: new Date(),
-        ngayTraPhong: new Date(new Date(thongTinDatPhong.ngayTraPhong).setHours(12, 0, 0, 0)),
+        ngayTraPhong: new Date(
+          new Date(datPhongItem.ngayTraPhong).setHours(12, 0, 0, 0)
+        ),
         trangThai: xepPhong.trangThai,
       };
-      console.log("Đang thực hiện check-in với:", xepPhongRequest);
       await checkIn(xepPhongRequest);
       alert("Check-in thành công!");
 
-      xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
-      console.log("Phòng sau khi check-in:", xepPhong);
-
+      xepPhong = (await phongDaXep(datPhongItem.maThongTinDatPhong)).data;
       const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
-      console.log("Ngày nhận phòng sau cập nhật:", ngayNhanPhongXepPhong);
-      const ngayTraPhongXepPhong = new Date(xepPhong.ngayTraPhong);
-      console.log("Ngày trả phòng sau cập nhật:", ngayTraPhongXepPhong);
-
       const gio14Chieu = new Date(ngayNhanPhongXepPhong);
       gio14Chieu.setHours(14, 0, 0, 0);
 
@@ -149,16 +137,12 @@ const ThongTinDatPhong = () => {
           soLuong: 1,
           trangThai: true,
         };
-        console.log("Đang thêm phụ thu:", phuThuRequest);
-        const phuThuResponse = await ThemPhuThu(phuThuRequest);
-        console.log("Phụ thu được thêm:", phuThuResponse.data);
+        await ThemPhuThu(phuThuRequest);
         alert("Phụ thu do nhận phòng sớm đã được thêm.");
-      } else {
-        console.log("Không cần phụ thu: nhận phòng sau 14h.");
       }
 
-      if (thongTinDatPhong.soNguoi > loaiPhong.soKhachToiDa) {
-        const soNguoiVuot = thongTinDatPhong.soNguoi - loaiPhong.soKhachToiDa;
+      if (datPhongItem.soNguoi > loaiPhong.soKhachToiDa) {
+        const soNguoiVuot = datPhongItem.soNguoi - loaiPhong.soKhachToiDa;
         const tienPhuThuThem = soNguoiVuot * loaiPhong.donGiaPhuThu;
         const phuThuThemRequest = {
           xepPhong: { id: xepPhong.id },
@@ -167,23 +151,25 @@ const ThongTinDatPhong = () => {
           soLuong: 1,
           trangThai: true,
         };
-        console.log("Đang thêm phụ thu do vượt số khách tối đa:", phuThuThemRequest);
-        const phuThuThemResponse = await ThemPhuThu(phuThuThemRequest);
-        console.log("Phụ thu do vượt số khách tối đa đã được thêm:", phuThuThemResponse.data);
-        alert(`Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`);
+        await ThemPhuThu(phuThuThemRequest);
+        alert(
+          `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`
+        );
       }
     } catch (error) {
       console.error("Lỗi xảy ra:", error);
-      alert("Đã xảy ra lỗi khi thực hiện thao tác. Vui lòng kiểm tra lại.");
+      alert("Đã xảy ra lỗi khi thực hiện thao tác.");
     }
-    fetchThongTinDatPhong(page); // Sửa lỗi: loại bỏ tham số không cần thiết
+    searchDatPhong(key, ngayNhan, ngayTra, page);
   };
 
-  const phongData = {};
+  const handleAssign = (dp) => {
+    setSelectedTTDPs([dp]);
+    setShowXepPhongModal(true);
+  };
 
   return (
     <Container sx={{ minWidth: "1300px" }}>
-      {/* Search Section */}
       <Paper
         elevation={3}
         sx={{
@@ -203,7 +189,7 @@ const ThongTinDatPhong = () => {
             align="center"
             sx={{ fontWeight: "bold" }}
           >
-            Tra cứu thông tin đặt phòng
+            Tra cứu đặt phòng
           </Typography>
         </Box>
 
@@ -219,7 +205,7 @@ const ThongTinDatPhong = () => {
               placeholder="Nhập mã hoặc từ khóa..."
               value={key}
               onChange={(e) => setKey(e.target.value)}
-              startDecorator={<SearchIcon />}
+              startAdornment={<SearchIcon />}
               size="lg"
               sx={{ mb: { xs: 1, sm: 0 } }}
             />
@@ -227,7 +213,8 @@ const ThongTinDatPhong = () => {
               variant="contained"
               color="primary"
               size="large"
-              onClick={() => searchThongTinDatPhong(ngayNhan, ngayTra, key, 0)}
+              onClick={() => searchDatPhong(key, ngayNhan, ngayTra, 0)}
+              disabled={loading}
               sx={{
                 width: { xs: "100%", sm: "auto" },
                 minWidth: { sm: "120px" },
@@ -236,7 +223,11 @@ const ThongTinDatPhong = () => {
                 borderRadius: 1,
               }}
             >
-              Tìm kiếm
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Tìm kiếm"
+              )}
             </Button>
           </Stack>
 
@@ -272,7 +263,7 @@ const ThongTinDatPhong = () => {
                     <DateTimePicker
                       label="Ngày nhận phòng"
                       value={ngayNhan}
-                      minDate={dayjs()}
+                      // Bỏ minDate để cho phép chọn ngày quá khứ
                       onChange={(newValue) => {
                         setNgayNhan(newValue);
                         if (newValue && ngayTra && newValue.isAfter(ngayTra)) {
@@ -304,7 +295,7 @@ const ThongTinDatPhong = () => {
                       slotProps={{
                         textField: {
                           fullWidth: true,
-                          size:"medium",
+                          size: "medium",
                           sx: {
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -322,80 +313,72 @@ const ThongTinDatPhong = () => {
         </Box>
       </Paper>
 
-      {/* Table Section */}
-      {thongTinDatPhong.length > 0 ? (
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : datPhong.length > 0 ? (
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Đặt Phòng</TableCell>
-                <TableCell>Thông Tin Đặt Phòng</TableCell>
+                <TableCell>Mã Đặt Phòng</TableCell>
                 <TableCell>Khách Hàng</TableCell>
+                <TableCell>Số Điện Thoại</TableCell>
                 <TableCell>Số Người</TableCell>
-                <TableCell>Loại Phòng</TableCell>
-                <TableCell>Ngày Nhận</TableCell>
-                <TableCell>Ngày Trả</TableCell>
-                <TableCell>Giá Phòng</TableCell>
-                <TableCell>Trạng thái</TableCell>
+                <TableCell>Số Phòng</TableCell>
+                <TableCell>Ngày Đặt</TableCell>
+                <TableCell>Tổng Tiền</TableCell>
+                <TableCell>Ghi Chú</TableCell>
+                <TableCell>Trạng Thái</TableCell>
                 <TableCell>Hành Động</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {thongTinDatPhong.map((ttdp) => (
-                <TableRow key={ttdp.maThongTinDatPhong}>
+              {datPhong.map((dp) => (
+                <TableRow key={dp.maDatPhong}>
                   <TableCell>
                     <Typography
                       variant="body2"
                       sx={{ color: "blue", cursor: "pointer" }}
-                      onClick={() => handleViewDetails(ttdp.maDatPhong)}
+                      onClick={() => handleViewDetails(dp.maDatPhong)}
                     >
-                      {ttdp.maDatPhong}
+                      {dp.maDatPhong}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "blue", cursor: "pointer" }}
-                      onClick={() =>
-                        handleViewDetailsTTDPTTDP(ttdp.maThongTinDatPhong)
-                      }
-                    >
-                      {ttdp.maThongTinDatPhong}
-                    </Typography>
+                    {dp.khachHang.ho + " " + dp.khachHang.ten}
                   </TableCell>
-                  <TableCell>{ttdp.tenKhachHang}</TableCell>
-                  <TableCell>{ttdp.soNguoi}</TableCell>
-                  <TableCell>{ttdp.loaiPhong.tenLoaiPhong}</TableCell>
-                  <TableCell>{ttdp.ngayNhanPhong}</TableCell>
-                  <TableCell>{ttdp.ngayTraPhong}</TableCell>
-                  <TableCell>{ttdp.giaDat} VND</TableCell>
-                  <TableCell>{ttdp.trangThai}</TableCell>
+                  <TableCell>{dp.khachHang.sdt}</TableCell>
+                  <TableCell>{dp.soNguoi}</TableCell>
+                  <TableCell>{dp.soPhong}</TableCell>
+                  <TableCell>{dp.ngayDat}</TableCell>
+                  <TableCell>{dp.tongTien} VND</TableCell>
+                  <TableCell>{dp.ghiChu}</TableCell>
+                  <TableCell>{dp.trangThai}</TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={1}>
-                      {ttdp.trangThai === "Chua xep" && (
+                      {dp.trangThai === "Chua xep" && (
                         <IconButton
                           size="small"
-                          onClick={() => {
-                            setSelectedTTDPs([ttdp]);
-                            setShowXepPhongModal(true);
-                          }}
+                          onClick={() => handleAssign(dp)}
                         >
                           <MeetingRoomIcon />
                         </IconButton>
                       )}
-                      {ttdp.trangThai === "Da xep" && (
+                      {dp.trangThai === "Da xep" && (
                         <IconButton
                           size="small"
-                          onClick={() => handleCheckin(ttdp)}
+                          onClick={() => handleCheckin(dp)}
                         >
                           <CheckCircleIcon />
                         </IconButton>
                       )}
-                      {["Chua xep", "Da xep"].includes(ttdp.trangThai) && (
+                      {["Chua xep", "Da xep"].includes(dp.trangThai) && (
                         <IconButton
                           size="small"
                           color="error"
-                          onClick={() => handleHuyTTDP(ttdp.maThongTinDatPhong)}
+                          onClick={() => handleHuyTTDP(dp.maThongTinDatPhong)}
                         >
                           <RemoveCircleOutlineIcon />
                         </IconButton>
@@ -406,6 +389,17 @@ const ThongTinDatPhong = () => {
               ))}
             </TableBody>
           </Table>
+          {totalPages > 0 && !loading && (
+            <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+              <Pagination
+                count={totalPages}
+                page={page + 1}
+                onChange={handlePageChange}
+                color="primary"
+                disabled={loading}
+              />
+            </Box>
+          )}
         </TableContainer>
       ) : (
         <Typography variant="h6" align="center" sx={{ mt: 4 }}>
@@ -413,19 +407,6 @@ const ThongTinDatPhong = () => {
         </Typography>
       )}
 
-      {/* Pagination Section */}
-      {totalPages > 0 && (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-          <Pagination
-            count={totalPages}
-            page={page + 1}
-            onChange={handlePageChange}
-            color="primary"
-          />
-        </Box>
-      )}
-
-      {/* Modal Xếp Phòng */}
       <XepPhong
         show={showXepPhongModal}
         handleClose={() => setShowXepPhongModal(false)}
@@ -435,4 +416,4 @@ const ThongTinDatPhong = () => {
   );
 };
 
-export default ThongTinDatPhong;
+export default QuanLyDatPhong;

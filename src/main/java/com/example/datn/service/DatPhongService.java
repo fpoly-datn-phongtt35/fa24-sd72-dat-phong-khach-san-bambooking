@@ -16,7 +16,7 @@ public interface DatPhongService {
     List<DatPhong> getAll();
     DatPhongResponse addDatPhong(DatPhongRequest datPhongRequest);
     DatPhongResponse detailDatPhong(Integer id);
-    Page<DatPhongResponse> LocTheoTrangThai(List<String> trangThai,Pageable pageable);
+    Page<DatPhongResponse> LocTheoTrangThai(List<String> trangThai,String key,Pageable pageable);
     Page<DatPhongResponse> searchDatPhong(String keyword,LocalDateTime startDate,
             LocalDateTime endDate,Pageable pageable);
     DatPhong updateDatPhong(DatPhongRequest datPhongRequest);

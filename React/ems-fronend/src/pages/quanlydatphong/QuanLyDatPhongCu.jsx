@@ -26,12 +26,12 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom"; // Icon cho nút Xếp Phòng
 import { useNavigate } from "react-router-dom";
 import { findTTDPS, huyTTDP } from "../../services/TTDP";
-import XepPhong from "../XepPhong/XepPhong";
-import Checkin from "../Checkin/Checkin"; // Import modal Checkin
+import XepPhong from "../../components/XepPhong/XepPhong";
+import Checkin from "../checkin/Checkin"; // Import modal Checkin
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
 import { ThemPhuThu } from "../../services/PhuThuService";
 
-function QuanLyDatPhong() {
+const QuanLyDatPhongCu = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -504,4 +504,4 @@ function QuanLyDatPhong() {
   );
 }
 
-export default QuanLyDatPhong;
+export default QuanLyDatPhongCu;
