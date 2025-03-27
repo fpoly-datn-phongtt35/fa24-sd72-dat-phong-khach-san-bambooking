@@ -181,7 +181,6 @@ public class DatPhongServiceIMPL implements DatPhongService {
             }
 
             for (ThongTinDatPhong ttdp : ttdps) {
-                // Giả định getNgayNhanPhong và getNgayTraPhong trả về LocalDateTime
                 LocalDate ttdpNgayNhanTime = ttdp.getNgayNhanPhong();
                 LocalDate ttdpNgayTraTime = ttdp.getNgayTraPhong();
 

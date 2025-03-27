@@ -222,12 +222,15 @@ const TaoDatPhong = () => {
       }
       const thongTinDatPhongRequestList = [];
       ttdpData.forEach((room) => {
+        console.log("room", room);
         for (let i = 0; i < room.soPhong; i++) {
+          console.log(i);
+          console.log(room.soPhong);
           thongTinDatPhongRequestList.push({
-            id: room.id && i === 0 ? room.id : null,
+            id: room.id + i,
             datPhong: datPhongResponse.data,
             idLoaiPhong: room.loaiPhong.id,
-            maThongTinDatPhong: room.maThongTinDatPhong && i === 0 ? room.maThongTinDatPhong : null,
+            maThongTinDatPhong: room.maThongTinDatPhong,
             ngayNhanPhong: room.ngayNhanPhong,
             ngayTraPhong: room.ngayTraPhong,
             soNguoi: room.soNguoi,
