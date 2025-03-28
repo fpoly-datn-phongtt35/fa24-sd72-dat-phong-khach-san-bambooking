@@ -154,20 +154,18 @@ public class DatPhongServiceIMPL implements DatPhongService {
     }
 
     public  Page<DatPhongResponse> findDatPhongToCheckin(String key, int page, int size){
-        List<String> trangThai = new ArrayList<>();
-        trangThai.add("Đã xác nhận");
+        List<String> trangThai = Arrays.asList("Đã xác nhận");
         Pageable pageable = PageRequest.of(page, size);
         Page<DatPhongResponse> result = datPhongRepository.DatPhongTheoTrangThai(trangThai,key,pageable);
         return result;
     }
 
     public Page<DatPhongResponse> findDatPhong(String key, LocalDate ngayNhanPhong, LocalDate ngayTraPhong, int page, int size) {
-        System.out.println("test: " + ngayNhanPhong);
-        System.out.println("test1: " + ngayTraPhong);
+        List<String> trangThaiDP = Arrays.asList("Chưa xếp", "Đã xếp");
         List<String> trangThai = Arrays.asList("Đang đặt phòng", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
         Pageable pageable = PageRequest.of(page, size);
 
-        return datPhongRepository.findDatPhong(trangThai, key, ngayNhanPhong, ngayTraPhong, pageable);
+        return datPhongRepository.findDatPhong(trangThai, key, trangThaiDP, ngayNhanPhong, ngayTraPhong, pageable);
     }
 
 //    public void updateTrangThaiDatPhong() {

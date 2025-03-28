@@ -94,7 +94,8 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
     @Override
     public LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer idLoaiPhong) {
-        return loaiPhongRepository.LoaiPhongKhaDung1(ngayNhanPhong, ngayTraPhong, idLoaiPhong);
+        List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp","Đang ở");
+        return loaiPhongRepository.LoaiPhongKhaDung1(ngayNhanPhong, ngayTraPhong, idLoaiPhong,trangThaiTTDP);
     }
 
     @Override
@@ -112,40 +113,42 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
 
     //    Tuan Dat
-    public boolean KiemTraDon(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi) {
-        if (ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null) {
-            System.out.println(soNguoi);
-            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
-            Integer totalCap = 0;
-            for (LoaiPhongResponse lp : loaiPhongResponseList) {
-                totalCap += loaiPhongRepository.demSoPhongKhaDung(lp.getId(), ngayNhanPhong, ngayTraPhong);
-            }
-            System.out.println(totalCap);
-            return totalCap >= soNguoi;
-        }
-        return false;
-    }
-
-    public boolean KiemTraDa(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi) {
-        if (ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null) {
-            System.out.println(soNguoi);
-            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
-            Integer totalCaps = 0;
-            for (LoaiPhongResponse lp : loaiPhongResponseList) {
-                totalCaps += loaiPhongRepository.demSoPhongKhaDung(lp.getId(), ngayNhanPhong, ngayTraPhong) * lp.getSoKhachToiDa();
-            }
-            System.out.println(totalCaps);
-            return totalCaps >= soNguoi;
-        }
-        return false;
-    }
+//    public boolean KiemTraDon(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi) {
+//        if (ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null) {
+//            System.out.println(soNguoi);
+//            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
+//            Integer totalCap = 0;
+//            for (LoaiPhongResponse lp : loaiPhongResponseList) {
+//                totalCap += loaiPhongRepository.demSoPhongKhaDung(lp.getId(), ngayNhanPhong, ngayTraPhong);
+//            }
+//            System.out.println(totalCap);
+//            return totalCap >= soNguoi;
+//        }
+//        return false;
+//    }
+//
+//    public boolean KiemTraDa(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi) {
+//        if (ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null) {
+//            System.out.println(soNguoi);
+//            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
+//            Integer totalCaps = 0;
+//            for (LoaiPhongResponse lp : loaiPhongResponseList) {
+//                totalCaps += loaiPhongRepository.demSoPhongKhaDung(lp.getId(), ngayNhanPhong, ngayTraPhong) * lp.getSoKhachToiDa();
+//            }
+//            System.out.println(totalCaps);
+//            return totalCaps >= soNguoi;
+//        }
+//        return false;
+//    }
 
     public List<LoaiPhongResponse> getAllLPR(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
-        return loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
+        List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp","Đang ở");
+        return loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong,trangThaiTTDP);
     }
 
     public List<LoaiPhongKhaDungResponse> getAllLPKDR(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
-        return loaiPhongRepository.findLoaiPhongKhaDungResponseList(ngayNhanPhong, ngayTraPhong);
+        List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp","Đang ở");
+        return loaiPhongRepository.findLoaiPhongKhaDungResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP);
     }
 
 
@@ -248,17 +251,17 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     public Page<SearchResultResponse> searchAvailableRooms(LocalDateTime checkIn, LocalDateTime checkOut, Integer soNguoi, Integer soPhong, Pageable pageable) {
-        // Lấy tất cả các loại phòng đáp ứng điều kiện cơ bản
-        List<LoaiPhongResponse> roomTypes = loaiPhongRepository.findLoaiPhongResponse(checkIn, checkOut, soPhong);
+        // Lấy tất cả các loại phòng đáp ứng điều kiện cơ bản\
+        List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp","Đang ở");
+        List<LoaiPhongResponse> roomTypes = loaiPhongRepository.findLoaiPhongResponse(checkIn, checkOut, soPhong,trangThaiTTDP);
         List<SearchResultResponse> resultList = new ArrayList<>();
-
         for (LoaiPhongResponse roomType : roomTypes) {
             // Lấy số phòng khả dụng thực tế cho loại phòng đó
             Integer availableRooms = loaiPhongRepository.getAvailableRoomCount(roomType.getId(), checkIn, checkOut);
             availableRooms = (availableRooms == null) ? 0 : availableRooms;
 
             // Lấy số phòng khả dụng
-            Integer soPhongKhaDung = loaiPhongRepository.demSoPhongKhaDung(roomType.getId(), checkIn, checkOut);
+            Integer soPhongKhaDung = loaiPhongRepository.demSoPhongKhaDung(roomType.getId(), checkIn, checkOut, trangThaiTTDP);
             // Kiểm tra điều kiện: số phòng khả dụng phải >= soPhong và tổng sức chứa (soKhachToiDa * soPhong) >= soNguoi
             boolean isContainable = (availableRooms >= soPhong) && ((roomType.getSoKhachToiDa() * soPhong) >= soNguoi);
 

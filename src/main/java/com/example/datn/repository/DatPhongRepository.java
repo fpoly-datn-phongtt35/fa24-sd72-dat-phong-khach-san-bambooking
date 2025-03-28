@@ -62,12 +62,13 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
             "JOIN ttdp.datPhong dp " +
             "WHERE dp.trangThai IN :trangThai " +
             "AND (:key IS NULL OR :key = '' OR dp.maDatPhong LIKE %:key% OR dp.khachHang.ho LIKE %:key% OR dp.khachHang.ten LIKE %:key%) " +
-            "AND ttdp.trangThai IN ('Chua xep', 'Da xep') " +
+            "AND ttdp.trangThai IN (:trangThaiDP) " +
             "AND (:ngayNhanPhong IS NULL OR ttdp.ngayNhanPhong >= :ngayNhanPhong) " +
             "AND (:ngayTraPhong IS NULL OR ttdp.ngayTraPhong <= :ngayTraPhong)")
     Page<DatPhongResponse> findDatPhong(
             @Param("trangThai") List<String> trangThai,
             @Param("key") String key,
+            List<String> trangThaiDP,
             @Param("ngayNhanPhong") LocalDate ngayNhanPhong,
             @Param("ngayTraPhong") LocalDate ngayTraPhong,
             Pageable pageable);
