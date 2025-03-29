@@ -22,5 +22,5 @@ public class XepPhongRequest {
     private ThongTinDatPhong thongTinDatPhong;
     private LocalDateTime ngayNhanPhong;
     private LocalDateTime ngayTraPhong;
-    private Boolean trangThai;
+    private String trangThai;
 }

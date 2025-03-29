@@ -116,17 +116,17 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
         // Nếu có XepPhong liên quan, cập nhật trạng thái thành false
         if (xp != null) {
-            xp.setTrangThai(false);
+            xp.setTrangThai("Đã hủy");
             xepPhongRepository.save(xp);
         }
 
         // Cập nhật trạng thái của TTDP thành "Da huy"
-        ttdp.setTrangThai("Da huy");
+        ttdp.setTrangThai("Đã hủy");
         thongTinDatPhongRepository.save(ttdp);
 
         // Kiểm tra tất cả TTDP liên quan đến DatPhong
         List<ThongTinDatPhong> allTtdp = thongTinDatPhongRepository.findByIDDatPhong(dp.getId());
-        boolean allCancelled = allTtdp.stream().allMatch(item -> "Da huy".equals(item.getTrangThai()));
+        boolean allCancelled = allTtdp.stream().allMatch(item -> "Đã hủy".equals(item.getTrangThai()));
 
         // Nếu tất cả TTDP đều ở trạng thái "Da huy", cập nhật trạng thái DatPhong
         if (allCancelled) {

@@ -28,5 +28,5 @@ public class XepPhong {
     @Column(name = "ngay_tra_phong")
     LocalDateTime ngayTraPhong;
     @Column(name = "trang_thai")
-    Boolean trangThai;
+    String trangThai;
 }

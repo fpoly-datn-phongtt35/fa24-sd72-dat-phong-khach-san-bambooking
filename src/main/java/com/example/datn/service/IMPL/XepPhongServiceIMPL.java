@@ -46,7 +46,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
         xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
         xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
         xp.setTrangThai(xepPhongRequest.getTrangThai());
-        ttdp.setTrangThai("Da xep");
+        ttdp.setTrangThai("Đã xếp");
         thongTinDatPhongRepository.save(ttdp);
         return xepPhongRepository.save(xp);
     }
@@ -101,11 +101,11 @@ public class XepPhongServiceIMPL implements XepPhongService {
                 throw new RuntimeException("Thông tin đặt phòng hoặc phòng không hợp lệ");
             }
             dp.setTrangThai("Đã nhận phòng");
-            ttdp.setTrangThai("Dang o");
+            ttdp.setTrangThai("Đang ở");
             p.setTinhTrang("occupied");
             xp.setNgayNhanPhong(ngayNhanPhong);
             xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
-            xp.setTrangThai(true);
+            xp.setTrangThai("Đã nhận phòng");
             datPhongRepository.save(dp);
             return xepPhongRepository.save(xp);
         } catch (Exception e) {

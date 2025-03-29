@@ -35,20 +35,22 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
     FROM Phong p 
     WHERE p.loaiPhong.id = :idLoaiPhong 
       AND p.trangThai = true 
+      AND p.tinhTrang = 'available'
       AND NOT EXISTS (
           SELECT d 
           FROM XepPhong d 
           JOIN d.thongTinDatPhong ttdp
           WHERE d.phong = p     
-            AND d.ngayNhanPhong = :ngayNhanPhong
-            AND d.ngayTraPhong >= :ngayTraPhong
-            AND ttdp.trangThai In ('Dang o', 'Da xep')
+            AND :ngayNhanPhong <= d.ngayTraPhong
+            AND :ngayTraPhong >= d.ngayNhanPhong
+            AND ttdp.trangThai IN (:trangThaiTTDP)
       )
 """)
     List<Phong> searchPhongKhaDung(
             @Param("idLoaiPhong") Integer idLoaiPhong,
             @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
-            @Param("ngayTraPhong") LocalDateTime ngayTraPhong
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
+            List<String> trangThaiTTDP
     );
 
 

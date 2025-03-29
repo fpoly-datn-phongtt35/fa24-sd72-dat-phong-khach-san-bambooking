@@ -92,65 +92,28 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.filter(tenLoaiPhong, dienTichMin, dienTichMax, soKhach, donGiaMin, donGiaMax, donGiaPhuThuMin, donGiaPhuThuMax, pageable);
     }
 
-    @Override
-    public LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer idLoaiPhong) {
-        List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp","Đang ở");
-        return loaiPhongRepository.LoaiPhongKhaDung1(ngayNhanPhong, ngayTraPhong, idLoaiPhong,trangThaiTTDP);
-    }
+//    @Override
+//    public LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer idLoaiPhong) {
+//        List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp","Đang ở");
+//        return loaiPhongRepository.LoaiPhongKhaDung1(ngayNhanPhong, ngayTraPhong, idLoaiPhong,trangThaiTTDP);
+//    }
 
     @Override
     public LoaiPhong findByID(Integer idLoaiPhong) {
         return loaiPhongRepository.findById(idLoaiPhong).orElseThrow(() -> new EntityNotFoundException("LoaiPhong with ID " + idLoaiPhong + " not found"));
     }
 
-    public DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest) {
-        DichVuDiKem dichVuDiKem = new DichVuDiKem();
-        dichVuDiKem.setDichVu(dichVuDikemRequest.getDichVu());
-        dichVuDiKem.setLoaiPhong(dichVuDikemRequest.getLoaiPhong());
-        dichVuDiKem.setTrangThai(dichVuDikemRequest.getTrangThai());
-        return dichVuDiKemRepository.save(dichVuDiKem);
-    }
-
-
-    //    Tuan Dat
-//    public boolean KiemTraDon(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi) {
-//        if (ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null) {
-//            System.out.println(soNguoi);
-//            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
-//            Integer totalCap = 0;
-//            for (LoaiPhongResponse lp : loaiPhongResponseList) {
-//                totalCap += loaiPhongRepository.demSoPhongKhaDung(lp.getId(), ngayNhanPhong, ngayTraPhong);
-//            }
-//            System.out.println(totalCap);
-//            return totalCap >= soNguoi;
-//        }
-//        return false;
-//    }
-//
-//    public boolean KiemTraDa(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi) {
-//        if (ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null) {
-//            System.out.println(soNguoi);
-//            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
-//            Integer totalCaps = 0;
-//            for (LoaiPhongResponse lp : loaiPhongResponseList) {
-//                totalCaps += loaiPhongRepository.demSoPhongKhaDung(lp.getId(), ngayNhanPhong, ngayTraPhong) * lp.getSoKhachToiDa();
-//            }
-//            System.out.println(totalCaps);
-//            return totalCaps >= soNguoi;
-//        }
-//        return false;
-//    }
-
     public List<LoaiPhongResponse> getAllLPR(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
-        List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp","Đang ở");
-        return loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong,trangThaiTTDP);
+        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Đã xếp","Chưa xếp","Đang ở");
+        List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
+        return loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
     }
 
     public List<LoaiPhongKhaDungResponse> getAllLPKDR(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
-        List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp","Đang ở");
-        return loaiPhongRepository.findLoaiPhongKhaDungResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP);
+        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Đã xếp","Chưa xếp","Đang ở");
+        List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
+        return loaiPhongRepository.findLoaiPhongKhaDungResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
     }
-
 
     public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach) {
         List<ToHopPhongPhuHop> results = new ArrayList<>();
@@ -250,66 +213,94 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return paginateToHopWithPageable(toHopPhongPhuHops,pageable);
     }
 
-    public Page<SearchResultResponse> searchAvailableRooms(LocalDateTime checkIn, LocalDateTime checkOut, Integer soNguoi, Integer soPhong, Pageable pageable) {
-        // Lấy tất cả các loại phòng đáp ứng điều kiện cơ bản\
-        List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp","Đang ở");
-        List<LoaiPhongResponse> roomTypes = loaiPhongRepository.findLoaiPhongResponse(checkIn, checkOut, soPhong,trangThaiTTDP);
-        List<SearchResultResponse> resultList = new ArrayList<>();
-        for (LoaiPhongResponse roomType : roomTypes) {
-            // Lấy số phòng khả dụng thực tế cho loại phòng đó
-            Integer availableRooms = loaiPhongRepository.getAvailableRoomCount(roomType.getId(), checkIn, checkOut);
-            availableRooms = (availableRooms == null) ? 0 : availableRooms;
-
-            // Lấy số phòng khả dụng
-            Integer soPhongKhaDung = loaiPhongRepository.demSoPhongKhaDung(roomType.getId(), checkIn, checkOut, trangThaiTTDP);
-            // Kiểm tra điều kiện: số phòng khả dụng phải >= soPhong và tổng sức chứa (soKhachToiDa * soPhong) >= soNguoi
-            boolean isContainable = (availableRooms >= soPhong) && ((roomType.getSoKhachToiDa() * soPhong) >= soNguoi);
-
-            // Tạo đối tượng ChiaPhongResponse
-            ChiaPhongResponse cp = new ChiaPhongResponse();
-            cp.setSoPhongKhaDung(soPhongKhaDung);
-            cp.setSoPhongCan(soPhong);
-            cp.setTongGiaTien(soPhong * roomType.getDonGia());
-            cp.setIsContainable(isContainable);
-
-            // Tạo đối tượng SearchResultResponse
-            SearchResultResponse sr = new SearchResultResponse();
-            sr.setLoaiPhongResponse(roomType);
-            sr.setDanhSachCachChia(cp);
-            resultList.add(sr);
-        }
-
-        // Áp dụng phân trang trực tiếp trên danh sách kết quả
-        int start = (int) pageable.getOffset();
-        int end = Math.min(start + pageable.getPageSize(), resultList.size());
-        List<SearchResultResponse> subList = resultList.subList(start, end);
-        return new PageImpl<>(subList, pageable, resultList.size());
-    }
-
     //    Chua dung den
-    public boolean isRoomTypeAvailable(LoaiPhong roomType, LocalDateTime checkIn, LocalDateTime checkOut) {
-        Integer availableCount = loaiPhongRepository.getAvailableRoomCount(roomType.getId(), checkIn, checkOut);
-        return availableCount != null && availableCount >= 1;
-    }
 
-    public List<List<LoaiPhongKhaDungResponse>> searchAvailableRooms2(LocalDateTime checkIn, LocalDateTime checkOut, int totalPeople, int totalRooms) {
-        // Lấy tất cả các loại phòng từ repository
-        List<LoaiPhong> allRoomTypes = loaiPhongRepository.findAll();
-
-        // Lọc ra các loại phòng khả dụng theo ngày
-        List<LoaiPhong> availableRoomTypes = new ArrayList<>();
-        for (LoaiPhong roomType : allRoomTypes) {
-            if (isRoomTypeAvailable(roomType, checkIn, checkOut)) {
-                availableRoomTypes.add(roomType);
-            }
-        }
-        List<LoaiPhongKhaDungResponse> listLPKHR = loaiPhongRepository.findAllLPKDR(checkIn, checkOut, totalPeople, totalRooms);
-
-        // Sinh ra các kết hợp các phòng khả dụng thỏa mãn số lượng khách yêu cầu
-        List<List<LoaiPhongKhaDungResponse>> results = new ArrayList<>();
-        generateCombinations(listLPKHR, 0, totalRooms, new ArrayList<>(), results, totalPeople);
-        return results;
-    }
+    //    Tuan Dat
+//    public boolean KiemTraDon(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi) {
+//        if (ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null) {
+//            System.out.println(soNguoi);
+//            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
+//            Integer totalCap = 0;
+//            for (LoaiPhongResponse lp : loaiPhongResponseList) {
+//                totalCap += loaiPhongRepository.demSoPhongKhaDung(lp.getId(), ngayNhanPhong, ngayTraPhong);
+//            }
+//            System.out.println(totalCap);
+//            return totalCap >= soNguoi;
+//        }
+//        return false;
+//    }
+//
+//    public boolean KiemTraDa(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi) {
+//        if (ngayNhanPhong != null && ngayTraPhong != null && soNguoi != null) {
+//            System.out.println(soNguoi);
+//            List<LoaiPhongResponse> loaiPhongResponseList = loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong);
+//            Integer totalCaps = 0;
+//            for (LoaiPhongResponse lp : loaiPhongResponseList) {
+//                totalCaps += loaiPhongRepository.demSoPhongKhaDung(lp.getId(), ngayNhanPhong, ngayTraPhong) * lp.getSoKhachToiDa();
+//            }
+//            System.out.println(totalCaps);
+//            return totalCaps >= soNguoi;
+//        }
+//        return false;
+//    }
+//    public Page<SearchResultResponse> searchAvailableRooms(LocalDateTime checkIn, LocalDateTime checkOut, Integer soNguoi, Integer soPhong, Pageable pageable) {
+//        // Lấy tất cả các loại phòng đáp ứng điều kiện cơ bản\
+//        List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp","Đang ở");
+//        List<LoaiPhongResponse> roomTypes = loaiPhongRepository.findLoaiPhongResponse(checkIn, checkOut, soPhong,trangThaiTTDP);
+//        List<SearchResultResponse> resultList = new ArrayList<>();
+//        for (LoaiPhongResponse roomType : roomTypes) {
+//            // Lấy số phòng khả dụng thực tế cho loại phòng đó
+//            Integer availableRooms = loaiPhongRepository.getAvailableRoomCount(roomType.getId(), checkIn, checkOut);
+//            availableRooms = (availableRooms == null) ? 0 : availableRooms;
+//
+//            // Lấy số phòng khả dụng
+//            Integer soPhongKhaDung = loaiPhongRepository.demSoPhongKhaDung(roomType.getId(), checkIn, checkOut, trangThaiTTDP);
+//            // Kiểm tra điều kiện: số phòng khả dụng phải >= soPhong và tổng sức chứa (soKhachToiDa * soPhong) >= soNguoi
+//            boolean isContainable = (availableRooms >= soPhong) && ((roomType.getSoKhachToiDa() * soPhong) >= soNguoi);
+//
+//            // Tạo đối tượng ChiaPhongResponse
+//            ChiaPhongResponse cp = new ChiaPhongResponse();
+//            cp.setSoPhongKhaDung(soPhongKhaDung);
+//            cp.setSoPhongCan(soPhong);
+//            cp.setTongGiaTien(soPhong * roomType.getDonGia());
+//            cp.setIsContainable(isContainable);
+//
+//            // Tạo đối tượng SearchResultResponse
+//            SearchResultResponse sr = new SearchResultResponse();
+//            sr.setLoaiPhongResponse(roomType);
+//            sr.setDanhSachCachChia(cp);
+//            resultList.add(sr);
+//        }
+//
+//        // Áp dụng phân trang trực tiếp trên danh sách kết quả
+//        int start = (int) pageable.getOffset();
+//        int end = Math.min(start + pageable.getPageSize(), resultList.size());
+//        List<SearchResultResponse> subList = resultList.subList(start, end);
+//        return new PageImpl<>(subList, pageable, resultList.size());
+//    }
+//    public boolean isRoomTypeAvailable(LoaiPhong roomType, LocalDateTime checkIn, LocalDateTime checkOut) {
+//        Integer availableCount = loaiPhongRepository.getAvailableRoomCount(roomType.getId(), checkIn, checkOut);
+//        return availableCount != null && availableCount >= 1;
+//    }
+//
+//    public List<List<LoaiPhongKhaDungResponse>> searchAvailableRooms2(LocalDateTime checkIn, LocalDateTime checkOut, int totalPeople, int totalRooms) {
+//        // Lấy tất cả các loại phòng từ repository
+//        List<LoaiPhong> allRoomTypes = loaiPhongRepository.findAll();
+//
+//        // Lọc ra các loại phòng khả dụng theo ngày
+//        List<LoaiPhong> availableRoomTypes = new ArrayList<>();
+//        for (LoaiPhong roomType : allRoomTypes) {
+//            if (isRoomTypeAvailable(roomType, checkIn, checkOut)) {
+//                availableRoomTypes.add(roomType);
+//            }
+//        }
+//        List<LoaiPhongKhaDungResponse> listLPKHR = loaiPhongRepository.findAllLPKDR(checkIn, checkOut, totalPeople, totalRooms);
+//
+//        // Sinh ra các kết hợp các phòng khả dụng thỏa mãn số lượng khách yêu cầu
+//        List<List<LoaiPhongKhaDungResponse>> results = new ArrayList<>();
+//        generateCombinations(listLPKHR, 0, totalRooms, new ArrayList<>(), results, totalPeople);
+//        return results;
+//    }
 
     private void generateCombinations(List<LoaiPhongKhaDungResponse> roomTypes, int start, int roomsToSelect, List<LoaiPhongKhaDungResponse> current, List<List<LoaiPhongKhaDungResponse>> results, int totalPeople) {
         if (roomsToSelect == 0) {
@@ -342,6 +333,15 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     @Override
     public List<HinhAnh> getAnhLP(Integer idLoaiPhong) {
         return loaiPhongRepository.getAnhLP(idLoaiPhong);
+    }
+
+
+    public DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest) {
+        DichVuDiKem dichVuDiKem = new DichVuDiKem();
+        dichVuDiKem.setDichVu(dichVuDikemRequest.getDichVu());
+        dichVuDiKem.setLoaiPhong(dichVuDikemRequest.getLoaiPhong());
+        dichVuDiKem.setTrangThai(dichVuDikemRequest.getTrangThai());
+        return dichVuDiKemRepository.save(dichVuDiKem);
     }
 
 }

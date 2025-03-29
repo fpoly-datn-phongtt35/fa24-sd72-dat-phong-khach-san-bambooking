@@ -37,7 +37,8 @@ public class ViewPhongImpl implements ViewPhongService {
 
     @Override
     public XepPhong RoomDetail(int idPhong) {
-        return xepPhongRepository.getByIDPhong(idPhong) ;
+        String trangThai = "Đang ở";
+        return xepPhongRepository.getByIDPhong(idPhong,trangThai);
     }
     @Override
     public List<DichVuSuDung> addDVDKtoDVSD(int idXepPhong) {

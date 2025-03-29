@@ -34,9 +34,6 @@ public interface LoaiPhongService {
                             Double donGiaPhuThuMax,
                             Pageable pageable);
 
-    LoaiPhongKhaDungResponse LoaiPhongKhaDungByLoaiPhong(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
-                                                     Integer idLoaiPhong);
-
     LoaiPhong findByID(Integer idLoaiPhong);
 
     List<HinhAnh> getAnhLP(Integer idLoaiPhong);

@@ -77,12 +77,12 @@ public class TTDPController {
         return p;
     }
 
-    @GetMapping("/tim-kiem-loai-phong")
-    public ResponseEntity<Page<SearchResultResponse>> searchLoaiPhong2(@RequestParam("ngayNhanPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong, @RequestParam("ngayTraPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong, @RequestParam("soNguoi") Integer soNguoi, @RequestParam("soPhong") Integer soPhong, @PageableDefault(size = 5) Pageable pageable) {
-        // Tìm các kết hợp phòng khả dụng
-        Page<SearchResultResponse> availableCombinations = loaiPhongServiceIMPL.searchAvailableRooms(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong, pageable);
-        return ResponseEntity.ok(availableCombinations);
-    }
+//    @GetMapping("/tim-kiem-loai-phong")
+//    public ResponseEntity<Page<SearchResultResponse>> searchLoaiPhong2(@RequestParam("ngayNhanPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong, @RequestParam("ngayTraPhong") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong, @RequestParam("soNguoi") Integer soNguoi, @RequestParam("soPhong") Integer soPhong, @PageableDefault(size = 5) Pageable pageable) {
+//        // Tìm các kết hợp phòng khả dụng
+//        Page<SearchResultResponse> availableCombinations = loaiPhongServiceIMPL.searchAvailableRooms(ngayNhanPhong, ngayTraPhong, soNguoi, soPhong, pageable);
+//        return ResponseEntity.ok(availableCombinations);
+//    }
 
     @GetMapping("chi-tiet-dat-phong")
     public ResponseEntity<?> chiTietDatPhong(@RequestParam String maDatPhong) {

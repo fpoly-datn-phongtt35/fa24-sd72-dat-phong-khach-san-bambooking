@@ -28,7 +28,7 @@ import { useTheme, useMediaQuery } from "@mui/material";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import { findDatPhong } from "../../services/DatPhong";
+import { findDatPhong, huyDatPhong} from "../../services/DatPhong";
 import { huyTTDP } from "../../services/TTDP";
 import XepPhong from "../../components/XepPhong/XepPhong";
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
@@ -82,19 +82,15 @@ const QuanLyDatPhong = () => {
     navigate("/thong-tin-dat-phong", { state: { maDatPhong } });
   };
 
-  const handleViewDetailsTTDPTTDP = (maThongTinDatPhong) => {
-    navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
-  };
-
-  const handleHuyTTDP = (maThongTinDatPhong) => {
+  const handleHuyDP = (maDatPhong) => {
     const confirmCancel = window.confirm(
-      `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${maThongTinDatPhong} không?`
+      `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${maDatPhong} không?`
     );
     if (confirmCancel) {
-      huyTTDP(maThongTinDatPhong)
+      huyDatPhong(maDatPhong)
         .then(() => {
           searchDatPhong(key, ngayNhan, ngayTra, page);
-          console.log(`Đã hủy TTDP: ${maThongTinDatPhong}`);
+          console.log(`Đã hủy TTDP: ${maDatPhong}`);
         })
         .catch((err) => {
           console.error("Lỗi khi hủy TTDP:", err);
@@ -374,11 +370,13 @@ const QuanLyDatPhong = () => {
                           <CheckCircleIcon />
                         </IconButton>
                       )}
-                      {["Chua xep", "Da xep"].includes(dp.trangThai) && (
+                      {["Đang đặt phòng", "Đã xác nhận"].includes(
+                        dp.trangThai
+                      ) && (
                         <IconButton
                           size="small"
                           color="error"
-                          onClick={() => handleHuyTTDP(dp.maThongTinDatPhong)}
+                          onClick={() => handleHuyDP(dp.maDatPhong)}
                         >
                           <RemoveCircleOutlineIcon />
                         </IconButton>

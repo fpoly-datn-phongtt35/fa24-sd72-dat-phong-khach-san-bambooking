@@ -71,7 +71,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
         thongTinDatPhong: { id: ttdp.id },
         ngayNhanPhong: formatToLocalDateTime(ttdp.ngayNhanPhong),
         ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong),
-        trangThai: true,
+        trangThai: "Đã xếp",
       };
       try {
         const ttt = await addXepPhong(xepPhongRequest);

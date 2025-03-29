@@ -16,6 +16,7 @@ const apiFindByKey = "http://localhost:8080/dat-phong/findAll";
 const apiFindDatPhongToCheckin =
   "http://localhost:8080/dat-phong/dat-phong-to-checkin";
 const apiFindDatPhong = "http://localhost:8080/dat-phong/danh-sach-dat-phong";
+const apiHuyDatPhong = "http://localhost:8080/dat-phong/huy-dp";
 
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
@@ -149,20 +150,27 @@ export const findDatPhongToCheckin = (pageable, key) => {
 
 export const findDatPhong = async (key, ngayNhanPhong, ngayTraPhong, pageable) => {
   try {
-    return await authorizedAxiosInstance
-      .get(apiFindDatPhong, {
-        params: {
-          key: key || "",
-          ngayNhanPhong: ngayNhanPhong
-            ? ngayNhanPhong.format("YYYY-MM-DD")
-            : null,
-          ngayTraPhong: ngayTraPhong ? ngayTraPhong.format("YYYY-MM-DD") : null,
-          page: pageable.page,
-          size: pageable.size,
-        },
-      });
+    return await authorizedAxiosInstance.get(apiFindDatPhong, {
+      params: {
+        key: key || "",
+        page: pageable.page,
+        size: pageable.size,
+        ngayNhanPhong: ngayNhanPhong
+          ? ngayNhanPhong.format("YYYY-MM-DD")
+          : null,
+        ngayTraPhong: ngayTraPhong ? ngayTraPhong.format("YYYY-MM-DD") : null,
+      },
+    });
   } catch (error) {
     console.error("Error in findDatPhong:", error);
     throw error; // Ném lỗi để component xử lý
   }
+};
+
+export const huyDatPhong = (maDatPhong) => {
+  return authorizedAxiosInstance.get(apiHuyDatPhong, {
+    params: {
+      maDatPhong: maDatPhong,
+    },
+  });
 };

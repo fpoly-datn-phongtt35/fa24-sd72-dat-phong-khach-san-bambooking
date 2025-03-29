@@ -29,12 +29,10 @@ public class ViewPhongController {
             @RequestParam(required = false) Integer giaMin,
             @RequestParam(required = false) Integer giaMax,
             @RequestParam(required = false) Integer soTang) {
-
         List<?> rooms = viewPhongService.findRoomsByCriteria(tinhTrang,keyword,idLoaiPhong,giaMin,giaMax,soTang);
         if (rooms.isEmpty()) {
             return ResponseEntity.ok("Không tìm thấy phòng nào phù hợp với tiêu chí.");
         }
-
         return ResponseEntity.ok(rooms);
     }
 

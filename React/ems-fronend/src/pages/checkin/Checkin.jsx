@@ -114,7 +114,7 @@ const Checkin = () => {
         thongTinDatPhong: xepPhong.thongTinDatPhong,
         ngayNhanPhong: new Date(),
         ngayTraPhong: new Date(new Date(dp.ngayTraPhong).setHours(12, 0, 0, 0)),
-        trangThai: "Dang o", // Cập nhật trạng thái khi check-in
+        trangThai: true,
       };
       await checkIn(xepPhongRequest);
       alert("Check-in thành công!");
@@ -165,7 +165,6 @@ const Checkin = () => {
 
   return (
     <Container sx={{ minWidth: "1300px" }}>
-      {/* Search Section */}
       <Paper
         elevation={3}
         sx={{

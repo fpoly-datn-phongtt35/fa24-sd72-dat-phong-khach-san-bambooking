@@ -78,8 +78,8 @@ public class TraPhongServiceImpl implements TraPhongService {
         ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
         Phong p = xepPhong.getPhong();
 
-        thongTinDatPhong.setTrangThai("Da tra phong");
-        xepPhong.setTrangThai(false);
+        thongTinDatPhong.setTrangThai("Đã trả phòng");
+        xepPhong.setTrangThai("Đã trả phòng");
         p.setTinhTrang("available");
         traPhong.setTrangThai(true);
         traPhongRepository.save(traPhong);

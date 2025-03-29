@@ -5,10 +5,8 @@ import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.model.DatPhong;
 import com.example.datn.model.NhanVien;
 import com.example.datn.model.ThongTinDatPhong;
-import com.example.datn.repository.DatPhongRepository;
-import com.example.datn.repository.KhachHangRepository;
-import com.example.datn.repository.NhanVienRepository;
-import com.example.datn.repository.ThongTinDatPhongRepository;
+import com.example.datn.model.XepPhong;
+import com.example.datn.repository.*;
 import com.example.datn.service.DatPhongService;
 import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +27,9 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
     @Autowired
     ThongTinDatPhongRepository thongTinDatPhongRepository;
+
+    @Autowired
+    XepPhongRepository xepPhongRepository;
 
     @Override
     public Page<DatPhongResponse> getByTrangThai(String tt, Pageable pageable) {
@@ -161,11 +162,10 @@ public class DatPhongServiceIMPL implements DatPhongService {
     }
 
     public Page<DatPhongResponse> findDatPhong(String key, LocalDate ngayNhanPhong, LocalDate ngayTraPhong, int page, int size) {
-        List<String> trangThaiDP = Arrays.asList("Chưa xếp", "Đã xếp");
-        List<String> trangThai = Arrays.asList("Đang đặt phòng", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
+        List<String> trangThaiTTDP = Arrays.asList("Đã hủy","Đang đặt phòng","Chưa xếp", "Đã xếp");
+        List<String> trangThai = Arrays.asList("Đã hủy","Đang đặt phòng", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
         Pageable pageable = PageRequest.of(page, size);
-
-        return datPhongRepository.findDatPhong(trangThai, key, trangThaiDP, ngayNhanPhong, ngayTraPhong, pageable);
+        return datPhongRepository.findDatPhong(trangThai, trangThaiTTDP, key, ngayNhanPhong, ngayTraPhong, pageable);
     }
 
 //    public void updateTrangThaiDatPhong() {
@@ -203,4 +203,20 @@ public class DatPhongServiceIMPL implements DatPhongService {
 //            }
 //        }
 //    }
+
+    public DatPhong huyDatPhong(String maDatPhong) {
+        DatPhong dp = datPhongRepository.findByMaDatPhong(maDatPhong);
+        dp.setTrangThai("Đã hủy");
+        List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByMaDatPhong(maDatPhong);
+        for(ThongTinDatPhong ttdp: ttdps){
+            XepPhong xp = xepPhongRepository.getByMaTTDP(ttdp.getMaThongTinDatPhong());
+            if (xp != null) {
+                xp.setTrangThai("Đã hủy");
+                xepPhongRepository.save(xp);
+            }
+            ttdp.setTrangThai("Đã hủy");
+            thongTinDatPhongRepository.save(ttdp);
+        }
+        return datPhongRepository.findByMaDatPhong(maDatPhong);
+    }
 }

@@ -235,7 +235,7 @@ const TaoDatPhong = () => {
             ngayTraPhong: room.ngayTraPhong,
             soNguoi: room.soNguoi,
             giaDat: room.giaDat,
-            trangThai: "Chua xep",
+            trangThai: "Chưa xếp",
           });
         }
       });

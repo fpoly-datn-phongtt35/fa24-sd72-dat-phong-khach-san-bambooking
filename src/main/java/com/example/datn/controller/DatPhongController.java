@@ -6,6 +6,7 @@ import com.example.datn.dto.request.ToHopRequest;
 import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.DatPhong;
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.PhongServiceIMPL;
@@ -170,5 +171,11 @@ public class DatPhongController {
         );
         return ResponseEntity.ok(p);
     }
+
+    @GetMapping("/huy-dp")
+    public DatPhong huyDP(@RequestParam String maDatPhong) {
+        return datPhongServiceIMPL.huyDatPhong(maDatPhong);
+    }
+
 
 }
