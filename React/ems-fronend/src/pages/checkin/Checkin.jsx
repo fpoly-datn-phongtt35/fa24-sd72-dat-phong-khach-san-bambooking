@@ -114,7 +114,7 @@ const Checkin = () => {
         thongTinDatPhong: xepPhong.thongTinDatPhong,
         ngayNhanPhong: new Date(),
         ngayTraPhong: new Date(new Date(dp.ngayTraPhong).setHours(12, 0, 0, 0)),
-        trangThai: true,
+        trangThai: "Đang ở",
       };
       await checkIn(xepPhongRequest);
       alert("Check-in thành công!");

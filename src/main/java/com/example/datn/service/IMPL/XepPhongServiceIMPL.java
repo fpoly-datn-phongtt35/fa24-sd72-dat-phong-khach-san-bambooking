@@ -105,7 +105,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
             p.setTinhTrang("occupied");
             xp.setNgayNhanPhong(ngayNhanPhong);
             xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
-            xp.setTrangThai("Đã nhận phòng");
+            xp.setTrangThai("Đang ở");
             datPhongRepository.save(dp);
             return xepPhongRepository.save(xp);
         } catch (Exception e) {
