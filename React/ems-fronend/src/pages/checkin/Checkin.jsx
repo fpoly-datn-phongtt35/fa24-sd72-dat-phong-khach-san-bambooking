@@ -31,7 +31,7 @@ import { huyTTDP } from "../../services/TTDP";
 import { findDatPhongToCheckin } from "../../services/DatPhong";
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
 import { ThemPhuThu } from "../../services/PhuThuService";
-import XepPhong from "../../components/XepPhong/XepPhong"; // Thêm import modal XepPhong
+import XepPhong from "../../pages/xepphong/XepPhong";// Thêm import modal XepPhong
 
 const Checkin = () => {
   const navigate = useNavigate();

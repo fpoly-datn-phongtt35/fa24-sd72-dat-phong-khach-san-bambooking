@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -11,10 +11,10 @@ import {
   MenuItem,
   Typography,
   Box,
-} from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-import { getPhongKhaDung } from '../../services/PhongService';
-import { addXepPhong } from '../../services/XepPhongService';
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { getPhongKhaDung } from "../../services/PhongService";
+import { addXepPhong } from "../../services/XepPhongService";
 
 function XepPhong({ show, handleClose, selectedTTDPs }) {
   const [listPhong, setListPhong] = useState({});
@@ -24,8 +24,6 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
   // Hàm định dạng chuỗi ngày thành LocalDateTime (ISO string)
   const formatToLocalDateTime = (dateString) => {
     const date = new Date(dateString);
-    console.log(date);
-    console.log(date.toISOString().slice(0, 19));
     return date.toISOString().slice(0, 19);
   };
 
@@ -33,7 +31,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
   const phongKhaDung = (idLoaiPhong, ngayNhanPhong, ngayTraPhong, ttdpId) => {
     getPhongKhaDung(idLoaiPhong, ngayNhanPhong, ngayTraPhong)
       .then((response) => {
-        console.log(response)
+        console.log(response);
         setListPhong((prevList) => ({
           ...prevList,
           [ttdpId]: response.data,
@@ -48,9 +46,16 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
   useEffect(() => {
     if (show && selectedTTDPs.length > 0) {
       selectedTTDPs.forEach((ttdp) => {
-        const formattedNgayNhanPhong = formatToLocalDateTime(ttdp.ngayNhanPhong);
+        const formattedNgayNhanPhong = formatToLocalDateTime(
+          ttdp.ngayNhanPhong
+        );
         const formattedNgayTraPhong = formatToLocalDateTime(ttdp.ngayTraPhong);
-        phongKhaDung(ttdp.loaiPhong.id, formattedNgayNhanPhong, formattedNgayTraPhong, ttdp.id);
+        phongKhaDung(
+          ttdp.loaiPhong.id,
+          formattedNgayNhanPhong,
+          formattedNgayTraPhong,
+          ttdp.id
+        );
       });
     }
   }, [show, selectedTTDPs]);
@@ -61,6 +66,23 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
       ...prevSelected,
       [ttdpId]: phongId,
     }));
+
+    // Gọi lại phongKhaDung cho tất cả các TTDPs khác để cập nhật danh sách phòng khả dụng
+    selectedTTDPs.forEach((ttdp) => {
+      if (ttdp.id !== ttdpId) {
+        // Không gọi lại cho chính TTDPs vừa chọn
+        const formattedNgayNhanPhong = formatToLocalDateTime(
+          ttdp.ngayNhanPhong
+        );
+        const formattedNgayTraPhong = formatToLocalDateTime(ttdp.ngayTraPhong);
+        phongKhaDung(
+          ttdp.loaiPhong.id,
+          formattedNgayNhanPhong,
+          formattedNgayTraPhong,
+          ttdp.id
+        );
+      }
+    });
   };
 
   // Xử lý khi nhấn nút "Save All"
@@ -74,31 +96,22 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
         trangThai: "Đã xếp",
       };
       try {
-        const ttt = await addXepPhong(xepPhongRequest);
-        console.log(ttt);
+        const response = await addXepPhong(xepPhongRequest);
+        console.log(response);
       } catch (error) {
         console.error(`Lỗi khi xếp phòng cho ${ttdp.maTTDP}:`, error);
       }
     });
-  
+
     Promise.all(requests)
       .then(() => {
-        // Sau khi tất cả các request xếp phòng hoàn thành, load lại dữ liệu.
-        // Nếu bạn có hàm reloadData được truyền vào component, gọi nó tại đây:
-        if (typeof reloadData === "function") {
-          reloadData();
-        } else {
-          // Nếu không có hàm reloadData, bạn có thể reload toàn bộ trang (cách này không tối ưu)
-          window.location.reload();
-        }
-        alert('Xếp phòng thành công cho tất cả các đặt phòng đã chọn!');
+        alert("Xếp phòng thành công cho tất cả các đặt phòng đã chọn!");
         handleClose();
       })
       .catch(() => {
-        alert('Xảy ra lỗi trong quá trình xếp phòng.');
+        alert("Xảy ra lỗi trong quá trình xếp phòng.");
       });
   };
-  
 
   return (
     <Dialog open={show} onClose={handleClose} fullWidth maxWidth="sm">
@@ -110,11 +123,13 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
               Đặt phòng: {ttdp.maThongTinDatPhong}
             </Typography>
             <FormControl fullWidth variant="outlined" margin="normal">
-              <InputLabel id={`select-label-${ttdp.id}`}>Chọn phòng khả dụng</InputLabel>
+              <InputLabel id={`select-label-${ttdp.id}`}>
+                Chọn phòng khả dụng
+              </InputLabel>
               <Select
                 labelId={`select-label-${ttdp.id}`}
                 id={`phongSelect-${ttdp.id}`}
-                value={selectedPhong[ttdp.id] || ''}
+                value={selectedPhong[ttdp.id] || ""}
                 onChange={(e) => handlePhongChange(ttdp.id, e.target.value)}
                 label="Chọn phòng khả dụng"
               >

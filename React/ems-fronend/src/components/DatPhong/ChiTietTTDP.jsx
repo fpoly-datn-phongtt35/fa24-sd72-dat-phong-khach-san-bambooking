@@ -13,7 +13,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getTTDPByMaTTDP } from '../../services/TTDP';
 import { phongDaXep } from '../../services/XepPhongService';
-import XepPhong from '../XepPhong/XepPhong';
+import XepPhong from "../../pages/xepphong/XepPhong";
 import { hienThi } from '../../services/KhachHangCheckin';
 import ModalKhachHangCheckin from './ModalKhachHangCheckin';
 import ModalDoiNgay from './ModalDoiNgay';

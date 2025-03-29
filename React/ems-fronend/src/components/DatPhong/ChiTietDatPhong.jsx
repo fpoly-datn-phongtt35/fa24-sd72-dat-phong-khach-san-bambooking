@@ -27,7 +27,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { findTTDPByMaDatPhong } from "../../services/TTDP";
 import { findDatPhongByMaDatPhong, CapNhatDatPhong } from "../../services/DatPhong";
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
-import XepPhong from "../XepPhong/XepPhong";
+import XepPhong from "../../pages/xepphong/XepPhong";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";

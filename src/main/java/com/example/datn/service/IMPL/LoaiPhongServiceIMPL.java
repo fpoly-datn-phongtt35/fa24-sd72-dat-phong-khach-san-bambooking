@@ -191,7 +191,6 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         } else if (key.equalsIgnoreCase("leastRooms")) {
             filteredList.sort(Comparator.comparing(ToHopPhongPhuHop::getTongSoPhong));
         }
-
         return filteredList;
     }
 

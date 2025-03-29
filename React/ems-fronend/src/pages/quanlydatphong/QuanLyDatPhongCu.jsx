@@ -26,7 +26,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom"; // Icon cho nút Xếp Phòng
 import { useNavigate } from "react-router-dom";
 import { findTTDPS, huyTTDP } from "../../services/TTDP";
-import XepPhong from "../../components/XepPhong/XepPhong";
+import XepPhong from "../../pages/xepphong/XepPhong";
 import Checkin from "../checkin/Checkin"; // Import modal Checkin
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
 import { ThemPhuThu } from "../../services/PhuThuService";

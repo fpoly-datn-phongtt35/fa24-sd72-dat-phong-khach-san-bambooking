@@ -75,7 +75,7 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             "lp.donGia, lp.donGiaPhuThu, lp.moTa, COUNT(p) AS soLuongPhong, " +
             "(SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END) - " +
             "(SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
-            "  AND xp.ngayNhanPhong < CAST(:ngayTraPhong AS LocalDate) AND xp.ngayTraPhong > CAST(:ngayNhanPhong AS LocalDate)) - " +
+            "  AND xp.ngayNhanPhong < CAST(:ngayTraPhong AS LocalDate) AND xp.ngayTraPhong > CAST(:ngayNhanPhong AS LocalDate) AND xp.trangThai IN (:trangThaiXP)) - " +
             "(SELECT COUNT(tp) FROM ThongTinDatPhong tp WHERE tp.loaiPhong.id = lp.id " +
             "  AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate) AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate) " +
             "  AND tp.trangThai IN (:trangThaiTTDP))" +

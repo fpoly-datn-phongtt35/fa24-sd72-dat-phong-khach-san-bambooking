@@ -30,7 +30,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import { findDatPhong, huyDatPhong} from "../../services/DatPhong";
 import { huyTTDP } from "../../services/TTDP";
-import XepPhong from "../../components/XepPhong/XepPhong";
+import XepPhong from "../../pages/xepphong/XepPhong";
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
 import { ThemPhuThu } from "../../services/PhuThuService";
 
