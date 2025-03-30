@@ -66,4 +66,14 @@ public class PhongController {
     public ResponseEntity<?> dsPhong(@RequestParam(value = "keyword", required = false) String keyword){
         return ResponseEntity.status(HttpStatus.OK).body(phongService.DSPhong(keyword));
     }
+
+    @GetMapping("/phong-dang-dat")
+    public ResponseEntity<?> phongDangDat(@RequestParam(value = "idPhong", required = false) Integer idPhong){
+        return ResponseEntity.status(HttpStatus.OK).body(phongServiceIMPL.phongDangDat(idPhong));
+    }
+
+    @GetMapping("/huy-phong-dang-dat")
+    public ResponseEntity<?> huyDangDat(@RequestParam(value = "idPhong", required = false) Integer idPhong){
+        return ResponseEntity.status(HttpStatus.OK).body(phongServiceIMPL.huyDangDat(idPhong));
+    }
 }

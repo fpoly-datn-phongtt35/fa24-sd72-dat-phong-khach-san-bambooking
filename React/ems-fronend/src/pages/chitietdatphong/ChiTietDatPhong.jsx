@@ -25,9 +25,12 @@ import {
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { findTTDPByMaDatPhong } from "../../services/TTDP";
-import { findDatPhongByMaDatPhong, CapNhatDatPhong } from "../../services/DatPhong";
+import {
+  findDatPhongByMaDatPhong,
+  CapNhatDatPhong,
+} from "../../services/DatPhong";
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
-import XepPhong from "../../pages/xepphong/XepPhong";
+import XepPhong from "../xepphong/XepPhong";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
@@ -45,7 +48,11 @@ const ChiTietDatPhong = () => {
   const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [phongData, setPhongData] = useState({});
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
   const location = useLocation();
   const { maDatPhong } = location.state || {};
   const navigate = useNavigate();
@@ -88,7 +95,12 @@ const ChiTietDatPhong = () => {
 
   const closeXepPhongModal = () => {
     setShowXepPhongModal(false);
+    setSelectedTTDPs([]);
+    // Cập nhật lại dữ liệu sau khi xếp phòng
     getDetailDatPhong(maDatPhong);
+    thongTinDatPhong.forEach((ttdp) =>
+      fetchPhongDaXep(ttdp.maThongTinDatPhong)
+    );
   };
 
   const updateDatPhong = () => {
@@ -102,7 +114,9 @@ const ChiTietDatPhong = () => {
 
   useEffect(() => {
     if (thongTinDatPhong.length > 0) {
-      thongTinDatPhong.forEach((ttdp) => fetchPhongDaXep(ttdp.maThongTinDatPhong));
+      thongTinDatPhong.forEach((ttdp) =>
+        fetchPhongDaXep(ttdp.maThongTinDatPhong)
+      );
     }
   }, [thongTinDatPhong]);
 
@@ -150,7 +164,8 @@ const ChiTietDatPhong = () => {
 
   const handleCheckin = async (thongTinDatPhong) => {
     try {
-      let xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
+      let xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong))
+        .data;
       if (!xepPhong) {
         showSnackbar("Không tìm thấy phòng đã xếp.", "error");
         return;
@@ -161,9 +176,13 @@ const ChiTietDatPhong = () => {
         id: xepPhong.id,
         phong: xepPhong.phong,
         thongTinDatPhong: xepPhong.thongTinDatPhong,
-        ngayNhanPhong: new Date(new Date(thongTinDatPhong.ngayNhanPhong).setHours(14, 0, 0, 0)),
-        ngayTraPhong: new Date(new Date(thongTinDatPhong.ngayTraPhong).setHours(12, 0, 0, 0)),
-        trangThai: xepPhong.trangThai,
+        ngayNhanPhong: new Date(
+          new Date(thongTinDatPhong.ngayNhanPhong).setHours(14, 0, 0, 0)
+        ),
+        ngayTraPhong: new Date(
+          new Date(thongTinDatPhong.ngayTraPhong).setHours(12, 0, 0, 0)
+        ),
+        trangThai: "Đã ở", // Cập nhật trạng thái thành "Đã ở" khi check-in
       };
 
       await checkIn(xepPhongRequest);
@@ -196,25 +215,29 @@ const ChiTietDatPhong = () => {
           trangThai: true,
         };
         await ThemPhuThu(phuThuThemRequest);
-        showSnackbar(`Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`);
+        showSnackbar(
+          `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`
+        );
       }
     } catch (error) {
       let errorMessage = "Đã xảy ra lỗi khi thực hiện check-in.";
       if (error.response) {
         const { status, data } = error.response;
-        errorMessage = status === 400
-          ? (data.message || "Dữ liệu không hợp lệ.")
-          : status === 404
-          ? "Không tìm thấy thông tin cần thiết."
-          : status === 500
-          ? "Lỗi server."
-          : data.message || `Lỗi không xác định (status: ${status}).`;
+        errorMessage =
+          status === 400
+            ? data.message || "Dữ liệu không hợp lệ."
+            : status === 404
+            ? "Không tìm thấy thông tin cần thiết."
+            : status === 500
+            ? "Lỗi server."
+            : data.message || `Lỗi không xác định (status: ${status}).`;
       } else if (error.request) {
         errorMessage = "Không thể kết nối đến server.";
       }
       showSnackbar(errorMessage, "error");
     }
     getDetailDatPhong(maDatPhong);
+    fetchPhongDaXep(thongTinDatPhong.maThongTinDatPhong); // Cập nhật lại phòng đã xếp
   };
 
   const getStatusColor = (status) => {
@@ -226,14 +249,15 @@ const ChiTietDatPhong = () => {
       case "Cho nhan phong":
         return "warning";
       case "Dang dat phong":
-        return "info"; // Thêm màu cho trạng thái "Đang đặt phòng"
+        return "info";
       default:
         return "default";
     }
   };
 
-  // Kiểm tra nếu có bất kỳ thongTinDatPhong nào đang ở trạng thái "Dang dat phong"
-  const isDangDatPhong = thongTinDatPhong.some((ttdp) => ttdp.trangThai === "Dang dat phong");
+  const isDangDatPhong = thongTinDatPhong.some(
+    (ttdp) => ttdp.trangThai === "Dang dat phong"
+  );
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -253,19 +277,31 @@ const ChiTietDatPhong = () => {
             <CardContent>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <PersonIcon color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6" color="primary">Thông tin khách hàng</Typography>
+                <Typography variant="h6" color="primary">
+                  Thông tin khách hàng
+                </Typography>
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <Typography sx={{ fontWeight: "medium", mr: 1 }}>Họ tên:</Typography>
-                <Typography>{datPhong?.khachHang?.ho} {datPhong?.khachHang?.ten || "N/A"}</Typography>
+                <Typography sx={{ fontWeight: "medium", mr: 1 }}>
+                  Họ tên:
+                </Typography>
+                <Typography>
+                  {datPhong?.khachHang?.ho} {datPhong?.khachHang?.ten || "N/A"}
+                </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <EmailIcon fontSize="small" sx={{ mr: 1, color: "text.secondary" }} />
+                <EmailIcon
+                  fontSize="small"
+                  sx={{ mr: 1, color: "text.secondary" }}
+                />
                 <Typography>{datPhong?.khachHang?.email || "N/A"}</Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <PhoneIcon fontSize="small" sx={{ mr: 1, color: "text.secondary" }} />
+                <PhoneIcon
+                  fontSize="small"
+                  sx={{ mr: 1, color: "text.secondary" }}
+                />
                 <Typography>{datPhong?.khachHang?.sdt || "N/A"}</Typography>
               </Box>
             </CardContent>
@@ -276,15 +312,23 @@ const ChiTietDatPhong = () => {
             <CardContent>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <CalendarMonthIcon color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6" color="primary">Thông tin đặt phòng</Typography>
+                <Typography variant="h6" color="primary">
+                  Thông tin đặt phòng
+                </Typography>
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <Typography sx={{ fontWeight: "medium", mr: 1 }}>Ngày đặt:</Typography>
-                <Typography>{datPhong?.ngayDat ? formatDate(datPhong.ngayDat) : "N/A"}</Typography>
+                <Typography sx={{ fontWeight: "medium", mr: 1 }}>
+                  Ngày đặt:
+                </Typography>
+                <Typography>
+                  {datPhong?.ngayDat ? formatDate(datPhong.ngayDat) : "N/A"}
+                </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <Typography sx={{ fontWeight: "medium", mr: 1 }}>Số phòng:</Typography>
+                <Typography sx={{ fontWeight: "medium", mr: 1 }}>
+                  Số phòng:
+                </Typography>
                 <Chip
                   size="small"
                   label={thongTinDatPhong.length}
@@ -293,7 +337,9 @@ const ChiTietDatPhong = () => {
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-                <Typography sx={{ fontWeight: "medium", mr: 1 }}>Số người:</Typography>
+                <Typography sx={{ fontWeight: "medium", mr: 1 }}>
+                  Số người:
+                </Typography>
                 <Chip
                   icon={<PersonIcon />}
                   size="small"
@@ -303,7 +349,9 @@ const ChiTietDatPhong = () => {
                 />
               </Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Typography sx={{ fontWeight: "medium", mr: 1 }}>Tổng tiền:</Typography>
+                <Typography sx={{ fontWeight: "medium", mr: 1 }}>
+                  Tổng tiền:
+                </Typography>
                 <Typography sx={{ fontWeight: "bold", color: "success.main" }}>
                   {datPhong?.tongTien?.toLocaleString() || "0"} VNĐ
                 </Typography>
@@ -316,7 +364,9 @@ const ChiTietDatPhong = () => {
             <CardContent>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <NotesIcon color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6" color="primary">Ghi chú</Typography>
+                <Typography variant="h6" color="primary">
+                  Ghi chú
+                </Typography>
               </Box>
               <Divider sx={{ mb: 2 }} />
               <TextField
@@ -325,7 +375,9 @@ const ChiTietDatPhong = () => {
                 rows={4}
                 placeholder="Nhập ghi chú ở đây..."
                 value={datPhong?.ghiChu || ""}
-                onChange={(e) => setDatPhong({ ...datPhong, ghiChu: e.target.value })}
+                onChange={(e) =>
+                  setDatPhong({ ...datPhong, ghiChu: e.target.value })
+                }
                 variant="outlined"
                 size="small"
               />
@@ -338,7 +390,9 @@ const ChiTietDatPhong = () => {
       <Box sx={{ mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
           <HotelIcon color="primary" sx={{ mr: 1 }} />
-          <Typography variant="h6" color="primary">Danh sách phòng đặt</Typography>
+          <Typography variant="h6" color="primary">
+            Danh sách phòng đặt
+          </Typography>
         </Box>
       </Box>
 
@@ -348,27 +402,91 @@ const ChiTietDatPhong = () => {
             <TableRow sx={{ backgroundColor: "primary.light" }}>
               <TableCell padding="checkbox">
                 <Checkbox
-                  indeterminate={selectedTTDPs.length > 0 && selectedTTDPs.length < thongTinDatPhong.length}
-                  checked={thongTinDatPhong.length > 0 && selectedTTDPs.length === thongTinDatPhong.length}
+                  indeterminate={
+                    selectedTTDPs.length > 0 &&
+                    selectedTTDPs.length < thongTinDatPhong.length
+                  }
+                  checked={
+                    thongTinDatPhong.length > 0 &&
+                    selectedTTDPs.length === thongTinDatPhong.length
+                  }
                   onChange={() => {
                     if (selectedTTDPs.length === thongTinDatPhong.length) {
                       setSelectedTTDPs([]);
                     } else {
-                      setSelectedTTDPs([...thongTinDatPhong]);
+                      setSelectedTTDPs(
+                        thongTinDatPhong.filter(
+                          (ttdp) => ttdp.trangThai !== "Dang dat phong"
+                        )
+                      );
                     }
                   }}
-                  disabled={isDangDatPhong} // Vô hiệu hóa checkbox nếu có trạng thái "Đang đặt phòng"
+                  disabled={isDangDatPhong}
                 />
               </TableCell>
-              <TableCell><Typography sx={{ fontWeight: "bold", color: "primary.contrastText" }}>Mã TTDP</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: "bold", color: "primary.contrastText" }}>Khách hàng</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: "bold", color: "primary.contrastText" }}>Số người</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: "bold", color: "primary.contrastText" }}>Phòng</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: "bold", color: "primary.contrastText" }}>Ngày nhận</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: "bold", color: "primary.contrastText" }}>Ngày trả</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: "bold", color: "primary.contrastText" }}>Tiền phòng</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: "bold", color: "primary.contrastText" }}>Trạng thái</Typography></TableCell>
-              <TableCell><Typography sx={{ fontWeight: "bold", color: "primary.contrastText" }}>Hành động</Typography></TableCell>
+              <TableCell>
+                <Typography
+                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
+                >
+                  Mã TTDP
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
+                >
+                  Khách hàng
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
+                >
+                  Số người
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
+                >
+                  Phòng
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
+                >
+                  Ngày nhận
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
+                >
+                  Ngày trả
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
+                >
+                  Tiền phòng
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
+                >
+                  Trạng thái
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
+                >
+                  Hành động
+                </Typography>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -378,16 +496,14 @@ const ChiTietDatPhong = () => {
                   key={ttdp.id}
                   hover
                   sx={{
-                    "&:hover": {
-                      backgroundColor: "rgba(0, 0, 0, 0.04)",
-                    },
+                    "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
                   }}
                 >
                   <TableCell padding="checkbox">
                     <Checkbox
                       checked={selectedTTDPs.includes(ttdp)}
                       onChange={() => handleCheckboxChange(ttdp)}
-                      disabled={ttdp.trangThai === "Dang dat phong"} // Vô hiệu hóa checkbox riêng nếu trạng thái là "Đang đặt phòng"
+                      disabled={ttdp.trangThai === "Dang dat phong"}
                     />
                   </TableCell>
                   <TableCell
@@ -396,14 +512,15 @@ const ChiTietDatPhong = () => {
                       color: "primary.main",
                       cursor: "pointer",
                       fontWeight: "medium",
-                      "&:hover": {
-                        textDecoration: "underline",
-                      },
+                      "&:hover": { textDecoration: "underline" },
                     }}
                   >
                     {ttdp.maThongTinDatPhong}
                   </TableCell>
-                  <TableCell>{ttdp?.datPhong?.khachHang?.ho} {ttdp?.datPhong?.khachHang?.ten}</TableCell>
+                  <TableCell>
+                    {ttdp?.datPhong?.khachHang?.ho}{" "}
+                    {ttdp?.datPhong?.khachHang?.ten}
+                  </TableCell>
                   <TableCell>
                     <Chip
                       size="small"
@@ -412,19 +529,26 @@ const ChiTietDatPhong = () => {
                     />
                   </TableCell>
                   <TableCell>
-                    {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong ||
+                    {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong || (
                       <Chip
                         size="small"
                         label={ttdp.loaiPhong.tenLoaiPhong}
                         color="info"
                         variant="outlined"
                       />
-                    }
+                    )}
                   </TableCell>
                   <TableCell>{formatDate(ttdp.ngayNhanPhong)}</TableCell>
                   <TableCell>{formatDate(ttdp.ngayTraPhong)}</TableCell>
-                  <TableCell sx={{ fontWeight: "medium", color: "success.main" }}>
-                    {calculateTotalPrice(ttdp.giaDat, ttdp.ngayNhanPhong, ttdp.ngayTraPhong).toLocaleString()} VNĐ
+                  <TableCell
+                    sx={{ fontWeight: "medium", color: "success.main" }}
+                  >
+                    {calculateTotalPrice(
+                      ttdp.giaDat,
+                      ttdp.ngayNhanPhong,
+                      ttdp.ngayTraPhong
+                    ).toLocaleString()}{" "}
+                    VNĐ
                   </TableCell>
                   <TableCell>
                     <Chip
@@ -443,7 +567,7 @@ const ChiTietDatPhong = () => {
                             color="primary"
                             onClick={() => openXepPhongModal(ttdp)}
                             startIcon={<MeetingRoomIcon />}
-                            disabled={ttdp.trangThai === "Đang đặt phòng"} // Vô hiệu hóa nút Xếp phòng
+                            disabled={ttdp.trangThai === "Dang dat phong"}
                           >
                             Xếp phòng
                           </Button>
@@ -455,8 +579,8 @@ const ChiTietDatPhong = () => {
                           onClick={() => handleCheckin(ttdp)}
                           size="small"
                           disabled={
-                            !phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong ||
-                            ttdp.trangThai === "Đang đặt phòng" // Vô hiệu hóa nút Check-in
+                            !phongData[ttdp.maThongTinDatPhong]?.phong
+                              ?.tenPhong || ttdp.trangThai === "Dang dat phong"
                           }
                         >
                           <CheckCircleIcon />
@@ -469,7 +593,9 @@ const ChiTietDatPhong = () => {
             ) : (
               <TableRow>
                 <TableCell colSpan={10} align="center" sx={{ py: 3 }}>
-                  <Typography color="textSecondary">Không có dữ liệu</Typography>
+                  <Typography color="textSecondary">
+                    Không có dữ liệu
+                  </Typography>
                 </TableCell>
               </TableRow>
             )}
@@ -479,10 +605,7 @@ const ChiTietDatPhong = () => {
 
       {/* Nút hành động */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
-        <Button
-          variant="outlined"
-          onClick={() => navigate(-1)}
-        >
+        <Button variant="outlined" onClick={() => navigate(-1)}>
           Quay lại
         </Button>
         <Button
@@ -509,7 +632,8 @@ const ChiTietDatPhong = () => {
           onClick={() => setShowXepPhongModal(true)}
           disabled={selectedTTDPs.length === 0 || isDangDatPhong}
         >
-          Xếp phòng {selectedTTDPs.length > 0 ? `(${selectedTTDPs.length})` : ""}
+          Xếp phòng{" "}
+          {selectedTTDPs.length > 0 ? `(${selectedTTDPs.length})` : ""}
         </Button>
       </Box>
 

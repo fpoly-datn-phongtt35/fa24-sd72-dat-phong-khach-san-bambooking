@@ -60,7 +60,7 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
     @Query("SELECT DISTINCT new com.example.datn.dto.response.DatPhongResponse(dp.id, dp.khachHang, dp.maDatPhong, dp.soNguoi, dp.soPhong, dp.ngayDat, dp.tongTien, dp.ghiChu, dp.trangThai) " +
             "FROM ThongTinDatPhong ttdp " +
             "JOIN ttdp.datPhong dp " +
-            "WHERE dp.trangThai IN :trangThai " +
+            "WHERE dp.trangThai IN (:trangThai) " +
             "AND (:key IS NULL OR :key = '' OR dp.maDatPhong LIKE %:key% OR dp.khachHang.ho LIKE %:key% OR dp.khachHang.ten LIKE %:key%) " +
             "AND ttdp.trangThai IN (:trangThaiTTDP) " +
             "AND (:ngayNhanPhong IS NULL OR ttdp.ngayNhanPhong >= :ngayNhanPhong) " +

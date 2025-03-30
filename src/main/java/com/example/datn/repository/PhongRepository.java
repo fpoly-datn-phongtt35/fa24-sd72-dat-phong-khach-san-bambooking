@@ -35,7 +35,7 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
     FROM Phong p 
     WHERE p.loaiPhong.id = :idLoaiPhong 
       AND p.trangThai = true 
-      AND p.tinhTrang = 'available'
+      AND p.tinhTrang in (:tinhTrang)
       AND NOT EXISTS (
           SELECT d 
           FROM XepPhong d 
@@ -50,7 +50,8 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
             @Param("idLoaiPhong") Integer idLoaiPhong,
             @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
             @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
-            List<String> trangThaiTTDP
+            List<String> trangThaiTTDP,
+            List<String> tinhTrang
     );
 
 

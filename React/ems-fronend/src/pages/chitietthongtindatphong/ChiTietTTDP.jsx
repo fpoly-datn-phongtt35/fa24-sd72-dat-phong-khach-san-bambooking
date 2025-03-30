@@ -13,10 +13,10 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getTTDPByMaTTDP } from '../../services/TTDP';
 import { phongDaXep } from '../../services/XepPhongService';
-import XepPhong from "../../pages/xepphong/XepPhong";
+import XepPhong from "../xepphong/XepPhong";
 import { hienThi } from '../../services/KhachHangCheckin';
-import ModalKhachHangCheckin from './ModalKhachHangCheckin';
-import ModalDoiNgay from './ModalDoiNgay';
+import ModalKhachHangCheckin from '../../components/DatPhong/ModalKhachHangCheckin';
+import ModalDoiNgay from '../../components/DatPhong/ModalDoiNgay';
 import { updateThongTinDatPhong } from '../../services/TTDP';
 
 const ChiTietTTDP = () => {

@@ -78,7 +78,7 @@ const Phong = () => {
       maPhong,
       tenPhong,
       idLoaiPhong,
-      tinhTrang: id ? tinhTrang : 'available',
+      tinhTrang: id ? tinhTrang : 'Trống',
       trangThai: trangThai ? 'true' : 'false',
     };
 
@@ -141,7 +141,7 @@ const Phong = () => {
                 formData.append('file', file);
                 formData.append('tenAnh', tenPhong);
                 formData.append('idPhong', newPhongId);
-                formData.append('tinhTrang', 'available');
+                formData.append('tinhTrang', 'Trống');
                 formData.append('trangThai', 'true');
                 return uploadImage(formData);
               }

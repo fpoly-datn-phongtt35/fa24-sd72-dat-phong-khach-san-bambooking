@@ -13,7 +13,11 @@ import {
   Box,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { getPhongKhaDung } from "../../services/PhongService";
+import {
+  getPhongKhaDung,
+  setPhongDangDat,
+  huyPhongDangDat,
+} from "../../services/PhongService"; // Thêm API huyPhongDangDat
 import { addXepPhong } from "../../services/XepPhongService";
 
 function XepPhong({ show, handleClose, selectedTTDPs }) {
@@ -21,17 +25,15 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
   const [selectedPhong, setSelectedPhong] = useState({});
   const navigate = useNavigate();
 
-  // Hàm định dạng chuỗi ngày thành LocalDateTime (ISO string)
   const formatToLocalDateTime = (dateString) => {
     const date = new Date(dateString);
     return date.toISOString().slice(0, 19);
   };
 
-  // Hàm lấy phòng khả dụng theo loại phòng và khoảng thời gian
   const phongKhaDung = (idLoaiPhong, ngayNhanPhong, ngayTraPhong, ttdpId) => {
     getPhongKhaDung(idLoaiPhong, ngayNhanPhong, ngayTraPhong)
       .then((response) => {
-        console.log(response);
+        console.log(`Phòng khả dụng cho TTDPs ${ttdpId}:`, response);
         setListPhong((prevList) => ({
           ...prevList,
           [ttdpId]: response.data,
@@ -42,51 +44,53 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
       });
   };
 
-  // Khi modal được hiển thị và có danh sách đặt phòng được chọn
+  const reloadPhongKhaDung = () => {
+    selectedTTDPs.forEach((ttdp) => {
+      const formattedNgayNhanPhong = formatToLocalDateTime(ttdp.ngayNhanPhong);
+      const formattedNgayTraPhong = formatToLocalDateTime(ttdp.ngayTraPhong);
+      phongKhaDung(
+        ttdp.loaiPhong.id,
+        formattedNgayNhanPhong,
+        formattedNgayTraPhong,
+        ttdp.id
+      );
+    });
+  };
+
   useEffect(() => {
     if (show && selectedTTDPs.length > 0) {
-      selectedTTDPs.forEach((ttdp) => {
-        const formattedNgayNhanPhong = formatToLocalDateTime(
-          ttdp.ngayNhanPhong
-        );
-        const formattedNgayTraPhong = formatToLocalDateTime(ttdp.ngayTraPhong);
-        phongKhaDung(
-          ttdp.loaiPhong.id,
-          formattedNgayNhanPhong,
-          formattedNgayTraPhong,
-          ttdp.id
-        );
-      });
+      reloadPhongKhaDung();
     }
   }, [show, selectedTTDPs]);
 
-  // Xử lý thay đổi khi chọn phòng cho một đặt phòng cụ thể
-  const handlePhongChange = (ttdpId, phongId) => {
+  const handlePhongChange = async (ttdpId, phongId) => {
+    const previousPhongId = selectedPhong[ttdpId];
+
+    // Cập nhật phòng đã chọn trước
     setSelectedPhong((prevSelected) => ({
       ...prevSelected,
       [ttdpId]: phongId,
     }));
 
-    // Gọi lại phongKhaDung cho tất cả các TTDPs khác để cập nhật danh sách phòng khả dụng
-    selectedTTDPs.forEach((ttdp) => {
-      if (ttdp.id !== ttdpId) {
-        // Không gọi lại cho chính TTDPs vừa chọn
-        const formattedNgayNhanPhong = formatToLocalDateTime(
-          ttdp.ngayNhanPhong
-        );
-        const formattedNgayTraPhong = formatToLocalDateTime(ttdp.ngayTraPhong);
-        phongKhaDung(
-          ttdp.loaiPhong.id,
-          formattedNgayNhanPhong,
-          formattedNgayTraPhong,
-          ttdp.id
-        );
+    try {
+      // Nếu đã chọn phòng trước đó, hủy trạng thái "đang đặt" của phòng cũ
+      if (previousPhongId) {
+        await huyPhongDangDat(previousPhongId);
       }
-    });
+      // Đánh dấu phòng mới được chọn
+      await setPhongDangDat(phongId);
+      reloadPhongKhaDung();
+    } catch (error) {
+      console.error("Lỗi khi thay đổi phòng:", error);
+      // Khôi phục trạng thái trước đó nếu lỗi
+      setSelectedPhong((prevSelected) => ({
+        ...prevSelected,
+        [ttdpId]: previousPhongId,
+      }));
+    }
   };
 
-  // Xử lý khi nhấn nút "Save All"
-  const handleSaveAll = () => {
+  const handleSaveAll = async () => {
     const requests = selectedTTDPs.map(async (ttdp) => {
       const xepPhongRequest = {
         phong: { id: selectedPhong[ttdp.id] },
@@ -95,26 +99,37 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
         ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong),
         trangThai: "Đã xếp",
       };
-      try {
-        const response = await addXepPhong(xepPhongRequest);
-        console.log(response);
-      } catch (error) {
-        console.error(`Lỗi khi xếp phòng cho ${ttdp.maTTDP}:`, error);
-      }
+      return addXepPhong(xepPhongRequest);
     });
 
-    Promise.all(requests)
-      .then(() => {
-        alert("Xếp phòng thành công cho tất cả các đặt phòng đã chọn!");
-        handleClose();
-      })
-      .catch(() => {
-        alert("Xảy ra lỗi trong quá trình xếp phòng.");
-      });
+    try {
+      const responses = await Promise.all(requests);
+      console.log("Kết quả xếp phòng:", responses);
+      alert("Xếp phòng thành công cho tất cả các đặt phòng đã chọn!");
+      handleClose();
+    } catch (error) {
+      console.error("Lỗi khi xếp phòng:", error);
+      alert("Xảy ra lỗi trong quá trình xếp phòng.");
+    }
+  };
+
+  // Xử lý khi đóng dialog mà không save
+  const handleCancel = async () => {
+    try {
+      // Hủy trạng thái "đang đặt" cho tất cả các phòng đã chọn
+      const cancelRequests = Object.values(selectedPhong).map((phongId) =>
+        huyPhongDangDat(phongId)
+      );
+      await Promise.all(cancelRequests);
+    } catch (error) {
+      console.error("Lỗi khi hủy trạng thái phòng:", error);
+    }
+    setSelectedPhong({}); // Reset lựa chọn phòng
+    handleClose();
   };
 
   return (
-    <Dialog open={show} onClose={handleClose} fullWidth maxWidth="sm">
+    <Dialog open={show} onClose={handleCancel} fullWidth maxWidth="sm">
       <DialogTitle>Xếp phòng</DialogTitle>
       <DialogContent dividers>
         {selectedTTDPs.map((ttdp) => (
@@ -147,7 +162,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
         ))}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="secondary">
+        <Button onClick={handleCancel} color="secondary">
           Cancel
         </Button>
         <Button

@@ -88,7 +88,8 @@ public class PhongServiceIMPL implements PhongService {
     @Override
     public List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDateTime ngayNhanPhong,LocalDateTime ngayTraPhong) {
         List<String> trangThai = Arrays.asList("Đang ở","Đã xếp");
-        return phongRepository.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong,trangThai);
+        List<String> tinhTrang = Arrays.asList("Trống");
+        return phongRepository.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong,trangThai,tinhTrang);
     }
 
     @Override
@@ -96,5 +97,17 @@ public class PhongServiceIMPL implements PhongService {
         return phongRepository.DSPhong(keyword);
     }
 
+    public Phong phongDangDat(Integer id){
+        Phong p = phongRepository.getPhongById(id);
+        p.setTinhTrang("Đang đặt");
+        phongRepository.save(p);
+        return p;
+    }
 
+    public Phong huyDangDat(Integer id){
+        Phong p = phongRepository.getPhongById(id);
+        p.setTinhTrang("Trống");
+        phongRepository.save(p);
+        return p;
+    }
 }
