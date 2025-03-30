@@ -29,4 +29,6 @@ public interface ThongTinDatPhongService {
     void xoaTTDP(Integer idTTDP);
 
     ThongTinDatPhong getByMaTTDP(String maTTDP);
+
+    List<ThongTinDatPhong> getAllByIDDP(Integer iddp);
 }

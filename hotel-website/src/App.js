@@ -4,6 +4,9 @@ import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import Rooms from "./pages/Rooms";
+import History from "./pages/History";
+import DetailTTDP from "./components/DetailTTDP";
+import Information from "./pages/Information";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Profile from "./components/Profile";
@@ -74,9 +77,12 @@ function App() {
 
       <Route element={<UnauthorizedRoutes />}>
         {/* Pages không cần đăng nhập */}
-        <Route path="/" element={<Rooms />} />
+        <Route path="/" element={<Information />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />
+        <Route path="/history" element={<History />} />
         <Route path="/rooms" element={<Rooms />} />
+        <Route path="/information" element={<Information />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         {/* <Route path="/about" element={<AboutPage />} /> */}

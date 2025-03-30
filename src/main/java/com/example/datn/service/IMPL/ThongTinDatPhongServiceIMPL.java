@@ -126,6 +126,11 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     }
 
     @Override
+    public List<ThongTinDatPhong> getAllByIDDP(Integer iddp) {
+        return thongTinDatPhongRepository.getAllByidDatPhong(iddp);
+    }
+
+    @Override
     public List<ThongTinDatPhong> getGioHang(Integer idDatPhong) {
         return thongTinDatPhongRepository.findByIDDatPhong(idDatPhong);
     }

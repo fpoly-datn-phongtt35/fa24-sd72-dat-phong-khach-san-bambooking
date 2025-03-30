@@ -3,20 +3,22 @@ package com.example.datn.controller;
 import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.request.KhachHangDatPhongRequest;
 import com.example.datn.dto.request.TTDPRequest;
-import com.example.datn.dto.response.DatPhongResponse;
-import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
-import com.example.datn.dto.response.LoaiPhongResponse;
+import com.example.datn.dto.response.*;
 import com.example.datn.model.HinhAnh;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.ThongTinDatPhong;
+import com.example.datn.service.HoaDonService;
 import com.example.datn.service.HotelWebsiteService;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
+import com.example.datn.service.IMPL.HotelWebsiteServiceImpl;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
 import com.example.datn.service.LoaiPhongService;
+import com.example.datn.service.ThongTinHoaDonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +38,11 @@ public class HotelWebsiteController {
     @Autowired
     ThongTinDatPhongServiceIMPL thongTinDatPhongServiceIMPL;
     @Autowired
-    HotelWebsiteService hotelWebsiteService;
+    HotelWebsiteServiceImpl hotelWebsiteServiceImpl;
+    @Autowired
+    HoaDonService hoaDonService;
+    @Autowired
+    ThongTinHoaDonService thongTinHoaDonService;
 
     @GetMapping("/loai-phong")
     public ResponseEntity<?> home(){
@@ -49,4 +55,42 @@ public class HotelWebsiteController {
         List<HinhAnh> lp = loaiPhongServiceIMPL.getAnhLP(idLoaiPhong);
         return ResponseEntity.ok(lp);
     }
+
+    @GetMapping("/dp/lich-su-dp")
+    public Page<ThongTinDatPhong> getDPbyTDN(@RequestParam("tenDangNhap") String tenDangNhap,  Pageable pageable) {
+        return hotelWebsiteServiceImpl.getDPbyTenDangNhap(tenDangNhap,pageable);
+    }
+
+    @GetMapping("/dp/findByidDatPhong")
+    public List<ThongTinDatPhong> getTTDPBymaDatPhong(@RequestParam(value = "idDatPhong") Integer idDatPhong) {
+        return thongTinDatPhongServiceIMPL.getAllByIDDP(idDatPhong);
+    }
+
+    @GetMapping("/hoa-don/{idHoaDon}")
+    public ResponseEntity<?> getHoaDonById(@PathVariable("idHoaDon") Integer idHoaDon){
+        return ResponseEntity.ok(hoaDonService.getOneHoaDon(idHoaDon));
+    }
+
+    @GetMapping("/tthd/{idHoaDon}")
+    public ResponseEntity<?> findThongTinHoaDonByHoaDonId(@PathVariable("idHoaDon") Integer idHoaDon) {
+        return ResponseEntity.status(HttpStatus.OK).body(thongTinHoaDonService.getThongTinHoaDonByHoaDonId(idHoaDon));
+    }
+
+    @GetMapping("/tthd/phu-thu/{idHoaDon}")
+    public ResponseEntity<?> getPhuThu(@PathVariable("idHoaDon") Integer idHoaDon) {
+        List<PhuThuResponse> phuThuResponses = thongTinHoaDonService.getPhuThu(idHoaDon);
+        return ResponseEntity.ok(phuThuResponses);
+    }
+
+    @GetMapping("/tthd/dich-vu-su-dung/{idHoaDon}")
+    public ResponseEntity<?> getDichVuSuDung(@PathVariable("idHoaDon") Integer idHoaDon) {
+        List<DichVuSuDungResponse> dichVuSuDung = thongTinHoaDonService.getDichVuSuDung(idHoaDon);
+        return ResponseEntity.ok(dichVuSuDung);
+    }
+
+    @GetMapping("/hoa-don/findidHD/{idDatPhong}")
+    public ResponseEntity<?> getidHDByidDatPhong(@PathVariable("idDatPhong") Integer idDatPhong) {
+        return ResponseEntity.ok( hotelWebsiteServiceImpl.getHDByidDatPhong(idDatPhong));
+    }
+
 }

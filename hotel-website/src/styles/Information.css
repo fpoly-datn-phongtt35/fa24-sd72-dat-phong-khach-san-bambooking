@@ -1,0 +1,314 @@
+/* Information.css */
+
+
+.information {
+  font-family: Arial, sans-serif;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hero Slider Section */
+.hero-slider {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.slide-item {
+  width: 100%;
+  height: 100vh;
+}
+
+.slide-item img {
+  width: 100%;
+  height:87%;
+  object-fit: cover;
+}
+
+/* Text cố định */
+.fixed-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.fixed-text h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.fixed-text p {
+  font-size: 1.5rem;
+}
+
+/* Nút chuyển slide tùy chỉnh */
+.custom-prev, .custom-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 11;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+
+.custom-prev:hover, .custom-next:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.custom-prev {
+  left: 20px;
+}
+
+.custom-next {
+  right: 20px;
+}
+
+/* Description Section */
+.description {
+  max-width: 1200px;
+  margin: 40px auto;
+  text-align: center;
+  padding: 0 20px;
+}
+
+/* Amenities Section */
+/* Amenities Section */
+.amenities {
+  max-width: 100%;
+  margin: 40px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.amenities-slider {
+  position: relative;
+  max-width: 1100px; /* Giới hạn chiều rộng của slider */
+  max-height: 550px;
+  margin: 0 auto;
+}
+
+.amenity-slide {
+  text-align: center;
+  max-width: 1100px;
+  max-height: 550px;
+}
+
+.amenity-slide img {
+  width: 1100px;
+  height: 530px;
+  object-fit: cover; /* Đảm bảo ảnh không bị méo */
+  border-radius: 8px;
+  transition: opacity 1s ease-in-out; /* Hiệu ứng mờ dần cho ảnh */
+}
+
+.amenity-slide p {
+  margin-top: 15px;
+  font-size: 1.2rem;
+  color: #333;
+  transition: opacity 1s ease-in-out; /* Hiệu ứng mờ dần cho văn bản */
+}
+
+/* Nút điều hướng cho slider tiện ích */
+.amenities-prev,
+.amenities-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 11;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+
+.amenities-prev:hover,
+.amenities-next:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.amenities-prev {
+  left: 10px;
+}
+
+.amenities-next {
+  right: 10px;
+}
+
+/* Định dạng dots cho slider tiện ích */
+.amenities .slick-dots {
+  bottom: -30px; /* Đặt dots bên dưới slider */
+}
+
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 768px) {
+  .amenity-slide img {
+    max-width: 100%;
+    height: 200px;
+  }
+}
+
+/* Điều chỉnh slider và dots */
+.slick-slider {
+  height: 90%;
+  position: relative;
+}
+
+.slick-list, .slick-track {
+  height: 100%;
+  overflow: hidden;
+}
+
+.slick-dots {
+  position: absolute;
+  bottom: 20px; /* Đặt dots cách đáy 20px, nằm trên ảnh */
+  z-index: 12; /* Đảm bảo dots nằm trên ảnh và dưới nút */
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  text-align: center;
+}
+
+.slick-dots li {
+  display: inline-block;
+  margin: 0 8px; /* Khoảng cách giữa các chấm */
+}
+
+.slick-dots li button {
+  width: 12px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.slick-dots li button:before {
+  content: none; 
+}
+
+.slick-dots li.slick-active button {
+  background: #fff; 
+}
+
+/* Hotel Rooms Section */
+.hotel-rooms {
+  max-width: 1200px;
+  margin: 80px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.rooms-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  text-align: center;
+}
+
+.room-item img {
+  width: 100%;
+  max-width: 400px;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.room-item img:hover {
+  transform: scale(1.05);
+}
+
+.room-item h3 {
+  margin-top: 10px;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.description-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  text-align: left;
+}
+
+.description-left {
+  flex: 1;
+}
+
+.description-right {
+  flex: 1;
+  background-color: #f9f9f9;
+  padding: 10px 10px 40px 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  
+}
+
+.description-right-tittle{
+  text-align: center;
+}
+
+.description-right h3 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.description-right ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.description-right ul li {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #555;
+  position: relative;
+  padding-left: 20px;
+}
+
+.description-right ul li:before {
+  content: "✔";
+  position: absolute;
+  left: 0;
+  color: #28a745;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 768px) {
+  .description-content {
+    flex-direction: column;
+  }
+
+  .description-left,
+  .description-right {
+    flex: none;
+  }
+}

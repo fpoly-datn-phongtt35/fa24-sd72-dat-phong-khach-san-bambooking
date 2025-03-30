@@ -61,5 +61,15 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :idDatPhong")
     List<ThongTinDatPhong> findByIDDatPhong(@Param("idDatPhong") Integer idDatPhong);
 
+    @Query(""" 
+            SELECT dp FROM  DatPhong dp 
+            join KhachHang kh on dp.khachHang.id = kh.id
+            join TaiKhoan tk on kh.taiKhoan.id = tk.id
+            WHERE tk.tenDangNhap = :tenDangNhap
+            """)
+    Page<ThongTinDatPhong> getDPbyTenDangNhap(@Param("tenDangNhap") String tenDangNhap,Pageable pageable);
+
+    @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp ")
+    List<ThongTinDatPhong> getAllByidDatPhong(@Param("iddp") Integer iddp);
 }
 

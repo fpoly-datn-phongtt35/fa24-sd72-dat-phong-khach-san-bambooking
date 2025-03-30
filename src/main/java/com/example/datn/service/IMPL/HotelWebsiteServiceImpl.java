@@ -5,17 +5,17 @@ import com.example.datn.dto.request.KhachHangDatPhongRequest;
 import com.example.datn.dto.request.KhachHangRequest;
 import com.example.datn.dto.request.TTDPRequest;
 import com.example.datn.dto.response.DatPhongResponse;
-import com.example.datn.model.DatPhong;
-import com.example.datn.model.KhachHang;
-import com.example.datn.model.LoaiPhong;
-import com.example.datn.model.ThongTinDatPhong;
+import com.example.datn.model.*;
 import com.example.datn.repository.DatPhongRepository;
+import com.example.datn.repository.HoaDonRepository;
 import com.example.datn.repository.KhachHangRepository;
 import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.service.EmailService;
 import com.example.datn.service.HotelWebsiteService;
 import com.example.datn.utilities.UniqueDatPhongCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -39,7 +39,8 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
 
     @Autowired
     private EmailService emailService;
-
+    @Autowired
+    private HoaDonRepository hoaDonRepository;
     @Override
     public KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request) {
         KhachHang khachHang = new KhachHang();
@@ -150,5 +151,16 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
 
         return savedTTDP;
     }
+
+    @Override
+    public Page<ThongTinDatPhong> getDPbyTenDangNhap(String tenDangNhap, Pageable pageable) {
+        return thongTinDatPhongRepository.getDPbyTenDangNhap(tenDangNhap,pageable);
+    }
+
+    @Override
+    public HoaDon getHDByidDatPhong(Integer idDatPhong) {
+        return hoaDonRepository.getHDByidDatPhong(idDatPhong);
+    }
+
 
 }
