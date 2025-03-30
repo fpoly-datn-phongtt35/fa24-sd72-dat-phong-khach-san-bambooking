@@ -2,7 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { deleteImage, listImage } from '../../services/ImageService';
 import Swal from 'sweetalert2';
-
+import {
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Pagination,
+} from '@mui/material';
 
 const ListImage = () => {
   const [images, setImages] = useState([]);
@@ -47,40 +63,40 @@ const ListImage = () => {
 
   const handleRemove = (id) => {
     Swal.fire({
-        title: 'Xác nhận xóa',
-        text: "Bạn có chắc chắn muốn xóa ảnh này không?",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Xóa',
-        cancelButtonText: 'Hủy'
+      title: 'Xác nhận xóa',
+      text: "Bạn có chắc chắn muốn xóa ảnh này không?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy'
     }).then((result) => {
-        if (result.isConfirmed) {
-            deleteImage(id)
-                .then((response) => {
-                    console.log("Xóa ảnh thành công!", response.data);
-                    Swal.fire({
-                        title: 'Đã xóa!',
-                        text: 'Ảnh đã được xóa thành công.',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then(() => {
-                        getAllImages(); // Cập nhật danh sách ảnh sau khi xóa
-                    });
-                })
-                .catch((error) => {
-                    console.log("Lỗi khi xóa: " + error);
-                    Swal.fire({
-                        title: 'Lỗi!',
-                        text: 'Không thể xóa ảnh. Vui lòng thử lại.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                });
-        }
+      if (result.isConfirmed) {
+        deleteImage(id)
+          .then((response) => {
+            console.log("Xóa ảnh thành công!", response.data);
+            Swal.fire({
+              title: 'Đã xóa!',
+              text: 'Ảnh đã được xóa thành công.',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              getAllImages(); // Cập nhật danh sách ảnh sau khi xóa
+            });
+          })
+          .catch((error) => {
+            console.log("Lỗi khi xóa: " + error);
+            Swal.fire({
+              title: 'Lỗi!',
+              text: 'Không thể xóa ảnh. Vui lòng thử lại.',
+              icon: 'error',
+              confirmButtonText: 'OK'
+            });
+          });
+      }
     });
-};
+  };
 
 
   const handleSearchInput = (e) => {
@@ -91,93 +107,71 @@ const ListImage = () => {
   return (
     <div className='container'>
       <h5>Hình ảnh</h5>
-      <div className='card'>
-        <div className='card-body'>
-          <div className='d-flex justify-content-between mb-3 mt-2'>
-            <button
-              className='btn btn-outline-success btn-lg fs-6'
-              onClick={handleCreate} >
-              <i className='bi bi-plus-circle'></i> Thêm
-            </button>
-            <div className="input-group ms-2 w-25">
-              <input
-                type="text"
-                className='form-control form-control-lg fs-6'
-                placeholder='Tìm kiếm tên phòng, tên ảnh...'
-                value={searchQuery}
-                onChange={handleSearchInput}
-              />
-            </div>
-          </div>
-          <table className='table table-hover'>
-            <thead>
-              <tr>
-                <th>ID Image</th>
-                <th>Phòng</th>
-                <th>Tên ảnh</th>
-                <th>Hình ảnh</th>
-                <th>Trạng thái</th>
-                <td>Chức năng</td>
-              </tr>
-            </thead>
-            <tbody>
+      <Paper sx={{ p: 2, mt: 2 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+          <Button variant='contained' color='success' onClick={handleCreate}>
+            Thêm Hình Ảnh
+          </Button>
+          <TextField
+            label='Tìm kiếm'
+            variant='outlined'
+            size='small'
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(0);
+            }}
+          />
+        </div>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>ID</TableCell>
+                <TableCell>Phòng</TableCell>
+                <TableCell>Tên ảnh</TableCell>
+                <TableCell>Hình ảnh</TableCell>
+                <TableCell>Trạng thái</TableCell>
+                <TableCell>Chức năng</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {images.length > 0 ? (
-                images.map(image => (
-                  <tr key={image.id}>
-                    <td>{image.id}</td>
-                    <td>{image.phong?.tenPhong}</td>
-                    <td>{image.tenAnh}</td>
-                    <td>
+                images.map((image) => (
+                  <TableRow key={image.id}>
+                    <TableCell>{image.id}</TableCell>
+                    <TableCell>{image.phong?.tenPhong}</TableCell>
+                    <TableCell>{image.tenAnh}</TableCell>
+                    <TableCell>
                       {image.duongDan ? (
-                        <img
-                          src={image.duongDan}
-                          alt={image.tenAnh}
-                          style={{ width: '150px', height: 'auto' }}
-                        />
+                        <img src={image.duongDan} alt={image.tenAnh} width='100' height='auto' />
                       ) : (
-                        <span>Không có hình ảnh</span>
+                        'Không có hình ảnh'
                       )}
-                    </td>
-                    <td>{image.trangThai ? "Hoạt động" : "Ngừng hoạt động"}</td>
-                    <td>
-                      <button
-                        className='btn btn-outline-danger'
-                        onClick={() => handleRemove(image.id)}>
-                        <i className="bi bi-trash"></i>
-                      </button>
-                    </td>
-                  </tr>
+                    </TableCell>
+                    <TableCell>{image.trangThai ? 'Hoạt động' : 'Ngừng hoạt động'}</TableCell>
+                    <TableCell>
+                      <Button variant="outlined" color='error' onClick={() => handleDelete(image.id)} sx={{ ml: 1 }}>Xóa</Button>
+                    </TableCell>
+                  </TableRow>
                 ))
               ) : (
-                <tr>
-                  <td colSpan="6" className='text-center'>Không có dữ liệu</td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={6} align='center'>Không có dữ liệu</TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
-
-          {/* Phân trang */}
-          <div className='d-flex justify-content-center my-3'>
-            <button
-              className='btn btn-outline-primary me-2'
-              disabled={currentPage === 0}
-              onClick={handlePreviousPage}
-            >
-              Previous
-            </button>
-            <span className='align-self-center' style={{ marginTop: '7px' }}>
-              Trang {currentPage + 1} / {totalPages}
-            </span>
-            <button
-              className='btn btn-outline-primary ms-2'
-              disabled={currentPage + 1 >= totalPages}
-              onClick={handleNextPage}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
+        {/* Pagination */}
+        <Pagination
+          count={totalPages}
+          page={currentPage + 1}
+          onChange={(e, page) => setCurrentPage(page - 1)}
+          color='primary'
+          sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}
+        />
+      </Paper>
     </div>
   );
 };

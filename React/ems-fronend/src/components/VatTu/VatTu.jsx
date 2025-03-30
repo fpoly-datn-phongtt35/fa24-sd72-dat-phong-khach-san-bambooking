@@ -68,6 +68,7 @@ const VatTu = () => {
 
     const handleCloseFormAdd = () => {
         setShowAddForm(false);
+        getAllSanPham();
     };
 
     const handleOpenFormDetail = (id) => {

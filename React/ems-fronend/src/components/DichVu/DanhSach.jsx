@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DuLieu, XoaDichVu } from '../../services/DichVuService';
+import { DuLieu, XoaDichVu, KiemTraDichVu } from '../../services/DichVuService';
 import FormAdd from './FormAdd';
 import FormUpdate from './FormUpdate';
 import Swal from 'sweetalert2';
@@ -63,40 +63,65 @@ const DanhSach = () => {
             });
     };
 
-    const handleDelete = (id) => {
-        Swal.fire({
-            title: 'Bạn có chắc chắn muốn xóa dịch vụ này?',
-            text: "Hành động này không thể hoàn tác!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Xóa',
-            cancelButtonText: 'Hủy'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                XoaDichVu(id)
-                    .then(() => {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Đã xóa!',
-                            text: 'Dịch vụ đã được xóa thành công.',
-                            confirmButtonColor: '#6a5acd'
-                        });
-                        loadDichVu();
-                    })
-                    .catch(error => {
-                        console.error("Lỗi khi xóa dịch vụ:", error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Lỗi',
-                            text: 'Không thể xóa dịch vụ. Vui lòng thử lại!',
-                            confirmButtonColor: '#d33'
-                        });
-                    });
+    const handleDelete = async (id) => {
+        try {
+            // Gọi API kiểm tra trước khi xóa
+            const response = await KiemTraDichVu(id);
+            console.log("Kết quả kiểm tra:", response.data); // 🛠 Debug API
+    
+            if (response.data.isUsed) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Không thể xóa',
+                    text: 'Dịch vụ đang được sử dụng!',
+                    confirmButtonColor: '#3085d6'
+                });
+                return; // Dừng nếu dịch vụ đang được sử dụng
             }
-        });
-    };
+    
+            // Nếu không có dữ liệu liên quan, xác nhận xóa
+            Swal.fire({
+                title: 'Bạn có chắc chắn muốn xóa dịch vụ này?',
+                text: "Hành động này không thể hoàn tác!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    XoaDichVu(id)
+                        .then(() => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã xóa!',
+                                text: 'Dịch vụ đã được xóa thành công.',
+                                confirmButtonColor: '#6a5acd'
+                            });
+                            loadDichVu(); // Cập nhật danh sách
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Lỗi',
+                                text: 'Không thể xóa dịch vụ. Vui lòng thử lại!',
+                                confirmButtonColor: '#d33'
+                            });
+                        });
+                }
+            });
+        } catch (error) {
+            console.error("Lỗi khi kiểm tra dịch vụ:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Có lỗi xảy ra, vui lòng thử lại!',
+                confirmButtonColor: '#d33'
+            });
+        }
+    };    
+
 
     return (
         <Box sx={{ p: 3 }}>

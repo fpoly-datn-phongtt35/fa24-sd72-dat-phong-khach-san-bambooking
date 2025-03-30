@@ -120,9 +120,6 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
           </ListItemButton>
           <Collapse in={openSubmenu['quanLyPhong']} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItemButton component={Link} to="/phong" sx={{ pl: 4 }}>
-                <ListItemText primary="Phòng" />
-              </ListItemButton>
               <ListItemButton component={Link} to="/LoaiPhong" sx={{ pl: 4 }}>
                 <ListItemText primary="Loại phòng" />
               </ListItemButton>

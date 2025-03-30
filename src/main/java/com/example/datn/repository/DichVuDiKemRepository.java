@@ -19,4 +19,7 @@ public interface DichVuDiKemRepository extends JpaRepository<DichVuDiKem,Integer
             "dvdk.trangThai) " + // Giả sử rằng bạn có thuộc tính trangThai trong model
             "from DichVuDiKem dvdk WHERE dvdk.loaiPhong.id = :idLoaiPhong")
     Page<DichVuDiKemResponse> findByIDLoaiPhong(Integer idLoaiPhong, Pageable pageable);
+
+    // ✅ Thêm phương thức kiểm tra dịch vụ có tồn tại hay không
+    boolean existsByDichVu_Id(Integer idDichVu);
 }

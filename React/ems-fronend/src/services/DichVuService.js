@@ -16,3 +16,9 @@ export const CapNhatDichVu = (dv) => {
 export const XoaDichVu = (id) => {
     return authorizedAxiosInstance.delete(`${apiDelete}/${id}`);
 };
+
+const apiCheck = "http://localhost:8080/dich_vu/check";
+
+export const KiemTraDichVu = (id) => {
+    return authorizedAxiosInstance.get(`${apiCheck}/${id}`);
+};
