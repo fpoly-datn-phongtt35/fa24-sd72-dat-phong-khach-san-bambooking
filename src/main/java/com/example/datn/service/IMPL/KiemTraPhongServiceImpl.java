@@ -158,7 +158,7 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
 
         // Cập nhật tình trạng phòng
         Phong phong = xepPhong.getPhong();
-        phong.setTinhTrang("available");
+        phong.setTinhTrang("Trống");
         phongRepository.save(phong);
 
         thongTinDatPhong.setTrangThai("Đã kiểm tra phòng");
