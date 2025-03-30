@@ -61,4 +61,9 @@ public interface HoaDonRepository extends JpaRepository<HoaDon, Integer> {
             WHERE tthd.hoaDon.id = :hoaDonId
             """)
     List<PhuThuResponse> findPhuThuByIdHoaDon(@Param("hoaDonId") Integer idHoaDon);
+
+    @Query("""
+            SELECT hd FROM HoaDon hd WHERE hd.datPhong.id = :idDatPhong
+            """)
+    HoaDon getHDByidDatPhong(@Param("idDatPhong") Integer idDatPhong);
 }

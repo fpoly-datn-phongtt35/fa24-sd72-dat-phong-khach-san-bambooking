@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Rooms.css';
+import '../styles/Rooms.css';
 import { getAllLoaiPhong, getAnhLP } from '../services/Rooms.js';
 
 export default function Rooms() {
@@ -15,7 +15,6 @@ export default function Rooms() {
   const fetchRoomTypes = async () => {
     try {
       const response = await getAllLoaiPhong();
-      console.log(response.data);
       setRoomTypes(response.data || []);
     } catch (error) {
       setError(error.message || 'Không thể tải danh sách phòng.');
@@ -26,13 +25,11 @@ export default function Rooms() {
   const fetchRoomImages = async (idLoaiPhong) => {
     try {
       const response = await getAnhLP(idLoaiPhong);
-      console.log(`Ảnh cho ${idLoaiPhong}:`, response.data);
       const imagePaths = response.data.map((item) => item.duongDan).filter(Boolean);
       setRoomImages((prev) => ({
         ...prev,
         [idLoaiPhong]: imagePaths,
       }));
-      console.log(`imagePaths cho ${idLoaiPhong}:`, imagePaths);
     } catch (error) {
       console.error(`Lỗi khi lấy ảnh cho ${idLoaiPhong}:`, error);
       setRoomImages((prev) => ({

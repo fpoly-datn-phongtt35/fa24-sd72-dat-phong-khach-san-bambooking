@@ -31,9 +31,10 @@ public class AppConfig {
             "/tien-ich-phong/**", "/tien-ich/**", "/thong-tin-hoa-don/**", "/phong/**", "/loai-phong/**",
             "/khach-hang-checkin/**", "/hoa-don/**", "/dich_vu_su_dung/**", "/dich_vu_di_kem/**", "/dich_vu/**",
             "/dat-phong/**","/loai-phong/add" ,"thanh-toan/**","/dat-phong/xoa"};
-    private final String[] URI_USER = {"/api/*/customer-client/**","/api/loai-phong/**"}; // URL yêu cầu xác thực và có ROLE_USER
+    private final String[] URI_USER = {"/api/*/customer-client/**","/api/loai-phong/**", "/api/dp/**",// URL yêu cầu xác thực và có ROLE_USER
+            "/api/tthd/**","/api/hoa-don/**"};
 
-    @Bean
+@Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }

@@ -133,6 +133,14 @@ export default function Navbar() {
               PHÒNG
             </Link>
           </li>
+          <li>
+            <Link
+              to="/history"
+              className={location.pathname === "/history" ? "active" : ""}
+            >
+              LỊCH SỬ ĐẶT PHÒNG
+            </Link>
+          </li>
         </ul>
         <div className="navbar-buttons">
           {

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Rooms from './pages/Rooms';
+import Information from './pages/Information';
+import DetailTTDP from "./components/DetailTTDP";
+import History from "./pages/History";
 import Profile from './components/Profile';
 import Register from './components/Register';
 import Login from './components/Login';
@@ -43,6 +46,9 @@ export default function App() {
           <div className="content-area">
             <Routes>
               {/* <Route path="/" element={<Home user={user} />} />  */}
+              <Route path="/information" element={<Information />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/about" element={<AboutPage />} />
               <Route
