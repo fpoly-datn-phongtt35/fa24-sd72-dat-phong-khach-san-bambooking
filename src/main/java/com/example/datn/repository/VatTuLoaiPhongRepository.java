@@ -9,8 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
-import java.util.Optional;
-
 
 public interface VatTuLoaiPhongRepository extends JpaRepository<VatTuLoaiPhong,Integer> {
     @Query("select new com.example.datn.dto.response.VatTuLoaiPhongResponse(ti.id," +

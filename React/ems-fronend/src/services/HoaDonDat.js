@@ -1,7 +1,7 @@
 import authorizedAxiosInstance from "../utils/authorizedAxios";
 
 const apiFindCheckOut = "http://localhost:8080/tra-phong/check-out";
-const apiCheckOut = "http://localhost:8080/tra-phong/Check-out";
+const apiCheckOut = "http://localhost:8080/tra-phong/check-out-by-id";
 const apiGetDatPhong = "http://localhost:8080/dat-phong/chi-tiet-dat-phong";
 const apiCreateTTHD = "http://localhost:8080/thong-tin-hoa-don";
 

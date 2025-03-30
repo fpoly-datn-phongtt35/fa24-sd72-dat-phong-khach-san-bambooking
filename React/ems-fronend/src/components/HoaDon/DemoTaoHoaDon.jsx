@@ -8,6 +8,7 @@ const DemoTaoHoaDon = () => {
     const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
     const [idHoaDon, setIdHoaDon] = useState(null);
     const [tienKhauTru, setTienKhauTru] = useState({});
+    const [errors, setErrors] = useState({});
     const hoaDonDaTaoRef = useRef(false);
     const navigate = useNavigate();
 
@@ -21,24 +22,54 @@ const DemoTaoHoaDon = () => {
     const createHoaDon = async () => {
         try {
             const storedIdTraPhong = JSON.parse(localStorage.getItem("traPhong"));
-            const idTraPhong = storedIdTraPhong?.length ? Number(storedIdTraPhong[0].id) : null;
-            if (!idTraPhong) return;
+            console.log("storedIdTraPhong:", JSON.stringify(storedIdTraPhong, null, 2));
 
+            const idTraPhong = storedIdTraPhong?.length ? Number(storedIdTraPhong[0].id) : null;
+            if (!idTraPhong) {
+                console.error("Không tìm thấy idTraPhong trong localStorage.");
+                return;
+            }
+
+            const listTraPhong = storedIdTraPhong.map(item => ({
+                id: item.id,
+                ngayTraThucTe: item.ngayTraThucTe,
+                trangThai: item.trangThai,
+                xepPhong: item.idXepPhong ? { id: item.idXepPhong } : null
+            }));
+            console.log(listTraPhong);
             const hdResponse = await taoHoaDon(idTraPhong);
             setIdHoaDon(hdResponse.id);
 
             const response = await createThongTinHoaDon({
                 idHoaDon: hdResponse.id,
-                listTraPhong: storedIdTraPhong,
+                listTraPhong: listTraPhong,
             });
             setThongTinHoaDon(response.data || []);
         } catch (error) {
             console.error("Lỗi tạo hóa đơn:", error);
+            alert("Không thể tạo hóa đơn: " + (error.response?.data?.message || "Lỗi không xác định"));
         }
     };
 
     const handleTienKhauTruChange = (id, value) => {
-        setTienKhauTru((prev) => ({ ...prev, [id]: Number(value) || 0 }));
+        const numericValue = Number(value);
+        const updatedErrors = { ...errors };
+        const item = thongTinHoaDon.find((item) => item.id === id);
+
+        if (numericValue < 0) {
+            updatedErrors[id] = "Tiền khấu trừ không được nhỏ hơn 0!";
+        } else if (numericValue > item.tienPhong) {
+            updatedErrors[id] = "Tiền khấu trừ không được lớn hơn tiền phòng!";
+        }
+        else {
+            delete updatedErrors[id];
+        }
+
+        setErrors(updatedErrors);
+        setTienKhauTru((prev) => ({
+            ...prev,
+            [id]: numericValue < 0 ? 0 : (numericValue > item.tienPhong ? item.tienPhong : numericValue)
+        }));
     };
 
     const handleUpdateTienKhauTru = async (idThongTinHoaDon) => {
@@ -47,25 +78,36 @@ const DemoTaoHoaDon = () => {
             return;
         }
 
+        if (errors[idThongTinHoaDon]) {
+            console.error("Không thể cập nhật vì có lỗi:", errors[idThongTinHoaDon]);
+            return;
+        }
+
         try {
             await updateTienKhauTru(idHoaDon, idThongTinHoaDon, tienKhauTru[idThongTinHoaDon]);
         } catch (error) {
             console.error("Lỗi khi cập nhật tiền khấu trừ:", error);
+            alert("Lỗi khi cập nhật tiền khấu trừ: " + (error.response?.data?.message || "Lỗi không xác định"));
         }
     };
 
     const handleThanhToan = async () => {
+        const hasErrors = Object.keys(errors).length > 0;
+        if (hasErrors) {
+            alert("Vui lòng sửa các lỗi trước khi thanh toán!");
+            return;
+        }
+
         try {
             await Promise.all(
                 thongTinHoaDon.map((item) =>
                     updateTienKhauTru(idHoaDon, item.id, tienKhauTru[item.id] || 0)
                 )
             );
-
-            // Nếu tất cả cập nhật thành công, chuyển hướng sang trang thanh toán
             navigate(`/thanh-toan/${idHoaDon}`);
         } catch (error) {
             console.error("Lỗi khi cập nhật tiền khấu trừ trước khi thanh toán:", error);
+            alert("Lỗi khi thanh toán: " + (error.response?.data?.message || "Lỗi không xác định"));
         }
     };
 
@@ -115,13 +157,21 @@ const DemoTaoHoaDon = () => {
                                     <td>{formatCurrency(item.tienPhuThu)}</td>
                                     <td>{formatCurrency(item.tienDichVu)}</td>
                                     <td>
-                                        <Input
-                                            type="number"
-                                            value={tienKhauTru[item.id] || ""}
-                                            onChange={(e) => handleTienKhauTruChange(item.id, e.target.value)}
-                                            onBlur={() => handleUpdateTienKhauTru(item.id)}
-                                            sx={{ width: "120px" }}
-                                        />
+                                        <Box>
+                                            <Input
+                                                type="number"
+                                                value={tienKhauTru[item.id] || ""}
+                                                onChange={(e) => handleTienKhauTruChange(item.id, e.target.value)}
+                                                onBlur={() => handleUpdateTienKhauTru(item.id)}
+                                                sx={{ width: "120px" }}
+                                                error={!!errors[item.id]}
+                                            />
+                                            {errors[item.id] && (
+                                                <Typography level="body2" color="danger" sx={{ mt: 0.5 }}>
+                                                    {errors[item.id]}
+                                                </Typography>
+                                            )}
+                                        </Box>
                                     </td>
                                 </tr>
                             ))

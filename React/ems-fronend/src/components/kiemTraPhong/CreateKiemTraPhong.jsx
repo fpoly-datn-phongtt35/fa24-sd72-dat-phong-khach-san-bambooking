@@ -14,6 +14,7 @@ const CreateKiemTraPhong = () => {
   const [checkData, setCheckData] = useState([]);
   const [nhanvien, setNhanVien] = useState([]);
   const [selectedNhanVien, setSelectedNhanVien] = useState(null);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     getAllNhanVien()
@@ -50,11 +51,36 @@ const CreateKiemTraPhong = () => {
 
   const handleInputChange = (index, field, value) => {
     const updatedData = [...checkData];
-    updatedData[index] = { ...updatedData[index], [field]: value };
+    const updatedErrors = { ...errors };
+    const soLuongTieuChuan = materials[index]?.soLuongTieuChuan || 0;
+
+    if (field === 'soLuongThucTe') {
+      const numericValue = Number(value);
+      if (numericValue < 0) {
+        updatedErrors[index] = "Số lượng thực tế không được nhỏ hơn 0!";
+        updatedData[index] = { ...updatedData[index], [field]: 0 };
+      } else if (numericValue > soLuongTieuChuan) {
+        updatedErrors[index] = `Số lượng thực tế không được lớn hơn số lượng tiêu chuẩn (${soLuongTieuChuan})!`;
+        updatedData[index] = { ...updatedData[index], [field]: soLuongTieuChuan };
+      } else {
+        updatedData[index] = { ...updatedData[index], [field]: numericValue };
+        delete updatedErrors[index];
+      }
+    } else {
+      updatedData[index] = { ...updatedData[index], [field]: value };
+    }
+
     setCheckData(updatedData);
+    setErrors(updatedErrors);
   };
 
   const handleSubmit = async () => {
+    const hasErrors = Object.keys(errors).length > 0;
+    if (hasErrors) {
+      alert("Vui lòng sửa các lỗi trước khi gửi!");
+      return;
+    }
+
     const request = {
       idXepPhong: idXepPhong,
       idNhanVien: selectedNhanVien,
@@ -66,6 +92,11 @@ const CreateKiemTraPhong = () => {
       navigate('/kiem-tra-phong');
     } catch (error) {
       console.error("Lỗi khi thực hiện kiểm tra phòng: ", error);
+      if (error.response && error.response.data) {
+        alert(`Lỗi: ${error.response.data.message}`);
+      } else {
+        alert("Đã có lỗi xảy ra, vui lòng thử lại!");
+      }
     }
   };
 
@@ -131,13 +162,12 @@ const CreateKiemTraPhong = () => {
               stickyHeader
               variant="outlined"
               sx={{
-                minWidth: isMobile ? "700px" : "100%", // Giữ bảng có thể cuộn ngang trên mobile
+                minWidth: isMobile ? "700px" : "100%",
               }}
             >
               <thead>
                 <tr>
                   <th>Tên vật tư</th>
-                  {/* <th>Đơn giá</th> */}
                   <th>Số lượng tiêu chuẩn</th>
                   <th>Số lượng thực tế</th>
                   <th>Ghi chú</th>
@@ -147,23 +177,31 @@ const CreateKiemTraPhong = () => {
                 {materials.map((item, index) => (
                   <tr key={item.id}>
                     <td>{item.tenVatTu}</td>
-                    {/* <td>{formatCurrency(item.donGia)}</td> */}
                     <td>{item.soLuongTieuChuan}</td>
                     <td>
-                      <Input
-                        type="number"
-                        value={checkData[index]?.soLuongThucTe ?? 0}
-                        onChange={(e) =>
-                          handleInputChange(index, 'soLuongThucTe', Number(e.target.value)) }
-                        size="small"
-                        min={0}
-                      />
+                      <Box>
+                        <Input
+                          type="number"
+                          size="small"
+                          min={0}
+                          step="1"
+                          value={checkData[index]?.soLuongThucTe ?? 0}
+                          onChange={(e) =>
+                            handleInputChange(index, 'soLuongThucTe', e.target.value)}
+                          error={!!errors[index]}
+                        />
+                        {errors[index] && (
+                          <Typography level="body2" color="danger" sx={{ mt: 0.5 }}>
+                            {errors[index]}
+                          </Typography>
+                        )}
+                      </Box>
                     </td>
                     <td>
                       <Input
                         value={checkData[index]?.ghiChu || ""}
                         onChange={(e) =>
-                          handleInputChange(index, 'ghiChu', e.target.value) }
+                          handleInputChange(index, 'ghiChu', e.target.value)}
                         size="small"
                       />
                     </td>

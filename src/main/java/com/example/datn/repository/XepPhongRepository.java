@@ -19,18 +19,18 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
     XepPhong getByIDPhong(int idPhong,String trangThai);
 
     @Query("SELECT xp FROM XepPhong xp " +
-            "WHERE (" +
-            "LOWER(CAST(xp.thongTinDatPhong.datPhong.maDatPhong AS string)) = LOWER(:key) " +
-            "OR LOWER(CAST(xp.thongTinDatPhong.maThongTinDatPhong AS string)) = LOWER(:key) " +
-            "OR LOWER(CAST(xp.phong.maPhong AS string)) = LOWER(:key) " +
-            "OR LOWER(xp.phong.tenPhong) = LOWER(:key) " +
-            "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.sdt) = LOWER(:key) " +
-            "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.email) = LOWER(:key) " +
-            "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.ho) = LOWER(:key) " +
-            "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.ten) = LOWER(:key) " +
-            "OR LOWER(CONCAT(COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ho, ''), ' ' , COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ten, ''))) = LOWER(:key) " +
-            ") " +
-            "AND xp.thongTinDatPhong.trangThai IN ('Dang o', 'Den han')")
-    List<XepPhong> findByKey(@Param("key") String key);
+           "WHERE (" +
+           "LOWER(CAST(xp.thongTinDatPhong.datPhong.maDatPhong AS string)) = LOWER(:key) " +
+           "OR LOWER(CAST(xp.thongTinDatPhong.maThongTinDatPhong AS string)) = LOWER(:key) " +
+           "OR LOWER(CAST(xp.phong.maPhong AS string)) = LOWER(:key) " +
+           "OR LOWER(xp.phong.tenPhong) = LOWER(:key) " +
+           "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.sdt) = LOWER(:key) " +
+           "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.email) = LOWER(:key) " +
+           "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.ho) = LOWER(:key) " +
+           "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.ten) = LOWER(:key) " +
+           "OR LOWER(CONCAT(COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ho, ''), ' ' , COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ten, ''))) = LOWER(:key) " +
+           ") " +
+           "AND xp.thongTinDatPhong.trangThai IN (:trangThaiThongTinDatPhong)")
+    List<XepPhong> findByKey(@Param("key") String key, List<String> trangThaiThongTinDatPhong);
 
 }

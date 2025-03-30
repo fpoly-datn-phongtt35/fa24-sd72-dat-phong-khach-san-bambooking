@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -115,6 +116,9 @@ public class XepPhongServiceIMPL implements XepPhongService {
 
     @Override
     public List<XepPhong> findByKey(String key) {
-        return xepPhongRepository.findByKey(key);
+        List<String> trangThaiThongTinDatPhong = new ArrayList<>();
+        trangThaiThongTinDatPhong.add("Đang ở");
+        trangThaiThongTinDatPhong.add("Đã kiểm tra phòng");
+        return xepPhongRepository.findByKey(key, trangThaiThongTinDatPhong);
     }
 }

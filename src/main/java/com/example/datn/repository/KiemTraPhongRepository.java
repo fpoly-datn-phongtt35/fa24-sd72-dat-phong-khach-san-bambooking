@@ -8,24 +8,25 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface KiemTraPhongRepository extends JpaRepository<KiemTraPhong, Integer> {
 
     @Query("SELECT xp FROM XepPhong xp " +
-            "WHERE (" +
-            "LOWER(xp.thongTinDatPhong.datPhong.maDatPhong) LIKE LOWER(:key) " +
-            "OR LOWER(xp.thongTinDatPhong.maThongTinDatPhong) LIKE LOWER(:key) " +
-            "OR LOWER(xp.phong.maPhong) LIKE LOWER(:key) " +
-            "OR LOWER(xp.phong.tenPhong) LIKE LOWER(:key) " +
-            "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.sdt) LIKE LOWER(:key) " +
-            "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.email) LIKE LOWER(:key) " +
-            "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.ho) LIKE LOWER(:key) " +
-            "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.ten) LIKE LOWER(:key) " +
-            "OR LOWER(CONCAT(COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ho, ''), ' ', COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ten, ''))) LIKE LOWER(:key) " +
-            ") " +
-            "AND xp.thongTinDatPhong.trangThai IN (:trangThai)")
-    List<XepPhong> findByKeyNotChecked(@Param("key") String key, @Param("trangThai") List<String> trangThai);
+           "WHERE (" +
+           "LOWER(CAST(xp.thongTinDatPhong.datPhong.maDatPhong AS string)) = LOWER(:key) " +
+           "OR LOWER(CAST(xp.thongTinDatPhong.maThongTinDatPhong AS string)) = LOWER(:key) " +
+           "OR LOWER(CAST(xp.phong.maPhong AS string)) = LOWER(:key) " +
+           "OR LOWER(xp.phong.tenPhong) = LOWER(:key) " +
+           "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.sdt) = LOWER(:key) " +
+           "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.email) = LOWER(:key) " +
+           "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.ho) = LOWER(:key) " +
+           "OR LOWER(xp.thongTinDatPhong.datPhong.khachHang.ten) = LOWER(:key) " +
+           "OR LOWER(CONCAT(COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ho, ''), ' ' , COALESCE(xp.thongTinDatPhong.datPhong.khachHang.ten, ''))) = LOWER(:key) " +
+           ") " +
+           "AND xp.thongTinDatPhong.trangThai IN (:trangThaiThongTinDatPhong)")
+    List<XepPhong> findByKeyNotChecked(@Param("key") String key, List<String> trangThaiThongTinDatPhong);
 
     //lấy danh sách phòng chưa kiểm tra
     @Query("""
@@ -40,4 +41,9 @@ public interface KiemTraPhongRepository extends JpaRepository<KiemTraPhong, Inte
                 )
             """)
     List<Object[]> findUnverifiedRooms(String maDatPhong);
+
+    @Query("SELECT k FROM KiemTraPhong k WHERE k.xepPhong = :xepPhong")
+    Optional<KiemTraPhong> findByXepPhong(XepPhong xepPhong);
+
+    Optional<KiemTraPhong> findByXepPhongId(Integer id);
 }

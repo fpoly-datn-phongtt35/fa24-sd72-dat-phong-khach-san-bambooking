@@ -12,13 +12,10 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TraPhongResponse {
-    Integer id;
-    Integer idXepPhong;
-    LocalDateTime ngayTraThucTe;
-    Boolean trangThai;
+public class ChiTietTraPhongResponse {
     String tenPhong;
-    LocalDate ngayNhan;
-    String trangThaiKTP;
-    LocalDateTime thoiGianKTP;
+    LocalDate ngayNhanPhong;
+    LocalDateTime ngayTraPhongThucTe;
+    String trangThaiKiemTraPhong;
+    LocalDateTime thoiGianKiemTraPhong;
 }
