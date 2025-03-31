@@ -30,13 +30,22 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
     return date.toISOString().slice(0, 19);
   };
 
-  const phongKhaDung = (idLoaiPhong, ngayNhanPhong, ngayTraPhong, ttdpId) => {
+  const phongKhaDung = (
+    idLoaiPhong,
+    ngayNhanPhong,
+    ngayTraPhong,
+    ttdpId,
+    ttdp
+  ) => {
     getPhongKhaDung(idLoaiPhong, ngayNhanPhong, ngayTraPhong)
       .then((response) => {
-        console.log(`Phòng khả dụng cho TTDPs ${ttdpId}:`, response);
+        let rooms = response.data;
+        if (ttdp.phong && !rooms.some((p) => p.id === ttdp.phong.id)) {
+          rooms = [ttdp.phong, ...rooms];
+        }
         setListPhong((prevList) => ({
           ...prevList,
-          [ttdpId]: response.data,
+          [ttdpId]: rooms,
         }));
       })
       .catch((error) => {
@@ -52,13 +61,21 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
         ttdp.loaiPhong.id,
         formattedNgayNhanPhong,
         formattedNgayTraPhong,
-        ttdp.id
+        ttdp.id,
+        ttdp
       );
     });
   };
 
   useEffect(() => {
     if (show && selectedTTDPs.length > 0) {
+      const initialSelected = {};
+      selectedTTDPs.forEach((ttdp) => {
+        if (ttdp.phong) {
+          initialSelected[ttdp.id] = ttdp.phong.id;
+        }
+      });
+      setSelectedPhong(initialSelected);
       reloadPhongKhaDung();
     }
   }, [show, selectedTTDPs]);
@@ -155,7 +172,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
                 </MenuItem>
                 {(listPhong[ttdp.id] || []).map((phong) => (
                   <MenuItem key={phong.id} value={phong.id}>
-                    {phong.maPhong} - {phong.tenPhong}
+                    {phong.maPhong} - {phong.tenPhong} - {phong.tinhTrang}
                   </MenuItem>
                 ))}
               </Select>
