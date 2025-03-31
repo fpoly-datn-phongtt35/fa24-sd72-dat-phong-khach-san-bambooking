@@ -99,6 +99,8 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
         ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong),
         trangThai: "Đã xếp",
       };
+
+      await huyPhongDangDat(selectedPhong[ttdp.id]);
       return addXepPhong(xepPhongRequest);
     });
 

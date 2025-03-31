@@ -103,7 +103,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
             }
             dp.setTrangThai("Đã nhận phòng");
             ttdp.setTrangThai("Đang ở");
-            p.setTinhTrang("occupied");
+            p.setTinhTrang("Đang ở");
             xp.setNgayNhanPhong(ngayNhanPhong);
             xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
             xp.setTrangThai("Đang ở");
