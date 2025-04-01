@@ -17,7 +17,7 @@ export const searchRooms = async (tinhTrang, giaMin, giaMax, keyword, idLoaiPhon
         if (giaMin) params.append('giaMin', giaMin);
         if (giaMax) params.append('giaMax', giaMax);
         if (soTang) params.append('soTang', soTang);
-        
+
         // Thêm từng idLoaiPhong riêng biệt
         if (Array.isArray(idLoaiPhong) && idLoaiPhong.length > 0) {
             idLoaiPhong.forEach(id => params.append('idLoaiPhong', id));
@@ -36,38 +36,43 @@ export const searchRooms = async (tinhTrang, giaMin, giaMax, keyword, idLoaiPhon
 
 // Hàm lấy xếp phòng theo ID phòng
 export const getRoomDetail = async (roomId) => {
-        const response = await authorizedAxiosInstance.get(`${apiRoomDetail}/${roomId}`);
-        return response.data; // Trả về thông tin chi tiết của phòng
-    
+    const response = await authorizedAxiosInstance.get(`${apiRoomDetail}/${roomId}`);
+    return response.data; // Trả về thông tin chi tiết của phòng
+
 };
 
 // Hàm lấy phiếu dịch vụ theo ID xếp phòng
 export const getDichVuSuDungByIDXepPhong = async (idXepPhong) => {
-    
-        const response = await authorizedAxiosInstance.get(`${apiPhieuDichVu}/${idXepPhong}`);
-        return response.data; // Trả về danh sách phiếu dịch vụ
-    
+
+    const response = await authorizedAxiosInstance.get(`${apiPhieuDichVu}/${idXepPhong}`);
+    return response.data; // Trả về danh sách phiếu dịch vụ
+
 };
 
 // Hàm lấy thông tin đặt phòng
 export const getTTDP = async () => {
-    
-        const response = await authorizedAxiosInstance.get(apiTTDP);
-        return response.data; // Trả về thông tin đặt phòng
-    
+
+    const response = await authorizedAxiosInstance.get(apiTTDP);
+    return response.data; // Trả về thông tin đặt phòng
+
 };
 
 export const AddDichVuSuDung = async (dichVuSuDung) => {
-    
-        const response = await authorizedAxiosInstance.post(apiADDPhieuDichVu, dichVuSuDung);
-        return response.data; // Đúng, trả về dữ liệu phản hồi từ server
-    
+
+    const response = await authorizedAxiosInstance.post(apiADDPhieuDichVu, dichVuSuDung);
+    return response.data; // Đúng, trả về dữ liệu phản hồi từ server
+
 };
 
 export const AddDVDK = async (idXepPhong) => {
-    
-        const response = await authorizedAxiosInstance.post(`${apiAddDVDK}/${idXepPhong}`);
-        return response.data; // Đúng, trả về dữ liệu phản hồi từ server
-    
+
+    const response = await authorizedAxiosInstance.post(`${apiAddDVDK}/${idXepPhong}`);
+    return response.data; // Đúng, trả về dữ liệu phản hồi từ server
+
 };
+
+export const changeConditionRoom = async (id) => {
+    const response = await authorizedAxiosInstance.patch(`http://localhost:8080/phong/change-condition-room/${id}`);
+    return response.data;
+}
 

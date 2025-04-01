@@ -1,5 +1,6 @@
 package com.example.datn.controller;
 
+import com.example.datn.controller.response.ResponseData;
 import com.example.datn.dto.request.PhongRequest;
 import com.example.datn.service.IMPL.PhongServiceIMPL;
 import com.example.datn.service.PhongService;
@@ -50,30 +51,39 @@ public class PhongController {
 
     @GetMapping("/search")
     public ResponseEntity<?> searchPhong(@RequestParam(value = "keyword", required = false) String keyword,
-            Pageable pageable) {
+                                         Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(phongService.searchPhong(keyword, pageable));
     }
 
     @GetMapping("/phong-kha-dung")
     public ResponseEntity<?> searchPhongKhaDung(@RequestParam Integer idLoaiPhong,
-            @RequestParam LocalDateTime ngayNhanPhong,
-            @RequestParam LocalDateTime ngayTraPhong) {
+                                                @RequestParam LocalDateTime ngayNhanPhong,
+                                                @RequestParam LocalDateTime ngayTraPhong) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(phongServiceIMPL.searchPhongKhaDung(idLoaiPhong, ngayNhanPhong, ngayTraPhong));
     }
 
     @GetMapping("/dsphong")
-    public ResponseEntity<?> dsPhong(@RequestParam(value = "keyword", required = false) String keyword){
+    public ResponseEntity<?> dsPhong(@RequestParam(value = "keyword", required = false) String keyword) {
         return ResponseEntity.status(HttpStatus.OK).body(phongService.DSPhong(keyword));
     }
 
     @GetMapping("/phong-dang-dat")
-    public ResponseEntity<?> phongDangDat(@RequestParam(value = "idPhong", required = false) Integer idPhong){
+    public ResponseEntity<?> phongDangDat(@RequestParam(value = "idPhong", required = false) Integer idPhong) {
         return ResponseEntity.status(HttpStatus.OK).body(phongServiceIMPL.phongDangDat(idPhong));
     }
 
     @GetMapping("/huy-phong-dang-dat")
-    public ResponseEntity<?> huyDangDat(@RequestParam(value = "idPhong", required = false) Integer idPhong){
+    public ResponseEntity<?> huyDangDat(@RequestParam(value = "idPhong", required = false) Integer idPhong) {
         return ResponseEntity.status(HttpStatus.OK).body(phongServiceIMPL.huyDangDat(idPhong));
+    }
+
+    @PatchMapping("/change-condition-room/{id}")
+    public ResponseData<String> changeConditionRoom(@PathVariable Integer id) {
+        String result = phongServiceIMPL.changeConditionRoom(id);
+        return new ResponseData<>(
+                HttpStatus.ACCEPTED.value(),
+                result
+        );
     }
 }

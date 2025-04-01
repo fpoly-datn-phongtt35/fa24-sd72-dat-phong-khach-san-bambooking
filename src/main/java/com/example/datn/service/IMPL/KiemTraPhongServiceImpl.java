@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -164,6 +162,9 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
         thongTinDatPhong.setTrangThai("Đã kiểm tra phòng");
         thongTinDatPhongRepository.save(thongTinDatPhong);
 
+        xepPhong.setTrangThai("Đã kiểm tra");
+        xepPhongRepository.save(xepPhong);
+
         // Build trả về response tổng kết
         return KiemTraPhongResponse.builder()
                 .id(finalSavedKTP.getId())
@@ -177,26 +178,27 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
                 .build();
     }
 
-    @Override
-    public List<XepPhongResponse> timKiemXepPhong(String key) {
-        log.info("Find xepPhong by key");
-        List<String> trangThaiThongTinDatPhong = new ArrayList<>();
-        trangThaiThongTinDatPhong.add("Đang ở");
-        trangThaiThongTinDatPhong.add("Đã kiểm tra phòng");
-        List<XepPhong> danhSachPhong = kiemTraPhongRepository.findByKeyNotChecked(key, trangThaiThongTinDatPhong);
-
-        return danhSachPhong.stream()
-                .map(xp -> new XepPhongResponse(
-                        xp.getId(),
-                        xp.getThongTinDatPhong().getDatPhong().getFullNameKhachHang(),
-                        xp.getThongTinDatPhong().getDatPhong().getMaDatPhong(),
-                        xp.getThongTinDatPhong().getMaThongTinDatPhong(),
-                        xp.getNgayNhanPhong(),
-                        xp.getNgayTraPhong(),
-                        xp.getPhong().getLoaiPhong().getTenLoaiPhong(),
-                        xp.getPhong().getTenPhong()
-                )).collect(Collectors.toList());
-    }
+//    @Override
+//    public List<XepPhongResponse> timKiemXepPhong(String key) {
+//        log.info("Find xepPhong by key");
+//        List<String> trangThaiThongTinDatPhong = new ArrayList<>();
+//        trangThaiThongTinDatPhong.add("Đang ở");
+//        trangThaiThongTinDatPhong.add("Đã kiểm tra phòng");
+//        List<XepPhong> danhSachPhong = kiemTraPhongRepository.findByKeyNotChecked(key, trangThaiThongTinDatPhong);
+//
+//        return danhSachPhong.stream()
+//                .map(xp -> new XepPhongResponse(
+//                        xp.getId(),
+//                        xp.getThongTinDatPhong().getDatPhong().getFullNameKhachHang(),
+//                        xp.getThongTinDatPhong().getDatPhong().getMaDatPhong(),
+//                        xp.getThongTinDatPhong().getMaThongTinDatPhong(),
+//                        xp.getNgayNhanPhong(),
+//                        xp.getNgayTraPhong(),
+//                        xp.getPhong().getLoaiPhong().getTenLoaiPhong(),
+//                        xp.getPhong().getTenPhong(),
+//                        xp.getTrangThai()
+//                )).collect(Collectors.toList());
+//    }
 
     @Override
     public List<NhanVienResponse> findAllNhanVien() {
@@ -208,6 +210,29 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
                         nv.getSdt(),
                         nv.getEmail()
                 )).toList();
+    }
+
+    @Override
+    public List<XepPhongResponse> getListRoomByCondition() {
+        List<XepPhong> danhSachPhong = this.xepPhongRepository.findByPhongTinhTrangAndTrangThai("Cần kiểm tra", "Đang ở");
+
+        return danhSachPhong.stream()
+                .map(xepPhong -> {
+                    ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
+                    Phong phong = xepPhong.getPhong();
+
+                    return XepPhongResponse.builder()
+                            .idXepPhong(xepPhong.getId())
+                            .hoTenKhachHang(thongTinDatPhong.getDatPhong().getFullNameKhachHang())
+                            .maDatPhong(thongTinDatPhong.getDatPhong().getMaDatPhong())
+                            .maThongTinDatPhong(thongTinDatPhong.getMaThongTinDatPhong())
+                            .ngayNhanPhong(xepPhong.getNgayNhanPhong())
+                            .ngayTraPhong(xepPhong.getNgayTraPhong())
+                            .tenLoaiPhong(phong.getLoaiPhong().getTenLoaiPhong())
+                            .tenPhong(phong.getTenPhong())
+                            .trangThaiXepPhong(xepPhong.getTrangThai())
+                            .build();
+                }).toList();
     }
 
     @Override

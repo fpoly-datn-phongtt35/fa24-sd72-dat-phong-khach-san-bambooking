@@ -21,5 +21,5 @@ public class XepPhongResponse {
     private LocalDateTime ngayTraPhong;
     private String tenLoaiPhong;
     private String tenPhong;
-
+    private String trangThaiXepPhong;
 }
