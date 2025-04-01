@@ -31,6 +31,7 @@ import {
 } from "../../services/DatPhong";
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
 import XepPhong from "../xepphong/XepPhong";
+import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
@@ -41,7 +42,7 @@ import PhoneIcon from "@mui/icons-material/Phone";
 import NotesIcon from "@mui/icons-material/Notes";
 import HotelIcon from "@mui/icons-material/Hotel";
 import { ThemPhuThu } from "../../services/PhuThuService";
-
+import { huyTTDP } from "../../services/TTDP";
 const ChiTietDatPhong = () => {
   const [datPhong, setDatPhong] = useState();
   const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
@@ -110,6 +111,24 @@ const ChiTietDatPhong = () => {
         console.error(error);
         showSnackbar("Không thể cập nhật đặt phòng", "error");
       });
+  };
+
+  const handleHuyTTDP = (idTTDP) => {
+    const confirmCancel = window.confirm(
+      `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${maDatPhong} không?`
+    );
+    if (confirmCancel) {
+      huyTTDP(idTTDP)
+        .then(() => {
+          showSnackbar("Hủy thành công", "success");
+          getDetailDatPhong(maDatPhong); // Cập nhật lại thông tin đặt phòng sau khi hủy
+          setSelectedTTDPs([]); // Xóa danh sách đã chọn
+        })
+        .catch((error) => {
+          console.error(error);
+          showSnackbar("Không thể hủy thông tin đặt phòng", "error");
+        });
+    }
   };
 
   useEffect(() => {
@@ -192,17 +211,17 @@ const ChiTietDatPhong = () => {
       const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
       const gio14Chieu = new Date(ngayNhanPhongXepPhong).setHours(14, 0, 0, 0);
 
-      if (ngayNhanPhongXepPhong < gio14Chieu) {
-        const phuThuRequest = {
-          xepPhong: { id: xepPhong.id },
-          tenPhuThu: "Phụ thu do nhận phòng sớm",
-          tienPhuThu: 50000,
-          soLuong: 1,
-          trangThai: true,
-        };
-        await ThemPhuThu(phuThuRequest);
-        showSnackbar("Phụ thu do nhận phòng sớm đã được thêm.");
-      }
+      // if (ngayNhanPhongXepPhong < gio14Chieu) {
+      //   const phuThuRequest = {
+      //     xepPhong: { id: xepPhong.id },
+      //     tenPhuThu: "Phụ thu do nhận phòng sớm",
+      //     tienPhuThu: 50000,
+      //     soLuong: 1,
+      //     trangThai: true,
+      //   };
+      //   await ThemPhuThu(phuThuRequest);
+      //   showSnackbar("Phụ thu do nhận phòng sớm đã được thêm.");
+      // }
 
       if (thongTinDatPhong.soNguoi > loaiPhong.soKhachToiDa) {
         const soNguoiVuot = thongTinDatPhong.soNguoi - loaiPhong.soKhachToiDa;
@@ -242,13 +261,15 @@ const ChiTietDatPhong = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Dang o":
+      case "Đang ở":
         return "success";
-      case "Da huy":
+      case "Đã xếp":
+        return "info";
+      case "Đã hủy":
         return "error";
-      case "Cho nhan phong":
+      case "Chưa xếp":
         return "warning";
-      case "Dang dat phong":
+      case "Đang đặt phòng":
         return "info";
       default:
         return "default";
@@ -416,7 +437,7 @@ const ChiTietDatPhong = () => {
                     } else {
                       setSelectedTTDPs(
                         thongTinDatPhong.filter(
-                          (ttdp) => ttdp.trangThai !== "Dang dat phong"
+                          (ttdp) => ttdp.trangThai !== "Đang đăt phòng"
                         )
                       );
                     }
@@ -559,33 +580,50 @@ const ChiTietDatPhong = () => {
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", gap: 1 }}>
-                      {!phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong && (
+                      {ttdp.trangThai == "Chưa xếp" && (
                         <Tooltip title="Xếp phòng">
-                          <Button
+                          <IconButton
                             variant="outlined"
                             size="small"
                             color="primary"
                             onClick={() => openXepPhongModal(ttdp)}
-                            startIcon={<MeetingRoomIcon />}
                             disabled={ttdp.trangThai === "Dang dat phong"}
                           >
-                            Xếp phòng
-                          </Button>
+                            <MeetingRoomIcon />
+                          </IconButton>
                         </Tooltip>
                       )}
-                      <Tooltip title="Check-in">
-                        <IconButton
-                          color="success"
-                          onClick={() => handleCheckin(ttdp)}
-                          size="small"
-                          disabled={
-                            !phongData[ttdp.maThongTinDatPhong]?.phong
-                              ?.tenPhong || ttdp.trangThai === "Dang dat phong"
-                          }
-                        >
-                          <CheckCircleIcon />
-                        </IconButton>
-                      </Tooltip>
+
+                      {ttdp.trangThai === "Đã xếp" && (
+                        <Tooltip title="Check-in">
+                          <IconButton
+                            color="success"
+                            onClick={() => handleCheckin(ttdp)}
+                            size="small"
+                            disabled={
+                              !phongData[ttdp.maThongTinDatPhong]?.phong
+                                ?.tenPhong ||
+                              ttdp.trangThai === "Dang dat phong"
+                            }
+                          >
+                            <CheckCircleIcon />
+                          </IconButton>
+                        </Tooltip>
+                      )}
+                      {/* Chỉ hiển thị nút hủy nếu trạng thái là "Đang đặt phòng" "Chưa xếp" "Đã xếp" */}
+                      {(ttdp.trangThai === "Đang đặt phòng" ||
+                        ttdp.trangThai === "Chưa xếp" ||
+                        ttdp.trangThai === "Đã xếp") && (
+                        <Tooltip title="Hủy thông tin đặt phòng">
+                          <IconButton
+                            color="error"
+                            onClick={() => handleHuyTTDP(ttdp.id)}
+                            size="small"
+                          >
+                            <RemoveCircleOutlineIcon />
+                          </IconButton>
+                        </Tooltip>
+                      )}
                     </Box>
                   </TableCell>
                 </TableRow>
@@ -603,7 +641,6 @@ const ChiTietDatPhong = () => {
         </Table>
       </TableContainer>
 
-      {/* Nút hành động */}
       <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
         <Button variant="outlined" onClick={() => navigate(-1)}>
           Quay lại
@@ -636,7 +673,6 @@ const ChiTietDatPhong = () => {
           {selectedTTDPs.length > 0 ? `(${selectedTTDPs.length})` : ""}
         </Button>
       </Box>
-
       <XepPhong
         show={showXepPhongModal}
         handleClose={closeXepPhongModal}
