@@ -138,12 +138,14 @@ export const findDatPhongByKey = (keyword, pageable) => {
   });
 };
 
-export const findDatPhongToCheckin = (pageable, key) => {
+export const findDatPhongToCheckin = (pageable, key, ngayNhanPhong, ngayTraPhong) => {
   return authorizedAxiosInstance.get(apiFindDatPhongToCheckin, {
     params: {
       size: pageable.size,
       page: pageable.page,
       key: key,
+      ngayNhanPhong: ngayNhanPhong ? ngayNhanPhong.format("YYYY-MM-DD") : null,
+      ngayTraPhong: ngayTraPhong ? ngayTraPhong.format("YYYY-MM-DD") : null,
     },
   });
 };
