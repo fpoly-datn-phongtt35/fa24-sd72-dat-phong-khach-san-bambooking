@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -14,9 +16,11 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
             "  where xp.thongTinDatPhong.maThongTinDatPhong =:maTTDP")
     XepPhong getByMaTTDP(String maTTDP);
 
-    @Query("select xp from XepPhong xp" +
-            "  where xp.trangThai = :trangThai and xp.thongTinDatPhong.trangThai = :trangThai and xp.phong.id =:idPhong")
-    XepPhong getByIDPhong(int idPhong,String trangThai);
+    @Query("SELECT xp FROM XepPhong xp " +
+            "WHERE xp.phong.id = :idPhong " +
+            "AND (CAST(:date AS DATE) >= CAST(xp.ngayNhanPhong AS DATE) " +
+            "AND CAST(:date AS DATE) <= CAST(xp.ngayTraPhong AS DATE))")
+    XepPhong getByIDPhong(@Param("idPhong") int idPhong, @Param("date") LocalDateTime date);
 
     @Query("SELECT xp FROM XepPhong xp " +
            "WHERE (" +

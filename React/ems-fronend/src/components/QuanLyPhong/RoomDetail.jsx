@@ -27,7 +27,7 @@ import {
 import { Switch } from '@mui/joy'
 
 const RoomDetail = () => {
-  const { roomId } = useParams();
+  const { roomId,date } = useParams();
   const [idXepPhong, setIdXepPhong] = useState(null);
   const [roomDetail, setRoomDetail] = useState(null);
   const [ListDVSD, setListDVSD] = useState([]);
@@ -43,7 +43,7 @@ const RoomDetail = () => {
   });
 
   useEffect(() => {
-    getRoomDetail(roomId)
+    getRoomDetail(roomId,date)
       .then((response) => {
         setRoomDetail(response);
         setIdXepPhong(response.id);
@@ -55,7 +55,7 @@ const RoomDetail = () => {
       })
       .catch((error) => {
       });
-  }, [roomId, ListDVSD]);
+  }, [roomId]);
 
   useEffect(() => {
     if (roomDetail) {
@@ -67,7 +67,7 @@ const RoomDetail = () => {
     if (idXepPhong != null) {
       handleAddDVDK(idXepPhong);
     }
-  }, [roomDetail]);
+  }, [roomDetail,ListDVSD]);
 
   const handleAddDVDK = (idxp) => {
     AddDVDK(idXepPhong)
@@ -98,7 +98,7 @@ const RoomDetail = () => {
       });
   };
 
- 
+
   const handleCloseFormDetail = () => {
     setShowFormDetail(false);
     setSelectedDichVu(null);
@@ -143,7 +143,9 @@ const RoomDetail = () => {
                 <TableCell sx={{ fontWeight: 'bold' }}>Giá sử dụng (VND)</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Số lượng sử dụng</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Tổng chi phí (VND)</TableCell>
+                {roomDetail?.trangThai != 'Đã trả phòng' && (
                 <TableCell sx={{ fontWeight: 'bold' }}>Hành động</TableCell>
+                 )}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -163,7 +165,8 @@ const RoomDetail = () => {
 
                     <TableCell>{dv.giaSuDung}</TableCell>
                     <TableCell>{dv.soLuongSuDung}</TableCell>
-                    <TableCell>{dv.giaSuDung* dv.soLuongSuDung}</TableCell>
+                    <TableCell>{dv.giaSuDung * dv.soLuongSuDung}</TableCell>
+                    {roomDetail?.trangThai != 'Đã trả phòng' && (
                     <TableCell>
                       <Button
                         variant="contained"
@@ -181,6 +184,7 @@ const RoomDetail = () => {
                         Chi tiết
                       </Button>
                     </TableCell>
+                    )}
                   </TableRow>
                 ))
               ) : (
@@ -193,17 +197,19 @@ const RoomDetail = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ mt: 2, textTransform: 'none' }}
-          onClick={() => {
-            setShowFormDetail(true);
-            setSelectedDichVu(null);
-          }}
-        >
-          Thêm dịch vụ
-        </Button>
+        {roomDetail?.trangThai === 'Đang ở' && (
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2, textTransform: 'none' }}
+            onClick={() => {
+              setShowFormDetail(true);
+              setSelectedDichVu(null);
+            }}
+          >
+            Thêm dịch vụ
+          </Button>
+        )}
       </Grid>
 
       {/* Form chi tiết dịch vụ */}

@@ -12,7 +12,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
-import {  getRoomDetail } from '../../services/ViewPhong';
+import { getRoomDetail } from '../../services/ViewPhong';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -25,13 +25,12 @@ const ViewPhong = () => {
   const scrollContainerRef = useRef(null);
   const [viewDays, setViewDays] = useState(7);
   const navigate = useNavigate();
+
   const generateDates = (startDate, numDays = viewDays) => {
     return Array.from({ length: numDays }, (_, i) =>
       dayjs(startDate).add(i, 'day').format("YYYY-MM-DD")
     );
   };
-
-
 
   const [dates, setDates] = useState(generateDates(dayjs()));
 
@@ -53,41 +52,32 @@ const ViewPhong = () => {
 
   useEffect(() => {
     setDates(generateDates(dayjs(selectedDate), viewDays));
-  }, [viewDays, selectedDate]); // Cập nhật khi `viewDays` hoặc `selectedDate` thay đổi
-
-
+  }, [viewDays, selectedDate]);
 
   useEffect(() => {
     const fetchRoomStatus = async () => {
       try {
         const [responseXepPhong, responseTraPhong] = await Promise.all([ttXepPhong(), dsTraPhong()]);
-        const statusData = responseXepPhong.data; // Danh sách xếp phòng
-        const traPhongData = responseTraPhong.data; // Danh sách trả phòng
+        const statusData = responseXepPhong.data;
+        const traPhongData = responseTraPhong.data;
         const newStatus = {};
-
-        // Tạo danh sách các idXepPhong đã trả phòng
         const traPhongIds = new Set(traPhongData.map(tp => tp.xepPhong.id));
 
-        // Duyệt danh sách đặt phòng
         statusData.forEach((item) => {
-          const { ngayNhanPhong, ngayTraPhong, phong, idXepPhong } = item;
+          const { ngayNhanPhong, ngayTraPhong, phong } = item;
           const startDate = dayjs(ngayNhanPhong).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
           const endDate = dayjs(ngayTraPhong).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
           const roomId = phong.id;
-
-          // Kiểm tra xem xếp phòng này có trong danh sách trả phòng không
           const isReturned = traPhongIds.has(item.id);
 
           let currentDate = dayjs(startDate);
           while (currentDate.isBefore(dayjs(endDate)) || currentDate.isSame(dayjs(endDate))) {
             const dateKey = currentDate.format('YYYY-MM-DD');
             const key = `${roomId}_${dateKey}`;
-
             newStatus[key] = {
-              status: isReturned? "Vacant": "Occupied",
+              status: isReturned ? "Vacant" : "Occupied",
               ngayNhanPhong: startDate
-            }
-
+            };
             currentDate = currentDate.add(1, 'day');
           }
         });
@@ -97,11 +87,8 @@ const ViewPhong = () => {
         console.error("Lỗi khi lấy trạng thái phòng:", error);
       }
     };
-
     fetchRoomStatus();
   }, []);
-
-
 
   const handleDateChange = (newValue) => {
     const newDate = newValue.format("YYYY-MM-DD");
@@ -111,10 +98,11 @@ const ViewPhong = () => {
   };
 
   const handleWheel = (e) => {
-    if (scrollContainerRef.current) {
-      e.preventDefault();
-      const direction = e.deltaY > 0 ? 1 : -1; // Xác định hướng lăn
+    e.preventDefault();
+    e.stopPropagation();
 
+    if (scrollContainerRef.current) {
+      const direction = e.deltaY > 0 ? 1 : -1;
       setDates((prevDates) => {
         const firstDate = dayjs(prevDates[0]);
         const newStartDate = direction > 0 ? firstDate.add(1, "day") : firstDate.subtract(1, "day");
@@ -123,31 +111,45 @@ const ViewPhong = () => {
     }
   };
 
-  const handleRoomClick = async (roomId) => {
-    getRoomDetail(roomId)
-      .then((response) => {
-        if (!response) {
-          throw new Error('Không có thông tin chi tiết phòng.');
-        }
-        const ngayNhanPhong = new Date(response.thongTinDatPhong.ngayNhanPhong);
-        const ngayHienTai = new Date();
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, [viewDays]);
 
-        // if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
-        //   alert(
-        //     `Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`
-        //   );
-        // } else {
-          navigate(`/api/RoomDetail/${roomId}`);
-        // }
-      })
-      .catch(() => {
-        alert('Chưa có xếp phòng, không thể xem chi tiết.');
-      });
+  const handleRoomClick = async (roomId, date) => {
+
+
+    if (!date) {
+      console.log("Date is missing, skipping navigation.");
+      return;
+    }
+
+    // Chuyển date thành định dạng LocalDateTime (YYYY-MM-DDTHH:mm:ss)
+    const formattedDate = dayjs(date).format("YYYY-MM-DDTHH:mm:ss"); // Ví dụ: 2025-04-01T00:00:00
+    console.log("Room ID:", roomId, "Date:", formattedDate);
+    try {
+      const response = await getRoomDetail(roomId, formattedDate);
+      if (!response) {
+        throw new Error('Không có thông tin chi tiết phòng.');
+      }
+      const url = `/api/RoomDetail/${roomId}/${formattedDate}`;
+      navigate(url);
+    } catch (error) {
+      console.error(error);
+      alert('Chưa có xếp phòng, không thể xem chi tiết.');
+    }
   };
+
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", width: "100%" }}>
-      {/* Khu vực chứa thanh cuộn */}
       <div
         ref={scrollContainerRef}
         style={{
@@ -156,9 +158,7 @@ const ViewPhong = () => {
           scrollbarWidth: "none",
           msOverflowStyle: "none"
         }}
-        onWheel={handleWheel}
       >
-        {/* Bộ chọn ngày */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px", backgroundColor: "#007BFF", color: "#fff", padding: "10px" }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <IconButton onClick={toggleDatePicker} ref={calendarAnchorRef} style={{ backgroundColor: "#fff", color: "#007BFF", padding: "5px" }}>
@@ -183,19 +183,15 @@ const ViewPhong = () => {
               <option value={14}>Xem 14 ngày</option>
             </select>
           </div>
-
         </div>
 
-
-        {/* Bảng hiển thị phòng */}
         <div
           style={{
             display: "grid",
             gridTemplateColumns: `150px repeat(${viewDays}, 1fr)`,
             border: "1px solid #ddd",
             borderRadius: "8px",
-            width: "100%",
-
+            width: "100%"
           }}
         >
           <div
@@ -223,7 +219,7 @@ const ViewPhong = () => {
             </div>
           ))}
           {rooms.map((room) => {
-            let isOccupiedChain = false; // Theo dõi chuỗi ngày đã nhận phòng
+            let isOccupiedChain = false;
             return (
               <React.Fragment key={room.id}>
                 <div
@@ -235,7 +231,7 @@ const ViewPhong = () => {
                     textAlign: "center",
                     cursor: "pointer",
                   }}
-                  onClick={() => handleRoomClick(room.id)}
+                  onClick={() => handleRoomClick(room.id, null)} // Nếu click vào tên phòng, không truyền ngày
                 >
                   {room.maPhong}
                 </div>
@@ -244,15 +240,16 @@ const ViewPhong = () => {
                   const isOccupied = status[key]?.status === "Occupied";
                   const today = dayjs().format("YYYY-MM-DD");
                   const isVacant = status[key]?.status === "Vacant";
-                  let bgColor = "#B7B7B7"; // Mặc định phòng trống (màu đỏ)
+                  let bgColor = "#B7B7B7";
 
                   if (isOccupied) {
-                    const {  ngayNhanPhong } = status[key];
+                    const { ngayNhanPhong } = status[key];
                     bgColor = ngayNhanPhong <= today ? "#00FF33" : "#00B2BF";
                   } else {
-                    isOccupiedChain = false; // Nếu gặp ô trống, reset trạng thái
-                  } if (isVacant) {
-                    bgColor = "#FF6699"; // Phòng đã được trả
+                    isOccupiedChain = false;
+                  }
+                  if (isVacant) {
+                    bgColor = "#FF6699";
                   }
 
                   return (
@@ -263,7 +260,7 @@ const ViewPhong = () => {
                         margin: "15px 0px 12px 0px",
                         cursor: "pointer",
                       }}
-                      onClick={() => handleRoomClick(room.id)}
+                      onClick={() => handleRoomClick(room.id, date)} // Truyền cả room.id và date
                     ></div>
                   );
                 })}
@@ -271,29 +268,25 @@ const ViewPhong = () => {
             );
           })}
         </div>
-        {/* Chú thích trạng thái phòng */}
+
         <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <div style={{ width: "20px", height: "20px", backgroundColor: "#00FF33", border: "1px solid #000" }}></div>
             <span>Phòng đang ở</span>
           </div>
-
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <div style={{ width: "20px", height: "20px", backgroundColor: "#00B2BF", border: "1px solid #000" }}></div>
             <span>Phòng đã được xếp</span>
           </div>
-
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <div style={{ width: "20px", height: "20px", backgroundColor: "#FF6699", border: "1px solid #000" }}></div>
             <span>Đã trả phòng</span>
           </div>
-
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <div style={{ width: "20px", height: "20px", backgroundColor: "#B7B7B7", border: "1px solid #000" }}></div>
             <span>Phòng trống</span>
           </div>
         </div>
-
       </div>
     </div>
   );

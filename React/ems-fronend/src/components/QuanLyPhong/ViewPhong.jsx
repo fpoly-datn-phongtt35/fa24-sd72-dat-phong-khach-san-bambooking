@@ -23,6 +23,7 @@ import {
   RadioGroup,
   Typography,
 } from '@mui/material';
+import dayjs from 'dayjs';
 import { searchRooms, getRoomDetail } from '../../services/ViewPhong';
 import { searchByIDPhong } from '../../services/ImageService';
 import { getAllLoaiPhong } from '../../services/LoaiPhongService';
@@ -37,7 +38,7 @@ const QuanLyPhong = () => {
   const [soTang, setSoTang] = useState(null);
   const [idLoaiPhong, setIdLoaiPhong] = useState([]);
   const [loaiPhongs, setLoaiPhongs] = useState([]);
-  
+
   const navigate = useNavigate();
 
   // Hàm tìm kiếm phòng
@@ -117,21 +118,15 @@ const QuanLyPhong = () => {
   };
 
   const handleViewDetail = (roomId) => {
-    getRoomDetail(roomId)
+    const currentDate = dayjs().format("YYYY-MM-DDTHH:mm:ss"); // Ngày hiện tại, ví dụ: 2025-03-31T14:30:00
+    console.log("Room ID:", roomId, "Current Date:", currentDate);
+    getRoomDetail(roomId,currentDate)
       .then((response) => {
         if (!response) {
           throw new Error('Không có thông tin chi tiết phòng.');
         }
-        const ngayNhanPhong = new Date(response.thongTinDatPhong.ngayNhanPhong);
-        const ngayHienTai = new Date();
 
-        // if (ngayNhanPhong.getTime() > ngayHienTai.getTime()) {
-        //   alert(
-        //     `Giờ nhận phòng (${ngayNhanPhong.toLocaleString('vi-VN')}) lớn hơn thời gian hiện tại (${ngayHienTai.toLocaleString('vi-VN')}). Không thể xem chi tiết.`
-        //   );
-        // } else {
-          navigate(`/api/RoomDetail/${roomId}`);
-        // }
+        navigate(`/api/RoomDetail/${roomId}/${currentDate}`);
       })
       .catch(() => {
         alert('Chưa có xếp phòng, không thể xem chi tiết.');
@@ -306,7 +301,7 @@ const QuanLyPhong = () => {
                       >
                         Sửa
                       </Button>
-                      
+
                     </TableCell>
                   </TableRow>
                 ))
