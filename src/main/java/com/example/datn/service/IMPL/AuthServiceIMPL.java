@@ -1,26 +1,39 @@
 package com.example.datn.service.IMPL;
 
 import com.example.datn.common.TokenType;
+import com.example.datn.config.PasswordGenerator;
+import com.example.datn.controller.AuthController;
 import com.example.datn.dto.request.ThongTinNhanVienRequest;
 import com.example.datn.dto.request.auth.SigninRequest;
 import com.example.datn.dto.response.auth.TokenResponse;
 import com.example.datn.exception.AuthenticationCustomException;
 import com.example.datn.exception.InvalidDataException;
+import com.example.datn.model.KhachHang;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.model.ThongTinNhanVien;
+import com.example.datn.repository.KhachHangRepository;
 import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.repository.ThongTinNhanVienRepository;
+import com.example.datn.repository.VaiTroRepository;
 import com.example.datn.service.AuthService;
 import com.example.datn.service.JwtService;
+import com.example.datn.utilities.CommonUtils;
 import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -32,18 +45,28 @@ public class AuthServiceIMPL implements AuthService {
 
     private final TaiKhoanRepository taiKhoanRepository;
 
+    private final KhachHangRepository khachHangRepository;
+
+    private final VaiTroRepository vaiTroRepository;
+
     private final JwtService jwtService;
 
     private final AuthenticationManager authenticationManager;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final JavaMailSender mailSender;
+
+    @Value("${spring.mail.username}")
+    private String username;
 
     @Override
     public TaiKhoan login(String tenDangNhap, String matKhau) {
         Optional<TaiKhoan> taiKhoanOptional = taiKhoanRepository.findByTenDangNhap(tenDangNhap);
         if (taiKhoanOptional.isPresent()) {
             TaiKhoan taiKhoan = taiKhoanOptional.get();
-            // So sánh mật khẩu trực tiếp (không mã hóa)
             if (taiKhoan.getMatKhau().equals(matKhau)) {
-                return taiKhoan;  // Đăng nhập thành công, trả về thông tin tài khoản
+                return taiKhoan;
             }
         }
         return null;
@@ -109,5 +132,78 @@ public class AuthServiceIMPL implements AuthService {
                 .username(user.getUsername())
                 .role(user.getAuthorities())
                 .build();
+    }
+
+    @Override
+    public String signUp(String email) {
+        Optional<TaiKhoan> ifExists = this.taiKhoanRepository.findByTenDangNhap(email);
+        if(ifExists.isPresent()) {
+            throw new InvalidDataException("Tài khoản đã tồn tại!");
+        }
+        String verificationCode = CommonUtils.generateCode();
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(username);
+        message.setTo(email);
+        message.setSubject("Mã Xác Nhận Của Bạn");
+        message.setText("Chào bạn,\n\n" +
+                "Mã xác nhận của bạn là: " + verificationCode + "\n" +
+                "Vui lòng sử dụng mã này để hoàn tất quá trình xác nhận.\n\n" +
+                "Trân trọng,\n" +
+                "Đội ngũ hỗ trợ");
+
+        try {
+            mailSender.send(message);
+            return passwordEncoder.encode(verificationCode);
+        } catch (Exception e) {
+            throw new InvalidDataException("Không thể gửi email: " + e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional(rollbackOn = Exception.class)
+    public boolean verifyCode(AuthController.VerifyCodeRequest request) {
+        boolean result = passwordEncoder.matches(request.getCode(), request.getEncodedCode());
+        if (result) {
+            String password = PasswordGenerator.generateRandomPassword();
+            TaiKhoan tk = TaiKhoan.builder()
+                    .tenDangNhap(request.getEmail())
+                    .matKhau(this.passwordEncoder.encode(password))
+                    .trangThai(true)
+                    .idVaiTro(this.vaiTroRepository.findById(2).orElse(null))
+                    .build();
+            tk = this.taiKhoanRepository.save(tk);
+
+            KhachHang kh = KhachHang.builder()
+                    .taiKhoan(tk)
+                    .email(request.getEmail())
+                    .ngaySua(LocalDateTime.now())
+                    .ngayTao(LocalDateTime.now())
+                    .trangThai(true)
+                    .build();
+            this.khachHangRepository.save(kh);
+
+            try {
+                sendTempPasswordEmail(request.getEmail(), password);
+                log.info("Temporary password sent to email: {}", request.getEmail());
+            } catch (Exception e) {
+                log.error("Failed to send email: {}", e.getMessage());
+            }
+        }
+        return result;
+    }
+
+    private void sendTempPasswordEmail(String toEmail, String password) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(username);
+        message.setTo(toEmail);
+        message.setSubject("Mật Khẩu Tạm Thời Của Bạn");
+        message.setText("Chào bạn,\n\n" +
+                "Tài khoản của bạn đã được tạo thành công.\n" +
+                "Mật khẩu tạm thời của bạn là: " + password + "\n" +
+                "Vui lòng đăng nhập và đổi mật khẩu ngay sau khi nhận được email này.\n\n" +
+                "Trân trọng,\n" +
+                "Đội ngũ hỗ trợ");
+
+        mailSender.send(message);
     }
 }

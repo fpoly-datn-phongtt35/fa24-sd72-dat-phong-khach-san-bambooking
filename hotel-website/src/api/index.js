@@ -12,3 +12,15 @@ export const refreshTokenAPI = async (refreshToken) => {
     }
   );
 };
+
+export const signUp = async (email) => {
+  return await axios.post(`${API_ROOT}/api/auth/sign-up?email=${email}`, {});
+};
+
+export const verifyCode = async (data) => {
+  return await axios.post(`${API_ROOT}/api/auth/verify-code`, {
+    code: data.code,
+    encodedCode: data.encodedCode,
+    email: data.email,
+  });
+};

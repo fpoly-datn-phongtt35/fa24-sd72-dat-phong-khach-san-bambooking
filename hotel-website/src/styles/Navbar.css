@@ -69,9 +69,34 @@ html, body {
   border: none;
   padding: 10px 20px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 11px;
   text-transform: uppercase;
   transition: background-color 0.3s ease-in-out;
+  margin-right: 10px
+}
+
+.navbar-buttons .login-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 11px;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease-in-out;
+  margin-right: 10px
+}
+
+.navbar-buttons .logout-button {
+  background-color: gray;
+  color:white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 11px;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease-in-out;
+  margin-right: 10px
 }
 
 .navbar-buttons .book-now-button:hover {
@@ -81,4 +106,17 @@ html, body {
 .btn-custom {
   background-color: #4A4A4A;
   color: white;
+
+}
+
+.navbar-buttons .sign-up-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 11px;
+  text-transform: uppercase;
+  transition: background-color 0.3s ease-in-out;
+  
 }
