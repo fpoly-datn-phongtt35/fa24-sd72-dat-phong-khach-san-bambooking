@@ -41,7 +41,6 @@ const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong }) => {
     diaChi: "",
     sdt: "",
     email: "",
-    matKhau: "",
     trangThai: true,
   });
 
@@ -88,7 +87,6 @@ const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong }) => {
       diaChi: formData.diaChi,
       sdt: formData.sdt,
       email: formData.email,
-      matKhau: formData.matKhau,
       trangThai: formData.trangThai,
     };
 
@@ -196,17 +194,6 @@ const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong }) => {
                   value={formData.email}
                   onChange={handleChange}
                   type="email"
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  label="Mật Khẩu"
-                  name="matKhau"
-                  value={formData.matKhau}
-                  onChange={handleChange}
-                  type="password"
                   required
                   fullWidth
                 />

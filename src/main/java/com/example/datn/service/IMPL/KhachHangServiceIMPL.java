@@ -18,11 +18,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -46,13 +49,13 @@ public class KhachHangServiceIMPL implements KhachHangService {
     @Override
     public KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request) {
         KhachHang khachHang = new KhachHang();
+        khachHang.setCmnd(request.getCccd());
         khachHang.setTen(request.getTen());
         khachHang.setHo(request.getHo());
         khachHang.setSdt(request.getSdt());
         khachHang.setEmail(request.getEmail());
-//        khachHang.setGioiTinh(request.getGioiTinh());
-//        khachHang.setDiaChi(request.getDiaChi());
-//        khachHang.setMatKhau(request.getMatKhau());
+        khachHang.setGioiTinh(request.getGioiTinh());
+        khachHang.setDiaChi(request.getDiaChi());
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(request.getTrangThai());
@@ -62,17 +65,22 @@ public class KhachHangServiceIMPL implements KhachHangService {
     @Override
     public KhachHang updateKhachHangDatPhong(KhachHangDatPhongRequest request) {
         KhachHang khachHang = khachHangRepository.getReferenceById(request.getId());
+        khachHang.setCmnd(request.getCccd());
         khachHang.setTen(request.getTen());
         khachHang.setHo(request.getHo());
         khachHang.setSdt(request.getSdt());
         khachHang.setEmail(request.getEmail());
-//        khachHang.setGioiTinh(request.getGioiTinh());
-//        khachHang.setDiaChi(request.getDiaChi());
-//        khachHang.setMatKhau(request.getMatKhau());
+        khachHang.setGioiTinh(request.getGioiTinh());
+        khachHang.setDiaChi(request.getDiaChi());
         khachHang.setNgayTao(LocalDateTime.now());
         khachHang.setNgaySua(LocalDateTime.now());
         khachHang.setTrangThai(request.getTrangThai());
         return khachHangRepository.save(khachHang);
+    }
+
+    public Page<KhachHang> getKhachHangsByKey(String key, Pageable pageable){
+        Page<KhachHang> khs = khachHangRepository.search(key,pageable);
+        return khs;
     }
 
     @Override

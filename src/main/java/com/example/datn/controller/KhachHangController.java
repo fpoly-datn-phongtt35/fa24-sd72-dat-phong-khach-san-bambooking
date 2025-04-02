@@ -5,6 +5,7 @@ import com.example.datn.dto.request.KhachHangRequest;
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.KhachHangRegister;
 import com.example.datn.repository.KhachHangRepository;
+import com.example.datn.service.IMPL.KhachHangServiceIMPL;
 import com.example.datn.service.KhachHangService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -12,6 +13,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,7 @@ public class KhachHangController {
     @Autowired
     KhachHangRepository khachHangRepository;
     KhachHangService khachHangService;
+    KhachHangServiceIMPL khachHangServiceIMPL;
 //    @PostMapping("/login")
 //    public ResponseEntity<String> login(@RequestBody KhachHangRegister request) {
 //        boolean isAuthenticated = khachHangService.checkLogin(request.getEmail(), request.getMatKhau());
@@ -74,6 +77,12 @@ public class KhachHangController {
 //        return ResponseEntity.status(HttpStatus.OK).body(khachHangService.searchKhachHang(keyword, pageable));
 //    }
 //
+
+    @GetMapping("/get-by-key")
+    public ResponseEntity<?> getKhachHangByKey(@RequestParam("keyword") String keyword,Pageable pageable){
+        Page<KhachHang> khs = khachHangServiceIMPL.getKhachHangsByKey(keyword,pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(khs);
+    }
     @PostMapping("/create-kh-dp")
     public ResponseEntity<?> createKhachHangDatPhong(@RequestBody KhachHangDatPhongRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(khachHangService.createKhachHangDatPhong(request));
