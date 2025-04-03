@@ -13,6 +13,7 @@ import Profile from "./components/Profile";
 import Footer from "./components/Footer";
 import AboutPage from "./pages/AboutPage";
 import HotelRules from "./pages/HotelRules";
+import Signup from "./components/Signup";
 
 function App() {
   const UnauthorizedRoutes = () => {
@@ -79,6 +80,7 @@ function App() {
         {/* Pages không cần đăng nhập */}
         <Route path="/" element={<Information />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />
         <Route path="/history" element={<History />} />
         <Route path="/rooms" element={<Rooms />} />

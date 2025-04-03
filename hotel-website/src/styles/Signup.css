@@ -1,0 +1,178 @@
+
+
+  /* Reset mặc định */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
+  
+  body {
+    background-color: #fff; /* Màu nền trắng */
+    color: #333;
+  }
+  
+  /* Main container */
+  .main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh; /* Chiều cao toàn màn hình */
+    padding: 20px;
+  }
+  
+  .signup-container {
+    padding: 30px;
+    width: 100%;
+    max-width: 400px; /* Giới hạn chiều rộng */
+    text-align: left; /* Căn trái */
+  }
+  
+  .signup-container h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #000; /* Màu đen cho tiêu đề */
+  }
+  
+  .signup-container p {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  /* Thông báo lỗi */
+  .error-message {
+    color: #d32f2f;
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
+  
+  /* Form */
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-group {
+    text-align: left;
+  }
+  
+  .form-group label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+  }
+  
+  .form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #007bff; /* Viền màu xanh của Booking.com */
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  
+  .form-group input:focus {
+    border-color: #0056b3; /* Màu xanh đậm hơn khi focus */
+  }
+  
+  /* Ô nhập mã xác minh */
+  .code-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .code-input {
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    font-size: 16px;
+    border: 1px solid #007bff;
+    border-radius: 4px;
+    outline: none;
+  }
+  
+  .code-input:focus {
+    border-color: #0056b3;
+  }
+  
+  /* Nút Tiếp tục / Xác minh */
+  .signup-button {
+    background-color: #007bff; /* Màu xanh của Booking.com */
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .signup-button:hover {
+    background-color: #0056b3; /* Màu xanh đậm hơn khi hover */
+  }
+  
+  /* Liên kết */
+  .resend-link {
+    font-size: 14px;
+    color: #666;
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .back-link {
+    font-size: 14px;
+    color: #007bff;
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  .back-link a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .back-link a:hover {
+    text-decoration: underline;
+  }
+  
+  .signup-wrapper {
+    position: relative;
+  }
+  
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .loader {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #fff;
+    border-top: 5px solid #4CAF50;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }

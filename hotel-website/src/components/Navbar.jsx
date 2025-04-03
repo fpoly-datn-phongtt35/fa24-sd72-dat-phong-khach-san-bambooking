@@ -144,14 +144,15 @@ export default function Navbar() {
         </ul>
         <div className="navbar-buttons">
           {
-            (!isAuthenticated && location.pathname !== '/login') && (<button className="book-now-button me-2" onClick={() => navigate("/login")}>Đăng nhập</button>)
+            (!isAuthenticated && location.pathname !== '/login') && (<button className="login-button me-2" onClick={() => navigate("/login")}>Đăng nhập</button>)
           }
           {
-            isAuthenticated && (<button className="book-now-button me-2" onClick={logout}>Đăng xuất</button>)
+            isAuthenticated && (<button className="logout-button me-2" onClick={logout}>Đăng xuất</button>)
           }
           <button className="book-now-button" onClick={handleDropdown}>
             {isOpen ? 'ĐÓNG' : 'ĐẶT PHÒNG'}
           </button>
+          {!isAuthenticated && <button className="sign-up-button" onClick={() => navigate("/signup")}>Đăng kí</button>}
         </div>
       </nav>
     </>

@@ -11,6 +11,7 @@ import Login from './components/Login';
 import Footer from './components/Footer';
 import './App.css';
 import AboutPage from './pages/AboutPage';
+import Signup from './components/Signup';
 
 
 export default function App() {
@@ -51,14 +52,20 @@ export default function App() {
               <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/about" element={<AboutPage />} />
-              <Route
+              {/* <Route
                 path="/register"
                 element={<Register handleRegister={handleLogin} />}
-              />
+              /> */}
               <Route
                 path="/login"
                 element={<Login handleLogin={handleLogin} />}
               />
+              
+              <Route
+                path="/signup"
+                element={<Signup />}
+              />
+
               <Route
                 path="/profile"
                 element={

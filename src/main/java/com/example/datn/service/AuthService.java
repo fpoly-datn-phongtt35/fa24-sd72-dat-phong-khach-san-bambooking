@@ -1,5 +1,6 @@
 package com.example.datn.service;
 
+import com.example.datn.controller.AuthController;
 import com.example.datn.dto.request.ThongTinNhanVienRequest;
 import com.example.datn.dto.request.auth.SigninRequest;
 import com.example.datn.dto.response.auth.TokenResponse;
@@ -16,4 +17,8 @@ public interface AuthService {
     TokenResponse authenticate(SigninRequest signinRequest);
 
     TokenResponse refresh(HttpServletRequest request);
+
+    String signUp(String email);
+
+    boolean verifyCode(AuthController.VerifyCodeRequest request);
 }
