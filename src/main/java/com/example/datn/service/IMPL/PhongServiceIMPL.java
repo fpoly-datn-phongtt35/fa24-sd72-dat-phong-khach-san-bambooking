@@ -88,7 +88,7 @@ public class PhongServiceIMPL implements PhongService {
     @Override
     public List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDateTime ngayNhanPhong,LocalDateTime ngayTraPhong) {
         List<String> trangThai = Arrays.asList("Đang ở","Đã xếp");
-        List<String> tinhTrang = Arrays.asList("Trống");
+        List<String> tinhTrang = Arrays.asList("Trống","Đang đặt");
         return phongRepository.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong,trangThai,tinhTrang);
     }
 
