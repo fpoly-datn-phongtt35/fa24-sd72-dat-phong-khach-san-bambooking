@@ -36,8 +36,6 @@ import { ThemPhuThu } from "../../services/PhuThuService";
 
 const QuanLyDatPhong = () => {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [datPhong, setDatPhong] = useState([]);
   const [ngayNhan, setNgayNhan] = useState(null);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Grid,
@@ -9,56 +9,58 @@ import {
   Button,
   Divider,
   TextField,
-} from '@mui/material';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { getTTDPByMaTTDP } from '../../services/TTDP';
-import { phongDaXep } from '../../services/XepPhongService';
+  Chip,
+} from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
+import { getTTDPByMaTTDP, updateThongTinDatPhong } from "../../services/TTDP";
+import { phongDaXep } from "../../services/XepPhongService";
+import { hienThi, sua, xoa } from "../../services/KhachHangCheckin"; // Thêm xoa
 import XepPhong from "../xepphong/XepPhong";
-import { hienThi } from '../../services/KhachHangCheckin';
-import ModalKhachHangCheckin from '../../components/DatPhong/ModalKhachHangCheckin';
-import ModalDoiNgay from '../../components/DatPhong/ModalDoiNgay';
-import { updateThongTinDatPhong } from '../../services/TTDP';
+import ModalKhachHangCheckin from "../../components/DatPhong/ModalKhachHangCheckin";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import EditIcon from "@mui/icons-material/Edit";
+import HotelIcon from "@mui/icons-material/Hotel";
+import PersonIcon from "@mui/icons-material/Person";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 const ChiTietTTDP = () => {
   const navigate = useNavigate();
-  const [thongTinDatPhong, setThongTinDatPhong] = useState(null);
-  const [showXepPhongModal, setShowXepPhongModal] = useState(false);
-  const [phongData, setPhongData] = useState({});
   const location = useLocation();
   const { maThongTinDatPhong } = location.state || {};
+  const [thongTinDatPhong, setThongTinDatPhong] = useState(null);
+  const [xepPhong, setXepPhong] = useState(null);
   const [khachHangCheckin, setKhachHangCheckin] = useState([]);
+  const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
-  const [isModalDoiNgayOpen, setModalDoiNgayOpen] = useState(false);
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
 
+  // Fetch dữ liệu
   const getDetailTTDP = (maThongTinDatPhong) => {
     getTTDPByMaTTDP(maThongTinDatPhong)
-      .then((response) => {
-        setThongTinDatPhong(response.data);
-      })
-      .catch((error) => {
-        console.error('Lỗi khi lấy thông tin đặt phòng:', error);
-      });
+      .then((response) => setThongTinDatPhong(response.data))
+      .catch((error) =>
+        console.error("Lỗi khi lấy thông tin đặt phòng:", error)
+      );
   };
 
   const fetchKhachHangCheckin = (maThongTinDatPhong) => {
     hienThi(maThongTinDatPhong)
       .then((response) => {
+        console.log("Khách hàng check-in:", response.data);
         setKhachHangCheckin(response.data);
       })
-      .catch((error) => {
-        console.error('Lỗi khi lấy thông tin khách hàng:', error);
-      });
+      .catch((error) =>
+        console.error("Lỗi khi lấy thông tin khách hàng:", error)
+      );
   };
 
   const fetchPhongDaXep = (maThongTinDatPhong) => {
     phongDaXep(maThongTinDatPhong)
-      .then((response) => {
-        setPhongData(response.data);
-      })
-      .catch((error) => {
-        console.error('Lỗi khi lấy thông tin phòng đã xếp:', error);
-      });
+      .then((response) => setXepPhong(response.data))
+      .catch((error) =>
+        console.error("Lỗi khi lấy thông tin phòng đã xếp:", error)
+      );
   };
 
   const capNhatTTDP = () => {
@@ -75,21 +77,65 @@ const ChiTietTTDP = () => {
       trangThai: thongTinDatPhong.trangThai,
     };
     updateThongTinDatPhong(TTDPRequest)
-      .then((response) => {
-        console.log(response.data);
-        navigate('/chi-tiet-ttdp', { state: { maThongTinDatPhong } });
-      })
-      .catch((error) => {
-        console.error('Lỗi khi cập nhật thông tin đặt phòng:', error);
-      });
+      .then(() => navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } }))
+      .catch((error) =>
+        console.error("Lỗi khi cập nhật thông tin đặt phòng:", error)
+      );
+  };
+
+  // Hàm xóa khách hàng check-in
+  const handleDelete = async (id) => {
+    try {
+      await xoa(id); // Gọi API xoa với ID của khachHangCheckin
+      console.log("Xóa khách hàng check-in thành công");
+      fetchKhachHangCheckin(maThongTinDatPhong); // Tải lại danh sách sau khi xóa
+    } catch (error) {
+      console.error("Lỗi khi xóa khách hàng check-in:", error);
+    }
+  };
+
+  // Hàm xác nhận khách hàng check-in
+  const handleXacNhan = async (khc) => {
+    try {
+      const checkinRequest = {
+        id: khc.id, // Thêm ID để backend biết bản ghi nào cần sửa
+        khachHang: khc.khachHang,
+        thongTinDatPhong: thongTinDatPhong,
+        trangThai: true,
+      };
+      const response = await sua(checkinRequest); // Gọi API sửa
+      console.log("Xác nhận khách hàng check-in thành công:", response);
+      fetchKhachHangCheckin(maThongTinDatPhong); // Tải lại danh sách sau khi sửa
+    } catch (error) {
+      console.error("Lỗi khi xác nhận khách hàng check-in:", error);
+    }
+  };
+
+  // Hàm sửa trạng thái khách hàng check-in
+  const handleUpdate = async (khc, newTrangThai) => {
+    try {
+      const checkinRequest = {
+        id: khc.id, // Thêm ID để backend biết bản ghi nào cần sửa
+        khachHang: khc.khachHang,
+        thongTinDatPhong: thongTinDatPhong,
+        trangThai: newTrangThai,
+      };
+      const response = await sua(checkinRequest); // Gọi API sửa
+      console.log(
+        "Cập nhật trạng thái khách hàng check-in thành công:",
+        response
+      );
+      fetchKhachHangCheckin(maThongTinDatPhong); // Tải lại danh sách sau khi sửa
+    } catch (error) {
+      console.error("Lỗi khi cập nhật trạng thái khách hàng check-in:", error);
+    }
   };
 
   const calculateDays = (start, end) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     const diffTime = Math.abs(endDate - startDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays === 0 ? 1 : diffDays;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
   };
 
   const calculateTotalPrice = (donGia, start, end) => {
@@ -105,282 +151,362 @@ const ChiTietTTDP = () => {
     }
   }, [maThongTinDatPhong]);
 
-  const handleModalKHC = () => {
-    setModalOpen(true);
-  };
-
-  const handleClose = () => {
-    setModalOpen(false);
-  };
+  const handleModalKHC = () => setModalOpen(true);
+  const handleClose = () => setModalOpen(false);
 
   const openXepPhongModal = (thongTinDatPhong) => {
-    setSelectedTTDPs([thongTinDatPhong]); // Gán thành mảng chứa phần tử duy nhất
+    setSelectedTTDPs([thongTinDatPhong]);
     setShowXepPhongModal(true);
   };
 
   const closeXepPhongModal = () => {
     setShowXepPhongModal(false);
-    navigate('/chi-tiet-ttdp', { state: { maThongTinDatPhong } });
+    fetchPhongDaXep(maThongTinDatPhong);
   };
 
-  const handleModalDoiNgay = () => {
-    setModalDoiNgayOpen(true);
-  };
-
-  const handleCloseModalDoiNgay = () => {
-    setModalDoiNgayOpen(false);
+  const handleCheckinSuccess = () => {
+    fetchKhachHangCheckin(maThongTinDatPhong);
+    handleClose();
   };
 
   return (
-    <Box sx={{ p: 2 }}>
-      {/* Thông tin đặt phòng */}
-      <Grid container spacing={2}>
-        {/* Box thông tin đặt phòng */}
-        <Grid item xs={12} md={4}>
-          <Card variant="outlined">
+    <Box sx={{ p: 4, maxWidth: "1400px", margin: "0 auto" }}>
+      {/* Tiêu đề */}
+      <Box sx={{ display: "flex", alignItems: "center", mb: 4, gap: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(-1)}
+          color="primary"
+        >
+          Quay lại
+        </Button>
+        <Typography
+          variant="h4"
+          color="primary.main"
+          sx={{ fontWeight: "bold" }}
+        >
+          Chi Tiết Thông Tin Đặt Phòng
+        </Typography>
+      </Box>
+
+      {/* Grid thông tin */}
+      <Grid container spacing={3}>
+        {/* Thông tin đặt phòng */}
+        <Grid item xs={12} md={6}>
+          <Card elevation={3} sx={{ borderRadius: 2, height: "100%" }}>
             <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Thông tin đặt phòng
-              </Typography>
-              <Divider sx={{ mb: 1 }} />
-              <Box sx={{ mb: 1 }}>
-                <Typography variant="subtitle2">Mã đặt phòng:</Typography>
-                <Typography variant="body1">
-                  {thongTinDatPhong?.maThongTinDatPhong || 'N/A'}
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <HotelIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" color="primary.main">
+                  Thông Tin Đặt Phòng
                 </Typography>
               </Box>
-              <Box sx={{ mb: 1 }}>
-                <Typography variant="subtitle2">Số người:</Typography>
-                <Typography variant="body1">
-                  {thongTinDatPhong?.soNguoi || 'N/A'}
-                </Typography>
-              </Box>
-              <Box sx={{ mb: 1 }}>
-                <Typography variant="subtitle2">Tổng tiền:</Typography>
-                <Typography variant="body1" color="primary">
-                  {calculateTotalPrice(
-                    thongTinDatPhong?.giaDat || 0,
-                    thongTinDatPhong?.ngayNhanPhong,
-                    thongTinDatPhong?.ngayTraPhong
-                  ).toLocaleString('vi-VN')}{' '}
-                  VND
-                </Typography>
-              </Box>
+              <Divider sx={{ mb: 2 }} />
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Typography variant="body2" color="text.secondary">
+                    Mã TTDP:
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: "medium" }}>
+                    {thongTinDatPhong?.maThongTinDatPhong || "N/A"}
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2" color="text.secondary">
+                    Số người:
+                  </Typography>
+                  <Chip
+                    label={thongTinDatPhong?.soNguoi || "N/A"}
+                    color="primary"
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2" color="text.secondary">
+                    Giá đặt:
+                  </Typography>
+                  <Typography variant="body1">
+                    {thongTinDatPhong?.giaDat?.toLocaleString("vi-VN") || "0"}{" "}
+                    VND
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="body2" color="text.secondary">
+                    Tổng tiền:
+                  </Typography>
+                  <Typography
+                    variant="body1"
+                    color="success.main"
+                    sx={{ fontWeight: "bold" }}
+                  >
+                    {calculateTotalPrice(
+                      thongTinDatPhong?.giaDat || 0,
+                      thongTinDatPhong?.ngayNhanPhong,
+                      thongTinDatPhong?.ngayTraPhong
+                    ).toLocaleString("vi-VN")}{" "}
+                    VND
+                  </Typography>
+                </Grid>
+              </Grid>
               <Box>
-                <Typography variant="subtitle2">Trạng thái:</Typography>
-                <Typography variant="body1">
-                  {thongTinDatPhong?.trangThai || 'N/A'}
+                <Typography variant="body2" color="text.secondary">
+                  Ghi chú:
+                </Typography>
+                <TextField
+                  multiline
+                  fullWidth
+                  rows={3}
+                  placeholder="Nhập ghi chú ở đây..."
+                  value={thongTinDatPhong?.ghiChu || ""}
+                  onChange={(e) =>
+                    setThongTinDatPhong({
+                      ...thongTinDatPhong,
+                      ghiChu: e.target.value,
+                    })
+                  }
+                  variant="outlined"
+                  size="small"
+                />
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Ngày và phòng */}
+        <Grid item xs={12} md={6}>
+          <Card elevation={3} sx={{ borderRadius: 2, height: "100%" }}>
+            <CardContent>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <CalendarTodayIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" color="primary.main">
+                  Ngày & Phòng
                 </Typography>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        {/* Box thông tin ngày */}
-        <Grid item xs={12} md={4}>
-          <Card variant="outlined">
-            <CardContent>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h6">Ngày</Typography>
-                <Button variant="outlined" size="small" onClick={handleModalDoiNgay}>
-                  Sửa
-                </Button>
-              </Box>
-              <Divider sx={{ my: 1 }} />
+              <Divider sx={{ mb: 2 }} />
               <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-around',
-                  alignItems: 'center',
-                }}
+                sx={{ display: "flex", justifyContent: "space-between", mb: 3 }}
               >
-                {/* Ngày nhận phòng */}
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="subtitle2">Ngày nhận phòng</Typography>
-                  <Typography variant="body1">
-                    {thongTinDatPhong?.ngayNhanPhong
-                      ? new Date(thongTinDatPhong.ngayNhanPhong).toLocaleDateString()
-                      : 'N/A'}
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Nhận phòng
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: "medium" }}>
+                    {xepPhong?.ngayNhanPhong
+                      ? new Date(xepPhong.ngayNhanPhong).toLocaleDateString(
+                          "vi-VN"
+                        )
+                      : new Date(
+                          thongTinDatPhong?.ngayNhanPhong
+                        ).toLocaleDateString("vi-VN") || "N/A"}
                   </Typography>
                 </Box>
-                {/* Số đêm */}
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="h4">🌙</Typography>
-                  <Typography variant="body1">
-                    {calculateDays(thongTinDatPhong?.ngayNhanPhong, thongTinDatPhong?.ngayTraPhong)}
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography variant="h5" color="primary.main">
+                    🌙{" "}
+                    {calculateDays(
+                      thongTinDatPhong?.ngayNhanPhong,
+                      thongTinDatPhong?.ngayTraPhong
+                    )}
                   </Typography>
+                  <Typography variant="caption">Đêm</Typography>
                 </Box>
-                {/* Ngày trả phòng */}
-                <Box sx={{ textAlign: 'center' }}>
-                  <Typography variant="subtitle2">Ngày trả phòng</Typography>
-                  <Typography variant="body1">
-                    {thongTinDatPhong?.ngayTraPhong
-                      ? new Date(thongTinDatPhong.ngayTraPhong).toLocaleDateString()
-                      : 'N/A'}
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Trả phòng
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: "medium" }}>
+                    {xepPhong?.ngayTraPhong
+                      ? new Date(xepPhong.ngayTraPhong).toLocaleDateString(
+                          "vi-VN"
+                        )
+                      : new Date(
+                          thongTinDatPhong?.ngayTraPhong
+                        ).toLocaleDateString("vi-VN") || "N/A"}
                   </Typography>
                 </Box>
               </Box>
-            </CardContent>
-          </Card>
-        </Grid>
-        {/* Box trạng thái phòng */}
-        <Grid item xs={12} md={4}>
-          <Card variant="outlined">
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Trạng thái phòng
-              </Typography>
-              <Divider sx={{ mb: 1 }} />
-              <Box sx={{ mb: 1 }}>
-                <Typography variant="subtitle2">Phòng:</Typography>
-                <Typography variant="body1">
-                  {phongData?.phong?.tenPhong || 'Chưa xếp phòng'}
+              <Divider sx={{ mb: 2 }} />
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Phòng:
+                </Typography>
+                <Typography variant="body1" sx={{ fontWeight: "medium" }}>
+                  {xepPhong?.phong?.tenPhong || (
+                    <Chip label="Chưa xếp phòng" color="warning" size="small" />
+                  )}
                 </Typography>
               </Box>
               <Button
                 variant="contained"
+                color="secondary"
+                startIcon={<HotelIcon />}
                 onClick={() => openXepPhongModal(thongTinDatPhong)}
-                disabled={!!phongData?.phong}
+                disabled={
+                  !!xepPhong?.phong || thongTinDatPhong?.trangThai === "Đang ở"
+                }
                 sx={{ mb: 2 }}
               >
-                {phongData?.phong ? 'Đã xếp phòng' : 'Xếp phòng'}
+                {xepPhong?.phong ? "Đã xếp phòng" : "Xếp phòng"}
               </Button>
-              <Box>
-                <Typography variant="subtitle2">Ghi chú:</Typography>
-                <TextField
-                  multiline
-                  fullWidth
-                  minRows={3}
-                  placeholder="Nhập ghi chú ở đây..."
-                  value={thongTinDatPhong?.ghiChu || ""}
-                  onChange={(e) =>
-                    setThongTinDatPhong({ ...thongTinDatPhong, ghiChu: e.target.value })
-                  }
-                  variant="outlined"
-                />
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Thông tin khách hàng */}
+        <Grid item xs={12}>
+          <Card elevation={3} sx={{ borderRadius: 2 }}>
+            <CardContent>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <PersonIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="h6" color="primary.main">
+                  Thông Tin Khách Hàng
+                </Typography>
+              </Box>
+              <Divider sx={{ mb: 3 }} />
+              <Grid container spacing={2}>
+                {khachHangCheckin.length > 0 ? (
+                  khachHangCheckin.map((khc, index) => (
+                    <Grid item xs={12} sm={6} md={3} key={index}>
+                      <Card
+                        elevation={1}
+                        sx={{ height: "100%", borderRadius: 2 }}
+                      >
+                        <CardContent>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              mb: 2,
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle1"
+                              sx={{ fontWeight: "medium" }}
+                            >
+                              {khc?.khachHang?.ho + " " + khc?.khachHang?.ten ||
+                                "Khách chưa xác định"}
+                            </Typography>
+                            <Chip
+                              label={
+                                khc?.trangThai === true ? "Active" : "Inactive"
+                              }
+                              color={
+                                khc?.trangThai === true ? "success" : "error"
+                              }
+                              size="small"
+                            />
+                          </Box>
+                          <Divider sx={{ my: 1 }} />
+                          <Typography variant="body2">
+                            <strong>Số CCCD/CMND:</strong>{" "}
+                            {khc.khachHang.cmnd || "N/A"}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Giới tính:</strong>{" "}
+                            {khc.khachHang.gioiTinh || "N/A"}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>SĐT:</strong> {khc.khachHang.sdt || "N/A"}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Địa chỉ:</strong>{" "}
+                            {khc.khachHang.diaChi || "N/A"}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Email:</strong>{" "}
+                            {khc.khachHang.email || "N/A"}
+                          </Typography>
+                        </CardContent>
+                        <CardActions
+                          sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
+                        >
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => handleUpdate(khc, !khc.trangThai)} // Đổi trạng thái
+                          >
+                            Sửa
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="error"
+                            onClick={() => handleDelete(khc.id)} // Xóa với ID của khachHangCheckin
+                          >
+                            Xóa
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleXacNhan(khc)} // Xác nhận
+                          >
+                            Xác nhận
+                          </Button>
+                        </CardActions>
+                      </Card>
+                    </Grid>
+                  ))
+                ) : (
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="body1"
+                      color="text.secondary"
+                      sx={{ textAlign: "center", py: 4 }}
+                    >
+                      Không có dữ liệu khách hàng
+                    </Typography>
+                  </Grid>
+                )}
+              </Grid>
+              <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleModalKHC}
+                >
+                  + Thêm khách Verified
+                </Button>
+                <Button variant="contained" color="secondary">
+                  + Thêm khách Unverified
+                </Button>
               </Box>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Thông tin khách hàng */}
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h6" gutterBottom>
-          Thông tin khách hàng
-        </Typography>
-        <Grid container spacing={2}>
-          {khachHangCheckin.length > 0 ? (
-            khachHangCheckin.map((khc, index) => (
-              <Grid item xs={12} md={6} key={index}>
-                <Card variant="outlined">
-                  <CardContent>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Typography
-                        variant="subtitle2"
-                        color={khc?.khachHang?.trangThai === true ? 'success.main' : 'error.main'}
-                      >
-                        {khc?.khachHang?.trangThai === true ? 'Verified' : 'Unverified'}
-                      </Typography>
-                      <Typography variant="h6">
-                        {khc?.khachHang?.ho + ' ' + khc?.khachHang?.ten ||
-                          'Khách chưa xác định'}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="body2">
-                        Ngày đến: {khc.thongTinDatPhong.ngayNhanPhong}
-                      </Typography>
-                      <Typography variant="body2">
-                        Ngày đi: {khc.thongTinDatPhong.ngayTraPhong}
-                      </Typography>
-                    </Box>
-                    <Divider sx={{ my: 1 }} />
-                    <Box sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2">Giới tính:</Typography>
-                      <Typography variant="body1">
-                        {khc.khachHang.gioiTinh || 'N/A'}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2">Địa chỉ:</Typography>
-                      <Typography variant="body1">
-                        {khc.khachHang.diaChi || 'N/A'}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2">Email:</Typography>
-                      <Typography variant="body1">
-                        {khc.khachHang.email || 'N/A'}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ mb: 1 }}>
-                      <Typography variant="subtitle2">Phone:</Typography>
-                      <Typography variant="body1">
-                        {khc.khachHang.sdt || 'N/A'}
-                      </Typography>
-                    </Box>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small" variant="outlined">
-                      Chỉnh sửa
-                    </Button>
-                    <Button size="small" variant="outlined" color="error">
-                      Xóa
-                    </Button>
-                    <Button size="small" variant="contained" color="primary">
-                      Xác nhận
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))
-          ) : (
-            <Grid item xs={12}>
-              <Typography variant="body1">Không có dữ liệu khách hàng</Typography>
-            </Grid>
-          )}
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', gap: 2 }}>
-              <Button variant="contained" onClick={handleModalKHC}>
-                + Add verified guest
-              </Button>
-              <Button variant="contained">+ Add unverified guest</Button>
-            </Box>
-          </Grid>
-        </Grid>
-      </Box>
-
-      {/* Các nút hành động */}
-      <Box sx={{ mt: 4, display: 'flex', gap: 2 }}>
-        <Button variant="contained" onClick={capNhatTTDP}>
-          Update
+      {/* Nút hành động */}
+      <Box sx={{ mt: 4, display: "flex", justifyContent: "flex-end", gap: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<EditIcon />}
+          onClick={capNhatTTDP}
+        >
+          Cập nhật
         </Button>
-        <Button variant="contained" color="success">
-          Checkin
+        <Button
+          variant="contained"
+          color="success"
+          startIcon={<CheckCircleIcon />}
+        >
+          Check-in
         </Button>
       </Box>
 
-      {/* Các modal */}
+      {/* Modal */}
       <ModalKhachHangCheckin
         isOpen={isModalOpen}
         onClose={handleClose}
         thongTinDatPhong={thongTinDatPhong}
+        onCheckinSuccess={handleCheckinSuccess}
       />
       <XepPhong
         show={showXepPhongModal}
         handleClose={closeXepPhongModal}
         selectedTTDPs={selectedTTDPs}
-      />
-      <ModalDoiNgay
-        isOpen={isModalDoiNgayOpen}
-        onClose={handleCloseModalDoiNgay}
-        thongTinDatPhong={thongTinDatPhong}
       />
     </Box>
   );

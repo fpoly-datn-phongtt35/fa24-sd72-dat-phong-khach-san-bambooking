@@ -131,13 +131,10 @@ public class DichVuController {
         }
     }
 
-
     @GetMapping("/dich-vu/status/{id}")
     public String status(@PathVariable("id") Integer id) {
         dichVuServiceIMPL.updateStatus(id);
         return "redirect:/dich-vu";
     }
-
-
 
 }

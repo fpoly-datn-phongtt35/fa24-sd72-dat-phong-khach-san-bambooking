@@ -124,10 +124,15 @@ public class DatPhongController {
     }
 
     @GetMapping("dat-phong-to-checkin")
-    public ResponseEntity<?> findDatPhongToCheckin(@RequestParam("key") String key,
-                                                   @RequestParam(value = "page", defaultValue = "0") int page,
-                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
-        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(key, page, size);
+    public ResponseEntity<?> findDatPhongToCheckin(
+            @RequestParam(value = "key", defaultValue = "", required = false) String key,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "ngayNhanPhong", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+            @RequestParam(value = "ngayTraPhong", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong) {
+        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(key, page, size,ngayNhanPhong,ngayTraPhong);
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 

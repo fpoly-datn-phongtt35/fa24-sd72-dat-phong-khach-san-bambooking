@@ -11,4 +11,5 @@ public interface KhachHangCheckinService {
     KhachHangCheckin add(KhachHangCheckinRequest request);
     KhachHangCheckin update(KhachHangCheckinRequest request);
     List<KhachHangCheckin> findsByMaTTDP(String maThongTinDatPhong);
+    Boolean xoa(Integer id);
 }

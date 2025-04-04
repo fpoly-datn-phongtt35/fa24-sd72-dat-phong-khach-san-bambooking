@@ -1,20 +1,51 @@
+// ModalKhachHangCheckin.jsx
 import React, { useState, useEffect } from "react";
-import "./ModalKhachHangCheckin.scss";
+import { useNavigate } from "react-router-dom";
+import {
+  Modal,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Stack,
+  Pagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Checkbox,
+  Paper,
+} from "@mui/material";
 import ModalCreateKHC from "./ModalCreateKHC";
 import UploadQR from "../UploadQR";
-import { createKhachHang } from "../../services/KhachHangService";
+import {
+  createKhachHang,
+  getKhachHangByKey,
+} from "../../services/KhachHangService";
 import { them } from "../../services/KhachHangCheckin";
-import { useNavigate } from "react-router-dom";
 
-const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
+const ModalKhachHangCheckin = ({
+  isOpen,
+  onClose,
+  thongTinDatPhong,
+  onCheckinSuccess,
+}) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isQRModalOpen, setQRModalOpen] = useState(false);
-  const [qrData, setQRData] = useState(""); // Lưu dữ liệu quét được từ QR
-  const [khachHang, setKhachHang] = useState({}); // Lưu thông tin khách hàng
+  const [qrData, setQRData] = useState("");
+  const [selectedKhachHang, setSelectedKhachHang] = useState([]);
+  const [khachHangList, setKhachHangList] = useState([]);
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
+  const rowsPerPage = 5;
+
   const handleOpenModal = () => {
-    setQRData(""); // Xoá dữ liệu qrData trước khi mở modal
+    setQRData("");
     setModalOpen(true);
   };
 
@@ -34,133 +65,240 @@ const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
   };
 
   const handleScanner = async (e, data) => {
-    if (e && e.preventDefault) {
-      e.preventDefault();
-    }
-    const rawData = data; // Dữ liệu đến từ QR
-    // Tách chuỗi thành mảng theo dấu "|"
+    if (e && e.preventDefault) e.preventDefault();
+    const rawData = data;
     const fields = rawData.split("|");
-
-    // Tách họ và tên từ trường thứ 3 (ví dụ: "Lương Tuấn Đạt")
-    const nameParts = fields[2].split(" ");
-
-    // Xây dựng đối tượng khData với các trường cần thiết
-    const newKhData = {
-      cccd: fields[0],
-      ho: nameParts[0],
-      ten: nameParts.slice(1).join(" "),
-      diaChi: fields[5],
-      trangThai: true,
-    };
-
-    setKhachHang(newKhData);
-    console.log("Dữ liệu khách hàng từ QR:", newKhData);
+    const cmnd = fields[0];
+    setSearchKeyword(cmnd);
+    await fetchKhachHangList(cmnd, 1);
+    setQRModalOpen(false);
   };
 
   const handleCreate = async () => {
     try {
-      // Kiểm tra xem có dữ liệu khách hàng không
-      if (!khachHang || Object.keys(khachHang).length === 0) {
-        console.log("Chưa có dữ liệu khách hàng từ QR");
+      if (!selectedKhachHang || selectedKhachHang.length === 0) {
+        console.log("Chưa chọn khách hàng nào để check-in");
         return;
       }
-      const response = await createKhachHang(khachHang);
-      if (response != null) {
-        const KHCRequest = {
-          khachHang: response.data,
-          thongTinDatPhong: thongTinDatPhong,
-          trangThai: true,
-        };
-        const response2 = await them(KHCRequest);
-        console.log("Tạo khách hàng thành công:", response2);
-        // Ví dụ: chuyển hướng hoặc cập nhật giao diện sau khi tạo thành công
-        const maThongTinDatPhong = thongTinDatPhong.maThongTinDatPhong;
-        navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
+
+      const khachHangToCreate = [];
+      for (let kh of selectedKhachHang) {
+        if (!kh.id) {
+          const response = await createKhachHang(kh);
+          if (response) khachHangToCreate.push(response.data);
+        } else {
+          khachHangToCreate.push(kh);
+        }
+      }
+
+      const checkinRequests = khachHangToCreate.map((kh) => ({
+        khachHang: kh,
+        thongTinDatPhong: thongTinDatPhong,
+        trangThai: true,
+      }));
+
+      const responses = await Promise.all(
+        checkinRequests.map((req) => them(req))
+      );
+      console.log("Tạo nhiều khách hàng check-in thành công:", responses);
+
+      const maThongTinDatPhong = thongTinDatPhong.maThongTinDatPhong;
+      navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
+
+      // Gọi callback khi check-in thành công
+      if (onCheckinSuccess) {
+        onCheckinSuccess();
       }
     } catch (error) {
-      console.log("Lỗi khi thêm khách hàng", error);
+      console.log("Lỗi khi thêm nhiều khách hàng check-in:", error);
     }
   };
 
-  // useEffect lắng nghe qrData; khi qrData thay đổi và không rỗng, gọi handleScanner
+  const fetchKhachHangList = async (keyword, pageNumber) => {
+    try {
+      const response = await getKhachHangByKey(
+        keyword,
+        pageNumber - 1,
+        rowsPerPage
+      );
+      console.log("Danh sách khách hàng:", response);
+      setKhachHangList(response.data.content || []);
+      setTotalPages(response.totalPages || 1);
+    } catch (error) {
+      console.log("Lỗi khi lấy danh sách khách hàng:", error);
+    }
+  };
+
   useEffect(() => {
     if (qrData) {
       handleScanner(null, qrData);
-      setQRModalOpen(false);
     }
   }, [qrData]);
 
+  useEffect(() => {
+    fetchKhachHangList(searchKeyword, page);
+  }, [searchKeyword, page]);
+
+  const handleSearchChange = (e) => {
+    setSearchKeyword(e.target.value);
+    setPage(1);
+  };
+
+  const handlePageChange = (event, value) => {
+    setPage(value);
+  };
+
+  const handleRowSelection = (kh) => {
+    setSelectedKhachHang((prev) => {
+      const isSelected = prev.some((item) => item.id === kh.id);
+      if (isSelected) {
+        return prev.filter((item) => item.id !== kh.id);
+      } else {
+        return [...prev, kh];
+      }
+    });
+  };
+
+  const isSelected = (id) => selectedKhachHang.some((kh) => kh.id === id);
+
+  const handleKhachHangAdded = () => {
+    fetchKhachHangList(searchKeyword, page);
+  };
+
   if (!isOpen) return null;
 
+  const modalStyle = {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: 1200,
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    p: 4,
+    borderRadius: 2,
+    maxHeight: "80vh",
+    overflowY: "auto",
+  };
+
   return (
-    <div className={`modal-overlay ${isOpen ? "open" : ""}`}>
-      <div className="modal-container">
-        <div className="modal-header">
-          <h3>{thongTinDatPhong.maThongTinDatPhong} Search Profile</h3>
-        </div>
-        <div className="modal-body">
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Filter by Profile Name"
-              className="search-input"
+    <>
+      <Modal open={isOpen} onClose={onClose}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" component="h3" gutterBottom>
+            {thongTinDatPhong.maThongTinDatPhong} - Tìm Hồ Sơ Khách Hàng
+          </Typography>
+
+          <Stack spacing={2}>
+            <TextField
+              fullWidth
+              label="Tìm kiếm (Họ, Tên, SĐT, Email, CMND)"
+              variant="outlined"
+              value={searchKeyword}
+              onChange={handleSearchChange}
             />
-            <button className="new-btn" onClick={handleOpenModal}>
-              New
-            </button>
-            <button className="new-btn" onClick={openQRScanner}>
-              QR
-            </button>
-          </div>
+            <Stack direction="row" spacing={2}>
+              <Button variant="contained" onClick={handleOpenModal}>
+                Tạo Mới
+              </Button>
+              <Button variant="contained" onClick={openQRScanner}>
+                Quét QR
+              </Button>
+            </Stack>
 
-          {qrData && (
-            <div className="qr-result">
-              <p>
-                <strong>Dữ liệu từ QR Code:</strong> {qrData}
-              </p>
-            </div>
-          )}
-        </div>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 1000 }} aria-label="bảng khách hàng">
+                <TableHead>
+                  <TableRow>
+                    <TableCell padding="checkbox"></TableCell>
+                    <TableCell>STT</TableCell>
+                    <TableCell>CMND</TableCell>
+                    <TableCell>Họ và Tên</TableCell>
+                    <TableCell>Giới Tính</TableCell>
+                    <TableCell>SĐT</TableCell>
+                    <TableCell>Email</TableCell>
+                    <TableCell>Địa Chỉ</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {khachHangList.map((kh, index) => (
+                    <TableRow
+                      key={kh.id}
+                      hover
+                      onClick={() => handleRowSelection(kh)}
+                      selected={isSelected(kh.id)}
+                    >
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={isSelected(kh.id)}
+                          onChange={() => handleRowSelection(kh)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        {(page - 1) * rowsPerPage + index + 1}
+                      </TableCell>
+                      <TableCell>{kh.cmnd || "N/A"}</TableCell>
+                      <TableCell>{`${kh.ho} ${kh.ten}`}</TableCell>
+                      <TableCell>{kh.gioiTinh || "N/A"}</TableCell>
+                      <TableCell>{kh.sdt || "N/A"}</TableCell>
+                      <TableCell>{kh.email || "N/A"}</TableCell>
+                      <TableCell>{kh.diaChi || "N/A"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
 
-        <div className="modal-footer">
-          {/* Nút "Tạo khách hàng" sẽ hiển thị nếu đã có dữ liệu khách hàng từ QR */}
-          {qrData !== "" && (
-            <button className="link-btn" onClick={handleCreate}>
-              Tạo khách hàng
-            </button>
-          )}
-          <button className="link-btn" onClick={onClose}>
-            Close
-          </button>
-        </div>
-      </div>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              sx={{ display: "flex", justifyContent: "center" }}
+            />
+          </Stack>
 
-      {/* Modal tạo hồ sơ khách hàng */}
+          <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+            {selectedKhachHang.length > 0 && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleCreate}
+              >
+                Tạo Check-in ({selectedKhachHang.length})
+              </Button>
+            )}
+            <Button variant="outlined" onClick={onClose}>
+              Đóng
+            </Button>
+          </Stack>
+        </Box>
+      </Modal>
+
       <ModalCreateKHC
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         thongTinDatPhong={thongTinDatPhong}
+        onKhachHangAdded={handleKhachHangAdded}
       />
 
-      {/* Modal quét QR Code */}
-      {isQRModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-container">
-            <div className="modal-header">
-              <h3>Quét QR Code</h3>
-            </div>
-            <div className="modal-body">
-              <UploadQR setQRData={setQRData} />
-            </div>
-            <div className="modal-footer">
-              <button className="close-btn" onClick={closeQRScanner}>
-                Đóng
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      <Modal open={isQRModalOpen} onClose={closeQRScanner}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" component="h3" gutterBottom>
+            Quét Mã QR
+          </Typography>
+          <UploadQR setQRData={setQRData} />
+          <Button
+            variant="outlined"
+            onClick={closeQRScanner}
+            sx={{ mt: 2 }}
+            fullWidth
+          >
+            Đóng
+          </Button>
+        </Box>
+      </Modal>
+    </>
   );
 };
 

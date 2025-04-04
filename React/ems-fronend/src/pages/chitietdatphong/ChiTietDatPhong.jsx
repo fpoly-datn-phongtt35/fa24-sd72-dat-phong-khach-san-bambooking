@@ -350,24 +350,13 @@ const ChiTietDatPhong = () => {
                 <Typography sx={{ fontWeight: "medium", mr: 1 }}>
                   Số phòng:
                 </Typography>
-                <Chip
-                  size="small"
-                  label={thongTinDatPhong.length}
-                  color="primary"
-                  variant="outlined"
-                />
+                <Typography>{thongTinDatPhong.length}</Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                 <Typography sx={{ fontWeight: "medium", mr: 1 }}>
                   Số người:
                 </Typography>
-                <Chip
-                  icon={<PersonIcon />}
-                  size="small"
-                  label={calculateTotalGuests()}
-                  color="secondary"
-                  variant="outlined"
-                />
+                <Typography>{calculateTotalGuests()}</Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Typography sx={{ fontWeight: "medium", mr: 1 }}>
@@ -542,13 +531,7 @@ const ChiTietDatPhong = () => {
                     {ttdp?.datPhong?.khachHang?.ho}{" "}
                     {ttdp?.datPhong?.khachHang?.ten}
                   </TableCell>
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={ttdp.soNguoi}
-                      variant="outlined"
-                    />
-                  </TableCell>
+                  <TableCell>{ttdp.soNguoi}</TableCell>
                   <TableCell>
                     {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong || (
                       <Chip
@@ -658,7 +641,11 @@ const ChiTietDatPhong = () => {
           color="success"
           startIcon={<CheckCircleIcon />}
           onClick={() => selectedTTDPs.forEach((ttdp) => handleCheckin(ttdp))}
-          disabled={selectedTTDPs.length === 0 || isDangDatPhong}
+          disabled={
+            selectedTTDPs.length === 0 || // Không có ttdp nào được chọn
+            isDangDatPhong || // Có ttdp đang đặt phòng
+            selectedTTDPs.some((ttdp) => ttdp.trangThai === "Đang ở") // Có ttdp đang ở
+          }
         >
           Check-in {selectedTTDPs.length > 0 ? `(${selectedTTDPs.length})` : ""}
         </Button>
@@ -667,7 +654,13 @@ const ChiTietDatPhong = () => {
           color="secondary"
           startIcon={<MeetingRoomIcon />}
           onClick={() => setShowXepPhongModal(true)}
-          disabled={selectedTTDPs.length === 0 || isDangDatPhong}
+          disabled={
+            selectedTTDPs.length === 0 || // Không có ttdp nào được chọn
+            isDangDatPhong || // Có ttdp đang đặt phòng
+            selectedTTDPs.some((ttdp) =>
+              ["Đã xếp", "Đang ở"].includes(ttdp.trangThai)
+            ) // Có ttdp đã xếp hoặc đang ở
+          }
         >
           Xếp phòng{" "}
           {selectedTTDPs.length > 0 ? `(${selectedTTDPs.length})` : ""}
@@ -683,7 +676,7 @@ const ChiTietDatPhong = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }} // Thay đổi từ "bottom" thành "top"
       >
         <Alert
           onClose={handleCloseSnackbar}

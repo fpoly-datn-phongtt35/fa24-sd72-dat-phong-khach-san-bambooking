@@ -50,7 +50,7 @@ const Checkin = () => {
 
   const searchDatPhong = (key, currentPage) => {
     const pageable = { page: currentPage, size: pageSize };
-    findDatPhongToCheckin(pageable, key)
+    findDatPhongToCheckin(pageable, key, ngayNhan, ngayTra)
       .then((res) => {
         console.log(res.data);
         setDatPhong(res.data.content || []);
@@ -63,13 +63,8 @@ const Checkin = () => {
   };
 
   useEffect(() => {
-    searchDatPhong(key, page); // Gọi lần đầu khi component mount
-    const intervalId = setInterval(() => {
-      searchDatPhong(key, page);
-    }, 3000); // Làm mới mỗi 3 giây
-    return () => clearInterval(intervalId);
-  }, [key, page]); // Loại bỏ ngayNhan, ngayTra khỏi dependency nếu không dùng
-
+    searchDatPhong(key, page);
+  }, [key, page]);
   const handlePageChange = (event, newPage) => {
     setPage(newPage - 1); // Chuyển từ 1-based sang 0-based
     searchDatPhong(key, newPage - 1);

@@ -76,15 +76,6 @@ public class DatPhongServiceIMPL implements DatPhongService {
     }
 
     @Override
-    public Page<DatPhongResponse> LocTheoTrangThai(List<String> trangThai,String key, Pageable pageable) {
-        if (trangThai == null || trangThai.isEmpty()) {
-            return datPhongRepository.findAllDP(pageable);
-        } else {
-            return datPhongRepository.DatPhongTheoTrangThai(trangThai,key, pageable);
-        }
-    }
-
-    @Override
     public Page<DatPhongResponse> searchDatPhong(String keyword, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
         return datPhongRepository.searchDatPhong(keyword, startDate,endDate,pageable);
     }
@@ -154,10 +145,11 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhongRepository.deleteById(iddp);
     }
 
-    public  Page<DatPhongResponse> findDatPhongToCheckin(String key, int page, int size){
+    public  Page<DatPhongResponse> findDatPhongToCheckin(String key, int page, int size,LocalDate ngayNhanPhong, LocalDate ngayTraPhong){
         List<String> trangThai = Arrays.asList("Đã xác nhận");
+        List<String> trangThaiTTDP = Arrays.asList("Đã xếp");
         Pageable pageable = PageRequest.of(page, size);
-        Page<DatPhongResponse> result = datPhongRepository.DatPhongTheoTrangThai(trangThai,key,pageable);
+        Page<DatPhongResponse> result = datPhongRepository.DatPhongTheoTrangThai(trangThai,trangThaiTTDP,key,ngayNhanPhong,ngayTraPhong,pageable);
         return result;
     }
 
