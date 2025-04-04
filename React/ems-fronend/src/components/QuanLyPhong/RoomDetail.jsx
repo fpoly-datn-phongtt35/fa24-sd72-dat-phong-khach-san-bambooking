@@ -291,6 +291,46 @@ const RoomDetail = () => {
             Thêm dịch vụ
           </Button>
         )}
+        {/* Kiem tra phong */}
+        <Button
+          variant="contained"
+          color="success"
+          sx={{ mt: 2, mx: 2, textTransform: "none" }}
+          onClick={handleChangeConditionRoom}
+          disabled={buttonStatus.disabled}
+        >
+          {buttonStatus.text}
+        </Button>
+
+        {alert.open && (
+          <Box
+            sx={{
+              position: "fixed",
+              bottom: 16,
+              right: 16,
+              zIndex: 1300,
+              maxWidth: "400px",
+            }}
+          >
+            <Alert
+              severity={alert.severity}
+              onClose={() => setAlert({ ...alert, open: false })}
+              sx={{
+                fontSize: "0.9rem",
+                padding: "8px 12px",
+                "& .MuiAlert-message": { padding: "0" },
+              }}
+            >
+              {alert.severity === "success" && (
+                <AlertTitle sx={{ fontSize: "1rem" }}>Thành công</AlertTitle>
+              )}
+              {alert.severity === "error" && (
+                <AlertTitle sx={{ fontSize: "1rem" }}>Lỗi</AlertTitle>
+              )}
+              {alert.message}
+            </Alert>
+          </Box>
+        )}
       </Grid>
 
       {/* Form chi tiết dịch vụ */}

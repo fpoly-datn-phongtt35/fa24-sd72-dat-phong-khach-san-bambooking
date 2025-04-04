@@ -49,6 +49,4 @@ public class KhachHangCheckinController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-
-
 }
