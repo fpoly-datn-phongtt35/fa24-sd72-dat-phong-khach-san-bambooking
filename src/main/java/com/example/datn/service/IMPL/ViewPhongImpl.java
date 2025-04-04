@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,9 +37,8 @@ public class ViewPhongImpl implements ViewPhongService {
     }
 
     @Override
-    public XepPhong RoomDetail(int idPhong) {
-        String trangThai = "Đang ở";
-        return xepPhongRepository.getByIDPhong(idPhong,trangThai);
+    public XepPhong RoomDetail(int idPhong, LocalDateTime date) {
+        return xepPhongRepository.getByIDPhong(idPhong, date);
     }
     @Override
     public List<DichVuSuDung> addDVDKtoDVSD(int idXepPhong) {

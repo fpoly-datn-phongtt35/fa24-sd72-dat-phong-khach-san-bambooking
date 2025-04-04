@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DuLieu } from "../../services/DichVuService";
-import { CapNhatDichVuSuDung,XoaDichVuSuDung } from "../../services/DichVuSuDungService";
+import { CapNhatDichVuSuDung, XoaDichVuSuDung } from "../../services/DichVuSuDungService";
 import { AddDichVuSuDung } from "../../services/ViewPhong";
 
 import {
@@ -92,14 +92,18 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
 
 
   const HuyDichVu = () => {
-    XoaDichVuSuDung(formData.id)
-      .then((response) => {
-        console.log("Dịch vụ đã bị hủy:", response.data);
-        handleClose();
-      })
-      .catch((error) => {
-        console.error("Lỗi khi hủy dịch vụ:", error);
-      });
+    if (formData.giaSuDung == 0) {
+      alert('Không thể hủy dịch vụ đi kèm')
+    } else {
+      XoaDichVuSuDung(formData.id)
+        .then((response) => {
+          console.log("Dịch vụ đã bị hủy:", response.data);
+          handleClose();
+        })
+        .catch((error) => {
+          console.error("Lỗi khi hủy dịch vụ:", error);
+        });
+    }
   };
 
   return (
@@ -145,7 +149,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             value={formData.giaSuDung}
             onChange={handleInputChange}
           />
-          
+
         </form>
       </DialogContent>
 

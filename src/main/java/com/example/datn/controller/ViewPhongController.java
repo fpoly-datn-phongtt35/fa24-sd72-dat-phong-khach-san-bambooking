@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 //@CrossOrigin("*")
@@ -36,9 +38,9 @@ public class ViewPhongController {
         return ResponseEntity.ok(rooms);
     }
 
-    @GetMapping("/RoomDetail/{id}")
-    public ResponseEntity<?> Detail(@PathVariable Integer id){
-        return ResponseEntity.ok(viewPhongService.RoomDetail(id));
+    @GetMapping("/RoomDetail/{id}/{date}")
+    public ResponseEntity<?> Detail(@PathVariable Integer id,@PathVariable LocalDateTime date){
+        return ResponseEntity.ok(viewPhongService.RoomDetail(id,date));
     }
 
     @PostMapping("/addDVDK/{idXepPhong}")

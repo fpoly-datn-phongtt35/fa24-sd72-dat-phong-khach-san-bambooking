@@ -35,10 +35,10 @@ export const searchRooms = async (tinhTrang, giaMin, giaMax, keyword, idLoaiPhon
 };
 
 // Hàm lấy xếp phòng theo ID phòng
-export const getRoomDetail = async (roomId) => {
-    const response = await authorizedAxiosInstance.get(`${apiRoomDetail}/${roomId}`);
-    return response.data; // Trả về thông tin chi tiết của phòng
-
+export const getRoomDetail = async (roomId,date) => {
+        const response = await authorizedAxiosInstance.get(`${apiRoomDetail}/${roomId}/${date}`);
+        return response.data; // Trả về thông tin chi tiết của phòng
+    
 };
 
 // Hàm lấy phiếu dịch vụ theo ID xếp phòng
