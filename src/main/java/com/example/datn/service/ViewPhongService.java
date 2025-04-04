@@ -11,7 +11,7 @@ import java.util.List;
 public interface ViewPhongService {
     List<PhongResponse> findRoomsByCriteria(String tinhTrang, String keyword,List<Integer> idLoaiPhong,Integer giaMin,Integer giaMax,Integer soTang);
 
-    public XepPhong RoomDetail(int idPhong, LocalDateTime date);
+    public XepPhong     RoomDetail(int idPhong, LocalDateTime date);
 
     public List<DichVuSuDung> addDVDKtoDVSD (int idXepPhong);
 }

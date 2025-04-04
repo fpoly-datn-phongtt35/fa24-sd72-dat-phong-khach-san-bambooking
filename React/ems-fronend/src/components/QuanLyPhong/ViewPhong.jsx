@@ -125,7 +125,6 @@ const QuanLyPhong = () => {
         if (!response) {
           throw new Error('Không có thông tin chi tiết phòng.');
         }
-
         navigate(`/api/RoomDetail/${roomId}/${currentDate}`);
       })
       .catch(() => {
