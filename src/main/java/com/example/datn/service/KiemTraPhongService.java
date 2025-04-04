@@ -11,6 +11,8 @@ import java.util.List;
 public interface KiemTraPhongService {
     KiemTraPhongResponse performRoomCheck(KiemTraPhongRequest request);
     List<VatTuResponseByNVT> getVatTuByXepPhong(Integer idXepPhong);
-    List<XepPhongResponse> timKiemXepPhong(String key);
+//    List<XepPhongResponse> timKiemXepPhong(String key);
     List<NhanVienResponse> findAllNhanVien();
+
+    List<XepPhongResponse> getListRoomByCondition();
 }

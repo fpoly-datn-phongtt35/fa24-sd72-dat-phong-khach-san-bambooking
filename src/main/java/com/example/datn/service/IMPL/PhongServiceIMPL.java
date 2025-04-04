@@ -2,6 +2,7 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.PhongRequest;
 import com.example.datn.dto.response.PhongResponse;
+import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.mapper.PhongMapper;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.Phong;
@@ -90,6 +91,15 @@ public class PhongServiceIMPL implements PhongService {
         List<String> trangThai = Arrays.asList("Đang ở","Đã xếp");
         List<String> tinhTrang = Arrays.asList("Trống","Đang đặt");
         return phongRepository.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong,trangThai,tinhTrang);
+    }
+
+    @Override
+    public String changeConditionRoom(Integer id) {
+        Phong phong = phongRepository.findById(id)
+                .orElseThrow(()-> new EntityNotFountException("Room id not found: " + id));
+        phong.setTinhTrang("Cần kiểm tra");
+        phongRepository.save(phong);
+        return "Thay đổi tình trạng phòng thành công: " + phong.getTenPhong() + " ,tình trạng phòng: " + phong.getTinhTrang();
     }
 
     @Override

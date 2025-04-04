@@ -23,13 +23,13 @@ public class KiemTraPhongController {
 
     private final KiemTraPhongService kiemTraPhongService;
 
-    @GetMapping("/tim-kiem-xep-phong")
-    public ResponseData<List<XepPhongResponse>> timKiemXepPhong(@RequestParam String key) {
-        log.info("Tìm kiếm xếp phòng theo tenPhong: {}", key);
-
-        List<XepPhongResponse> danhSach = kiemTraPhongService.timKiemXepPhong(key);
-        return new ResponseData<>(HttpStatus.OK.value(), "Tìm kiếm thành công!", danhSach);
-    }
+//    @GetMapping("/tim-kiem-xep-phong")
+//    public ResponseData<List<XepPhongResponse>> timKiemXepPhong(@RequestParam String key) {
+//        log.info("Tìm kiếm xếp phòng theo tenPhong: {}", key);
+//
+//        List<XepPhongResponse> danhSach = kiemTraPhongService.timKiemXepPhong(key);
+//        return new ResponseData<>(HttpStatus.OK.value(), "Tìm kiếm thành công!", danhSach);
+//    }
 
     @PostMapping("/kiem-tra")
     public ResponseData<KiemTraPhongResponse> kiemTraPhong(@RequestBody @Valid KiemTraPhongRequest request) {
@@ -49,6 +49,14 @@ public class KiemTraPhongController {
     public ResponseData<List<VatTuResponseByNVT>> getVatTuTheoPhong(@PathVariable Integer idXepPhong) {
         List<VatTuResponseByNVT> listVatTu = kiemTraPhongService.getVatTuByXepPhong(idXepPhong);
         return new ResponseData<>(HttpStatus.ACCEPTED.value(), "Get list materials successfully!", listVatTu);
+    }
+
+    @GetMapping("/get-list-room-by-condition")
+    public ResponseData<List<XepPhongResponse>> getListRoomByCondition() {
+        log.info("Get list room by condition");
+        List<XepPhongResponse> list = kiemTraPhongService.getListRoomByCondition();
+
+        return new ResponseData<>(HttpStatus.OK.value(), "Get list room successfully!", list);
     }
 
 }

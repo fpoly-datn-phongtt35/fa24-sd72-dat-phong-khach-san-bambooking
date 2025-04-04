@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { getRoomDetail, getDichVuSuDungByIDXepPhong, AddDichVuSuDung, AddDVDK } from '../../services/ViewPhong';
+import { getRoomDetail, getDichVuSuDungByIDXepPhong, AddDichVuSuDung, AddDVDK, changeConditionRoom } from '../../services/ViewPhong';
 import { CapNhatDichVuSuDung } from "../../services/DichVuSuDungService";
 import DVSVDetail from './DVSDDetail';
 import {
@@ -24,7 +24,8 @@ import {
   Radio,
   Typography,
 } from '@mui/material';
-import { Switch } from '@mui/joy'
+import { Alert, AlertTitle } from '@mui/material';
+import { Switch } from '@mui/joy';
 
 const RoomDetail = () => {
   const { roomId } = useParams();
@@ -33,6 +34,7 @@ const RoomDetail = () => {
   const [ListDVSD, setListDVSD] = useState([]);
   const [showFormDetail, setShowFormDetail] = useState(false);
   const [selectedDichVu, setSelectedDichVu] = useState(null);
+  const [alert, setAlert] = useState({ open: false, severity: 'success', message: '' });
   const [newDichVu, setNewDichVu] = useState({
     dichVu: { id: '' },
     xepPhong: { id: '' },
@@ -42,20 +44,34 @@ const RoomDetail = () => {
     trangThai: 1,
   });
 
+  const [buttonStatus, setButtonStatus] = useState({
+    text: 'Đang ở',
+    disabled: false,
+  });
+
   useEffect(() => {
-    getRoomDetail(roomId)
-      .then((response) => {
+    const fetchRoomDetail = async () => {
+      try {
+        const response = await getRoomDetail(roomId);
+        console.log("Dữ liệu từ getRoomDetail:", response);
         setRoomDetail(response);
         setIdXepPhong(response.id);
-        return getDichVuSuDungByIDXepPhong(response.id);
-      })
-      .then((dichVuResponse) => {
+        const newStatus = response?.phong?.tinhTrang || 'Đang ở';
+        setButtonStatus({
+          text: newStatus,
+          disabled: newStatus === 'Cần kiểm tra', 
+        });
+
+        const dichVuResponse = await getDichVuSuDungByIDXepPhong(response.id);
         const responseArray = Array.isArray(dichVuResponse) ? dichVuResponse : [dichVuResponse];
         setListDVSD(responseArray);
-      })
-      .catch((error) => {
-      });
-  }, [roomId, ListDVSD]);
+      } catch (error) {
+        console.error("Lỗi khi lấy chi tiết phòng:", error);
+      }
+    };
+
+    fetchRoomDetail();
+  }, [roomId]);
 
   useEffect(() => {
     if (roomDetail) {
@@ -91,17 +107,54 @@ const RoomDetail = () => {
     AddDichVuSuDung(formattedData)
       .then(() => {
         console.log("Dữ liệu thêm dịch vụ:", formattedData);
-        setShowForm(false);
+        setShowFormDetail(false);
       })
       .catch((error) => {
         console.error("Error adding service:", error);
       });
   };
 
- 
   const handleCloseFormDetail = () => {
     setShowFormDetail(false);
     setSelectedDichVu(null);
+  };
+
+  useEffect(() => {
+    if (alert.open) {
+      const timer = setTimeout(() => {
+        setAlert({ ...alert, open: false });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [alert.open]);
+
+  const handleChangeConditionRoom = async () => {
+    try {
+      await changeConditionRoom(roomId);
+
+      const updatedRoom = await getRoomDetail(roomId);
+      console.log("Dữ liệu phòng sau khi thay đổi:", updatedRoom);
+      setRoomDetail(updatedRoom);
+
+      const newStatus = updatedRoom?.phong?.tinhTrang || 'Cần kiểm tra';
+      setButtonStatus({
+        text: newStatus,
+        disabled: newStatus === 'Cần kiểm tra',
+      });
+
+      setAlert({
+        open: true,
+        severity: 'success',
+        message: 'Cập nhật tình trạng phòng thành công. Vui lòng tiến hành kiểm tra phòng!'
+      });
+    } catch (error) {
+      console.error("Lỗi khi thay đổi tình trạng phòng:", error);
+      setAlert({
+        open: true,
+        severity: 'error',
+        message: 'Có lỗi xảy ra khi cập nhật tình trạng phòng!'
+      });
+    }
   };
 
   return (
@@ -152,18 +205,19 @@ const RoomDetail = () => {
                   <TableRow key={dv.id} sx={{ '&:hover': { backgroundColor: '#f9f9f9' } }}>
                     <TableCell>{dv.dichVu?.tenDichVu}</TableCell>
                     <TableCell>
-                      <img src={dv.dichVu?.hinhAnh}
+                      <img
+                        src={dv.dichVu?.hinhAnh}
                         style={{
                           width: '130px',
                           height: '86px',
                           objectFit: 'cover',
                           borderRadius: '4px',
                         }}
-                      ></img></TableCell>
-
+                      />
+                    </TableCell>
                     <TableCell>{dv.giaSuDung}</TableCell>
                     <TableCell>{dv.soLuongSuDung}</TableCell>
-                    <TableCell>{dv.giaSuDung* dv.soLuongSuDung}</TableCell>
+                    <TableCell>{dv.giaSuDung * dv.soLuongSuDung}</TableCell>
                     <TableCell>
                       <Button
                         variant="contained"
@@ -204,6 +258,43 @@ const RoomDetail = () => {
         >
           Thêm dịch vụ
         </Button>
+
+        {/* Kiem tra phong */}
+        <Button
+          variant="contained"
+          color="success"
+          sx={{ mt: 2, mx: 2, textTransform: 'none' }}
+          onClick={handleChangeConditionRoom}
+          disabled={buttonStatus.disabled}
+        >
+          {buttonStatus.text}
+        </Button>
+
+        {alert.open && (
+          <Box
+            sx={{
+              position: 'fixed',
+              bottom: 16,
+              right: 16,
+              zIndex: 1300,
+              maxWidth: '400px',
+            }}
+          >
+            <Alert
+              severity={alert.severity}
+              onClose={() => setAlert({ ...alert, open: false })}
+              sx={{
+                fontSize: '0.9rem',
+                padding: '8px 12px',
+                '& .MuiAlert-message': { padding: '0' },
+              }}
+            >
+              {alert.severity === 'success' && <AlertTitle sx={{ fontSize: '1rem' }}>Thành công</AlertTitle>}
+              {alert.severity === 'error' && <AlertTitle sx={{ fontSize: '1rem' }}>Lỗi</AlertTitle>}
+              {alert.message}
+            </Alert>
+          </Box>
+        )}
       </Grid>
 
       {/* Form chi tiết dịch vụ */}

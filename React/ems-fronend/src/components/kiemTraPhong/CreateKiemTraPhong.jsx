@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getAllNhanVien, hienThiVatTu, performRoomCheck } from '../../services/KiemTraPhongService';
-import { Container, Box, Typography, Sheet, Table, Input, Button, Select, Option } from '@mui/joy';
+import { Container, Box, Typography, Sheet, Table, Input, Button, Select, Option, Modal, ModalDialog, ModalClose, Alert } from '@mui/joy';
 import { useTheme, useMediaQuery } from '@mui/material';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'; 
 
 const CreateKiemTraPhong = () => {
   const { idXepPhong } = useParams();
@@ -15,6 +16,8 @@ const CreateKiemTraPhong = () => {
   const [nhanvien, setNhanVien] = useState([]);
   const [selectedNhanVien, setSelectedNhanVien] = useState(null);
   const [errors, setErrors] = useState({});
+  const [openConfirmModal, setOpenConfirmModal] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   useEffect(() => {
     getAllNhanVien()
@@ -74,13 +77,7 @@ const CreateKiemTraPhong = () => {
     setErrors(updatedErrors);
   };
 
-  const handleSubmit = async () => {
-    const hasErrors = Object.keys(errors).length > 0;
-    if (hasErrors) {
-      alert("Vui lòng sửa các lỗi trước khi gửi!");
-      return;
-    }
-
+  const handleConfirmSubmit = async () => {
     const request = {
       idXepPhong: idXepPhong,
       idNhanVien: selectedNhanVien,
@@ -89,7 +86,11 @@ const CreateKiemTraPhong = () => {
     try {
       const response = await performRoomCheck(request);
       console.log("Kiểm tra phòng thành công: ", response);
-      navigate('/kiem-tra-phong');
+      setOpenConfirmModal(false);
+      setShowSuccessAlert(true);
+      setTimeout(() => {
+        navigate('/kiem-tra-phong');
+      }, 2000);
     } catch (error) {
       console.error("Lỗi khi thực hiện kiểm tra phòng: ", error);
       if (error.response && error.response.data) {
@@ -97,7 +98,17 @@ const CreateKiemTraPhong = () => {
       } else {
         alert("Đã có lỗi xảy ra, vui lòng thử lại!");
       }
+      setOpenConfirmModal(false);
     }
+  };
+
+  const handleSubmit = () => {
+    const hasErrors = Object.keys(errors).length > 0;
+    if (hasErrors) {
+      alert("Vui lòng sửa các lỗi trước khi gửi!");
+      return;
+    }
+    setOpenConfirmModal(true);
   };
 
   const formatCurrency = (value) => {
@@ -236,6 +247,62 @@ const CreateKiemTraPhong = () => {
           Gửi Kiểm Tra Phòng
         </Button>
       </Box>
+
+      {/* Modal xác nhận */}
+      <Modal open={openConfirmModal} onClose={() => setOpenConfirmModal(false)}>
+        <ModalDialog>
+          <ModalClose />
+          <Typography level="h6" sx={{ mb: 2 }}>
+            Xác nhận gửi kiểm tra phòng
+          </Typography>
+          <Typography sx={{ mb: 3 }}>
+            Bạn có chắc chắn muốn gửi bản kiểm tra phòng này không?
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+            <Button
+              variant="outlined"
+              color="neutral"
+              onClick={() => setOpenConfirmModal(false)}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="solid"
+              color="primary"
+              onClick={handleConfirmSubmit}
+            >
+              Xác nhận
+            </Button>
+          </Box>
+        </ModalDialog>
+      </Modal>
+
+      {/* Alert thành công */}
+      {showSuccessAlert && (
+        <Box sx={{
+          position: 'fixed',
+          bottom: 16,
+          right: 16,
+          zIndex: 1300,
+          maxWidth: '400px',
+        }}>
+          <Alert
+            variant="soft"
+            color="success"
+            startDecorator={<CheckCircleOutlineIcon />}
+            onClose={() => setShowSuccessAlert(false)}
+            sx={{
+              fontSize: '0.9rem',
+              padding: '8px 12px',
+            }}
+          >
+            <Typography level="body1" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+              Thành công
+            </Typography>
+            Đã gửi kiểm tra phòng thành công. Vui lòng trả phòng!
+          </Alert>
+        </Box>
+      )}
     </Container>
   );
 };
