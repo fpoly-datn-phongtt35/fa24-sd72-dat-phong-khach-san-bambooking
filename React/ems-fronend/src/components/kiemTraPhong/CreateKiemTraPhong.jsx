@@ -4,6 +4,7 @@ import { getAllNhanVien, hienThiVatTu, performRoomCheck } from '../../services/K
 import { Container, Box, Typography, Sheet, Table, Input, Button, Select, Option, Modal, ModalDialog, ModalClose, Alert } from '@mui/joy';
 import { useTheme, useMediaQuery } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline'; 
+import { ThemPhuThu } from '../../services/PhuThuService';
 
 const CreateKiemTraPhong = () => {
   const { idXepPhong } = useParams();
@@ -81,15 +82,80 @@ const CreateKiemTraPhong = () => {
     const request = {
       idXepPhong: idXepPhong,
       idNhanVien: selectedNhanVien,
-      danhSachVatTu: checkData
+      danhSachVatTu: checkData,
     };
+
     try {
       const response = await performRoomCheck(request);
       console.log("Kiểm tra phòng thành công: ", response);
+
+      if (!response || response.error) {
+        alert("Lỗi khi kiểm tra phòng!");
+        return;
+      }
+
+      // Tìm các vật tư có số lượng thực tế < số lượng tiêu chuẩn
+      const phuThuItems = checkData.filter((item) => {
+        const material = materials.find((m) => m.id === item.idVatTu);
+        console.log(
+          "SoLuongThucTe:",
+          item.soLuongThucTe,
+          "SoLuongTieuChuan:",
+          material ? material.soLuongTieuChuan : "Không tìm thấy vật tư"
+        );
+        return material && item.soLuongThucTe < material.soLuongTieuChuan;
+      });
+
+      console.log("PhuThuItems:", phuThuItems);
+
+      // Nếu có vật tư thiếu, tạo phụ thu
+      for (const item of phuThuItems) {
+        const material = materials.find((m) => m.id === item.idVatTu);
+
+        if (!material) {
+          console.log(`Không tìm thấy vật tư với ID ${item.idVatTu}`);
+          continue;
+        }
+
+        if (!material.donGia) {
+          console.log(`Vật tư ${material.tenVatTu} không có giá tiền, bỏ qua.`);
+          continue;
+        }
+
+        console.log("Tạo phụ thu với vật tư:", material);
+
+        const ghiChu = item.ghiChu ? item.ghiChu.trim() : "";
+        const tenPhuThu = ghiChu
+          ? `${ghiChu} - ${material.tenVatTu}`
+          : material.tenVatTu;
+
+        const soLuongThieu = material.soLuongTieuChuan - item.soLuongThucTe;
+        const tienPhuThu = material.donGia * soLuongThieu;
+
+        const phuThuRequest = {
+          xepPhong: { id: idXepPhong },
+          tenPhuThu: tenPhuThu,
+          tienPhuThu: tienPhuThu,
+          soLuong: soLuongThieu,
+          trangThai: false,
+        };
+
+        console.log("Tạo phụ thu với thông tin:", phuThuRequest);
+        try {
+          await ThemPhuThu(phuThuRequest);
+          console.log(
+            `Đã thêm phụ thu: ${tenPhuThu}, Tổng tiền: ${tienPhuThu}`
+          );
+        } catch (error) {
+          console.error("Lỗi khi tạo phụ thu:", error);
+        }
+      }
+
+      // Đóng modal và hiển thị thông báo thành công
       setOpenConfirmModal(false);
       setShowSuccessAlert(true);
       setTimeout(() => {
-        navigate('/kiem-tra-phong');
+        navigate("/kiem-tra-phong");
       }, 2000);
     } catch (error) {
       console.error("Lỗi khi thực hiện kiểm tra phòng: ", error);
