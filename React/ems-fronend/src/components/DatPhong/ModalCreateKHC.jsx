@@ -1,3 +1,4 @@
+// ModalCreateKHC.jsx
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -13,14 +14,13 @@ import {
   MenuItem,
 } from "@mui/material";
 import { ThemKhachHangDatPhong } from "../../services/DatPhong";
-import { them } from "../../services/KhachHangCheckin";
 import { useNavigate } from "react-router-dom";
-import UploadQR from "../UploadQR"; // Đảm bảo đường dẫn đúng
+import UploadQR from "../UploadQR";
 
-const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong }) => {
+const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong, onKhachHangAdded }) => {
   const navigate = useNavigate();
   const [isQRModalOpen, setQRModalOpen] = useState(false);
-  const [qrData, setQRData] = useState(""); // Lưu dữ liệu quét được từ QR
+  const [qrData, setQRData] = useState("");
   const maThongTinDatPhong = thongTinDatPhong.maThongTinDatPhong;
 
   const openQRScanner = () => {
@@ -44,8 +44,6 @@ const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong }) => {
     trangThai: true,
   });
 
-  // Khi qrData thay đổi, phân tích dữ liệu và cập nhật form.
-  // Giả sử qrData có định dạng: "cccd|...|Họ và tên|...|Giới tính|Địa chỉ"
   useEffect(() => {
     if (qrData) {
       const fields = qrData.split("|");
@@ -54,7 +52,7 @@ const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong }) => {
         const nameParts = fields[2].split(" ");
         const newHo = nameParts[0];
         const newTen = nameParts.slice(1).join(" ");
-        const newGioiTinh = fields[4]; // Giả sử trường giới tính nằm ở index 4
+        const newGioiTinh = fields[4];
         const newDiaChi = fields[5];
         setFormData((prev) => ({
           ...prev,
@@ -93,13 +91,13 @@ const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong }) => {
     try {
       const response = await ThemKhachHangDatPhong(khachHangRequest);
       if (response != null) {
-        const KHCRequest = {
-          khachHang: response.data,
-          thongTinDatPhong: thongTinDatPhong,
-          trangThai: true,
-        };
-        const response2 = await them(KHCRequest);
-        console.log("Response create KHC:", response2);
+        // Gọi callback để reload danh sách khách hàng trong ModalKhachHangCheckin
+        if (onKhachHangAdded) {
+          onKhachHangAdded();
+        }
+        // Đóng modal sau khi thêm thành công
+        onClose();
+        // Điều hướng đến trang chi tiết
         navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
       }
     } catch (e) {
@@ -112,13 +110,13 @@ const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong }) => {
       <Dialog open={isOpen} onClose={onClose} fullWidth>
         <DialogTitle>Thêm Khách Hàng</DialogTitle>
         <form onSubmit={handleSubmit}>
-          {/* Nút mở modal quét QR */}
-          <Button onClick={openQRScanner} variant="outlined" color="primary">
-            QR
-          </Button>
           <DialogContent>
             <Grid container spacing={2}>
-              
+              <Grid item xs={12}>
+                <Button onClick={openQRScanner} variant="outlined" color="primary">
+                  QR
+                </Button>
+              </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   label="Họ"
@@ -211,7 +209,6 @@ const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong }) => {
         </form>
       </Dialog>
 
-      {/* Modal quét QR */}
       <Dialog open={isQRModalOpen} onClose={closeQRScanner} fullWidth>
         <DialogTitle>Quét QR Code</DialogTitle>
         <DialogContent>

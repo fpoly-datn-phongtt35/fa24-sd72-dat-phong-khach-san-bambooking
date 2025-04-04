@@ -1,3 +1,4 @@
+// ModalKhachHangCheckin.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -25,18 +26,23 @@ import {
 } from "../../services/KhachHangService";
 import { them } from "../../services/KhachHangCheckin";
 
-const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
+const ModalKhachHangCheckin = ({
+  isOpen,
+  onClose,
+  thongTinDatPhong,
+  onCheckinSuccess,
+}) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isQRModalOpen, setQRModalOpen] = useState(false);
   const [qrData, setQRData] = useState("");
-  const [selectedKhachHang, setSelectedKhachHang] = useState([]); // Thay đổi thành mảng để lưu nhiều khách hàng
+  const [selectedKhachHang, setSelectedKhachHang] = useState([]);
   const [khachHangList, setKhachHangList] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
 
-  const rowsPerPage = 5; // Số hàng mỗi trang
+  const rowsPerPage = 5;
 
   const handleOpenModal = () => {
     setQRData("");
@@ -62,18 +68,10 @@ const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
     if (e && e.preventDefault) e.preventDefault();
     const rawData = data;
     const fields = rawData.split("|");
-    const nameParts = fields[2].split(" ");
-    const newKhData = {
-      cccd: fields[0],
-      ho: nameParts[0],
-      ten: nameParts.slice(1).join(" "),
-      diaChi: fields[5],
-      trangThai: true,
-    };
-    // Thêm khách hàng từ QR vào danh sách đã chọn
-    setSelectedKhachHang((prev) => [...prev, newKhData]);
+    const cmnd = fields[0];
+    setSearchKeyword(cmnd);
+    await fetchKhachHangList(cmnd, 1);
     setQRModalOpen(false);
-    console.log("Dữ liệu khách hàng từ QR:", newKhData);
   };
 
   const handleCreate = async () => {
@@ -86,23 +84,19 @@ const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
       const khachHangToCreate = [];
       for (let kh of selectedKhachHang) {
         if (!kh.id) {
-          // Nếu khách hàng chưa có id (từ QR), tạo mới
           const response = await createKhachHang(kh);
           if (response) khachHangToCreate.push(response.data);
         } else {
-          // Nếu khách hàng đã có id (từ danh sách), thêm trực tiếp
           khachHangToCreate.push(kh);
         }
       }
 
-      // Tạo nhiều yêu cầu check-in
       const checkinRequests = khachHangToCreate.map((kh) => ({
         khachHang: kh,
         thongTinDatPhong: thongTinDatPhong,
         trangThai: true,
       }));
 
-      // Gửi từng yêu cầu check-in (hoặc có thể gửi một API bulk nếu backend hỗ trợ)
       const responses = await Promise.all(
         checkinRequests.map((req) => them(req))
       );
@@ -110,6 +104,11 @@ const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
 
       const maThongTinDatPhong = thongTinDatPhong.maThongTinDatPhong;
       navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
+
+      // Gọi callback khi check-in thành công
+      if (onCheckinSuccess) {
+        onCheckinSuccess();
+      }
     } catch (error) {
       console.log("Lỗi khi thêm nhiều khách hàng check-in:", error);
     }
@@ -153,14 +152,18 @@ const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
     setSelectedKhachHang((prev) => {
       const isSelected = prev.some((item) => item.id === kh.id);
       if (isSelected) {
-        return prev.filter((item) => item.id !== kh.id); // Bỏ chọn
+        return prev.filter((item) => item.id !== kh.id);
       } else {
-        return [...prev, kh]; // Thêm vào danh sách chọn
+        return [...prev, kh];
       }
     });
   };
 
   const isSelected = (id) => selectedKhachHang.some((kh) => kh.id === id);
+
+  const handleKhachHangAdded = () => {
+    fetchKhachHangList(searchKeyword, page);
+  };
 
   if (!isOpen) return null;
 
@@ -180,7 +183,6 @@ const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
 
   return (
     <>
-      {/* Modal Chính */}
       <Modal open={isOpen} onClose={onClose}>
         <Box sx={modalStyle}>
           <Typography variant="h6" component="h3" gutterBottom>
@@ -203,12 +205,6 @@ const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
                 Quét QR
               </Button>
             </Stack>
-
-            {qrData && (
-              <Typography variant="body1">
-                <strong>Dữ liệu từ QR Code:</strong> {qrData}
-              </Typography>
-            )}
 
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 1000 }} aria-label="bảng khách hàng">
@@ -240,7 +236,7 @@ const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
                       </TableCell>
                       <TableCell>
                         {(page - 1) * rowsPerPage + index + 1}
-                      </TableCell> 
+                      </TableCell>
                       <TableCell>{kh.cmnd || "N/A"}</TableCell>
                       <TableCell>{`${kh.ho} ${kh.ten}`}</TableCell>
                       <TableCell>{kh.gioiTinh || "N/A"}</TableCell>
@@ -279,14 +275,13 @@ const ModalKhachHangCheckin = ({ isOpen, onClose, thongTinDatPhong }) => {
         </Box>
       </Modal>
 
-      {/* Modal Tạo Hồ Sơ Khách Hàng */}
       <ModalCreateKHC
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         thongTinDatPhong={thongTinDatPhong}
+        onKhachHangAdded={handleKhachHangAdded}
       />
 
-      {/* Modal Quét QR */}
       <Modal open={isQRModalOpen} onClose={closeQRScanner}>
         <Box sx={modalStyle}>
           <Typography variant="h6" component="h3" gutterBottom>

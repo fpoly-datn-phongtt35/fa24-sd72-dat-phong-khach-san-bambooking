@@ -23,9 +23,31 @@ public class KhachHangCheckinController {
         return ResponseEntity.ok(khachHangCheckinServiceIMPL.findsByMaTTDP(maThongTinDatPhong));
     }
 
-    @PostMapping("them")
-    public ResponseEntity<KhachHangCheckin> them(@RequestBody KhachHangCheckinRequest request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(khachHangCheckinServiceIMPL.add(request));
+    @PostMapping("/them")
+    public ResponseEntity<KhachHangCheckin> them(@RequestBody KhachHangCheckinRequest request) {
+        try {
+            KhachHangCheckin created = khachHangCheckinServiceIMPL.add(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+    }
+    @PutMapping("sua")
+    public ResponseEntity<KhachHangCheckin> sua(@RequestBody KhachHangCheckinRequest request){
+        return ResponseEntity.status(HttpStatus.OK).body(khachHangCheckinServiceIMPL.update(request));
+    }
+
+    @DeleteMapping("/xoa")
+    public ResponseEntity<Void> xoa(@RequestParam Integer id) {
+        try {
+            boolean deleted = khachHangCheckinServiceIMPL.xoa(id);
+            if (deleted) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 
