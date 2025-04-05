@@ -1,4 +1,3 @@
-// ModalKhachHangCheckin.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,7 +18,7 @@ import {
   Paper,
 } from "@mui/material";
 import ModalCreateKHC from "./ModalCreateKHC";
-import UploadQR from "../UploadQR";
+import UploadQR from "../../components/UploadQR";
 import {
   createKhachHang,
   getKhachHangByKey,

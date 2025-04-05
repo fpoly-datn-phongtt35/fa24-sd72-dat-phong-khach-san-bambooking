@@ -16,7 +16,7 @@ import { getTTDPByMaTTDP, updateThongTinDatPhong } from "../../services/TTDP";
 import { phongDaXep } from "../../services/XepPhongService";
 import { hienThi, sua, xoa } from "../../services/KhachHangCheckin"; // Thêm xoa
 import XepPhong from "../xepphong/XepPhong";
-import ModalKhachHangCheckin from "../../components/DatPhong/ModalKhachHangCheckin";
+import ModalKhachHangCheckin from "./ModalKhachHangCheckin";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import EditIcon from "@mui/icons-material/Edit";
 import HotelIcon from "@mui/icons-material/Hotel";

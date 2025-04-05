@@ -1,4 +1,3 @@
-// ModalCreateKHC.jsx
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -15,9 +14,14 @@ import {
 } from "@mui/material";
 import { ThemKhachHangDatPhong } from "../../services/DatPhong";
 import { useNavigate } from "react-router-dom";
-import UploadQR from "../UploadQR";
+import UploadQR from "../../components/UploadQR";
 
-const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong, onKhachHangAdded }) => {
+const ModalCreateKHC = ({
+  isOpen,
+  onClose,
+  thongTinDatPhong,
+  onKhachHangAdded,
+}) => {
   const navigate = useNavigate();
   const [isQRModalOpen, setQRModalOpen] = useState(false);
   const [qrData, setQRData] = useState("");
@@ -113,7 +117,11 @@ const ModalCreateKHC = ({ isOpen, onClose, thongTinDatPhong, onKhachHangAdded })
           <DialogContent>
             <Grid container spacing={2}>
               <Grid item xs={12}>
-                <Button onClick={openQRScanner} variant="outlined" color="primary">
+                <Button
+                  onClick={openQRScanner}
+                  variant="outlined"
+                  color="primary"
+                >
                   QR
                 </Button>
               </Grid>
