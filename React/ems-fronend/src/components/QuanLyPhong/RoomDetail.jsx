@@ -53,31 +53,30 @@ const RoomDetail = () => {
     disabled: false,
   });
 
+  const fetchData = async () => {
+    try {
+      const response = await getRoomDetail(roomId, date);
+      setRoomDetail(response);
+      setIdXepPhong(response.id);
+      const newStatus = response?.phong?.tinhTrang || "Đang ở";
+      setButtonStatus({
+        text: newStatus,
+        disabled: newStatus === "Cần kiểm tra",
+      });
+
+      const dichVuResponse = await getDichVuSuDungByIDXepPhong(response.id);
+      const responseArray = Array.isArray(dichVuResponse)
+        ? dichVuResponse
+        : [dichVuResponse];
+      setListDVSD(responseArray);
+    } catch (error) {
+      console.error("Lỗi khi lấy chi tiết phòng:", error);
+      // Có thể thêm thông báo lỗi cho người dùng nếu cần
+    }
+  };
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await getRoomDetail(roomId, date);
-        setRoomDetail(response);
-        setIdXepPhong(response.id);
-        const newStatus = response?.phong?.tinhTrang || "Đang ở";
-        setButtonStatus({
-          text: newStatus,
-          disabled: newStatus === "Cần kiểm tra",
-        });
-
-        const dichVuResponse = await getDichVuSuDungByIDXepPhong(response.id);
-        const responseArray = Array.isArray(dichVuResponse)
-          ? dichVuResponse
-          : [dichVuResponse];
-        setListDVSD(responseArray);
-      } catch (error) {
-        console.error("Lỗi khi lấy chi tiết phòng:", error);
-        // Có thể thêm thông báo lỗi cho người dùng nếu cần
-      }
-    };
-
     fetchData();
-  }, [roomId]);
+  }, [roomId, date]); // Thêm date vào dependency
 
   useEffect(() => {
     if (roomDetail) {
@@ -89,7 +88,7 @@ const RoomDetail = () => {
     if (idXepPhong != null) {
       handleAddDVDK(idXepPhong);
     }
-  }, [roomDetail,ListDVSD]);
+  }, [roomDetail, idXepPhong]); // Thay ListDVSD bằng idXepPhong để tránh vòng lặp
 
   const handleAddDVDK = (idxp) => {
     AddDVDK(idXepPhong)
@@ -139,7 +138,7 @@ const RoomDetail = () => {
     try {
       await changeConditionRoom(roomId);
 
-      const updatedRoom = await getRoomDetail(roomId,date);
+      const updatedRoom = await getRoomDetail(roomId);
       console.log("Dữ liệu phòng sau khi thay đổi:", updatedRoom);
       setRoomDetail(updatedRoom);
 
@@ -280,61 +279,57 @@ const RoomDetail = () => {
           </Table>
         </TableContainer>
         {roomDetail?.trangThai === "Đang ở" && (
-          <>
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{ mt: 2, textTransform: "none" }}
-              onClick={() => {
-                setShowFormDetail(true);
-                setSelectedDichVu(null);
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2, textTransform: "none" }}
+            onClick={() => {
+              setShowFormDetail(true);
+              setSelectedDichVu(null);
+            }}
+          >
+            Thêm dịch vụ
+          </Button>
+        )}
+        {/* Kiem tra phong */}
+        <Button
+          variant="contained"
+          color="success"
+          sx={{ mt: 2, mx: 2, textTransform: "none" }}
+          onClick={handleChangeConditionRoom}
+          disabled={buttonStatus.disabled}
+        >
+          {buttonStatus.text}
+        </Button>
+
+        {alert.open && (
+          <Box
+            sx={{
+              position: "fixed",
+              bottom: 16,
+              right: 16,
+              zIndex: 1300,
+              maxWidth: "400px",
+            }}
+          >
+            <Alert
+              severity={alert.severity}
+              onClose={() => setAlert({ ...alert, open: false })}
+              sx={{
+                fontSize: "0.9rem",
+                padding: "8px 12px",
+                "& .MuiAlert-message": { padding: "0" },
               }}
             >
-              Thêm dịch vụ
-            </Button>
-            {/* Kiểm tra phòng */}
-            <Button
-              variant="contained"
-              color="success"
-              sx={{ mt: 2, mx: 2, textTransform: "none" }}
-              onClick={handleChangeConditionRoom}
-              disabled={buttonStatus.disabled}
-            >
-              {buttonStatus.text}
-            </Button>
-
-            {alert.open && (
-              <Box
-                sx={{
-                  position: "fixed",
-                  bottom: 16,
-                  right: 16,
-                  zIndex: 1300,
-                  maxWidth: "400px",
-                }}
-              >
-                <Alert
-                  severity={alert.severity}
-                  onClose={() => setAlert({ ...alert, open: false })}
-                  sx={{
-                    fontSize: "0.9rem",
-                    padding: "8px 12px",
-                    "& .MuiAlert-message": { padding: "0" },
-                  }}
-                >
-                  {alert.severity === "success" && (
-                    <AlertTitle sx={{ fontSize: "1rem" }}>
-                      Thành công
-                    </AlertTitle>
-                  )}
-                  {alert.severity === "error" && (
-                    <AlertTitle sx={{ fontSize: "1rem" }}>Lỗi</AlertTitle>
-                  )}
-                  {alert.message}
-                </Alert>
-              </Box>
-            )}
-          </>
+              {alert.severity === "success" && (
+                <AlertTitle sx={{ fontSize: "1rem" }}>Thành công</AlertTitle>
+              )}
+              {alert.severity === "error" && (
+                <AlertTitle sx={{ fontSize: "1rem" }}>Lỗi</AlertTitle>
+              )}
+              {alert.message}
+            </Alert>
+          </Box>
         )}
       </Grid>
 
