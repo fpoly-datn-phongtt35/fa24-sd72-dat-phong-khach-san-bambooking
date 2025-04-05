@@ -466,10 +466,7 @@ const ChiTietTTDP = () => {
                   color="primary"
                   onClick={handleModalKHC}
                 >
-                  + Thêm khách Verified
-                </Button>
-                <Button variant="contained" color="secondary">
-                  + Thêm khách Unverified
+                  + Thêm khách
                 </Button>
               </Box>
             </CardContent>

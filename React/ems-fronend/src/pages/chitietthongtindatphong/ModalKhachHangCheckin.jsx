@@ -18,6 +18,7 @@ import {
   Paper,
 } from "@mui/material";
 import ModalCreateKHC from "./ModalCreateKHC";
+import ModalCreateKHCU from "./ModalCreateKHCU"; // Keep this if it has a purpose
 import UploadQR from "../../components/UploadQR";
 import {
   createKhachHang,
@@ -31,7 +32,8 @@ const ModalKhachHangCheckin = ({
   thongTinDatPhong,
   onCheckinSuccess,
 }) => {
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isModalKHCOpen, setModalKHCOpen] = useState(false); // For unverified customers (ModalCreateKHC)
+  const [isModalKHCUOpen, setModalKHCUOpen] = useState(false); // For other cases (ModalCreateKHCU, if needed)
   const [isQRModalOpen, setQRModalOpen] = useState(false);
   const [qrData, setQRData] = useState("");
   const [selectedKhachHang, setSelectedKhachHang] = useState([]);
@@ -43,14 +45,24 @@ const ModalKhachHangCheckin = ({
 
   const rowsPerPage = 5;
 
-  const handleOpenModal = () => {
+  const handleOpenModalKHC = () => {
     setQRData("");
-    setModalOpen(true);
+    setModalKHCOpen(true); // Open ModalCreateKHC for unverified customers
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModalKHC = () => {
     setQRData("");
-    setModalOpen(false);
+    setModalKHCOpen(false);
+  };
+
+  const handleOpenModalKHCU = () => {
+    setQRData("");
+    setModalKHCUOpen(true); // Open ModalCreateKHCU (optional, if needed)
+  };
+
+  const handleCloseModalKHCU = () => {
+    setQRData("");
+    setModalKHCUOpen(false);
   };
 
   const openQRScanner = () => {
@@ -104,7 +116,6 @@ const ModalKhachHangCheckin = ({
       const maThongTinDatPhong = thongTinDatPhong.maThongTinDatPhong;
       navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
 
-      // Gọi callback khi check-in thành công
       if (onCheckinSuccess) {
         onCheckinSuccess();
       }
@@ -197,9 +208,13 @@ const ModalKhachHangCheckin = ({
               onChange={handleSearchChange}
             />
             <Stack direction="row" spacing={2}>
-              <Button variant="contained" onClick={handleOpenModal}>
-                Tạo Mới
+              <Button variant="contained" onClick={handleOpenModalKHC}>
+                Tạo Mới (Unverified)
               </Button>
+              {/* Uncomment and adjust if ModalCreateKHCU is needed */}
+              {/* <Button variant="contained" onClick={handleOpenModalKHCU}>
+                Tạo Mới (Verified)
+              </Button> */}
               <Button variant="contained" onClick={openQRScanner}>
                 Quét QR
               </Button>
@@ -275,8 +290,16 @@ const ModalKhachHangCheckin = ({
       </Modal>
 
       <ModalCreateKHC
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
+        isOpen={isModalKHCOpen}
+        onClose={handleCloseModalKHC}
+        thongTinDatPhong={thongTinDatPhong}
+        onKhachHangAdded={handleKhachHangAdded}
+      />
+
+      {/* Keep ModalCreateKHCU if it has a specific purpose */}
+      <ModalCreateKHCU
+        isOpen={isModalKHCUOpen}
+        onClose={handleCloseModalKHCU}
         thongTinDatPhong={thongTinDatPhong}
         onKhachHangAdded={handleKhachHangAdded}
       />
