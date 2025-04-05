@@ -14,7 +14,7 @@ import Footer from "./components/Footer";
 import AboutPage from "./pages/AboutPage";
 import HotelRules from "./pages/HotelRules";
 import Signup from "./components/Signup";
-
+import HotelBookingForm from "./pages/HotelBookingForm";
 function App() {
   const UnauthorizedRoutes = () => {
     // const accessToken = localStorage.getItem("accessToken");
@@ -89,6 +89,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         {/* <Route path="/about" element={<AboutPage />} /> */}
         <Route path="/rules" element={<HotelRules />} />
+        <Route path="/booking" element={<HotelBookingForm />} />
       </Route>
 
       <Route element={<ProtectedRoutes />}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
 
@@ -6,87 +6,116 @@ export default function Navbar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const accessToken = localStorage.getItem('accessToken');
-
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [guests, setGuests] = useState(1);
+  const accessToken = localStorage.getItem("accessToken");
   const navigate = useNavigate();
 
   const handleDropdown = () => {
     setIsOpen(!isOpen);
-  }
+  };
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+    setIsAuthenticated(false);
     navigate("/");
-  }
+  };
+
+  const handleBooking = (e) => {
+    e.preventDefault();
+    // Kiểm tra dữ liệu
+    if (!checkIn || !checkOut || !guests) {
+      alert("Vui lòng điền đầy đủ thông tin!");
+      return;
+    }
+    if (new Date(checkIn) >= new Date(checkOut)) {
+      alert("Ngày trả phòng phải sau ngày nhận phòng!");
+      return;
+    }
+    if (parseInt(guests) <= 0) {
+      alert("Số người phải lớn hơn 0!");
+      return;
+    }
+
+    // Điều hướng đến /booking với dữ liệu
+    navigate("/booking", {
+      state: {
+        checkInDate: checkIn,
+        checkOutDate: checkOut,
+        adults: parseInt(guests),
+      },
+    });
+    setIsOpen(false); // Đóng form sau khi submit
+  };
 
   useEffect(() => {
-    if (accessToken) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, [accessToken])
+    setIsAuthenticated(!!accessToken);
+  }, [accessToken]);
 
   return (
     <>
-      {
-        isOpen && (
-          <nav style={{ backgroundColor: '#F5F5F5', height: '20vh' }}>
-            <div className="container">
-              <div className="row p-4">
-                <div className="col-3">
-                  <h1>Đặt phòng ngay</h1>
-                </div>
-                <div className="col-6">
-                  <div className="row">
-                    <div className="col-3">
-                      <div className="mb-3">
-                        <label className="form-label">Nhận phòng</label>
-                        <input type="date" className="form-control" />
-                      </div>
-                    </div>
-                    <div className="col-3">
-                      <div className="mb-3">
-                        <label className="form-label">Trả phòng</label>
-                        <input type="date" className="form-control" />
-                      </div>
-                    </div>
-                    <div className="col-3">
-                      <div className="mb-3">
-                        <label className="form-label">Phòng nghỉ</label>
-                        <select className="form-select">
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          {/* Thêm tùy chọn nếu cần */}
-                        </select>
-                      </div>
-                    </div>
-                    <div className="col-3">
-                      <div className="mb-3">
-                        <label className="form-label">Người lớn</label>
-                        <select className="form-select">
-                          <option value="1">1</option>
-                          <option value="2">2</option>
-                          <option value="3">3</option>
-                          {/* Thêm tùy chọn nếu cần */}
-                        </select>
-                      </div>
+      {isOpen && (
+        <nav style={{ backgroundColor: "#F5F5F5", height: "20vh" }}>
+          <div className="container">
+            <form className="row p-4" onSubmit={handleBooking}>
+              <div className="col-3">
+                <h1>Đặt phòng ngay</h1>
+              </div>
+              <div className="col-6">
+                <div className="row">
+                  <div className="col-4">
+                    <div className="mb-3">
+                      <label className="form-label">Nhận phòng</label>
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={checkIn}
+                        onChange={(e) => setCheckIn(e.target.value)}
+                        required
+                      />
                     </div>
                   </div>
-                </div>
-                <div className="col-3 d-flex align-items-center justify-content-center">
-                  <div className="d-flex align-items-center justify-content-center">
-                    <button className="btn btn-sm btn-custom">Đặt phòng</button>
+                  <div className="col-4">
+                    <div className="mb-3">
+                      <label className="form-label">Trả phòng</label>
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={checkOut}
+                        onChange={(e) => setCheckOut(e.target.value)}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="col-4">
+                    <div className="mb-3">
+                      <label className="form-label">Người lớn</label>
+                      <input
+                        type="number"
+                        className="form-control"
+                        min="1"
+                        value={guests}
+                        onChange={(e) => setGuests(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </nav>
-        )
-      }
+              <div className="col-3 d-flex align-items-center justify-content-center">
+                <div className="d-flex align-items-center justify-content-center">
+                  <button type="submit" className="btn btn-sm btn-custom">
+                    Đặt phòng
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </nav>
+      )}
 
       <nav className="navbar">
         <div className="navbar-logo">
@@ -143,16 +172,30 @@ export default function Navbar() {
           </li>
         </ul>
         <div className="navbar-buttons">
-          {
-            (!isAuthenticated && location.pathname !== '/login') && (<button className="login-button me-2" onClick={() => navigate("/login")}>Đăng nhập</button>)
-          }
-          {
-            isAuthenticated && (<button className="logout-button me-2" onClick={logout}>Đăng xuất</button>)
-          }
+          {!isAuthenticated && location.pathname !== "/login" && (
+            <button
+              className="login-button me-2"
+              onClick={() => navigate("/login")}
+            >
+              Đăng nhập
+            </button>
+          )}
+          {isAuthenticated && (
+            <button className="logout-button me-2" onClick={logout}>
+              Đăng xuất
+            </button>
+          )}
           <button className="book-now-button" onClick={handleDropdown}>
-            {isOpen ? 'ĐÓNG' : 'ĐẶT PHÒNG'}
+            {isOpen ? "ĐÓNG" : "ĐẶT PHÒNG"}
           </button>
-          {!isAuthenticated && <button className="sign-up-button" onClick={() => navigate("/signup")}>Đăng kí</button>}
+          {!isAuthenticated && (
+            <button
+              className="sign-up-button"
+              onClick={() => navigate("/signup")}
+            >
+              Đăng kí
+            </button>
+          )}
         </div>
       </nav>
     </>
