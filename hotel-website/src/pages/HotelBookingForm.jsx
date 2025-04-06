@@ -2,7 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/HotelBookingForm.css";
-import { toHopLoaiPhong } from "../services/DatPhong";
+import {
+  toHopLoaiPhong,
+  ThemKhachHangDatPhong,
+  ThemMoiDatPhong,
+  addThongTinDatPhong,
+} from "../services/DatPhong";
 import dayjs from "dayjs";
 
 const HotelBookingForm = () => {
@@ -14,14 +19,13 @@ const HotelBookingForm = () => {
   const pageSize = 10;
 
   // State cho form chính
-  const [checkInDate, setCheckInDate] = useState(
-    location.state?.checkInDate || ""
+  const [ngayNhanPhong, setNgayNhanPhong] = useState(
+    location.state?.ngayNhanPhong || ""
   );
-  const [checkOutDate, setCheckOutDate] = useState(
-    location.state?.checkOutDate || ""
+  const [ngayTraPhong, setNgayTraPhong] = useState(
+    location.state?.ngayTraPhong || ""
   );
-  const [adults, setAdults] = useState(location.state?.adults || 1);
-
+  const [soNguoi, setSoNguoi] = useState(location.state?.adults || 1);
 
   // State cho bộ lọc nâng cao
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -33,17 +37,17 @@ const HotelBookingForm = () => {
   const [tongSoPhongMax, setTongSoPhongMax] = useState("");
   const [key, setKey] = useState("");
   const handleAdultChange = (change) => {
-    setAdults((prev) => Math.max(1, prev + change));
+    setSoNguoi((prev) => Math.max(1, prev + change));
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
 
-    const ngayNhanPhongFormatted = checkInDate
-      ? dayjs(checkInDate).hour(12).minute(0).second(0).toISOString()
+    const ngayNhanPhongFormatted = ngayNhanPhong
+      ? dayjs(ngayNhanPhong).hour(12).minute(0).second(0).toISOString()
       : null;
-    const ngayTraPhongFormatted = checkOutDate
-      ? dayjs(checkOutDate).hour(14).minute(0).second(0).toISOString()
+    const ngayTraPhongFormatted = ngayTraPhong
+      ? dayjs(ngayTraPhong).hour(14).minute(0).second(0).toISOString()
       : null;
 
     const pageable = { page: currentPage, size: pageSize };
@@ -52,7 +56,7 @@ const HotelBookingForm = () => {
       const response = await toHopLoaiPhong(
         ngayNhanPhongFormatted,
         ngayTraPhongFormatted,
-        adults,
+        soNguoi,
         key || null,
         tongChiPhiMin || null,
         tongChiPhiMax || null,
@@ -74,10 +78,76 @@ const HotelBookingForm = () => {
   };
 
   useEffect(() => {
-    if (checkInDate && checkOutDate && adults) {
+    if (ngayNhanPhong && ngayTraPhong && soNguoi) {
       handleSearch({ preventDefault: () => {} });
     }
   }, [currentPage]);
+
+  const handleCreateBooking = async (combination) => {
+    let khachHangResponse = null;
+    let datPhongResponse = null;
+    let thongTinDatPhongResponseList = [];
+    try {
+      const khachHangRequest = {
+        ho: "",
+        ten: "",
+        email: "",
+        sdt: "",
+        trangThai: false,
+      };
+      khachHangResponse = await ThemKhachHangDatPhong(khachHangRequest);
+      if (!khachHangResponse || !khachHangResponse.data) {
+        throw new Error("Không thể tạo khách hàng.");
+      }
+
+      const datPhongRequest = {
+        khachHang: khachHangResponse.data,
+        maDatPhong: "DP" + new Date().getTime(),
+        soNguoi: soNguoi,
+        soPhong: combination.tongSoPhong,
+        ngayDat: new Date().toISOString(),
+        tongTien: combination.tongChiPhi,
+        ghiChu: "Đặt phòng từ tổ hợp được chọn",
+        trangThai: "Đang đặt phòng",
+      };
+      datPhongResponse = await ThemMoiDatPhong(datPhongRequest);
+      if (!datPhongResponse || !datPhongResponse.data) {
+        throw new Error("Không thể tạo đặt phòng.");
+      }
+
+      for (const phong of combination.phongs) {
+        if (phong.soLuongChon > 0) {
+          for (let i = 0; i < phong.soLuongChon; i++) {
+            const thongTinDatPhongRequest = {
+              datPhong: datPhongResponse.data,
+              idLoaiPhong: phong.loaiPhong.id,
+              maThongTinDatPhong: "",
+              ngayNhanPhong: ngayNhanPhong,
+              ngayTraPhong: ngayTraPhong,
+              soNguoi: phong.loaiPhong.soKhachToiDa,
+              giaDat: phong.loaiPhong.donGia,
+              trangThai: "Đang đặt phòng",
+            };
+            const response = await addThongTinDatPhong(thongTinDatPhongRequest);
+            if (!response || !response.data) {
+              throw new Error("Không thể tạo thông tin đặt phòng.");
+            }
+            thongTinDatPhongResponseList.push(response.data);
+          }
+        }
+      }
+      navigate("/booking-confirmation", {
+        state: {
+          combination: combination,
+          datPhong: datPhongResponse.data,
+          khachHang: khachHangResponse.data,
+          thongTinDatPhong: thongTinDatPhongResponseList,
+        },
+      });
+    } catch (error) {
+      console.error("Lỗi khi tạo đặt phòng:", error);
+    }
+  };
 
   return (
     <div className="booking-container">
@@ -94,8 +164,8 @@ const HotelBookingForm = () => {
             <label>Ngày nhận phòng (12:00)</label>
             <input
               type="date"
-              value={checkInDate}
-              onChange={(e) => setCheckInDate(e.target.value)}
+              value={ngayNhanPhong}
+              onChange={(e) => setNgayNhanPhong(e.target.value)}
               required
             />
           </div>
@@ -103,8 +173,8 @@ const HotelBookingForm = () => {
             <label>Ngày trả phòng (14:00)</label>
             <input
               type="date"
-              value={checkOutDate}
-              onChange={(e) => setCheckOutDate(e.target.value)}
+              value={ngayTraPhong}
+              onChange={(e) => setNgayTraPhong(e.target.value)}
               required
             />
           </div>
@@ -114,7 +184,7 @@ const HotelBookingForm = () => {
               <button type="button" onClick={() => handleAdultChange(-1)}>
                 -
               </button>
-              <span>{adults}</span>
+              <span>{soNguoi}</span>
               <button type="button" onClick={() => handleAdultChange(1)}>
                 +
               </button>
@@ -207,18 +277,9 @@ const HotelBookingForm = () => {
                   {Number(combination.tongChiPhi).toLocaleString()} VND -{" "}
                   {combination.tongSoPhong} phòng
                 </h3>
-                // Trong HotelBookingForm.jsx, sửa phần render tổ hợp phòng:
                 <button
                   className="book-btn"
-                  onClick={() =>
-                    navigate("/booking-confirmation", {
-                      state: {
-                        selectedCombination: combination,
-                        checkInDate,
-                        checkOutDate,
-                      },
-                    })
-                  }
+                  onClick={() => handleCreateBooking(combination)}
                 >
                   Đặt phòng
                 </button>

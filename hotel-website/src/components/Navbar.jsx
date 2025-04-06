@@ -43,9 +43,9 @@ export default function Navbar() {
     // Điều hướng đến /booking với dữ liệu
     navigate("/booking", {
       state: {
-        checkInDate: checkIn,
-        checkOutDate: checkOut,
-        adults: parseInt(guests),
+        ngayNhanPhong: checkIn,
+        ngayTraPhong: checkOut,
+        soNguoi: parseInt(guests),
       },
     });
     setIsOpen(false); // Đóng form sau khi submit
