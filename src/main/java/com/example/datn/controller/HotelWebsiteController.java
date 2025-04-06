@@ -3,7 +3,9 @@ package com.example.datn.controller;
 import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.request.KhachHangDatPhongRequest;
 import com.example.datn.dto.request.TTDPRequest;
+import com.example.datn.dto.request.ToHopRequest;
 import com.example.datn.dto.response.*;
+import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.HinhAnh;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.ThongTinDatPhong;
@@ -19,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -93,4 +97,30 @@ public class HotelWebsiteController {
         return ResponseEntity.ok( hotelWebsiteServiceImpl.getHDByidDatPhong(idDatPhong));
     }
 
+    @PostMapping("/dp/to-hop-loai-phong-kha-dung")
+    public ResponseEntity<Page<ToHopPhongPhuHop>> toHopLoaiPhongKhaDung(
+            @RequestBody ToHopRequest request,
+            @PageableDefault(size = 5) Pageable pageable) {
+        LocalDateTime ngayNhanPhongLocal = request.getNgayNhanPhong() != null
+                ? ZonedDateTime.parse(request.getNgayNhanPhong()).toLocalDateTime()
+                : null;
+        LocalDateTime ngayTraPhongLocal = request.getNgayTraPhong() != null
+                ? ZonedDateTime.parse(request.getNgayTraPhong()).toLocalDateTime()
+                : null;
+        Page<ToHopPhongPhuHop> p = loaiPhongServiceIMPL.getToHopPhongPhuHop(
+                ngayNhanPhongLocal,
+                ngayTraPhongLocal,
+                request.getSoNguoi(),
+                request.getKey(),
+                request.getTongChiPhiMin(),
+                request.getTongChiPhiMax(),
+                request.getTongSoPhongMin(),
+                request.getTongSoPhongMax(),
+                request.getTongSucChuaMin(),
+                request.getTongSucChuaMax(),
+                request.getLoaiPhongChons(),
+                pageable
+        );
+        return ResponseEntity.ok(p);
+    }
 }

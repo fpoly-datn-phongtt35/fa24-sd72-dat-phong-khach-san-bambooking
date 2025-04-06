@@ -13,7 +13,7 @@ import './App.css';
 import AboutPage from './pages/AboutPage';
 import Signup from './components/Signup';
 import HotelBookingForm from './pages/HotelBookingForm';
-
+import HotelBookingConfirmation from './pages/HotelBookingConfirmation';
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái đăng nhập
   const [user, setUser] = useState(null); // Lưu thông tin người dùng
@@ -53,6 +53,7 @@ export default function App() {
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/booking" element={<HotelBookingForm />} />
+              <Route path="/booking-confirmation" element={<HotelBookingConfirmation />} />
               {/* <Route
                 path="/register"
                 element={<Register handleRegister={handleLogin} />}

@@ -1,13 +1,19 @@
 // HotelBookingForm.jsx
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/HotelBookingForm.css";
+import { toHopLoaiPhong } from "../services/DatPhong";
+import dayjs from "dayjs";
 
 const HotelBookingForm = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [loaiPhongKhaDung, setLoaiPhongKhaDung] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const pageSize = 10;
 
-  // Khởi tạo state với giá trị mặc định từ location.state
+  // State cho form chính
   const [checkInDate, setCheckInDate] = useState(
     location.state?.checkInDate || ""
   );
@@ -15,175 +21,265 @@ const HotelBookingForm = () => {
     location.state?.checkOutDate || ""
   );
   const [adults, setAdults] = useState(location.state?.adults || 1);
-  const [destination, setDestination] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form submitted:", {
-      destination,
-      checkInDate,
-      checkOutDate,
-      adults,
-    });
-  };
 
-  // Hàm xử lý tăng/giảm số người lớn
+  // State cho bộ lọc nâng cao
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [tongChiPhiMin, setTongChiPhiMin] = useState("");
+  const [tongChiPhiMax, setTongChiPhiMax] = useState("");
+  const [tongSucChuaMin, setTongSucChuaMin] = useState("");
+  const [tongSucChuaMax, setTongSucChuaMax] = useState("");
+  const [tongSoPhongMin, setTongSoPhongMin] = useState("");
+  const [tongSoPhongMax, setTongSoPhongMax] = useState("");
+  const [key, setKey] = useState("");
   const handleAdultChange = (change) => {
-    setAdults((prev) => Math.max(1, prev + change)); // Đảm bảo số người lớn không nhỏ hơn 1
+    setAdults((prev) => Math.max(1, prev + change));
   };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+
+    const ngayNhanPhongFormatted = checkInDate
+      ? dayjs(checkInDate).hour(12).minute(0).second(0).toISOString()
+      : null;
+    const ngayTraPhongFormatted = checkOutDate
+      ? dayjs(checkOutDate).hour(14).minute(0).second(0).toISOString()
+      : null;
+
+    const pageable = { page: currentPage, size: pageSize };
+
+    try {
+      const response = await toHopLoaiPhong(
+        ngayNhanPhongFormatted,
+        ngayTraPhongFormatted,
+        adults,
+        key || null,
+        tongChiPhiMin || null,
+        tongChiPhiMax || null,
+        tongSucChuaMin || null,
+        tongSucChuaMax || null,
+        tongSoPhongMin || null,
+        tongSoPhongMax || null,
+        [],
+        pageable
+      );
+
+      setLoaiPhongKhaDung(response.content);
+      setTotalPages(response.totalPages);
+      setCurrentPage(response.number);
+    } catch (error) {
+      console.error("Lỗi khi lấy tổ hợp phòng:", error);
+      alert("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
+    }
+  };
+
+  useEffect(() => {
+    if (checkInDate && checkOutDate && adults) {
+      handleSearch({ preventDefault: () => {} });
+    }
+  }, [currentPage]);
 
   return (
-    <div className="container">
-      <div className="form-wrapper">
-        {/* Header */}
-        <div className="header">
-          <h1>Đặt Phòng Khách Sạn</h1>
-          <p>Tìm và đặt phòng khách sạn chất lượng với giá tốt nhất</p>
+    <div className="booking-container">
+      {/* Header */}
+      <div className="booking-header">
+        <h1>Đặt Phòng Khách Sạn</h1>
+        <p>Tìm kiếm phòng nhanh chóng với giá tốt nhất</p>
+      </div>
+
+      {/* Form */}
+      <form className="booking-form" onSubmit={handleSearch}>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Ngày nhận phòng (12:00)</label>
+            <input
+              type="date"
+              value={checkInDate}
+              onChange={(e) => setCheckInDate(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label>Ngày trả phòng (14:00)</label>
+            <input
+              type="date"
+              value={checkOutDate}
+              onChange={(e) => setCheckOutDate(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group guest-group">
+            <label>Số người</label>
+            <div className="guest-counter">
+              <button type="button" onClick={() => handleAdultChange(-1)}>
+                -
+              </button>
+              <span>{adults}</span>
+              <button type="button" onClick={() => handleAdultChange(1)}>
+                +
+              </button>
+            </div>
+          </div>
+          <button type="submit" className="search-btn">
+            Tìm kiếm
+          </button>
         </div>
 
-        {/* Booking Form */}
-        <div className="form-container">
-          <form onSubmit={handleSubmit}>
-            {/* Dates */}
-            <div className="date-group">
+        {/* Advanced Filters */}
+        <div className="advanced-filters">
+          <button
+            type="button"
+            className="toggle-filters"
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+          >
+            {showAdvancedFilters ? "Ẩn bộ lọc" : "Bộ lọc nâng cao"}
+          </button>
+          {showAdvancedFilters && (
+            <div className="filter-grid">
               <div className="form-group">
-                <label htmlFor="check-in">Ngày nhận phòng</label>
-                <div className="input-wrapper">
-                  <svg
-                    className="input-icon"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <input
-                    type="date"
-                    id="check-in"
-                    value={checkInDate}
-                    onChange={(e) => setCheckInDate(e.target.value)}
-                  />
-                </div>
+                <label>Tổng chi phí tối thiểu (VND)</label>
+                <input
+                  type="number"
+                  value={tongChiPhiMin}
+                  onChange={(e) => setTongChiPhiMin(e.target.value)}
+                  min="0"
+                />
               </div>
               <div className="form-group">
-                <label htmlFor="check-out">Ngày trả phòng</label>
-                <div className="input-wrapper">
-                  <svg
-                    className="input-icon"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <input
-                    type="date"
-                    id="check-out"
-                    value={checkOutDate}
-                    onChange={(e) => setCheckOutDate(e.target.value)}
-                  />
-                </div>
+                <label>Tổng chi phí tối đa (VND)</label>
+                <input
+                  type="number"
+                  value={tongChiPhiMax}
+                  onChange={(e) => setTongChiPhiMax(e.target.value)}
+                  min="0"
+                />
+              </div>
+              <div className="form-group">
+                <label>Tổng sức chứa tối thiểu</label>
+                <input
+                  type="number"
+                  value={tongSucChuaMin}
+                  onChange={(e) => setTongSucChuaMin(e.target.value)}
+                  min="1"
+                />
+              </div>
+              <div className="form-group">
+                <label>Tổng sức chứa tối đa</label>
+                <input
+                  type="number"
+                  value={tongSucChuaMax}
+                  onChange={(e) => setTongSucChuaMax(e.target.value)}
+                  min="1"
+                />
+              </div>
+              <div className="form-group">
+                <label>Tổng số phòng tối thiểu</label>
+                <input
+                  type="number"
+                  value={tongSoPhongMin}
+                  onChange={(e) => setTongSoPhongMin(e.target.value)}
+                  min="1"
+                />
+              </div>
+              <div className="form-group">
+                <label>Tổng số phòng tối đa</label>
+                <input
+                  type="number"
+                  value={tongSoPhongMax}
+                  onChange={(e) => setTongSoPhongMax(e.target.value)}
+                  min="1"
+                />
               </div>
             </div>
-
-            {/* Guests */}
-            <div className="form-group">
-              <label>Số người</label>
-              <div className="guests-container">
-                <div className="guest-item">
-                  <div>
-                    <p>Số người</p>
-                  </div>
-                  <div className="counter">
-                    <button
-                      type="button"
-                      onClick={() => handleAdultChange(-1)}
-                      className="counter-btn"
-                    >
-                      -
-                    </button>
-                    <span>{adults}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleAdultChange(1)}
-                      className="counter-btn"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button type="submit" className="submit-btn">
-              Tìm kiếm
-            </button>
-          </form>
-        </div>
-
-        {/* Available Room Combinations */}
-        <div className="room-options">
-          <h2>Các lựa chọn phòng khả dụng</h2>
-          {loaiPhongKhaDung && loaiPhongKhaDung.length > 0 ? (
-            loaiPhongKhaDung.map((combination, combIndex) => (
-              <div key={combIndex} className="combination-box">
-                <h3 className="combination-title">
-                  Tổ hợp {combIndex + 1}: Tổng sức chứa{" "}
-                  {combination.tongSucChua} - Tổng chi phí:{" "}
-                  {Number(combination.tongChiPhi).toLocaleString()} VND - Tổng
-                  số phòng: {combination.tongSoPhong}
-                </h3>
-                <button className="book-option-btn">Đặt phòng</button>
-                <table className="room-table">
-                  <thead>
-                    <tr>
-                      <th>STT</th>
-                      <th>Loại phòng</th>
-                      <th>Diện tích</th>
-                      <th>Số khách tối đa</th>
-                      <th>Đơn giá</th>
-                      <th>Số lượng chọn</th>
-                      <th>Thành tiền</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {combination.phongs.map((phong, idx) => (
-                      <tr key={phong.loaiPhong.id}>
-                        <td>{idx + 1}</td>
-                        <td>{phong.loaiPhong.tenLoaiPhong}</td>
-                        <td>{phong.loaiPhong.dienTich} m²</td>
-                        <td>{phong.loaiPhong.soKhachToiDa} khách</td>
-                        <td>{phong.loaiPhong.donGia.toLocaleString()} VND</td>
-                        <td>{phong.soLuongChon}</td>
-                        <td>
-                          {(
-                            phong.soLuongChon * phong.loaiPhong.donGia
-                          ).toLocaleString()}{" "}
-                          VND
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ))
-          ) : (
-            <p className="no-options">
-              Không tìm thấy tổ hợp phòng nào phù hợp.
-            </p>
           )}
         </div>
+      </form>
+
+      {/* Results */}
+      <div className="results-section">
+        <h2>Các lựa chọn phòng khả dụng</h2>
+        {loaiPhongKhaDung.length > 0 ? (
+          loaiPhongKhaDung.map((combination, combIndex) => (
+            <div key={combIndex} className="room-option">
+              <div className="room-header">
+                <h3>
+                  Tổ hợp {combIndex + 1}: {combination.tongSucChua} người -{" "}
+                  {Number(combination.tongChiPhi).toLocaleString()} VND -{" "}
+                  {combination.tongSoPhong} phòng
+                </h3>
+                // Trong HotelBookingForm.jsx, sửa phần render tổ hợp phòng:
+                <button
+                  className="book-btn"
+                  onClick={() =>
+                    navigate("/booking-confirmation", {
+                      state: {
+                        selectedCombination: combination,
+                        checkInDate,
+                        checkOutDate,
+                      },
+                    })
+                  }
+                >
+                  Đặt phòng
+                </button>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>STT</th>
+                    <th>Loại phòng</th>
+                    <th>Diện tích</th>
+                    <th>Số khách</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {combination.phongs.map((phong, idx) => (
+                    <tr key={phong.loaiPhong.id}>
+                      <td>{idx + 1}</td>
+                      <td>{phong.loaiPhong.tenLoaiPhong}</td>
+                      <td>{phong.loaiPhong.dienTich} m²</td>
+                      <td>{phong.loaiPhong.soKhachToiDa}</td>
+                      <td>{phong.loaiPhong.donGia.toLocaleString()} VND</td>
+                      <td>{phong.soLuongChon}</td>
+                      <td>
+                        {(
+                          phong.soLuongChon * phong.loaiPhong.donGia
+                        ).toLocaleString()}{" "}
+                        VND
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))
+        ) : (
+          <p className="no-results">Không tìm thấy tổ hợp phòng nào phù hợp.</p>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="pagination">
+            <button
+              disabled={currentPage === 0}
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+            >
+              Trước
+            </button>
+            <span>
+              Trang {currentPage + 1} / {totalPages}
+            </span>
+            <button
+              disabled={currentPage === totalPages - 1}
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+            >
+              Sau
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
