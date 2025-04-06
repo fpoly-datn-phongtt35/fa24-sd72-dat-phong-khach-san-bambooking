@@ -1,4 +1,3 @@
-// HotelBookingForm.jsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/HotelBookingForm.css";
@@ -25,7 +24,7 @@ const HotelBookingForm = () => {
   const [ngayTraPhong, setNgayTraPhong] = useState(
     location.state?.ngayTraPhong || ""
   );
-  const [soNguoi, setSoNguoi] = useState(location.state?.adults || 1);
+  const [soNguoi, setSoNguoi] = useState(location.state?.soNguoi || 1);
 
   // State cho bộ lọc nâng cao
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -36,8 +35,19 @@ const HotelBookingForm = () => {
   const [tongSoPhongMin, setTongSoPhongMin] = useState("");
   const [tongSoPhongMax, setTongSoPhongMax] = useState("");
   const [key, setKey] = useState("");
+
+  // Xử lý thay đổi số người qua nút
   const handleAdultChange = (change) => {
     setSoNguoi((prev) => Math.max(1, prev + change));
+  };
+
+  // Xử lý thay đổi số người qua input
+  const handleSoNguoiChange = (e) => {
+    const value = e.target.value;
+    // Chỉ cho phép nhập số, và giá trị tối thiểu là 1
+    if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+      setSoNguoi(value === "" ? 1 : parseInt(value));
+    }
   };
 
   const handleSearch = async (e) => {
@@ -133,6 +143,7 @@ const HotelBookingForm = () => {
               throw new Error("Không thể tạo thông tin đặt phòng.");
             }
             thongTinDatPhongResponseList.push(response.data);
+            
           }
         }
       }
@@ -184,7 +195,13 @@ const HotelBookingForm = () => {
               <button type="button" onClick={() => handleAdultChange(-1)}>
                 -
               </button>
-              <span>{soNguoi}</span>
+              <input
+                type="number"
+                value={soNguoi}
+                onChange={handleSoNguoiChange}
+                min="1"
+                className="so-nguoi-input"
+              />
               <button type="button" onClick={() => handleAdultChange(1)}>
                 +
               </button>

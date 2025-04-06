@@ -10,9 +10,9 @@ const apiToHopLoaiPhong =
   const apiDPUpdate = "http://localhost:8080/api/dp/cap-nhat";
   const apiTTDP = "http://localhost:8080/api/ttdp/hien-thi-by-iddp";
   const apiUpdate = "http://localhost:8080/api/ttdp/sua";
-  const apiHuyTTDP = "http://localhost:8080/ttdp/huy-ttdp";
-  const apiXoaDatPhong = "http://localhost:8080/dat-phong/xoa";
-  const apiDeleteKHDP = "http://localhost:8080/khach-hang/delete-kh-dp";
+  const apiHuyTTDP = "http://localhost:8080/api/ttdp/huy-ttdp";
+  const apiXoaDatPhong = "http://localhost:8080/api/dp/xoa";
+  const apiDeleteKHDP = "http://localhost:8080/api/kh/delete-kh-dp";
 export const getDatPhongbyTDN = (tenDangNhap,pageable) => {
     return authorizedAxiosInstance.get(apiGetDP, {
         params: {

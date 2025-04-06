@@ -80,6 +80,11 @@ const HotelBookingConfirmation = () => {
   };
 
   useEffect(() => {
+    console.log("thongTinDatPhong", thongTinDatPhong);
+    console.log("datPhong", datPhong);
+    console.log("khachHang", khachHang);
+    console.log("ttdp", ttdpData);
+
     if (datPhong && datPhong.id) {
       fetchThongTinDatPhongById(datPhong.id);
     } else if (thongTinDatPhong) {
@@ -161,25 +166,23 @@ const HotelBookingConfirmation = () => {
 
       // Cập nhật thông tin chi tiết đặt phòng
       const thongTinDatPhongRequestList = [];
-      ttdpData.forEach((room) => {
-        for (let i = 0; i < room.soPhong; i++) {
+      thongTinDatPhong.forEach((room) => {
+        console.log("room", room);
           thongTinDatPhongRequestList.push({
-            id: room.id + i, // Tạo ID tạm thời dựa trên index
-            datPhong: datPhongResponse.data,
+            id: room.id, 
+            datPhong: room.datPhong,
             idLoaiPhong: room.loaiPhong.id,
-            maThongTinDatPhong:
-              room.maThongTinDatPhong ||
-              `${datPhong.maDatPhong}-${room.loaiPhong.id}-${i}`,
+            maThongTinDatPhong: room.maThongTinDatPhong,
             ngayNhanPhong: room.ngayNhanPhong,
             ngayTraPhong: room.ngayTraPhong,
             soNguoi: room.soNguoi,
             giaDat: room.giaDat,
             trangThai: "Chưa xếp",
           });
-        }
       });
 
       for (const thongTinDatPhong of thongTinDatPhongRequestList) {
+        console.log("thongTinDatPhong", thongTinDatPhong);
         const response = await updateThongTinDatPhong(thongTinDatPhong);
         if (!response || !response.data) {
           throw new Error("Không thể cập nhật thông tin đặt phòng.");
