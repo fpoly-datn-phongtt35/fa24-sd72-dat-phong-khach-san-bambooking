@@ -101,7 +101,7 @@ const Signup = () => {
           {step === 1 ? (
             <>
               <h1>Đăng nhập hoặc tạo tài khoản</h1>
-              <p>Bạn có thể đăng nhập tài khoản Booking.com của mình để truy cập các dịch vụ của chúng tôi.</p>
+              <p>Bạn có thể đăng nhập tài khoản BamBooking của mình để truy cập các dịch vụ của chúng tôi.</p>
               {error && <p className="error-message">{error}</p>}
               <form className="signup-form" onSubmit={handleEmailSubmit}>
                 <div className="form-group">
