@@ -59,4 +59,9 @@ public class DichVuSuDungController {
         return ResponseEntity.status(HttpStatus.CREATED).body(dichVuSuDungServiceIMPL.addPhieuDichVu2(dichVuSuDungRequest));
     }
 
+    @GetMapping("/huyDVSD/{id}")
+    public void HuyDVSD(@PathVariable("id") Integer id) {
+         dichVuSuDungServiceIMPL.HuyDVSD(id);
+    }
+
 }

@@ -72,7 +72,6 @@ const RoomDetail = () => {
         setListDVSD(responseArray);
       } catch (error) {
         console.error("Lỗi khi lấy chi tiết phòng:", error);
-        // Có thể thêm thông báo lỗi cho người dùng nếu cần
       }
     };
 
@@ -217,7 +216,7 @@ const RoomDetail = () => {
                 <TableCell sx={{ fontWeight: "bold" }}>
                   Tổng chi phí (VND)
                 </TableCell>
-                {roomDetail?.trangThai != "Đã trả phòng" && (
+                {roomDetail?.trangThai != "Đã trả phòng"  && roomDetail?.trangThai != "Đã kiểm tra" && (
                   <TableCell sx={{ fontWeight: "bold" }}>Hành động</TableCell>
                 )}
               </TableRow>
@@ -244,7 +243,7 @@ const RoomDetail = () => {
                     <TableCell>{dv.giaSuDung}</TableCell>
                     <TableCell>{dv.soLuongSuDung}</TableCell>
                     <TableCell>{dv.giaSuDung * dv.soLuongSuDung}</TableCell>
-                    {roomDetail?.trangThai != "Đã trả phòng" && (
+                    {roomDetail?.trangThai != "Đã trả phòng" && roomDetail?.trangThai != "Đã kiểm tra" &&(
                       <TableCell>
                         <Button
                           variant="contained"

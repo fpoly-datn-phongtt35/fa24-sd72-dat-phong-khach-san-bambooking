@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DuLieu } from "../../services/DichVuService";
-import { CapNhatDichVuSuDung, XoaDichVuSuDung } from "../../services/DichVuSuDungService";
+import { CapNhatDichVuSuDung, HuyDVSD } from "../../services/DichVuSuDungService";
 import { AddDichVuSuDung } from "../../services/ViewPhong";
 
 import {
@@ -26,7 +26,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
     dichVu: { id: data?.dichVu?.id } || "",
     xepPhong: { id: idxp },
     soLuongSuDung: data?.soLuongSuDung || "",
-    giaSuDung: data?.giaSuDung || "",
+    giaSuDung: data?.giaSuDung || 0,
     trangThai: data?.trangThai ?? 0,
   });
 
@@ -43,7 +43,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
         dichVu: { id: data.dichVu?.id || "" },
         xepPhong: { id: idxp },
         soLuongSuDung: data.soLuongSuDung || "",
-        giaSuDung: data.giaSuDung || "",
+        giaSuDung: data.giaSuDung || 0,
         trangThai: data.trangThai === true,
       });
     }
@@ -92,10 +92,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
 
 
   const HuyDichVu = () => {
-    if (formData.giaSuDung == 0) {
-      alert('Không thể hủy dịch vụ đi kèm')
-    } else {
-      XoaDichVuSuDung(formData.id)
+      HuyDVSD(formData.id)
         .then((response) => {
           console.log("Dịch vụ đã bị hủy:", response.data);
           handleClose();
@@ -103,7 +100,6 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
         .catch((error) => {
           console.error("Lỗi khi hủy dịch vụ:", error);
         });
-    }
   };
 
   return (
@@ -146,7 +142,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             fullWidth
             margin="dense"
             name="giaSuDung"
-            value={formData.giaSuDung}
+            value={formData.giaSuDung} 
             onChange={handleInputChange}
           />
 

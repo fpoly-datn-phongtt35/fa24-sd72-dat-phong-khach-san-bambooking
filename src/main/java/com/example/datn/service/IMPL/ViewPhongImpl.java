@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,11 +46,11 @@ public class ViewPhongImpl implements ViewPhongService {
         // Lấy danh sách dịch vụ đi kèm theo idXepPhong
         List<DichVuDiKem> listDVDK = viewPhongRepository.getDVDK(idXepPhong);
         // Lấy danh sách dịch vụ đã sử dụng cho phòng này
-        List<DichVuSuDung> existingDVSD = dichVuSuDungRepository.getByIDXepPhong(idXepPhong);
+        List<DichVuSuDung> existingDVSD2 = dichVuSuDungRepository.getByIDXepPhong2(idXepPhong);
 
         List<DichVuSuDung> newDVSDList;
 
-        if (existingDVSD.isEmpty() ) {
+        if (existingDVSD2.isEmpty() ) {
             // Nếu không có dịch vụ đã sử dụng, thêm toàn bộ listDVDK
             newDVSDList = listDVDK.stream()
                     .map(dvdk -> {
@@ -60,16 +61,16 @@ public class ViewPhongImpl implements ViewPhongService {
                         dichVu.setId(dvdk.getDichVu().getId());
                         dvsd.setDichVu(dichVu);
                         dvsd.setXepPhong(xepPhong);
-                        dvsd.setSoLuongSuDung(dvdk.getSoLuong()); // Mặc định 1, có thể chỉnh lại
+                        dvsd.setSoLuongSuDung(dvdk.getSoLuong());
                         dvsd.setGiaSuDung(0.0); // Giả sử dịch vụ đi kèm có giá
-                        dvsd.setTrangThai(false); // Trạng thái mặc định
+                        dvsd.setTrangThai(true); // Trạng thái mặc định
                         return dvsd;
                     })
                     .collect(Collectors.toList());
         } else {
             // Nếu đã có dịch vụ sử dụng, chỉ thêm những dịch vụ chưa tồn tại
             newDVSDList = listDVDK.stream()
-                    .filter(dvdk -> existingDVSD.stream()
+                    .filter(dvdk -> existingDVSD2.stream()
                             .noneMatch(dvsd -> dvsd.getDichVu().getId() == dvdk.getDichVu().getId()))
                     .map(dvdk -> {
                         DichVuSuDung dvsd = new DichVuSuDung();
@@ -79,7 +80,7 @@ public class ViewPhongImpl implements ViewPhongService {
                         dichVu.setId(dvdk.getDichVu().getId());
                         dvsd.setDichVu(dichVu);
                         dvsd.setXepPhong(xepPhong);
-                        dvsd.setSoLuongSuDung(dvdk.getSoLuong()); // Mặc định 1, có thể chỉnh lại
+                        dvsd.setSoLuongSuDung(dvdk.getSoLuong());
                         dvsd.setGiaSuDung(0.0); // Giả sử dịch vụ đi kèm có giá
                         dvsd.setTrangThai(true); // Trạng thái mặc định
                         return dvsd;

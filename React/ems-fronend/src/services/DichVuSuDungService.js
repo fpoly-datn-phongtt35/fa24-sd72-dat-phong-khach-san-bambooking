@@ -7,6 +7,7 @@ const apiUpdateDichVuSuDung = "http://localhost:8080/dich_vu_su_dung/update";
 const apiDeleteDichVuSuDung = "http://localhost:8080/dich_vu_su_dung/delete";
 const apiDichVu = "http://localhost:8080/dich_vu";
 const apiXepPhong = "http://localhost:8080/xep-phong"; // Đường dẫn mới cho xếp phòng
+const apiHuyDVSD = "http://localhost:8080/dich_vu_su_dung/huyDVSD";
 
 // Lấy danh sách dịch vụ sử dụng
 export const DuLieuDichVuSuDung = () => authorizedAxiosInstance.get(apiDichVuSuDung);
@@ -34,4 +35,8 @@ export const DanhSachDichVu = () => {
 // Lấy danh sách xếp phòng
 export const DanhSachXepPhong = () => {
     return authorizedAxiosInstance.get(apiXepPhong); 
+};
+
+export const HuyDVSD = (id) => {
+    return authorizedAxiosInstance.get(`${apiHuyDVSD}/${id}`);
 };

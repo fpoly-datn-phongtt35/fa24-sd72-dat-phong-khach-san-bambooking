@@ -22,7 +22,11 @@ import {
   Radio,
   RadioGroup,
   Typography,
+  MenuItem,
+  Select,
+  IconButton,
 } from '@mui/material';
+import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import { searchRooms, getRoomDetail } from '../../services/ViewPhong';
 import { searchByIDPhong } from '../../services/ImageService';
@@ -38,6 +42,8 @@ const QuanLyPhong = () => {
   const [soTang, setSoTang] = useState(null);
   const [idLoaiPhong, setIdLoaiPhong] = useState([]);
   const [loaiPhongs, setLoaiPhongs] = useState([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const navigate = useNavigate();
 
@@ -50,7 +56,6 @@ const QuanLyPhong = () => {
       .then(async (roomList) => {
         if (Array.isArray(roomList)) {
           setRooms(roomList);
-          console.log(roomList)
           const images = await Promise.all(
             roomList.map((room) =>
               searchByIDPhong(room.id).then((response) => ({
@@ -91,14 +96,31 @@ const QuanLyPhong = () => {
     handleSearch();
   }, [tinhTrang, giaMin, giaMax, keyword, idLoaiPhong, handleSearch]);
 
-  // Thêm phòng mới
-  const handleAddRoom = () => {
-    navigate('/add-phong'); // Chuyển hướng đến form thêm phòng
+ 
+  const handleChangePage = (direction) => {
+    if (direction === 'next' && page < totalPages - 1) {
+      setPage(page + 1);
+    } else if (direction === 'prev' && page > 0) {
+      setPage(page - 1);
+    }
   };
 
-  // Sửa phòng
-  const handleEditRoom = (roomId) => {
-    navigate(`/update-phong/${roomId}`);
+  
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  
+  const handleAddRoom = () => {
+    navigate('/add-phong');
+  };
+
+  
+  const handleEditRoom = (room) => {
+    navigate(`/update-phong/${room.id}`, {
+      state: { loaiPhong: room.loaiPhong },
+    });
   };
 
   const handleStatusChange = (e) => {
@@ -118,9 +140,8 @@ const QuanLyPhong = () => {
   };
 
   const handleViewDetail = (roomId) => {
-    const currentDate = dayjs().format("YYYY-MM-DDTHH:mm:ss"); // Ngày hiện tại, ví dụ: 2025-03-31T14:30:00
-    console.log("Room ID:", roomId, "Current Date:", currentDate);
-    getRoomDetail(roomId,currentDate)
+    const currentDate = dayjs().format("YYYY-MM-DDTHH:mm:ss");
+    getRoomDetail(roomId, currentDate)
       .then((response) => {
         if (!response) {
           throw new Error('Không có thông tin chi tiết phòng.');
@@ -131,6 +152,9 @@ const QuanLyPhong = () => {
         alert('Chưa có xếp phòng, không thể xem chi tiết.');
       });
   };
+
+  const paginatedRooms = rooms.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const totalPages = Math.ceil(rooms.length / rowsPerPage);
 
   return (
     <Grid container spacing={2} sx={{ p: 2 }}>
@@ -150,7 +174,6 @@ const QuanLyPhong = () => {
               onChange={(e) => setKeyword(e.target.value)}
               onKeyUp={handleSearch}
             />
-
             <Box sx={{ mt: 2 }}>
               <FormLabel component="legend" sx={{ fontSize: '0.9rem', mb: 1 }}>
                 Khoảng giá
@@ -216,20 +239,16 @@ const QuanLyPhong = () => {
                 </FormGroup>
               </FormControl>
             </Box>
-
             <Box sx={{ mt: 2 }}>
               <FormControl component="fieldset">
                 <FormLabel component="legend" sx={{ fontSize: '0.9rem', mb: 1 }}>
                   Tình trạng
                 </FormLabel>
-                <RadioGroup
-                  value={tinhTrang === null ? 'all' : tinhTrang}
-                  onChange={handleStatusChange}
-                  row
-                >
+                <RadioGroup value={tinhTrang === null ? 'all' : tinhTrang} onChange={handleStatusChange} row>
                   <FormControlLabel value="all" control={<Radio size="small" />} label="Tất cả" />
-                  <FormControlLabel value="Available" control={<Radio size="small" />} label="Available" />
-                  <FormControlLabel value="Occupied" control={<Radio size="small" />} label="Occupied" />
+                  <FormControlLabel value="Trống" control={<Radio size="small" />} label="Trống" />
+                  <FormControlLabel value="Đang ở" control={<Radio size="small" />} label="Đang ở" />
+                  <FormControlLabel value="Cần kiểm tra" control={<Radio size="small" />} label="Cần kiểm tra" />
                 </RadioGroup>
               </FormControl>
             </Box>
@@ -238,10 +257,24 @@ const QuanLyPhong = () => {
       </Grid>
 
       <Grid item xs={12} sm={9}>
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Button variant="contained" color="success" onClick={handleAddRoom}>
             Thêm phòng mới
           </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" sx={{ mr: 1 }}>
+              Hiển thị:
+            </Typography>
+            <Select
+              value={rowsPerPage}
+              onChange={handleChangeRowsPerPage}
+              size="small"
+              sx={{ minWidth: 60 }}
+            >
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={15}>15</MenuItem>
+            </Select>
+          </Box>
         </Box>
         <TableContainer component={Paper}>
           <Table>
@@ -257,8 +290,8 @@ const QuanLyPhong = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {Array.isArray(rooms) && rooms.length > 0 ? (
-                rooms.map((room) => (
+              {Array.isArray(paginatedRooms) && paginatedRooms.length > 0 ? (
+                paginatedRooms.map((room) => (
                   <TableRow key={room.id}>
                     <TableCell>
                       {listImage[room.id] && listImage[room.id][0] ? (
@@ -295,24 +328,42 @@ const QuanLyPhong = () => {
                         variant="contained"
                         color="warning"
                         size="small"
-                        onClick={() => handleEditRoom(room.id)}
+                        onClick={() => handleEditRoom(room)}
                         sx={{ mr: 1 }}
                       >
                         Sửa
                       </Button>
-
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} align="center">
+                  <TableCell colSpan={7} align="center">
                     Không tìm thấy phòng nào.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+            <IconButton
+              onClick={() => handleChangePage('prev')}
+              disabled={page === 0}
+              sx={{ p: 0.1 }} 
+            >
+              <ArrowBackIos sx={{ fontSize: '16px' }} /> 
+            </IconButton>
+            <Typography variant="body2" sx={{ mx: 2, alignSelf: 'center' }}>
+              {page + 1}
+              </Typography>
+            <IconButton
+              onClick={() => handleChangePage('next')}
+              disabled={page >= totalPages - 1}
+              sx={{ p: 0.1 }} 
+            >
+              <ArrowForwardIos sx={{ fontSize: '16px' }} /> 
+            </IconButton>
+          </Box>
         </TableContainer>
       </Grid>
     </Grid>

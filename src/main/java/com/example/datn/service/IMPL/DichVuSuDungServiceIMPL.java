@@ -9,11 +9,13 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 @Service
 
 public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
     @Autowired
     DichVuSuDungRepository phieuDichVuRepository;
+
     @Override
     public List<DichVuSuDung> getAll() {
         return phieuDichVuRepository.findAll();
@@ -45,9 +47,9 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
             dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
             dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
             dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
-            if(dichVuSuDungRequest.getGiaSuDung() == null){
+            if (dichVuSuDungRequest.getGiaSuDung() == null) {
                 dichVuSuDung.setGiaSuDung(0.0);
-            }else{
+            } else {
                 dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
             }
             return phieuDichVuRepository.save(dichVuSuDung);
@@ -81,12 +83,31 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
 
     @Override
     public DichVuSuDung addPhieuDichVu2(DichVuSuDungRequest dichVuSuDungRequest) {
+        List<DichVuSuDung> DVSDtrue = phieuDichVuRepository.getByTrangThai();
+
+        for (DichVuSuDung dvsd : DVSDtrue) {
+            if (dvsd.getDichVu().getId().equals(dichVuSuDungRequest.getDichVu().getId())
+                    && dvsd.getGiaSuDung().equals(dichVuSuDungRequest.getGiaSuDung())) {
+
+                dvsd.setSoLuongSuDung(dvsd.getSoLuongSuDung() + dichVuSuDungRequest.getSoLuongSuDung());
+                return phieuDichVuRepository.save(dvsd);
+            }
+        }
+
         DichVuSuDung dichVuSuDung = new DichVuSuDung();
         dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
         dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
         dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
         dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
-        dichVuSuDung.setTrangThai(false);
+        dichVuSuDung.setTrangThai(true);
         return phieuDichVuRepository.save(dichVuSuDung);
     }
+
+    @Override
+    public void HuyDVSD(Integer id) {
+        DichVuSuDung dichVuSuDung = phieuDichVuRepository.findById(id).orElse(null);
+        dichVuSuDung.setTrangThai(false);
+        phieuDichVuRepository.save(dichVuSuDung);
+    }
 }
+
