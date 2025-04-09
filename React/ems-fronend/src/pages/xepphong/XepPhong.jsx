@@ -5,22 +5,19 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Typography,
   Box,
+  Grid,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import {
   getPhongKhaDung,
   setPhongDangDat,
   huyPhongDangDat,
-} from "../../services/PhongService"; // Thêm API huyPhongDangDat
+} from "../../services/PhongService";
 import { addXepPhong } from "../../services/XepPhongService";
 
-function XepPhong({ show, handleClose, selectedTTDPs }) {
+function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
   const [listPhong, setListPhong] = useState({});
   const [selectedPhong, setSelectedPhong] = useState({});
   const navigate = useNavigate();
@@ -83,23 +80,19 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
   const handlePhongChange = async (ttdpId, phongId) => {
     const previousPhongId = selectedPhong[ttdpId];
 
-    // Cập nhật phòng đã chọn trước
     setSelectedPhong((prevSelected) => ({
       ...prevSelected,
       [ttdpId]: phongId,
     }));
 
     try {
-      // Nếu đã chọn phòng trước đó, hủy trạng thái "đang đặt" của phòng cũ
       if (previousPhongId) {
         await huyPhongDangDat(previousPhongId);
       }
-      // Đánh dấu phòng mới được chọn
       await setPhongDangDat(phongId);
       reloadPhongKhaDung();
     } catch (error) {
       console.error("Lỗi khi thay đổi phòng:", error);
-      // Khôi phục trạng thái trước đó nếu lỗi
       setSelectedPhong((prevSelected) => ({
         ...prevSelected,
         [ttdpId]: previousPhongId,
@@ -122,9 +115,9 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
     });
 
     try {
-      const responses = await Promise.all(requests);
-      console.log("Kết quả xếp phòng:", responses);
+      await Promise.all(requests);
       alert("Xếp phòng thành công cho tất cả các đặt phòng đã chọn!");
+      if (onSuccess) onSuccess();
       handleClose();
     } catch (error) {
       console.error("Lỗi khi xếp phòng:", error);
@@ -132,10 +125,8 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
     }
   };
 
-  // Xử lý khi đóng dialog mà không save
   const handleCancel = async () => {
     try {
-      // Hủy trạng thái "đang đặt" cho tất cả các phòng đã chọn
       const cancelRequests = Object.values(selectedPhong).map((phongId) =>
         huyPhongDangDat(phongId)
       );
@@ -143,46 +134,118 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
     } catch (error) {
       console.error("Lỗi khi hủy trạng thái phòng:", error);
     }
-    setSelectedPhong({}); // Reset lựa chọn phòng
+    setSelectedPhong({});
     handleClose();
   };
 
+  // Hàm phân loại phòng theo tầng dựa trên maPhong
+  const groupPhongByFloor = (phongList) => {
+    const floors = {};
+    phongList.forEach((phong) => {
+      const floor = parseInt(phong.maPhong.charAt(1), 10); // Lấy số tầng từ ký tự thứ 2 (P101 -> 1)
+      if (!floors[floor]) {
+        floors[floor] = [];
+      }
+      floors[floor].push(phong);
+    });
+    return floors;
+  };
+
+  // Hàm kiểm tra phòng có thể chọn được không
+  const isPhongSelectable = (phong, ttdpId) => {
+    return phong.tinhTrang !== "Đang đặt" || selectedPhong[ttdpId] === phong.id;
+  };
+
   return (
-    <Dialog open={show} onClose={handleCancel} fullWidth maxWidth="sm">
+    <Dialog open={show} onClose={handleCancel} fullWidth maxWidth="md">
       <DialogTitle>Xếp phòng</DialogTitle>
       <DialogContent dividers>
-        {selectedTTDPs.map((ttdp) => (
-          <Box key={ttdp.id} mb={2}>
-            <Typography variant="h6" gutterBottom>
-              Đặt phòng: {ttdp.maThongTinDatPhong}
-            </Typography>
-            <FormControl fullWidth variant="outlined" margin="normal">
-              <InputLabel id={`select-label-${ttdp.id}`}>
-                Chọn phòng khả dụng
-              </InputLabel>
-              <Select
-                labelId={`select-label-${ttdp.id}`}
-                id={`phongSelect-${ttdp.id}`}
-                value={selectedPhong[ttdp.id] || ""}
-                onChange={(e) => handlePhongChange(ttdp.id, e.target.value)}
-                label="Chọn phòng khả dụng"
-              >
-                <MenuItem value="">
-                  <em>Chọn phòng</em>
-                </MenuItem>
-                {(listPhong[ttdp.id] || []).map((phong) => (
-                  <MenuItem key={phong.id} value={phong.id}>
-                    {phong.maPhong} - {phong.tenPhong} - {phong.tinhTrang}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-        ))}
+        {selectedTTDPs.map((ttdp) => {
+          const floors = groupPhongByFloor(listPhong[ttdp.id] || []);
+          return (
+            <Box key={ttdp.id} mb={4}>
+              <Typography variant="h6" gutterBottom>
+                Đặt phòng: {ttdp.maThongTinDatPhong}
+              </Typography>
+              {Object.keys(floors).length > 0 ? (
+                Object.entries(floors).map(([floor, rooms]) => (
+                  <Box key={floor} mb={2}>
+                    <Typography variant="subtitle1" gutterBottom>
+                      Tầng {floor}
+                    </Typography>
+                    <Grid container spacing={2}>
+                      {rooms.map((phong) => {
+                        const isSelectable = isPhongSelectable(phong, ttdp.id);
+                        return (
+                          <Grid item xs={3} key={phong.id}>
+                            <Box
+                              sx={{
+                                width: "100%",
+                                height: 80,
+                                border: "1px solid #ccc",
+                                borderRadius: 2,
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                cursor: isSelectable
+                                  ? "pointer"
+                                  : "not-allowed",
+                                backgroundColor:
+                                  selectedPhong[ttdp.id] === phong.id
+                                    ? "#1976d2"
+                                    : phong.tinhTrang === "Đang đặt"
+                                    ? "#e0e0e0"
+                                    : "#fff",
+                                color:
+                                  selectedPhong[ttdp.id] === phong.id
+                                    ? "#fff"
+                                    : phong.tinhTrang === "Đang đặt"
+                                    ? "#757575"
+                                    : "#000",
+                                "&:hover": {
+                                  backgroundColor: isSelectable
+                                    ? selectedPhong[ttdp.id] === phong.id
+                                      ? "#1565c0"
+                                      : "#f5f5f5"
+                                    : phong.tinhTrang === "Đang đặt"
+                                    ? "#e0e0e0"
+                                    : "#fff",
+                                },
+                              }}
+                              onClick={() =>
+                                isSelectable &&
+                                handlePhongChange(ttdp.id, phong.id)
+                              }
+                            >
+                              <Typography variant="body2">
+                                {phong.maPhong}
+                              </Typography>
+                              <Typography variant="caption">
+                                {phong.tenPhong}
+                              </Typography>
+                              <Typography variant="caption">
+                                {phong.tinhTrang}
+                              </Typography>
+                            </Box>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                  </Box>
+                ))
+              ) : (
+                <Typography variant="body2" color="textSecondary">
+                  Không có phòng khả dụng
+                </Typography>
+              )}
+            </Box>
+          );
+        })}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleCancel} color="secondary">
-          Cancel
+          Hủy
         </Button>
         <Button
           onClick={handleSaveAll}
@@ -190,7 +253,7 @@ function XepPhong({ show, handleClose, selectedTTDPs }) {
           variant="contained"
           disabled={selectedTTDPs.some((ttdp) => !selectedPhong[ttdp.id])}
         >
-          Save All
+          Lưu tất cả
         </Button>
       </DialogActions>
     </Dialog>
