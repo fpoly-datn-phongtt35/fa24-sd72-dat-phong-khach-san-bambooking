@@ -137,7 +137,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
     @Override
     public Page<DatPhong> DSDatPhong(Pageable pageable) {
-        return  datPhongRepository.DSDatPhong(pageable);
+        return datPhongRepository.DSDatPhong(pageable);
     }
 
     @Override

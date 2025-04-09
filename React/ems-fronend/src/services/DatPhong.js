@@ -15,7 +15,7 @@ const apiToHopLoaiPhong =
 const apiFindByKey = "http://localhost:8080/dat-phong/findAll";
 const apiFindDatPhongToCheckin =
   "http://localhost:8080/dat-phong/dat-phong-to-checkin";
-const apiFindDatPhong = "http://localhost:8080/dat-phong/danh-sach-dat-phong";
+const apiFindDatPhong = "http://localhost:8080/dat-phong/danh-sach";
 const apiHuyDatPhong = "http://localhost:8080/dat-phong/huy-dp";
 
 // Hàm lấy danh sách đặt phòng
@@ -138,7 +138,12 @@ export const findDatPhongByKey = (keyword, pageable) => {
   });
 };
 
-export const findDatPhongToCheckin = (pageable, key, ngayNhanPhong, ngayTraPhong) => {
+export const findDatPhongToCheckin = (
+  pageable,
+  key,
+  ngayNhanPhong,
+  ngayTraPhong
+) => {
   return authorizedAxiosInstance.get(apiFindDatPhongToCheckin, {
     params: {
       size: pageable.size,
@@ -150,22 +155,49 @@ export const findDatPhongToCheckin = (pageable, key, ngayNhanPhong, ngayTraPhong
   });
 };
 
-export const findDatPhong = async (key, ngayNhanPhong, ngayTraPhong, pageable) => {
+export const findDatPhong = async ({
+  key = "",
+  ngayNhanPhong = null,
+  ngayTraPhong = null,
+  pageable = { page: 0, size: 10 },
+} = {}) => {
   try {
-    return await authorizedAxiosInstance.get(apiFindDatPhong, {
-      params: {
-        key: key || "",
-        page: pageable.page,
-        size: pageable.size,
-        ngayNhanPhong: ngayNhanPhong
-          ? ngayNhanPhong.format("YYYY-MM-DD")
-          : null,
-        ngayTraPhong: ngayTraPhong ? ngayTraPhong.format("YYYY-MM-DD") : null,
+    const formatDate = (date) => date?.format("YYYY-MM-DD") ?? null;
+
+    // Tạo params theo cấu trúc mà Spring Boot Pageable mong đợi
+    const params = {
+      key: key.trim(),
+      ngayNhanPhong: formatDate(ngayNhanPhong),
+      ngayTraPhong: formatDate(ngayTraPhong),
+      page: pageable.page, // Spring Boot sử dụng 'page' cho số trang
+      size: pageable.size, // Spring Boot sử dụng 'size' cho kích thước trang
+      // Nếu cần sort, có thể thêm: sort: 'field,asc/desc'
+    };
+
+    const response = await authorizedAxiosInstance.get(apiFindDatPhong, {
+      params,
+      paramsSerializer: (params) => {
+        // Xử lý params thành query string phù hợp với Spring Boot
+        const searchParams = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) {
+          if (value !== null && value !== undefined) {
+            searchParams.append(key, value);
+          }
+        }
+        return searchParams.toString();
       },
     });
+
+    return response.data;
   } catch (error) {
-    console.error("Error in findDatPhong:", error);
-    throw error; // Ném lỗi để component xử lý
+    const errorDetails = {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+      endpoint: "/danh-sach",
+    };
+    console.error("Error in findDatPhong:", errorDetails);
+    throw Object.assign(error, { details: errorDetails });
   }
 };
 
