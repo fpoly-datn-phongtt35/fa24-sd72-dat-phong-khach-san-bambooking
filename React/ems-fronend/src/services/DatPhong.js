@@ -15,7 +15,7 @@ const apiToHopLoaiPhong =
 const apiFindByKey = "http://localhost:8080/dat-phong/findAll";
 const apiFindDatPhongToCheckin =
   "http://localhost:8080/dat-phong/dat-phong-to-checkin";
-const apiFindDatPhong = "http://localhost:8080/dat-phong/danh-sach";
+const apiFindDatPhong = "http://localhost:8080/dat-phong/danh-sach-dat-phong";
 const apiHuyDatPhong = "http://localhost:8080/dat-phong/huy-dp";
 
 // Hàm lấy danh sách đặt phòng

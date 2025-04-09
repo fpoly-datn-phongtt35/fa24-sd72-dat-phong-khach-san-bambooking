@@ -139,14 +139,13 @@ public class DatPhongController {
     @GetMapping("danh-sach-dat-phong")
     public ResponseEntity<Page<DatPhongResponse>> findDatPhong(
             @RequestParam(value = "key", defaultValue = "", required = false) String key,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
+            Pageable pageable,
             @RequestParam(value = "ngayNhanPhong", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
             @RequestParam(value = "ngayTraPhong", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong) {
         Page<DatPhongResponse> result = datPhongServiceIMPL.findDatPhong(
-                key, ngayNhanPhong, ngayTraPhong, page, size);
+                key, ngayNhanPhong, ngayTraPhong, pageable);
         return ResponseEntity.ok(result);
     }
 
