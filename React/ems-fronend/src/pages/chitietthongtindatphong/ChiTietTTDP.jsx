@@ -23,7 +23,7 @@ import HotelIcon from "@mui/icons-material/Hotel";
 import PersonIcon from "@mui/icons-material/Person";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-
+import {updateKhachHang,} from "../../services/KhachHangService";
 const ChiTietTTDP = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -96,15 +96,29 @@ const ChiTietTTDP = () => {
 
   // Hàm xác nhận khách hàng check-in
   const handleXacNhan = async (khc) => {
+    // Thêm confirm dialog
+    const isConfirmed = window.confirm(
+      "Bạn có chắc chắn muốn xác nhận khách hàng này?"
+    );
+
+    if (!isConfirmed) {
+      return; // Nếu người dùng chọn Cancel, thoát khỏi function
+    }
+
     try {
-      const checkinRequest = {
-        id: khc.id, // Thêm ID để backend biết bản ghi nào cần sửa
-        khachHang: khc.khachHang,
-        thongTinDatPhong: thongTinDatPhong,
+      const khachHangRequest = {
+        id: khc.khachHang.id,
+        cccd: khc.khachHang.cmnd,
+        ho: khc.khachHang.ho,
+        ten: khc.khachHang.ten,
+        sdt: khc.khachHang.sdt,
+        email: khc.khachHang.email,
+        gioiTinh: khc.khachHang.gioiTinh,
+        diaChi: khc.khachHang.diaChi,
         trangThai: true,
       };
-      const response = await sua(checkinRequest); // Gọi API sửa
-      console.log("Xác nhận khách hàng check-in thành công:", response);
+      const response = await updateKhachHang(khachHangRequest); // Gọi API sửa
+      console.log("Xác nhận khách hàng thành công:", response);
       fetchKhachHangCheckin(maThongTinDatPhong); // Tải lại danh sách sau khi sửa
     } catch (error) {
       console.error("Lỗi khi xác nhận khách hàng check-in:", error);
@@ -112,22 +126,33 @@ const ChiTietTTDP = () => {
   };
 
   // Hàm sửa trạng thái khách hàng check-in
-  const handleUpdate = async (khc, newTrangThai) => {
+  const handleUpdate = async (khc) => {
+    // Thêm confirm dialog
+    const isConfirmed = window.confirm(
+      "Bạn có chắc chắn muốn hủy xác nhận khách hàng này?"
+    );
+
+    if (!isConfirmed) {
+      return; // Nếu người dùng chọn Cancel, thoát khỏi function
+    }
+
     try {
-      const checkinRequest = {
-        id: khc.id, // Thêm ID để backend biết bản ghi nào cần sửa
-        khachHang: khc.khachHang,
-        thongTinDatPhong: thongTinDatPhong,
-        trangThai: newTrangThai,
+      const khachHangRequest = {
+        id: khc.khachHang.id,
+        cccd: khc.khachHang.cmnd,
+        ho: khc.khachHang.ho,
+        ten: khc.khachHang.ten,
+        sdt: khc.khachHang.sdt,
+        email: khc.khachHang.email,
+        gioiTinh: khc.khachHang.gioiTinh,
+        diaChi: khc.khachHang.diaChi,
+        trangThai: false,
       };
-      const response = await sua(checkinRequest); // Gọi API sửa
-      console.log(
-        "Cập nhật trạng thái khách hàng check-in thành công:",
-        response
-      );
+      const response = await updateKhachHang(khachHangRequest); // Gọi API sửa
+      console.log("Xác nhận khách hàng thành công:", response);
       fetchKhachHangCheckin(maThongTinDatPhong); // Tải lại danh sách sau khi sửa
     } catch (error) {
-      console.error("Lỗi khi cập nhật trạng thái khách hàng check-in:", error);
+      console.error("Lỗi khi xác nhận khách hàng check-in:", error);
     }
   };
 
@@ -217,7 +242,7 @@ const ChiTietTTDP = () => {
                     Số người:
                   </Typography>
                   <Chip
-                    label={thongTinDatPhong?.soNguoi || "N/A"}
+                    label={khachHangCheckin.length}
                     color="primary"
                     variant="outlined"
                   />
@@ -389,10 +414,14 @@ const ChiTietTTDP = () => {
                             </Typography>
                             <Chip
                               label={
-                                khc?.trangThai === true ? "Active" : "Inactive"
+                                khc?.khachHang?.trangThai === true
+                                  ? "Active"
+                                  : "Inactive"
                               }
                               color={
-                                khc?.trangThai === true ? "success" : "error"
+                                khc?.khachHang?.trangThai === true
+                                  ? "success"
+                                  : "error"
                               }
                               size="small"
                             />
@@ -424,13 +453,6 @@ const ChiTietTTDP = () => {
                           <Button
                             size="small"
                             variant="outlined"
-                            onClick={() => handleUpdate(khc, !khc.trangThai)} // Đổi trạng thái
-                          >
-                            Sửa
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="outlined"
                             color="error"
                             onClick={() => handleDelete(khc.id)} // Xóa với ID của khachHangCheckin
                           >
@@ -443,6 +465,13 @@ const ChiTietTTDP = () => {
                             onClick={() => handleXacNhan(khc)} // Xác nhận
                           >
                             Xác nhận
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => handleUpdate(khc, !khc.trangThai)} // Đổi trạng thái
+                          >
+                            Hủy
                           </Button>
                         </CardActions>
                       </Card>

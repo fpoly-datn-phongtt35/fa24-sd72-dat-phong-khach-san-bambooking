@@ -25,8 +25,8 @@ export const createKhachHang = (khachHang) =>
 export const getOneKhachHang = (khachHangId) =>
   authorizedAxiosInstance.get(`${apiKhachHang}/${khachHangId}`);
 
-export const updateKhachHang = (khachHangId, khachHang) =>
-  authorizedAxiosInstance.put(`${apiKhachHang}/${khachHangId}`, khachHang);
+export const updateKhachHang = (khachHang) =>
+  authorizedAxiosInstance.put(apiKhachHang + "/update-kh-dp", khachHang);
 
 export const deleteKhachHang = (khachHangId) =>
   authorizedAxiosInstance.delete(`${apiKhachHang}/${khachHangId}`);

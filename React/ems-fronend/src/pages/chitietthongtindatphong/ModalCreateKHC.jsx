@@ -21,11 +21,73 @@ const ModalCreateKHC = ({
   onClose,
   thongTinDatPhong,
   onKhachHangAdded,
+  initialData,
 }) => {
   const navigate = useNavigate();
   const [isQRModalOpen, setQRModalOpen] = useState(false);
   const [qrData, setQRData] = useState("");
   const maThongTinDatPhong = thongTinDatPhong.maThongTinDatPhong;
+
+  const [formData, setFormData] = useState({
+    cccd: "",
+    ho: "",
+    ten: "",
+    gioiTinh: "",
+    diaChi: "",
+    sdt: "",
+    email: "",
+    trangThai: false,
+  });
+
+  // Xử lý dữ liệu từ QR hoặc initialData
+  const parseQRData = (data) => {
+    const fields = data.split("|");
+    if (fields.length >= 6) {
+      const nameParts = fields[2].split(" ");
+      return {
+        cccd: fields[0],
+        ho: nameParts[0],
+        ten: nameParts.slice(1).join(" "),
+        gioiTinh: fields[4],
+        diaChi: fields[5],
+        sdt: "",
+        email: "",
+        trangThai: false,
+      };
+    }
+    return formData; // Trả về dữ liệu hiện tại nếu không phân tích được
+  };
+
+  // Điền dữ liệu từ initialData khi modal mở
+  useEffect(() => {
+    if (initialData) {
+      // Nếu initialData có hoTen, tách thành ho và ten
+      const hoTen = initialData.hoTen || "";
+      const nameParts = hoTen.split(" ");
+      const ho = nameParts[0] || "";
+      const ten = nameParts.slice(1).join(" ") || "";
+
+      setFormData({
+        cccd: initialData.cmnd || "",
+        ho: ho,
+        ten: ten,
+        gioiTinh: initialData.gioiTinh || "",
+        diaChi: initialData.diaChi || "",
+        sdt: "",
+        email: "",
+        trangThai: false,
+      });
+    }
+  }, [initialData]);
+
+  // Điền dữ liệu từ QR khi quét trong modal
+  useEffect(() => {
+    if (qrData) {
+      const parsedData = parseQRData(qrData);
+      setFormData(parsedData);
+      closeQRScanner();
+    }
+  }, [qrData]);
 
   const openQRScanner = () => {
     setQRData("");
@@ -36,40 +98,6 @@ const ModalCreateKHC = ({
     setQRData("");
     setQRModalOpen(false);
   };
-
-  const [formData, setFormData] = useState({
-    cccd: "",
-    ho: "",
-    ten: "",
-    gioiTinh: "",
-    diaChi: "",
-    sdt: "",
-    email: "",
-    trangThai: true,
-  });
-
-  useEffect(() => {
-    if (qrData) {
-      const fields = qrData.split("|");
-      if (fields.length >= 6) {
-        const newCccd = fields[0];
-        const nameParts = fields[2].split(" ");
-        const newHo = nameParts[0];
-        const newTen = nameParts.slice(1).join(" ");
-        const newGioiTinh = fields[4];
-        const newDiaChi = fields[5];
-        setFormData((prev) => ({
-          ...prev,
-          cccd: newCccd,
-          ho: newHo,
-          ten: newTen,
-          gioiTinh: newGioiTinh,
-          diaChi: newDiaChi,
-        }));
-      }
-      closeQRScanner();
-    }
-  }, [qrData]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -95,13 +123,10 @@ const ModalCreateKHC = ({
     try {
       const response = await ThemKhachHangDatPhong(khachHangRequest);
       if (response != null) {
-        // Gọi callback để reload danh sách khách hàng trong ModalKhachHangCheckin
         if (onKhachHangAdded) {
           onKhachHangAdded();
         }
-        // Đóng modal sau khi thêm thành công
         onClose();
-        // Điều hướng đến trang chi tiết
         navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
       }
     } catch (e) {
@@ -109,9 +134,28 @@ const ModalCreateKHC = ({
     }
   };
 
+  const resetForm = () => {
+    setFormData({
+      cccd: "",
+      ho: "",
+      ten: "",
+      gioiTinh: "",
+      diaChi: "",
+      sdt: "",
+      email: "",
+      trangThai: false,
+    });
+  };
+
+  // Reset form khi đóng modal
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   return (
     <>
-      <Dialog open={isOpen} onClose={onClose} fullWidth>
+      <Dialog open={isOpen} onClose={handleClose} fullWidth>
         <DialogTitle>Thêm Khách Hàng</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
@@ -122,7 +166,7 @@ const ModalCreateKHC = ({
                   variant="outlined"
                   color="primary"
                 >
-                  QR
+                  Quét QR
                 </Button>
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -131,8 +175,8 @@ const ModalCreateKHC = ({
                   name="ho"
                   value={formData.ho}
                   onChange={handleChange}
-                  required
                   fullWidth
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -141,8 +185,8 @@ const ModalCreateKHC = ({
                   name="ten"
                   value={formData.ten}
                   onChange={handleChange}
-                  required
                   fullWidth
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -151,8 +195,8 @@ const ModalCreateKHC = ({
                   name="cccd"
                   value={formData.cccd}
                   onChange={handleChange}
-                  required
                   fullWidth
+                  required
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -189,7 +233,6 @@ const ModalCreateKHC = ({
                   name="sdt"
                   value={formData.sdt}
                   onChange={handleChange}
-                  required
                   fullWidth
                 />
               </Grid>
@@ -200,14 +243,13 @@ const ModalCreateKHC = ({
                   value={formData.email}
                   onChange={handleChange}
                   type="email"
-                  required
                   fullWidth
                 />
               </Grid>
             </Grid>
           </DialogContent>
           <DialogActions>
-            <Button onClick={onClose} color="secondary">
+            <Button onClick={handleClose} color="secondary">
               Hủy
             </Button>
             <Button type="submit" variant="contained" color="primary">

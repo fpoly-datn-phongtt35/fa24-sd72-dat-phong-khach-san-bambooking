@@ -43,7 +43,7 @@ import NotesIcon from "@mui/icons-material/Notes";
 import HotelIcon from "@mui/icons-material/Hotel";
 import { ThemPhuThu } from "../../services/PhuThuService";
 import { huyTTDP } from "../../services/TTDP";
-
+import {hienThi} from "../../services/KhachHangCheckin";
 const ChiTietDatPhong = () => {
   const [datPhong, setDatPhong] = useState(null); // Khởi tạo null thay vì undefined
   const [thongTinDatPhong, setThongTinDatPhong] = useState([]); // Mảng rỗng ban đầu
@@ -58,7 +58,9 @@ const ChiTietDatPhong = () => {
   const location = useLocation();
   const { maDatPhong } = location.state || {};
   const navigate = useNavigate();
+  const [khachHangCheckin, setKhachHangCheckin] = useState([]);
 
+  
   const getDetailDatPhong = (maDatPhong) => {
     findDatPhongByMaDatPhong(maDatPhong)
       .then((response) => setDatPhong(response.data))
@@ -93,6 +95,17 @@ const ChiTietDatPhong = () => {
       })
       .catch((error) => console.error(error));
   };
+
+  const fetchKhachHangCheckin = (maThongTinDatPhong) => {
+      hienThi(maThongTinDatPhong)
+        .then((response) => {
+          console.log("Khách hàng check-in:", response.data);
+          setKhachHangCheckin(response.data);
+        })
+        .catch((error) =>
+          console.error("Lỗi khi lấy thông tin khách hàng:", error)
+        );
+    };
 
   const openXepPhongModal = (ttdp) => {
     setSelectedTTDPs([ttdp]);
