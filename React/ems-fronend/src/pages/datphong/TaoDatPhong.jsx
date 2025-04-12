@@ -209,7 +209,7 @@ const TaoDatPhong = () => {
         id: datPhong ? datPhong.id : null,
         khachHang: khachHangResponse.data,
         maDatPhong: datPhong ? datPhong.maDatPhong : "",
-        soNguoi: ttdpData.reduce((total, room) => total + room.soNguoi * room.soPhong, 0),
+        soNguoi: datPhong.soNguoi,
         soPhong: ttdpData.reduce((total, room) => total + room.soPhong, 0),
         ngayDat: datPhong ? datPhong.ngayDat : new Date().toISOString(),
         tongTien: calculateTotalAmount(),

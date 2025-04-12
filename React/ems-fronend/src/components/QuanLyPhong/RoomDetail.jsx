@@ -137,8 +137,7 @@ const RoomDetail = () => {
   const handleChangeConditionRoom = async () => {
     try {
       await changeConditionRoom(roomId);
-
-      const updatedRoom = await getRoomDetail(roomId);
+      const updatedRoom = await getRoomDetail(roomId,date);
       console.log("Dữ liệu phòng sau khi thay đổi:", updatedRoom);
       setRoomDetail(updatedRoom);
 
@@ -278,29 +277,30 @@ const RoomDetail = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        {roomDetail?.trangThai === "Đang ở" && (
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{ mt: 2, textTransform: "none" }}
-            onClick={() => {
-              setShowFormDetail(true);
-              setSelectedDichVu(null);
-            }}
-          >
-            Thêm dịch vụ
-          </Button>
+        {roomDetail && roomDetail.trangThai === "Đang ở" && (
+          <>
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ mt: 2, textTransform: "none" }}
+              onClick={() => {
+                setShowFormDetail(true);
+                setSelectedDichVu(null);
+              }}
+            >
+              Thêm dịch vụ
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              sx={{ mt: 2, mx: 2, textTransform: "none" }}
+              onClick={handleChangeConditionRoom}
+              disabled={buttonStatus.disabled}
+            >
+              {buttonStatus.text}
+            </Button>
+          </>
         )}
-        {/* Kiem tra phong */}
-        <Button
-          variant="contained"
-          color="success"
-          sx={{ mt: 2, mx: 2, textTransform: "none" }}
-          onClick={handleChangeConditionRoom}
-          disabled={buttonStatus.disabled}
-        >
-          {buttonStatus.text}
-        </Button>
 
         {alert.open && (
           <Box

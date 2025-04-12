@@ -60,7 +60,7 @@ const ChiTietDatPhong = () => {
   const navigate = useNavigate();
   const [khachHangCheckin, setKhachHangCheckin] = useState([]);
 
-  
+
   const getDetailDatPhong = (maDatPhong) => {
     findDatPhongByMaDatPhong(maDatPhong)
       .then((response) => setDatPhong(response.data))
@@ -369,7 +369,7 @@ const ChiTietDatPhong = () => {
                 <Typography sx={{ fontWeight: "medium", mr: 1 }}>
                   Số người:
                 </Typography>
-                <Typography>{calculateTotalGuests()}</Typography>
+                <Typography>{datPhong?.soNguoi}</Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Typography sx={{ fontWeight: "medium", mr: 1 }}>
