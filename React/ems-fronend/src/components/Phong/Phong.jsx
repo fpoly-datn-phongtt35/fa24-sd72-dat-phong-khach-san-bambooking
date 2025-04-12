@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { createPhong, getLoaiPhong, getOnePhong, updatePhong } from '../../services/PhongService';
 import { uploadImage, searchByIDPhong } from '../../services/ImageService';
 import Swal from 'sweetalert2';
@@ -27,16 +27,18 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 const Phong = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [file, setFile] = useState(null);
   const [maPhong, setMaPhong] = useState('');
   const [tenPhong, setTenPhong] = useState('');
-  const [idLoaiPhong, setIdLoaiPhong] = useState('');
   const [lp, setLoaiPhong] = useState([]);
   const [tinhTrang, setTinhTrang] = useState('');
   const [trangThai, setTrangThai] = useState(true);
   const [errors, setErrors] = useState({});
   const [listImage, setlistImage] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { loaiPhong } = location.state;
+  const [idLoaiPhong, setIdLoaiPhong] = useState(loaiPhong.id);
 
   useEffect(() => {
     getLoaiPhong()
@@ -53,7 +55,6 @@ const Phong = () => {
           const { maPhong, tenPhong, idLoaiPhong, tinhTrang, trangThai } = response.data;
           setMaPhong(maPhong);
           setTenPhong(tenPhong);
-          setIdLoaiPhong(idLoaiPhong);
           setTinhTrang(tinhTrang);
           setTrangThai(trangThai);
         })

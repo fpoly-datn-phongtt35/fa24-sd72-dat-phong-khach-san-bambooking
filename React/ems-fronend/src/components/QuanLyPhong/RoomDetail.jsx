@@ -75,6 +75,27 @@ const RoomDetail = () => {
     }
   };
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getRoomDetail(roomId, date);
+        setRoomDetail(response);
+        setIdXepPhong(response.id);
+        const newStatus = response?.phong?.tinhTrang || "Đang ở";
+        setButtonStatus({
+          text: newStatus,
+          disabled: newStatus === "Cần kiểm tra",
+        });
+
+        const dichVuResponse = await getDichVuSuDungByIDXepPhong(response.id);
+        const responseArray = Array.isArray(dichVuResponse)
+          ? dichVuResponse
+          : [dichVuResponse];
+        setListDVSD(responseArray);
+      } catch (error) {
+        console.error("Lỗi khi lấy chi tiết phòng:", error);
+      }
+    };
+
     fetchData();
   }, [roomId, date]); // Thêm date vào dependency
 
@@ -215,7 +236,7 @@ const RoomDetail = () => {
                 <TableCell sx={{ fontWeight: "bold" }}>
                   Tổng chi phí (VND)
                 </TableCell>
-                {roomDetail?.trangThai != "Đã trả phòng" && (
+                {roomDetail?.trangThai != "Đã trả phòng"  && roomDetail?.trangThai != "Đã kiểm tra" && (
                   <TableCell sx={{ fontWeight: "bold" }}>Hành động</TableCell>
                 )}
               </TableRow>
@@ -242,7 +263,7 @@ const RoomDetail = () => {
                     <TableCell>{dv.giaSuDung}</TableCell>
                     <TableCell>{dv.soLuongSuDung}</TableCell>
                     <TableCell>{dv.giaSuDung * dv.soLuongSuDung}</TableCell>
-                    {roomDetail?.trangThai != "Đã trả phòng" && (
+                    {roomDetail?.trangThai != "Đã trả phòng" && roomDetail?.trangThai != "Đã kiểm tra" &&(
                       <TableCell>
                         <Button
                           variant="contained"

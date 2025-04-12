@@ -213,10 +213,10 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
                 .mapToDouble(pt -> pt.getTienPhuThu() * pt.getSoLuong())
                 .sum();
 
-        double tienBoiThuong = tinhTienBoiThuong(traPhong);
+//        double tienBoiThuong = tinhTienBoiThuong(traPhong);
         System.out.println("Tổng tiền phụ thu của phòng " + traPhong.getXepPhong().getId() + ": " + tienPhuThu);
 
-        return tienPhuThu + tienBoiThuong;
+        return tienPhuThu ;
     }
 
     private double tinhTienDichVu(TraPhong traPhong) {

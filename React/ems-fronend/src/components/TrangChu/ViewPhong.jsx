@@ -58,24 +58,36 @@ const ViewPhong = () => {
     const fetchRoomStatus = async () => {
       try {
         const [responseXepPhong, responseTraPhong] = await Promise.all([ttXepPhong(), dsTraPhong()]);
-        const statusData = responseXepPhong.data;
-        const traPhongData = responseTraPhong.data;
-        const newStatus = {};
-        const traPhongIds = new Set(traPhongData.map(tp => tp.xepPhong.id));
+      const statusData = responseXepPhong.data;
+      const traPhongData = responseTraPhong.data;
+      const newStatus = {};
+      const traPhongIds = new Set(traPhongData.map(tp => tp.xepPhong.id));
 
-        statusData.forEach((item) => {
-          const { ngayNhanPhong, ngayTraPhong, phong } = item;
-          const startDate = dayjs(ngayNhanPhong).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
-          const endDate = dayjs(ngayTraPhong).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
-          const roomId = phong.id;
-          const isReturned = traPhongIds.has(item.id);
+      statusData.forEach((item) => {
+        const { ngayNhanPhong, ngayTraPhong, phong, trangThai } = item;
+        const startDate = dayjs(ngayNhanPhong).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
+        const endDate = dayjs(ngayTraPhong).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
+        const roomId = phong.id;
+        const isReturned = traPhongIds.has(item.id);
 
           let currentDate = dayjs(startDate);
           while (currentDate.isBefore(dayjs(endDate)) || currentDate.isSame(dayjs(endDate))) {
             const dateKey = currentDate.format('YYYY-MM-DD');
             const key = `${roomId}_${dateKey}`;
+            
+            let roomStatus = 'Empty'; 
+            if (isReturned) {
+              roomStatus = 'CheckedOut'; // Đã trả phòng
+            } else if (trangThai === 'Đã kiểm tra') {
+              roomStatus = 'Checked'; // Đã kiểm tra
+            } else if (trangThai === 'Đang ở') {
+              roomStatus = 'Occupied'; // Đang ở
+            } else if (trangThai === 'Đã xếp'){
+              roomStatus = 'Booked'; // Đã xếp
+            }
+
             newStatus[key] = {
-              status: isReturned ? "Vacant" : "Occupied",
+              status: roomStatus,
               ngayNhanPhong: startDate
             };
             currentDate = currentDate.add(1, 'day');
@@ -237,21 +249,25 @@ const ViewPhong = () => {
                 </div>
                 {dates.map((date) => {
                   const key = `${room.id}_${date}`;
-                  const isOccupied = status[key]?.status === "Occupied";
-                  const today = dayjs().format("YYYY-MM-DD");
-                  const isVacant = status[key]?.status === "Vacant";
+                  const roomStatus = status[key]?.status;
                   let bgColor = "#B7B7B7";
 
-                  if (isOccupied) {
-                    const { ngayNhanPhong } = status[key];
-                    bgColor = ngayNhanPhong <= today ? "#00FF33" : "#00B2BF";
-                  } else {
-                    isOccupiedChain = false;
+                  switch (roomStatus) {
+                    case 'Occupied':
+                      bgColor = "#00FF33"; // Đang ở 
+                      break;
+                    case 'CheckedOut':
+                      bgColor = "#FF6699"; // Đã trả phòng
+                      break;
+                    case 'Booked':
+                      bgColor = "#00B2BF"; // Đã xếp
+                      break;
+                    case 'Checked':
+                      bgColor = "#FFFF00"; // Đã kiểm tra
+                      break;
+                    default:
+                      bgColor = "#B7B7B7"; // Phòng trống
                   }
-                  if (isVacant) {
-                    bgColor = "#FF6699";
-                  }
-
                   return (
                     <div
                       key={key}
@@ -260,7 +276,7 @@ const ViewPhong = () => {
                         margin: "15px 0px 12px 0px",
                         cursor: "pointer",
                       }}
-                      onClick={() => handleRoomClick(room.id, date)} // Truyền cả room.id và date
+                      onClick={() => handleRoomClick(room.id, date)}
                     ></div>
                   );
                 })}
@@ -277,6 +293,10 @@ const ViewPhong = () => {
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <div style={{ width: "20px", height: "20px", backgroundColor: "#00B2BF", border: "1px solid #000" }}></div>
             <span>Phòng đã được xếp</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <div style={{ width: "20px", height: "20px", backgroundColor: "#FFFF00", border: "1px solid #000" }}></div>
+            <span>Phòng đã kiểm tra</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <div style={{ width: "20px", height: "20px", backgroundColor: "#FF6699", border: "1px solid #000" }}></div>

@@ -99,6 +99,8 @@ public class PhongServiceIMPL implements PhongService {
                 .orElseThrow(()-> new EntityNotFountException("Room id not found: " + id));
         phong.setTinhTrang("Cần kiểm tra");
         phongRepository.save(phong);
+
+
         return "Thay đổi tình trạng phòng thành công: " + phong.getTenPhong() + " ,tình trạng phòng: " + phong.getTinhTrang();
     }
 
