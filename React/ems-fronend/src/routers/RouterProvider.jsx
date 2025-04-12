@@ -11,13 +11,10 @@ import ListPhong from '../components/Phong/ListPhong';
 import Phong from '../components/Phong/Phong';
 import ListImage from '../components/HinhAnh/ListImage';
 import HinhAnh from '../components/HinhAnh/HinhAnh';
-import QuanLyDatPhongCu from '../pages/quanlydatphong/QuanLyDatPhongCu';
 import TaoDatPhong from '../pages/datphong/TaoDatPhong';
 import ChiTietDatPhong from "../pages/chitietdatphong/ChiTietDatPhong";
 import ChiTietTTDP from '../pages/chitietthongtindatphong/ChiTietTTDP';
 import ListHoaDon from '../components/HoaDon/ListHoaDon';
-import TaiKhoanComponent from '../components/taikhoan/TaiKhoanComponent';
-import ListTaiKhoan from '../components/taikhoan/ListTaiKhoan';
 import { Customer } from '../pages/customer/Customer';
 import { NewCustomer } from '../pages/customer/NewCustomer';
 import { DetailCustomer } from '../pages/customer/DetailCustomer';
@@ -39,6 +36,7 @@ import { XoaDichVuDiKem } from "../services/DichVuDiKemService";
 import DatPhong from '../pages/datphong/DatPhong'
 import QuanLyDatPhong from '../pages/quanlydatphong/QuanLyDatPhong';
 import Checkin from '../pages/checkin/Checkin';
+
 function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
   const UnauthorizedRoutes = () => {
     const accessToken = localStorage.getItem('accessToken');
@@ -102,11 +100,9 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/chi-tiet-ttdp" element={<ChiTietTTDP />} />
         <Route path="/api/RoomDetail/:roomId/:date" element={<RoomDetail />} />
         <Route path="/hoa-don" element={<ListHoaDon />} />
-        <Route path="/add-taikhoan" element={<TaiKhoanComponent />} />
         <Route path="/update-khach-hang/:id" element={<DetailCustomer />} />
         <Route path="/add-khach-hang" element={<NewCustomer />} />
         <Route path="/khach-hang" element={<Customer />} />
-        <Route path="/TaiKhoan" element={<ListTaiKhoan />} />
         <Route path="/" element={<ViewPhong />} />
         <Route path="/test" element={<QRScannerManual />} />
         <Route path="/upload" element={<UploadQR />} />
@@ -117,9 +113,9 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/tao-hoa-don" element={<DemoTaoHoaDon />} />
         <Route path="/kiem-tra-phong" element={<KiemTraPhong />} />
         <Route path="/tao-kiem-tra-phong/:idXepPhong" element={<CreateKiemTraPhong />} />
-        <Route path="/dat-phong" element={<DatPhong/>}/>
-        <Route path="/quan-ly-dat-phong" element={<QuanLyDatPhong/>}/>
-        <Route path="/nhan-phong" element={<Checkin/>}/>
+        <Route path="/dat-phong" element={<DatPhong />} />
+        <Route path="/quan-ly-dat-phong" element={<QuanLyDatPhong />} />
+        <Route path="/nhan-phong" element={<Checkin />} />
       </Route>
     </Routes>
   );
