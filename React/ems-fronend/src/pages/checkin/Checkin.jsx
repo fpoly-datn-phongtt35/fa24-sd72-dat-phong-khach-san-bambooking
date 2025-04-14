@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { debounce } from "lodash";
 import {
   Container,
   Box,
@@ -17,6 +18,11 @@ import {
   Input,
   Grid,
   Divider,
+  CircularProgress,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
@@ -31,7 +37,7 @@ import { huyTTDP } from "../../services/TTDP";
 import { findDatPhongToCheckin } from "../../services/DatPhong";
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
 import { ThemPhuThu } from "../../services/PhuThuService";
-import XepPhong from "../../pages/xepphong/XepPhong";// Thêm import modal XepPhong
+import XepPhong from "../../pages/xepphong/XepPhong";
 
 const Checkin = () => {
   const navigate = useNavigate();
@@ -39,35 +45,71 @@ const Checkin = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [datPhong, setDatPhong] = useState([]);
-  const [ngayNhan, setNgayNhan] = useState(null);
+  const [ngayNhan, setNgayNhan] = useState(dayjs().hour(14).minute(0));
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const pageSize = "";
+  const [pageSize, setPageSize] = useState(5);
+  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [showXepPhongModal, setShowXepPhongModal] = useState(false); // Thêm state cho modal
+  const [showXepPhongModal, setShowXepPhongModal] = useState(false);
 
-  const searchDatPhong = (key, currentPage) => {
-    const pageable = { page: currentPage, size: pageSize };
-    findDatPhongToCheckin(pageable, key, ngayNhan, ngayTra)
-      .then((res) => {
-        console.log(res.data);
-        setDatPhong(res.data.content || []);
-        setTotalPages(res.data.totalPages || 0);
-      })
-      .catch((err) => {
-        console.error("Error fetching data:", err);
-        setDatPhong([]);
-      });
-  };
+  const searchDatPhong = useCallback(
+    debounce(
+      async (searchKey, searchNgayNhan, searchNgayTra, currentPage, size) => {
+        setLoading(true);
+        try {
+          const formattedNgayNhan = searchNgayNhan
+            ? dayjs(searchNgayNhan).startOf("day")
+            : null;
+          const formattedNgayTra = searchNgayTra
+            ? dayjs(searchNgayTra).startOf("day")
+            : null;
+
+          const pageable = {
+            page: currentPage,
+            size: size,
+          };
+
+          const res = await findDatPhongToCheckin(
+            pageable,
+            searchKey,
+            formattedNgayNhan,
+            formattedNgayTra
+          );
+          setDatPhong(res.data.content || []);
+          setTotalPages(res.data.totalPages || 0);
+        } catch (err) {
+          console.error("Error fetching data:", err);
+          setDatPhong([]);
+          setTotalPages(0);
+          alert("Lỗi khi tải dữ liệu, vui lòng thử lại!");
+        } finally {
+          setLoading(false);
+        }
+      },
+      300
+    ),
+    []
+  );
 
   useEffect(() => {
-    searchDatPhong(key, page);
-  }, [key, page]);
+    searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
+    return () => searchDatPhong.cancel();
+  }, [key, ngayNhan, ngayTra, page, pageSize, searchDatPhong]);
+
   const handlePageChange = (event, newPage) => {
-    setPage(newPage - 1); // Chuyển từ 1-based sang 0-based
-    searchDatPhong(key, newPage - 1);
+    setPage(newPage - 1);
+    searchDatPhong(key, ngayNhan, ngayTra, newPage - 1, pageSize);
+  };
+
+  const handlePageSizeChange = (event) => {
+    const newSize = event.target.value;
+    setPageSize(newSize);
+    setPage(0);
+    searchDatPhong(key, ngayNhan, ngayTra, 0, newSize);
   };
 
   const handleViewDetails = (maDatPhong) => {
@@ -78,28 +120,32 @@ const Checkin = () => {
     navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
   };
 
-  const handleHuyTTDP = (maThongTinDatPhong) => {
-    const confirmCancel = window.confirm(
-      `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${maThongTinDatPhong} không?`
-    );
-    if (confirmCancel) {
-      huyTTDP(maThongTinDatPhong)
-        .then(() => {
-          searchDatPhong(key, page); // Cập nhật lại danh sách
-          console.log(`Đã hủy TTDP: ${maThongTinDatPhong}`);
-        })
-        .catch((err) => {
-          console.error("Lỗi khi hủy TTDP:", err);
-        });
+  const handleHuyTTDP = async (maThongTinDatPhong) => {
+    if (
+      window.confirm(
+        `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${maThongTinDatPhong} không?`
+      )
+    ) {
+      setActionLoading(true);
+      try {
+        await huyTTDP(maThongTinDatPhong);
+        searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
+        alert("Hủy thông tin đặt phòng thành công!");
+      } catch (err) {
+        console.error("Lỗi khi hủy TTDP:", err);
+        alert("Hủy thông tin đặt phòng thất bại!");
+      } finally {
+        setActionLoading(false);
+      }
     }
   };
 
   const handleCheckin = async (dp) => {
+    setActionLoading(true);
     try {
       let xepPhong = (await phongDaXep(dp.maThongTinDatPhong)).data;
       if (!xepPhong) {
-        alert("Không tìm thấy phòng đã xếp.");
-        return;
+        throw new Error("Không tìm thấy phòng đã xếp.");
       }
 
       const loaiPhong = xepPhong.phong.loaiPhong;
@@ -109,7 +155,7 @@ const Checkin = () => {
         thongTinDatPhong: xepPhong.thongTinDatPhong,
         ngayNhanPhong: new Date(),
         ngayTraPhong: new Date(new Date(dp.ngayTraPhong).setHours(12, 0, 0, 0)),
-        trangThai: "Đang ở",
+        trangThai: "Da nhan", // Đồng bộ với QuanLyDatPhong
       };
       await checkIn(xepPhongRequest);
       alert("Check-in thành công!");
@@ -147,10 +193,12 @@ const Checkin = () => {
         );
       }
     } catch (error) {
-      console.error("Lỗi xảy ra khi check-in:", error);
-      alert("Đã xảy ra lỗi khi thực hiện check-in.");
+      console.error("Lỗi khi check-in:", error);
+      alert(error.message || "Đã xảy ra lỗi khi thực hiện check-in.");
+    } finally {
+      setActionLoading(false);
+      searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
     }
-    searchDatPhong(key, page); // Cập nhật danh sách sau check-in
   };
 
   const handleAssign = (dp) => {
@@ -195,7 +243,7 @@ const Checkin = () => {
               placeholder="Nhập mã hoặc từ khóa..."
               value={key}
               onChange={(e) => setKey(e.target.value)}
-              startDecorator={<SearchIcon />}
+              startAdornment={<SearchIcon />}
               size="lg"
               sx={{ mb: { xs: 1, sm: 0 } }}
             />
@@ -203,7 +251,10 @@ const Checkin = () => {
               variant="contained"
               color="primary"
               size="large"
-              onClick={() => searchDatPhong(key, 0)}
+              onClick={() =>
+                searchDatPhong(key, ngayNhan, ngayTra, 0, pageSize)
+              }
+              disabled={loading}
               sx={{
                 width: { xs: "100%", sm: "auto" },
                 minWidth: { sm: "120px" },
@@ -212,7 +263,11 @@ const Checkin = () => {
                 borderRadius: 1,
               }}
             >
-              Tìm kiếm
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Tìm kiếm"
+              )}
             </Button>
           </Stack>
 
@@ -298,21 +353,57 @@ const Checkin = () => {
         </Box>
       </Paper>
 
-      {/* Table Section */}
-      {datPhong.length > 0 ? (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          p: 2,
+        }}
+      >
+        <FormControl sx={{ minWidth: 120 }}>
+          <InputLabel>Số bản ghi</InputLabel>
+          <Select
+            value={pageSize}
+            onChange={handlePageSizeChange}
+            label="Số bản ghi"
+            disabled={loading}
+          >
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={20}>20</MenuItem>
+            <MenuItem value={50}>50</MenuItem>
+          </Select>
+        </FormControl>
+        {totalPages > 0 && (
+          <Pagination
+            count={totalPages}
+            page={page + 1}
+            onChange={handlePageChange}
+            color="primary"
+            disabled={loading}
+          />
+        )}
+      </Box>
+
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : datPhong.length > 0 ? (
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
                 <TableCell>Mã Đặt Phòng</TableCell>
                 <TableCell>Khách Hàng</TableCell>
-                <TableCell>Số điện thoại</TableCell>
+                <TableCell>Số Điện Thoại</TableCell>
                 <TableCell>Số Người</TableCell>
                 <TableCell>Số Phòng</TableCell>
                 <TableCell>Ngày Đặt</TableCell>
                 <TableCell>Tổng Tiền</TableCell>
                 <TableCell>Ghi Chú</TableCell>
-                <TableCell>Trạng thái</TableCell>
+                <TableCell>Trạng Thái</TableCell>
                 <TableCell>Hành Động</TableCell>
               </TableRow>
             </TableHead>
@@ -329,14 +420,18 @@ const Checkin = () => {
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    {dp.khachHang.ho + " " + dp.khachHang.ten}
+                    {dp.khachHang?.ho + " " + dp.khachHang?.ten}
                   </TableCell>
-                  <TableCell>{dp.khachHang.sdt}</TableCell>
+                  <TableCell>{dp.khachHang?.sdt}</TableCell>
                   <TableCell>{dp.soNguoi}</TableCell>
                   <TableCell>{dp.soPhong}</TableCell>
-                  <TableCell>{dp.ngayDat}</TableCell>
-                  <TableCell>{dp.tongTien} VND</TableCell>
-                  <TableCell>{dp.ghiChu}</TableCell>
+                  <TableCell>
+                    {dp.ngayDat
+                      ? dayjs(dp.ngayDat).format("DD/MM/YYYY")
+                      : "N/A"}
+                  </TableCell>
+                  <TableCell>{dp.tongTien?.toLocaleString()} VND</TableCell>
+                  <TableCell>{dp.ghiChu || "Không có"}</TableCell>
                   <TableCell>{dp.trangThai}</TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={1}>
@@ -344,6 +439,7 @@ const Checkin = () => {
                         <IconButton
                           size="small"
                           onClick={() => handleAssign(dp)}
+                          disabled={actionLoading}
                         >
                           <MeetingRoomIcon />
                         </IconButton>
@@ -352,8 +448,13 @@ const Checkin = () => {
                         <IconButton
                           size="small"
                           onClick={() => handleCheckin(dp)}
+                          disabled={actionLoading}
                         >
-                          <CheckCircleIcon />
+                          {actionLoading ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            <CheckCircleIcon />
+                          )}
                         </IconButton>
                       )}
                       {["Chua xep", "Da xep"].includes(dp.trangThai) && (
@@ -361,8 +462,13 @@ const Checkin = () => {
                           size="small"
                           color="error"
                           onClick={() => handleHuyTTDP(dp.maThongTinDatPhong)}
+                          disabled={actionLoading}
                         >
-                          <RemoveCircleOutlineIcon />
+                          {actionLoading ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            <RemoveCircleOutlineIcon />
+                          )}
                         </IconButton>
                       )}
                     </Stack>
@@ -371,17 +477,6 @@ const Checkin = () => {
               ))}
             </TableBody>
           </Table>
-          {/* Pagination Section */}
-          {totalPages > 0 && (
-            <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
-              <Pagination
-                count={totalPages}
-                page={page + 1}
-                onChange={handlePageChange}
-                color="primary"
-              />
-            </Box>
-          )}
         </TableContainer>
       ) : (
         <Typography variant="h6" align="center" sx={{ mt: 4 }}>
@@ -389,11 +484,11 @@ const Checkin = () => {
         </Typography>
       )}
 
-      {/* Modal Xếp Phòng */}
       <XepPhong
         show={showXepPhongModal}
         handleClose={() => setShowXepPhongModal(false)}
         selectedTTDPs={selectedTTDPs}
+        onSuccess={() => searchDatPhong(key, ngayNhan, ngayTra, page, pageSize)}
       />
     </Container>
   );
