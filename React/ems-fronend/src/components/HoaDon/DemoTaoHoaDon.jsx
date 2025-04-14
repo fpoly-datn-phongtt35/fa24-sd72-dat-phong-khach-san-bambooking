@@ -44,6 +44,7 @@ const DemoTaoHoaDon = () => {
                 idHoaDon: hdResponse.id,
                 listTraPhong: listTraPhong,
             });
+            
             setThongTinHoaDon(response.data || []);
         } catch (error) {
             console.error("Lỗi tạo hóa đơn:", error);
@@ -135,8 +136,8 @@ const DemoTaoHoaDon = () => {
                 <Table borderAxis="x" size="lg" stickyHeader variant="outlined">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>ID Trả phòng</th>
+                            {/* <th>ID</th> */}
+                            {/* <th>ID Trả phòng</th> */}
                             <th>Mã Hóa Đơn</th>
                             <th>Phòng</th>
                             <th>Tiền Phòng</th>
@@ -149,8 +150,8 @@ const DemoTaoHoaDon = () => {
                         {thongTinHoaDon.length > 0 ? (
                             thongTinHoaDon.map((item, index) => (
                                 <tr key={index}>
-                                    <td>{item.id}</td>
-                                    <td>{item.traPhong?.id}</td>
+                                    {/* <td>{item.id}</td> */}
+                                    {/* <td>{item.traPhong?.id}</td> */}
                                     <td>{item.hoaDon?.maHoaDon}</td>
                                     <td>{item.traPhong?.xepPhong?.phong?.tenPhong}</td>
                                     <td>{formatCurrency(item.tienPhong)}</td>
