@@ -155,7 +155,7 @@ const Checkin = () => {
         thongTinDatPhong: xepPhong.thongTinDatPhong,
         ngayNhanPhong: new Date(),
         ngayTraPhong: new Date(new Date(dp.ngayTraPhong).setHours(12, 0, 0, 0)),
-        trangThai: "Da nhan", // Đồng bộ với QuanLyDatPhong
+        trangThai: "Da nhan",
       };
       await checkIn(xepPhongRequest);
       alert("Check-in thành công!");
@@ -207,99 +207,104 @@ const Checkin = () => {
   };
 
   return (
-    <Container sx={{ minWidth: "1300px" }}>
-      <Paper
-        elevation={3}
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Container
         sx={{
-          borderRadius: 2,
-          overflow: "hidden",
-          mb: 4,
-          background: "linear-gradient(to right, #1e3c72, #2a5298)",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-          "&:hover": { boxShadow: "0 6px 25px rgba(0,0,0,0.15)" },
-          transition: "box-shadow 0.3s ease-in-out",
+          width: "100%",
+          padding: isMobile ? 1 : 2,
+          boxSizing: "border-box",
         }}
       >
-        <Box sx={{ p: 2, color: "white" }}>
-          <Typography
-            variant="h4"
-            gutterBottom
-            align="center"
-            sx={{ fontWeight: "bold" }}
-          >
-            Nhận phòng
-          </Typography>
-        </Box>
-
-        <Box sx={{ bgcolor: "white", p: 4 }}>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={{ xs: 1, sm: 2 }}
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Input
-              fullWidth
-              placeholder="Nhập mã hoặc từ khóa..."
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-              startAdornment={<SearchIcon />}
-              size="lg"
-              sx={{ mb: { xs: 1, sm: 0 } }}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={() =>
-                searchDatPhong(key, ngayNhan, ngayTra, 0, pageSize)
-              }
-              disabled={loading}
-              sx={{
-                width: { xs: "100%", sm: "auto" },
-                minWidth: { sm: "120px" },
-                height: "56px",
-                fontWeight: "bold",
-                borderRadius: 1,
-              }}
+        <Paper
+          elevation={3}
+          sx={{
+            borderRadius: 2,
+            overflow: "hidden",
+            mb: 4,
+            background: "linear-gradient(to right, #1e3c72, #2a5298)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+            "&:hover": { boxShadow: "0 6px 25px rgba(0,0,0,0.15)" },
+            transition: "box-shadow 0.3s ease-in-out",
+          }}
+        >
+          <Box sx={{ p: isMobile ? 1 : 2, color: "white" }}>
+            <Typography
+              variant={isMobile ? "h5" : "h4"}
+              gutterBottom
+              align="center"
+              sx={{ fontWeight: "bold" }}
             >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Tìm kiếm"
-              )}
-            </Button>
-          </Stack>
-
-          <Box sx={{ mt: 2, textAlign: "center" }}>
-            <Button
-              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              sx={{
-                textTransform: "none",
-                color: "#1976d2",
-                "&:hover": { bgcolor: "#f5f5f5" },
-              }}
-            >
-              {showAdvancedFilters
-                ? "Ẩn bộ lọc nâng cao"
-                : "Hiển thị bộ lọc nâng cao"}
-            </Button>
+              Nhận phòng
+            </Typography>
           </Box>
 
-          {showAdvancedFilters && (
-            <Box
-              sx={{
-                mt: 2,
-                p: 2,
-                border: "1px solid #e0e0e0",
-                borderRadius: 1,
-                bgcolor: "#fafafa",
-              }}
+          <Box sx={{ bgcolor: "white", p: isMobile ? 2 : 4 }}>
+            <Stack
+              direction={isMobile ? "column" : "row"}
+              spacing={isMobile ? 1 : 2}
+              justifyContent="center"
+              alignItems="center"
             >
-              <Divider sx={{ mb: 3 }} />
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Input
+                fullWidth
+                placeholder="Nhập mã hoặc từ khóa..."
+                value={key}
+                onChange={(e) => setKey(e.target.value)}
+                startAdornment={<SearchIcon />}
+                sx={{ mb: isMobile ? 1 : 0 }}
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={() =>
+                  searchDatPhong(key, ngayNhan, ngayTra, 0, pageSize)
+                }
+                disabled={loading}
+                sx={{
+                  width: isMobile ? "100%" : "auto",
+                  minWidth: isMobile ? "auto" : "120px",
+                  height: "56px",
+                  fontWeight: "bold",
+                  borderRadius: 1,
+                }}
+              >
+                {loading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  "Tìm kiếm"
+                )}
+              </Button>
+            </Stack>
+
+            <Box sx={{ mt: 2, textAlign: "center" }}>
+              <Button
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                sx={{
+                  textTransform: "none",
+                  color: "#1976d2",
+                  "&:hover": { bgcolor: "#f5f5f5" },
+                }}
+              >
+                {showAdvancedFilters
+                  ? "Ẩn bộ lọc nâng cao"
+                  : "Hiển thị bộ lọc nâng cao"}
+              </Button>
+            </Box>
+
+            {showAdvancedFilters && (
+              <Box
+                sx={{
+                  mt: 2,
+                  p: isMobile ? 1 : 2,
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 1,
+                  bgcolor: "#fafafa",
+                }}
+              >
+                <Divider sx={{ mb: 3 }} />
+                <Grid container spacing={isMobile ? 1 : 2}>
+                  <Grid item xs={12} sm={6}>
                     <DateTimePicker
                       label="Ngày nhận phòng"
                       value={ngayNhan}
@@ -323,10 +328,8 @@ const Checkin = () => {
                         },
                       }}
                     />
-                  </LocalizationProvider>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
                     <DateTimePicker
                       label="Ngày trả phòng"
                       value={ngayTra}
@@ -345,152 +348,285 @@ const Checkin = () => {
                         },
                       }}
                     />
-                  </LocalizationProvider>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Box>
+              </Box>
+            )}
+          </Box>
+        </Paper>
+
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            p: isMobile ? 1 : 2,
+            flexDirection: isMobile ? "column" : "row",
+            gap: isMobile ? 2 : 0,
+          }}
+        >
+          <FormControl sx={{ minWidth: isMobile ? "100%" : 120 }}>
+            <InputLabel>Số bản ghi</InputLabel>
+            <Select
+              value={pageSize}
+              onChange={handlePageSizeChange}
+              label="Số bản ghi"
+              disabled={loading}
+            >
+              <MenuItem value={5}>5</MenuItem>
+              <MenuItem value={10}>10</MenuItem>
+              <MenuItem value={20}>20</MenuItem>
+              <MenuItem value={50}>50</MenuItem>
+            </Select>
+          </FormControl>
+          {totalPages > 0 && (
+            <Pagination
+              count={totalPages}
+              page={page + 1}
+              onChange={handlePageChange}
+              color="primary"
+              disabled={loading}
+              sx={{ mt: isMobile ? 2 : 0 }}
+            />
           )}
         </Box>
-      </Paper>
 
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          p: 2,
-        }}
-      >
-        <FormControl sx={{ minWidth: 120 }}>
-          <InputLabel>Số bản ghi</InputLabel>
-          <Select
-            value={pageSize}
-            onChange={handlePageSizeChange}
-            label="Số bản ghi"
-            disabled={loading}
-          >
-            <MenuItem value={5}>5</MenuItem>
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={20}>20</MenuItem>
-            <MenuItem value={50}>50</MenuItem>
-          </Select>
-        </FormControl>
-        {totalPages > 0 && (
-          <Pagination
-            count={totalPages}
-            page={page + 1}
-            onChange={handlePageChange}
-            color="primary"
-            disabled={loading}
-          />
-        )}
-      </Box>
-
-      {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
-          <CircularProgress />
-        </Box>
-      ) : datPhong.length > 0 ? (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Mã Đặt Phòng</TableCell>
-                <TableCell>Khách Hàng</TableCell>
-                <TableCell>Số Điện Thoại</TableCell>
-                <TableCell>Số Người</TableCell>
-                <TableCell>Số Phòng</TableCell>
-                <TableCell>Ngày Đặt</TableCell>
-                <TableCell>Tổng Tiền</TableCell>
-                <TableCell>Ghi Chú</TableCell>
-                <TableCell>Trạng Thái</TableCell>
-                <TableCell>Hành Động</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {datPhong.map((dp) => (
-                <TableRow key={dp.maDatPhong}>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "blue", cursor: "pointer" }}
-                      onClick={() => handleViewDetails(dp.maDatPhong)}
-                    >
-                      {dp.maDatPhong}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    {dp.khachHang?.ho + " " + dp.khachHang?.ten}
-                  </TableCell>
-                  <TableCell>{dp.khachHang?.sdt}</TableCell>
-                  <TableCell>{dp.soNguoi}</TableCell>
-                  <TableCell>{dp.soPhong}</TableCell>
-                  <TableCell>
-                    {dp.ngayDat
-                      ? dayjs(dp.ngayDat).format("DD/MM/YYYY")
-                      : "N/A"}
-                  </TableCell>
-                  <TableCell>{dp.tongTien?.toLocaleString()} VND</TableCell>
-                  <TableCell>{dp.ghiChu || "Không có"}</TableCell>
-                  <TableCell>{dp.trangThai}</TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={1}>
-                      {dp.trangThai === "Chua xep" && (
-                        <IconButton
-                          size="small"
-                          onClick={() => handleAssign(dp)}
-                          disabled={actionLoading}
-                        >
-                          <MeetingRoomIcon />
-                        </IconButton>
-                      )}
-                      {dp.trangThai === "Da xep" && (
-                        <IconButton
-                          size="small"
-                          onClick={() => handleCheckin(dp)}
-                          disabled={actionLoading}
-                        >
-                          {actionLoading ? (
-                            <CircularProgress size={20} />
-                          ) : (
-                            <CheckCircleIcon />
-                          )}
-                        </IconButton>
-                      )}
-                      {["Chua xep", "Da xep"].includes(dp.trangThai) && (
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleHuyTTDP(dp.maThongTinDatPhong)}
-                          disabled={actionLoading}
-                        >
-                          {actionLoading ? (
-                            <CircularProgress size={20} />
-                          ) : (
-                            <RemoveCircleOutlineIcon />
-                          )}
-                        </IconButton>
-                      )}
-                    </Stack>
-                  </TableCell>
+        {loading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : datPhong.length > 0 ? (
+          <TableContainer component={Paper} sx={{ overflowX: "auto" }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  {isMobile ? (
+                    <>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Mã Đặt
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Thông tin
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Hành Động
+                      </TableCell>
+                    </>
+                  ) : (
+                    <>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Mã Đặt Phòng
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Khách Hàng
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Số Điện Thoại
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Số Người
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Số Phòng
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Ngày Đặt
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Tổng Tiền
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Ghi Chú
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Trạng Thái
+                      </TableCell>
+                      <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                        Hành Động
+                      </TableCell>
+                    </>
+                  )}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      ) : (
-        <Typography variant="h6" align="center" sx={{ mt: 4 }}>
-          Không tìm thấy thông tin đặt phòng
-        </Typography>
-      )}
+              </TableHead>
+              <TableBody>
+                {datPhong.map((dp) => (
+                  <TableRow key={dp.maDatPhong}>
+                    {isMobile ? (
+                      <>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "blue", cursor: "pointer" }}
+                            onClick={() => handleViewDetails(dp.maDatPhong)}
+                          >
+                            {dp.maDatPhong}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          <Typography variant="body2">
+                            {dp.khachHang?.ho + " " + dp.khachHang?.ten}
+                            <br />
+                            SĐT: {dp.khachHang?.sdt}
+                            <br />
+                            Người: {dp.soNguoi}, Phòng: {dp.soPhong}
+                            <br />
+                            Ngày:{" "}
+                            {dp.ngayDat
+                              ? dayjs(dp.ngayDat).format("DD/MM/YYYY")
+                              : "N/A"}
+                            <br />
+                            Tiền: {dp.tongTien?.toLocaleString()} VND
+                            <br />
+                            Ghi chú: {dp.ghiChu || "Không có"}
+                            <br />
+                            Trạng thái: {dp.trangThai}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          <Stack direction="row" spacing={1}>
+                            {dp.trangThai === "Chua xep" && (
+                              <IconButton
+                                size="small"
+                                onClick={() => handleAssign(dp)}
+                                disabled={actionLoading}
+                              >
+                                <MeetingRoomIcon />
+                              </IconButton>
+                            )}
+                            {dp.trangThai === "Da xep" && (
+                              <IconButton
+                                size="small"
+                                onClick={() => handleCheckin(dp)}
+                                disabled={actionLoading}
+                              >
+                                {actionLoading ? (
+                                  <CircularProgress size={20} />
+                                ) : (
+                                  <CheckCircleIcon />
+                                )}
+                              </IconButton>
+                            )}
+                            {["Chua xep", "Da xep"].includes(dp.trangThai) && (
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() =>
+                                  handleHuyTTDP(dp.maThongTinDatPhong)
+                                }
+                                disabled={actionLoading}
+                              >
+                                {actionLoading ? (
+                                  <CircularProgress size={20} />
+                                ) : (
+                                  <RemoveCircleOutlineIcon />
+                                )}
+                              </IconButton>
+                            )}
+                          </Stack>
+                        </TableCell>
+                      </>
+                    ) : (
+                      <>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          <Typography
+                            variant="body2"
+                            sx={{ color: "blue", cursor: "pointer" }}
+                            onClick={() => handleViewDetails(dp.maDatPhong)}
+                          >
+                            {dp.maDatPhong}
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          {dp.khachHang?.ho + " " + dp.khachHang?.ten}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          {dp.khachHang?.sdt}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          {dp.soNguoi}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          {dp.soPhong}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          {dp.ngayDat
+                            ? dayjs(dp.ngayDat).format("DD/MM/YYYY")
+                            : "N/A"}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          {dp.tongTien?.toLocaleString()} VND
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          {dp.ghiChu || "Không có"}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          {dp.trangThai}
+                        </TableCell>
+                        <TableCell sx={{ fontSize: isMobile ? 12 : 14 }}>
+                          <Stack direction="row" spacing={1}>
+                            {dp.trangThai === "Chua xep" && (
+                              <IconButton
+                                size="small"
+                                onClick={() => handleAssign(dp)}
+                                disabled={actionLoading}
+                              >
+                                <MeetingRoomIcon />
+                              </IconButton>
+                            )}
+                            {dp.trangThai === "Da xep" && (
+                              <IconButton
+                                size="small"
+                                onClick={() => handleCheckin(dp)}
+                                disabled={actionLoading}
+                              >
+                                {actionLoading ? (
+                                  <CircularProgress size={20} />
+                                ) : (
+                                  <CheckCircleIcon />
+                                )}
+                              </IconButton>
+                            )}
+                            {["Chua xep", "Da xep"].includes(dp.trangThai) && (
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() =>
+                                  handleHuyTTDP(dp.maThongTinDatPhong)
+                                }
+                                disabled={actionLoading}
+                              >
+                                {actionLoading ? (
+                                  <CircularProgress size={20} />
+                                ) : (
+                                  <RemoveCircleOutlineIcon />
+                                )}
+                              </IconButton>
+                            )}
+                          </Stack>
+                        </TableCell>
+                      </>
+                    )}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        ) : (
+          <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+            Không tìm thấy thông tin đặt phòng
+          </Typography>
+        )}
 
-      <XepPhong
-        show={showXepPhongModal}
-        handleClose={() => setShowXepPhongModal(false)}
-        selectedTTDPs={selectedTTDPs}
-        onSuccess={() => searchDatPhong(key, ngayNhan, ngayTra, page, pageSize)}
-      />
-    </Container>
+        <XepPhong
+          show={showXepPhongModal}
+          handleClose={() => setShowXepPhongModal(false)}
+          selectedTTDPs={selectedTTDPs}
+          onSuccess={() =>
+            searchDatPhong(key, ngayNhan, ngayTra, page, pageSize)
+          }
+        />
+      </Container>
+    </LocalizationProvider>
   );
 };
 

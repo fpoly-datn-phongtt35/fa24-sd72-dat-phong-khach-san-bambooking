@@ -31,6 +31,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Autowired
     DatPhongRepository datPhongRepository;
 
+    @Autowired
+    KhachHangServiceIMPL khachHangServiceIMPL;
+
 
     @Override
     public List<ThongTinDatPhong> getAll() {
@@ -112,6 +115,10 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByMa(maTTDP);
         XepPhong xp = xepPhongRepository.getByMaTTDP(maTTDP);
         DatPhong dp = datPhongRepository.findByMaDatPhong(ttdp.getDatPhong().getMaDatPhong());
+
+//        if(ttdp.getTrangThai().equalsIgnoreCase("Đang đặt phòng")){
+//            khachHangServiceIMPL.deleteKhachHangDatPhong(dp.getKhachHang().getId());
+//        }
 
         // Nếu có XepPhong liên quan, cập nhật trạng thái thành false
         if (xp != null) {

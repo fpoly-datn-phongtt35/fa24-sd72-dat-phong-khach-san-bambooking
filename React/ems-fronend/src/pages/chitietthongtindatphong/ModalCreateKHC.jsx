@@ -52,7 +52,7 @@ const ModalCreateKHC = ({
         diaChi: fields[5],
         sdt: "",
         email: "",
-        trangThai: false,
+        trangThai: true,
       };
     }
     return formData; // Trả về dữ liệu hiện tại nếu không phân tích được
@@ -75,7 +75,7 @@ const ModalCreateKHC = ({
         diaChi: initialData.diaChi || "",
         sdt: "",
         email: "",
-        trangThai: false,
+        trangThai: true,
       });
     }
   }, [initialData]);

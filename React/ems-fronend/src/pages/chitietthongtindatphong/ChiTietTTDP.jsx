@@ -177,7 +177,10 @@ const ChiTietTTDP = () => {
   }, [maThongTinDatPhong]);
 
   const handleModalKHC = () => setModalOpen(true);
-  const handleClose = () => setModalOpen(false);
+  const handleClose = () =>{
+    setModalOpen(false);
+    fetchKhachHangCheckin(maThongTinDatPhong);
+  }
 
   const openXepPhongModal = (thongTinDatPhong) => {
     setSelectedTTDPs([thongTinDatPhong]);

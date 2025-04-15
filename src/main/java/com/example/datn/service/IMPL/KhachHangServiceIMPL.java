@@ -78,8 +78,8 @@ public class KhachHangServiceIMPL implements KhachHangService {
         return khachHangRepository.save(khachHang);
     }
 
-    public Page<KhachHang> getKhachHangsByKey(String key, Pageable pageable){
-        Page<KhachHang> khs = khachHangRepository.search(key,pageable);
+    public Page<KhachHang> getKhachHangsByKey(Boolean trangThai, String key, Pageable pageable){
+        Page<KhachHang> khs = khachHangRepository.search(trangThai,key,pageable);
         return khs;
     }
 
