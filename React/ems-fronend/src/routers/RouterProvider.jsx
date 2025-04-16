@@ -98,7 +98,7 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/tao-dat-phong" element={<TaoDatPhong />} />
         <Route path="/thong-tin-dat-phong" element={<ChiTietDatPhong />} />
         <Route path="/chi-tiet-ttdp" element={<ChiTietTTDP />} />
-        <Route path="/api/RoomDetail/:roomId" element={<RoomDetail />} />
+        <Route path="/api/RoomDetail/:roomId/:date" element={<RoomDetail />} />
         <Route path="/hoa-don" element={<ListHoaDon />} />
         <Route path="/update-khach-hang/:id" element={<DetailCustomer />} />
         <Route path="/add-khach-hang" element={<NewCustomer />} />

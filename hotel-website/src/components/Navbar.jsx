@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../styles/Navbar.css";
 
@@ -9,6 +9,9 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [avatar, setAvatar] = useState(null);
   const accessToken = localStorage.getItem('accessToken');
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [guests, setGuests] = useState(1);
 
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
@@ -25,6 +28,33 @@ export default function Navbar() {
     localStorage.removeItem('user');
     setUser(null); // Clear user state on logout
     navigate("/");
+  };
+
+  const handleBooking = (e) => {
+    e.preventDefault();
+    // Kiểm tra dữ liệu
+    if (!checkIn || !checkOut || !guests) {
+      alert("Vui lòng điền đầy đủ thông tin!");
+      return;
+    }
+    if (new Date(checkIn) >= new Date(checkOut)) {
+      alert("Ngày trả phòng phải sau ngày nhận phòng!");
+      return;
+    }
+    if (parseInt(guests) <= 0) {
+      alert("Số người phải lớn hơn 0!");
+      return;
+    }
+
+    // Điều hướng đến /booking với dữ liệu
+    navigate("/booking", {
+      state: {
+        ngayNhanPhong: checkIn,
+        ngayTraPhong: checkOut,
+        soNguoi: parseInt(guests),
+      },
+    });
+    setIsOpen(false); // Đóng form sau khi submit
   };
 
   useEffect(() => {
@@ -44,54 +74,61 @@ export default function Navbar() {
   return (
     <>
       {isOpen && (
-        <nav style={{ backgroundColor: '#F5F5F5', height: '20vh' }}>
+        <nav style={{ backgroundColor: "#F5F5F5", height: "20vh" }}>
           <div className="container">
-            <div className="row p-4">
+            <form className="row p-4" onSubmit={handleBooking}>
               <div className="col-3">
                 <h1>Đặt phòng ngay</h1>
               </div>
               <div className="col-6">
                 <div className="row">
-                  <div className="col-3">
+                  <div className="col-4">
                     <div className="mb-3">
                       <label className="form-label">Nhận phòng</label>
-                      <input type="date" className="form-control" />
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={checkIn}
+                        onChange={(e) => setCheckIn(e.target.value)}
+                        required
+                      />
                     </div>
                   </div>
-                  <div className="col-3">
+                  <div className="col-4">
                     <div className="mb-3">
                       <label className="form-label">Trả phòng</label>
-                      <input type="date" className="form-control" />
+                      <input
+                        type="date"
+                        className="form-control"
+                        value={checkOut}
+                        onChange={(e) => setCheckOut(e.target.value)}
+                        required
+                      />
                     </div>
                   </div>
-                  <div className="col-3">
-                    <div className="mb-3">
-                      <label className="form-label">Phòng nghỉ</label>
-                      <select className="form-select">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="col-3">
+                  <div className="col-4">
                     <div className="mb-3">
                       <label className="form-label">Người lớn</label>
-                      <select className="form-select">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                      </select>
+                      <input
+                        type="number"
+                        className="form-control"
+                        min="1"
+                        value={guests}
+                        onChange={(e) => setGuests(e.target.value)}
+                        required
+                      />
                     </div>
                   </div>
                 </div>
               </div>
               <div className="col-3 d-flex align-items-center justify-content-center">
                 <div className="d-flex align-items-center justify-content-center">
-                  <button className="btn btn-sm btn-custom">Đặt phòng</button>
+                  <button type="submit" className="btn btn-sm btn-custom">
+                    Đặt phòng
+                  </button>
                 </div>
               </div>
-            </div>
+            </form>
           </div>
         </nav>
       )}

@@ -39,4 +39,14 @@ public class KhachHangCheckinServiceIMPL implements KhachHangCheckinService {
     public List<KhachHangCheckin> findsByMaTTDP(String maThongTinDatPhong) {
         return repository.findsByMaTTDP(maThongTinDatPhong);
     }
+
+    @Override
+    public Boolean xoa(Integer id) {
+        if(id != null){
+            repository.deleteById(id);
+            return true;
+        }else {
+            return false;
+        }
+    }
 }

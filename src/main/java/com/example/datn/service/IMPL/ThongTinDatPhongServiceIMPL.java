@@ -78,7 +78,6 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
 
     @Override
     public ThongTinDatPhong update(TTDPRequest request) {
-        System.out.println("a" + request);
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getReferenceById(request.getId());
         LoaiPhong lp = loaiPhongServiceIMPL.findByID(request.getIdLoaiPhong());
         ttdp.setLoaiPhong(lp);

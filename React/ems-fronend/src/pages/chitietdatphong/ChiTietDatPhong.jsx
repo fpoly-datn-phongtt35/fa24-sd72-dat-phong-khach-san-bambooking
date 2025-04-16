@@ -43,9 +43,10 @@ import NotesIcon from "@mui/icons-material/Notes";
 import HotelIcon from "@mui/icons-material/Hotel";
 import { ThemPhuThu } from "../../services/PhuThuService";
 import { huyTTDP } from "../../services/TTDP";
+import {hienThi} from "../../services/KhachHangCheckin";
 const ChiTietDatPhong = () => {
-  const [datPhong, setDatPhong] = useState();
-  const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
+  const [datPhong, setDatPhong] = useState(null); // Khởi tạo null thay vì undefined
+  const [thongTinDatPhong, setThongTinDatPhong] = useState([]); // Mảng rỗng ban đầu
   const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [phongData, setPhongData] = useState({});
@@ -57,6 +58,8 @@ const ChiTietDatPhong = () => {
   const location = useLocation();
   const { maDatPhong } = location.state || {};
   const navigate = useNavigate();
+  const [khachHangCheckin, setKhachHangCheckin] = useState([]);
+
 
   const getDetailDatPhong = (maDatPhong) => {
     findDatPhongByMaDatPhong(maDatPhong)
@@ -68,13 +71,17 @@ const ChiTietDatPhong = () => {
 
     findTTDPByMaDatPhong(maDatPhong)
       .then((response) => {
-        if (response && response.data) {
-          setThongTinDatPhong(response.data);
+        if (response && Array.isArray(response.data)) {
+          setThongTinDatPhong(response.data); // Chỉ gán nếu là mảng
+        } else {
+          setThongTinDatPhong([]); // Nếu không phải mảng, gán mảng rỗng
+          console.warn("Dữ liệu TTDP không phải mảng:", response?.data);
         }
       })
       .catch((error) => {
         console.error("Lỗi khi gọi API:", error);
         showSnackbar("Không thể tải chi tiết đặt phòng", "error");
+        setThongTinDatPhong([]); // Gán mảng rỗng khi có lỗi
       });
   };
 
@@ -89,6 +96,17 @@ const ChiTietDatPhong = () => {
       .catch((error) => console.error(error));
   };
 
+  const fetchKhachHangCheckin = (maThongTinDatPhong) => {
+      hienThi(maThongTinDatPhong)
+        .then((response) => {
+          console.log("Khách hàng check-in:", response.data);
+          setKhachHangCheckin(response.data);
+        })
+        .catch((error) =>
+          console.error("Lỗi khi lấy thông tin khách hàng:", error)
+        );
+    };
+
   const openXepPhongModal = (ttdp) => {
     setSelectedTTDPs([ttdp]);
     setShowXepPhongModal(true);
@@ -97,7 +115,6 @@ const ChiTietDatPhong = () => {
   const closeXepPhongModal = () => {
     setShowXepPhongModal(false);
     setSelectedTTDPs([]);
-    // Cập nhật lại dữ liệu sau khi xếp phòng
     getDetailDatPhong(maDatPhong);
     thongTinDatPhong.forEach((ttdp) =>
       fetchPhongDaXep(ttdp.maThongTinDatPhong)
@@ -105,6 +122,7 @@ const ChiTietDatPhong = () => {
   };
 
   const updateDatPhong = () => {
+    if (!datPhong) return; // Kiểm tra datPhong trước khi cập nhật
     CapNhatDatPhong(datPhong)
       .then(() => showSnackbar("Lưu thành công", "success"))
       .catch((error) => {
@@ -121,8 +139,8 @@ const ChiTietDatPhong = () => {
       huyTTDP(idTTDP)
         .then(() => {
           showSnackbar("Hủy thành công", "success");
-          getDetailDatPhong(maDatPhong); // Cập nhật lại thông tin đặt phòng sau khi hủy
-          setSelectedTTDPs([]); // Xóa danh sách đã chọn
+          getDetailDatPhong(maDatPhong);
+          setSelectedTTDPs([]);
         })
         .catch((error) => {
           console.error(error);
@@ -132,7 +150,7 @@ const ChiTietDatPhong = () => {
   };
 
   useEffect(() => {
-    if (thongTinDatPhong.length > 0) {
+    if (Array.isArray(thongTinDatPhong) && thongTinDatPhong.length > 0) {
       thongTinDatPhong.forEach((ttdp) =>
         fetchPhongDaXep(ttdp.maThongTinDatPhong)
       );
@@ -146,7 +164,9 @@ const ChiTietDatPhong = () => {
   }, [maDatPhong]);
 
   const calculateTotalGuests = () =>
-    thongTinDatPhong.reduce((total, ttdp) => total + ttdp.soNguoi, 0);
+    Array.isArray(thongTinDatPhong)
+      ? thongTinDatPhong.reduce((total, ttdp) => total + ttdp.soNguoi, 0)
+      : 0;
 
   const calculateTotalPrice = (donGia, start, end) => {
     const days = Math.max(
@@ -201,7 +221,7 @@ const ChiTietDatPhong = () => {
         ngayTraPhong: new Date(
           new Date(thongTinDatPhong.ngayTraPhong).setHours(12, 0, 0, 0)
         ),
-        trangThai: "Đã ở", // Cập nhật trạng thái thành "Đã ở" khi check-in
+        trangThai: "Đã ở",
       };
 
       await checkIn(xepPhongRequest);
@@ -210,18 +230,6 @@ const ChiTietDatPhong = () => {
       xepPhong = (await phongDaXep(thongTinDatPhong.maThongTinDatPhong)).data;
       const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
       const gio14Chieu = new Date(ngayNhanPhongXepPhong).setHours(14, 0, 0, 0);
-
-      // if (ngayNhanPhongXepPhong < gio14Chieu) {
-      //   const phuThuRequest = {
-      //     xepPhong: { id: xepPhong.id },
-      //     tenPhuThu: "Phụ thu do nhận phòng sớm",
-      //     tienPhuThu: 50000,
-      //     soLuong: 1,
-      //     trangThai: true,
-      //   };
-      //   await ThemPhuThu(phuThuRequest);
-      //   showSnackbar("Phụ thu do nhận phòng sớm đã được thêm.");
-      // }
 
       if (thongTinDatPhong.soNguoi > loaiPhong.soKhachToiDa) {
         const soNguoiVuot = thongTinDatPhong.soNguoi - loaiPhong.soKhachToiDa;
@@ -256,7 +264,7 @@ const ChiTietDatPhong = () => {
       showSnackbar(errorMessage, "error");
     }
     getDetailDatPhong(maDatPhong);
-    fetchPhongDaXep(thongTinDatPhong.maThongTinDatPhong); // Cập nhật lại phòng đã xếp
+    fetchPhongDaXep(thongTinDatPhong.maThongTinDatPhong);
   };
 
   const getStatusColor = (status) => {
@@ -276,9 +284,10 @@ const ChiTietDatPhong = () => {
     }
   };
 
-  const isDangDatPhong = thongTinDatPhong.some(
-    (ttdp) => ttdp.trangThai === "Dang dat phong"
-  );
+  // Kiểm tra Array trước khi gọi .some()
+  const isDangDatPhong = Array.isArray(thongTinDatPhong)
+    ? thongTinDatPhong.some((ttdp) => ttdp.trangThai === "Đang đặt phòng")
+    : false;
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
@@ -350,24 +359,17 @@ const ChiTietDatPhong = () => {
                 <Typography sx={{ fontWeight: "medium", mr: 1 }}>
                   Số phòng:
                 </Typography>
-                <Chip
-                  size="small"
-                  label={thongTinDatPhong.length}
-                  color="primary"
-                  variant="outlined"
-                />
+                <Typography>
+                  {Array.isArray(thongTinDatPhong)
+                    ? thongTinDatPhong.length
+                    : 0}
+                </Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                 <Typography sx={{ fontWeight: "medium", mr: 1 }}>
                   Số người:
                 </Typography>
-                <Chip
-                  icon={<PersonIcon />}
-                  size="small"
-                  label={calculateTotalGuests()}
-                  color="secondary"
-                  variant="outlined"
-                />
+                <Typography>{datPhong?.soNguoi}</Typography>
               </Box>
               <Box sx={{ display: "flex", alignItems: "center" }}>
                 <Typography sx={{ fontWeight: "medium", mr: 1 }}>
@@ -401,6 +403,7 @@ const ChiTietDatPhong = () => {
                 }
                 variant="outlined"
                 size="small"
+                disabled={!datPhong} // Vô hiệu hóa nếu datPhong chưa có
               />
             </CardContent>
           </Card>
@@ -437,7 +440,7 @@ const ChiTietDatPhong = () => {
                     } else {
                       setSelectedTTDPs(
                         thongTinDatPhong.filter(
-                          (ttdp) => ttdp.trangThai !== "Đang đăt phòng"
+                          (ttdp) => ttdp.trangThai !== "Đang đặt phòng"
                         )
                       );
                     }
@@ -450,13 +453,6 @@ const ChiTietDatPhong = () => {
                   sx={{ fontWeight: "bold", color: "primary.contrastText" }}
                 >
                   Mã TTDP
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography
-                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
-                >
-                  Khách hàng
                 </Typography>
               </TableCell>
               <TableCell>
@@ -511,7 +507,7 @@ const ChiTietDatPhong = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {thongTinDatPhong.length > 0 ? (
+            {Array.isArray(thongTinDatPhong) && thongTinDatPhong.length > 0 ? (
               thongTinDatPhong.map((ttdp) => (
                 <TableRow
                   key={ttdp.id}
@@ -524,7 +520,7 @@ const ChiTietDatPhong = () => {
                     <Checkbox
                       checked={selectedTTDPs.includes(ttdp)}
                       onChange={() => handleCheckboxChange(ttdp)}
-                      disabled={ttdp.trangThai === "Dang dat phong"}
+                      disabled={ttdp.trangThai === "Đang đặt phòng"}
                     />
                   </TableCell>
                   <TableCell
@@ -538,17 +534,7 @@ const ChiTietDatPhong = () => {
                   >
                     {ttdp.maThongTinDatPhong}
                   </TableCell>
-                  <TableCell>
-                    {ttdp?.datPhong?.khachHang?.ho}{" "}
-                    {ttdp?.datPhong?.khachHang?.ten}
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      size="small"
-                      label={ttdp.soNguoi}
-                      variant="outlined"
-                    />
-                  </TableCell>
+                  <TableCell>{ttdp.soNguoi}</TableCell>
                   <TableCell>
                     {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong || (
                       <Chip
@@ -580,20 +566,19 @@ const ChiTietDatPhong = () => {
                   </TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", gap: 1 }}>
-                      {ttdp.trangThai == "Chưa xếp" && (
+                      {ttdp.trangThai === "Chưa xếp" && (
                         <Tooltip title="Xếp phòng">
                           <IconButton
                             variant="outlined"
                             size="small"
                             color="primary"
                             onClick={() => openXepPhongModal(ttdp)}
-                            disabled={ttdp.trangThai === "Dang dat phong"}
+                            disabled={ttdp.trangThai === "Đang đặt phòng"}
                           >
                             <MeetingRoomIcon />
                           </IconButton>
                         </Tooltip>
                       )}
-
                       {ttdp.trangThai === "Đã xếp" && (
                         <Tooltip title="Check-in">
                           <IconButton
@@ -603,14 +588,13 @@ const ChiTietDatPhong = () => {
                             disabled={
                               !phongData[ttdp.maThongTinDatPhong]?.phong
                                 ?.tenPhong ||
-                              ttdp.trangThai === "Dang dat phong"
+                              ttdp.trangThai === "Đang đặt phòng"
                             }
                           >
                             <CheckCircleIcon />
                           </IconButton>
                         </Tooltip>
                       )}
-                      {/* Chỉ hiển thị nút hủy nếu trạng thái là "Đang đặt phòng" "Chưa xếp" "Đã xếp" */}
                       {(ttdp.trangThai === "Đang đặt phòng" ||
                         ttdp.trangThai === "Chưa xếp" ||
                         ttdp.trangThai === "Đã xếp") && (
@@ -650,6 +634,7 @@ const ChiTietDatPhong = () => {
           color="primary"
           onClick={updateDatPhong}
           startIcon={<AssignmentIcon />}
+          disabled={!datPhong} // Vô hiệu hóa nếu datPhong chưa có
         >
           Lưu thông tin
         </Button>
@@ -658,7 +643,11 @@ const ChiTietDatPhong = () => {
           color="success"
           startIcon={<CheckCircleIcon />}
           onClick={() => selectedTTDPs.forEach((ttdp) => handleCheckin(ttdp))}
-          disabled={selectedTTDPs.length === 0 || isDangDatPhong}
+          disabled={
+            selectedTTDPs.length === 0 ||
+            isDangDatPhong ||
+            selectedTTDPs.some((ttdp) => ttdp.trangThai === "Đang ở")
+          }
         >
           Check-in {selectedTTDPs.length > 0 ? `(${selectedTTDPs.length})` : ""}
         </Button>
@@ -667,7 +656,13 @@ const ChiTietDatPhong = () => {
           color="secondary"
           startIcon={<MeetingRoomIcon />}
           onClick={() => setShowXepPhongModal(true)}
-          disabled={selectedTTDPs.length === 0 || isDangDatPhong}
+          disabled={
+            selectedTTDPs.length === 0 ||
+            isDangDatPhong ||
+            selectedTTDPs.some((ttdp) =>
+              ["Đã xếp", "Đang ở"].includes(ttdp.trangThai)
+            )
+          }
         >
           Xếp phòng{" "}
           {selectedTTDPs.length > 0 ? `(${selectedTTDPs.length})` : ""}
@@ -683,7 +678,7 @@ const ChiTietDatPhong = () => {
         open={snackbar.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert
           onClose={handleCloseSnackbar}

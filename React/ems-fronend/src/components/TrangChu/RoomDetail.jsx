@@ -20,7 +20,7 @@ const RoomDetail = () => {
   });
 
   useEffect(() => {
-    getRoomDetail(roomId)
+    getRoomDetail(roomId,date)
       .then((response) => {
         setRoomDetail(response);
         return getDichVuSuDungByIDXepPhong(response.id);

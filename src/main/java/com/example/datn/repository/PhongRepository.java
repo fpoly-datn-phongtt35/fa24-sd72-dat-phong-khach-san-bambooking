@@ -71,4 +71,6 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
             or p.trangThai = TRUE
             """)
     List<Phong> DSPhong(@Param("keyword") String keyword);
+
+    List<Phong> findByTinhTrang(String tinhTrang);
 }

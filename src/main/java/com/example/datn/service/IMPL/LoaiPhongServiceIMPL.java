@@ -110,9 +110,12 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     public List<LoaiPhongKhaDungResponse> getAllLPKDR(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
-        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Đã xếp","Chưa xếp","Đang ở");
+        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Chưa xếp");
         List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
-        return loaiPhongRepository.findLoaiPhongKhaDungResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
+        List<String> tinhTrangPhong = Arrays.asList("Trống","Cần kiểm tra");
+        List<LoaiPhongKhaDungResponse> l = loaiPhongRepository.findLoaiPhongKhaDungResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
+
+        return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP,tinhTrangPhong);
     }
 
     public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach) {

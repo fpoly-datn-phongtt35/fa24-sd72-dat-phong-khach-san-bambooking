@@ -12,14 +12,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class KhachHangDatPhongRequest {
     private Integer id;
+    private String cccd;
     private String ho;
     private String ten;
     private String sdt;
     private String email;
     private String gioiTinh;
     private String diaChi;
-    private String matKhau;
     private Boolean trangThai;
-
-
 }

@@ -16,4 +16,6 @@ public interface DichVuSuDungService {
     List<DichVuSuDung> getByIDXepPhong(int idXepPhong);
 
     DichVuSuDung addPhieuDichVu2(DichVuSuDungRequest dichVuSuDungRequest);
+
+    void HuyDVSD(Integer id);
 }

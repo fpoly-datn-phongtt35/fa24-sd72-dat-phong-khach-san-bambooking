@@ -154,7 +154,7 @@ CREATE TABLE xep_phong (
   id_thong_tin_dat_phong INT,
   ngay_nhan_phong DATETIME,
   ngay_tra_phong DATETIME,
-  trang_thai BIT,
+  trang_thai NVARCHAR(255),
   FOREIGN KEY (id_thong_tin_dat_phong) REFERENCES thong_tin_dat_phong(id),
   FOREIGN KEY (id_phong) REFERENCES phong(id)
 );
@@ -164,8 +164,6 @@ CREATE TABLE dich_vu_su_dung(
   id_dich_vu INT,
   id_xep_phong INT,
   so_luong_su_dung INT,
-  ngay_bat_dau DATETIME,
-  ngay_ket_thuc DATETIME,
   gia_su_dung DECIMAL(18,2),
   trang_thai BIT,
   FOREIGN KEY (id_dich_vu) REFERENCES dich_vu(id),
@@ -301,11 +299,11 @@ VALUES
 
 INSERT INTO vat_tu (ten_vat_tu, gia, hinh_anh)
 VALUES 
-(N'Tivi', 5000000, 'tivi.png'),
-(N'Tủ lạnh', 7000000, 'tu_lanh.png'),
-(N'Máy lạnh', 10000000, 'may_lanh.png'),
-(N'Ghế sofa', 3000000, 'sofa.png'),
-(N'Giường', 8000000, 'giuong.png');
+(N'Tivi', 5000000, ''),
+(N'Tủ lạnh', 7000000, ''),
+(N'Máy lạnh', 10000000, ''),
+(N'Ghế sofa', 3000000, ''),
+(N'Giường', 8000000, '');
 
 
 
@@ -313,9 +311,7 @@ INSERT INTO loai_phong (ma_loai_phong, ten_loai_phong, dien_tich, so_khach_toi_d
 VALUES 
 ('LP001', N'Phòng đơn', 25, 1, 500000, 100000, N'Phòng dành cho một khách.'),
 ('LP002', N'Phòng đôi', 35, 2, 800000, 150000, N'Phòng dành cho hai khách.'),
-('LP003', N'Phòng gia đình', 50, 4, 1200000, 200000, N'Phòng rộng rãi dành cho gia đình.'),
-('LP004', N'Phòng VIP', 70, 3, 2000000, 300000, N'Phòng cao cấp với đầy đủ tiện nghi.'),
-('LP005', N'Phòng tập thể', 100, 10, 300000, 50000, N'Phòng dành cho nhóm đông người.');
+('LP003', N'Phòng gia đình', 60, 4, 1200000, 200000, N'Phòng rộng rãi dành cho gia đình.');
 
 
 
@@ -332,89 +328,36 @@ VALUES
 
 INSERT INTO dich_vu (ten_dich_vu, don_gia, mo_ta, hinh_anh, trang_thai)
 VALUES 
-(N'Spa', 500000, N'Dịch vụ spa thư giãn.', 'spa.png', 1),
-(N'Bể bơi', 300000, N'Sử dụng bể bơi trong ngày.', 'be_boi.png', 1),
-(N'Gym', 200000, N'Tập gym với thiết bị hiện đại.', 'gym.png', 1),
-(N'Bữa sáng', 150000, N'Bữa sáng tự chọn với nhiều món ăn hấp dẫn.', 'buffet_sang.png', 1),
-(N'Dịch vụ giặt là', 100000, N'Giặt ủi quần áo trong ngày.', 'giat_ui.png', 1);
-
-
-
+(N'Nước lọc (Chai)', 20000, N'Aqua', '', 1),
+(N'Xoài (Đĩa)', 30000, N'Xoài chấm muối', '', 1),
+(N'Bimbim (Gói)', 15000, N'Bimbim tự chọn', '', 1),
+(N'Bữa sáng (Vé)', 150000, N'Bữa sáng tự chọn với nhiều món ăn hấp dẫn.', '', 1),
+(N'Táo (Đĩa)', 100000, N'Apple', '', 1);
 
 INSERT INTO phong (id_loai_phong, ma_phong, ten_phong, tinh_trang, trang_thai)
 VALUES 
+-- 6 phòng đơn
 (1, 'P101', N'Phòng đơn 101', N'Trống', 1),
+(1, 'P102', N'Phòng đơn 102', N'Trống', 1),
+(1, 'P103', N'Phòng đơn 103', N'Trống', 1),
+(1, 'P104', N'Phòng đơn 104', N'Trống', 1),
+(1, 'P105', N'Phòng đơn 105', N'Trống', 1),
+(1, 'P106', N'Phòng đơn 106', N'Trống', 1),
+-- 8 phòng đôi
 (2, 'P201', N'Phòng đôi 201', N'Trống', 1),
-(3, 'P301', N'Phòng gia đình 301', N'Đang sử dụng', 1),
-(4, 'P401', N'Phòng VIP 401', N'Trống', 1),
-(5, 'P501', N'Phòng tập thể 501', N'Trống', 1);
-
-
-
-
-INSERT INTO hinh_anh (id_phong, ten, duong_dan, trang_thai)
-VALUES 
-(1, N'Hình ảnh phòng đơn', 'phong_don_101.png', 1),
-(2, N'Hình ảnh phòng đôi', 'phong_doi_201.png', 1),
-(3, N'Hình ảnh phòng gia đình', 'phong_gia_dinh_301.png', 1),
-(4, N'Hình ảnh phòng VIP', 'phong_vip_401.png', 1),
-(5, N'Hình ảnh phòng tập thể', 'phong_tap_the_501.png', 1);
-
-
-
-INSERT INTO dat_phong (id_khach_hang, ma_dat_phong, ngay_dat, tong_tien, ghi_chu, trang_thai)
-VALUES 
-(1, 'DP001', '2024-12-01', 2000000, N'Đặt phòng cho gia đình.', N'Đã xác nhận'),
-(2, 'DP002', '2025-02-20', 500000, N'Đặt phòng .', N'Đã xác nhận');
-
-
-INSERT INTO thong_tin_dat_phong (id_dat_phong, id_loai_phong, ma_thong_tin_dat_phong, ngay_nhan_phong, ngay_tra_phong, so_nguoi, gia_dat, ghi_chu, trang_thai)
-VALUES 
-(1, 3, 'TTDP001', '2024-12-10', '2024-12-12', 4, 2000000, N'Yêu cầu phòng tầng cao.', N'Đã xác nhận'),
-(2, 5, 'TTDP002', '2025-02-20', '2025-02-25', 10, 500000, N'Yêu cầu phòng.', N'Đã xác nhận');
-
-
-
-INSERT INTO khach_hang_checkin (id_thong_tin_dat_phong, id_khach_hang, trang_thai)
-VALUES 
-(1, 1, 1), -- Khách hàng 1 đã check-in cho thông tin đặt phòng 1
-(2, 2, 1);
-
-
-INSERT INTO xep_phong (id_phong, id_thong_tin_dat_phong, ngay_nhan_phong, ngay_tra_phong, trang_thai)
-VALUES (1, 1, '2024-12-10 14:00:00', '2024-12-12 12:00:00', 1);
-
-
-
-INSERT INTO dich_vu (ten_dich_vu, don_gia, mo_ta, hinh_anh, trang_thai)
-VALUES (N'Dịch vụ ăn sáng', 50000, N'Ăn sáng buffet', NULL, 1);
-
-
-
-INSERT INTO dich_vu_su_dung (id_dich_vu, id_xep_phong, so_luong_su_dung, ngay_bat_dau, ngay_ket_thuc, gia_su_dung, trang_thai)
-VALUES (1, 1, 2, '2024-12-10 07:00:00', '2024-12-10 09:00:00', 100000, 1);
-
-
-
-INSERT INTO hoa_don (id_nhan_vien, id_dat_phong, ma_hoa_don, tong_tien, ngay_tao, trang_thai)
-VALUES (1, 1, 'HD001', 3100000, '2024-12-12 15:00:00', N'Đã thanh toán');
-
-
-INSERT INTO tra_phong (id_xep_phong, ngay_tra_phong_thuc_te, trang_thai)
-VALUES (1, '2023-10-01 14:30:00', 1);
-
-
-INSERT INTO thong_tin_hoa_don (id_tra_phong, id_hoa_don, tien_dich_vu, tien_phong, tien_phu_thu)
-VALUES (1, 1, 500000.00, 2000000.00, 300000.00);
-
-
-
-INSERT INTO phu_thu (id_xep_phong, ten_phu_thu, tien_phu_thu, so_luong, trang_thai)
-VALUES (1, N'Phí dịch vụ', 100000.00, 2, N'Hoàn thành');
-
-
-INSERT INTO danh_gia (id_khach_hang, id_thong_tin_dat_phong, stars, nhan_xet, ngay_tao, ngay_sua, trang_thai)
-VALUES (1, 1, 5, N'Phòng rất tốt, dịch vụ tuyệt vời!', GETDATE(), GETDATE(), N'Hoạt động');
-
-INSERT INTO dich_vu_di_kem (id_dich_vu, id_loai_phong, trang_thai)
-VALUES (1, 1, 1); 
+(2, 'P202', N'Phòng đôi 202', N'Trống', 1),
+(2, 'P203', N'Phòng đôi 203', N'Trống', 1),
+(2, 'P204', N'Phòng đôi 204', N'Trống', 1),
+(2, 'P205', N'Phòng đôi 205', N'Trống', 1),
+(2, 'P206', N'Phòng đôi 206', N'Trống', 1),
+(2, 'P207', N'Phòng đôi 207', N'Trống', 1),
+(2, 'P208', N'Phòng đôi 208', N'Trống', 1),
+-- 8 phòng gia đình
+(3, 'P301', N'Phòng gia đình 301', N'Trống', 1),
+(3, 'P302', N'Phòng gia đình 302', N'Trống', 1),
+(3, 'P303', N'Phòng gia đình 303', N'Trống', 1),
+(3, 'P304', N'Phòng gia đình 304', N'Trống', 1),
+(3, 'P305', N'Phòng gia đình 305', N'Trống', 1),
+(3, 'P306', N'Phòng gia đình 306', N'Trống', 1),
+(3, 'P307', N'Phòng gia đình 307', N'Trống', 1),
+(3, 'P308', N'Phòng gia đình 308', N'Trống', 1);

@@ -12,8 +12,8 @@ import Footer from './components/Footer';
 import './App.css';
 import AboutPage from './pages/AboutPage';
 import Signup from './components/Signup';
-
-
+import HotelBookingForm from './pages/HotelBookingForm';
+import HotelBookingConfirmation from './pages/HotelBookingConfirmation';
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái đăng nhập
   const [user, setUser] = useState(null); // Lưu thông tin người dùng
@@ -52,6 +52,8 @@ export default function App() {
               <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/booking" element={<HotelBookingForm />} />
+              <Route path="/booking-confirmation" element={<HotelBookingConfirmation />} />
               {/* <Route
                 path="/register"
                 element={<Register handleRegister={handleLogin} />}
@@ -60,12 +62,8 @@ export default function App() {
                 path="/login"
                 element={<Login handleLogin={handleLogin} />}
               />
-              
-              <Route
-                path="/signup"
-                element={<Signup />}
-              />
 
+<<<<<<< HEAD
               <Route
                 path="/account"
                 element={<Signup />}
@@ -76,8 +74,12 @@ export default function App() {
                 element={
                   <Profile />
                 } />
-              <Route path="*" element={<h1>404 - Không tìm thấy trang</h1>} />
+=======
+              <Route path="/signup" element={<Signup />} />
 
+              <Route path="/profile" element={<Profile />} />
+>>>>>>> bffd7b82f89e28ae10c52e9aa7a8c9298fba6582
+              <Route path="*" element={<h1>404 - Không tìm thấy trang</h1>} />
             </Routes>
             <Footer />
           </div>

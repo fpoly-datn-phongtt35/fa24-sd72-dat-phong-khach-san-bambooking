@@ -1,33 +1,38 @@
-import React, { useState } from 'react';
-import { findXepPhong } from '../../services/KiemTraPhongService';
-import { Box, Button, Container, IconButton, Input, Sheet, Stack, Table, Tooltip, Typography, Modal, ModalDialog } from '@mui/joy';
-import SearchIcon from '@mui/icons-material/Search';
+import React, { useState, useEffect } from 'react';
+import { getListRoomByCondition } from '../../services/KiemTraPhongService'; // Import hàm mới
+import { Box, Button, Container, IconButton, Sheet, Stack, Table, Tooltip, Typography, Modal, ModalDialog } from '@mui/joy';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useNavigate } from 'react-router-dom';
 import { useTheme, useMediaQuery } from '@mui/material';
 
 const KiemTraPhong = () => {
-  const [key, setKey] = useState('');
   const [kiemTraPhong, setKiemTraPhong] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [loading, setLoading] = useState(true); 
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // Dưới 600px
   const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md')); // 600px - 900px
   const isDesktop = useMediaQuery(theme.breakpoints.up('md')); // Từ 900px trở lên
 
-  const searchRoom = (key) => {
-    findXepPhong(key)
-      .then((response) => {
-        console.log('Data perform room check: ', response.data.data);
-        setKiemTraPhong(response.data.data);
-      })
-      .catch((error) => {
-        console.error('Lỗi khi tìm kiếm thông tin!', error);
-      });
-  };
+  useEffect(() => {
+    const fetchRoomList = async () => {
+      try {
+        setLoading(true);
+        const response = await getListRoomByCondition();
+        setKiemTraPhong(response.data || []);
+        setLoading(false);
+      } catch (err) {
+        setError('Không thể tải danh sách phòng cần kiểm tra.');
+        setLoading(false);
+      }
+    };
+
+    fetchRoomList();
+  }, []);
 
   const handleCheckRoom = (idXepPhong) => {
     navigate(`/tao-kiem-tra-phong/${idXepPhong}`);
@@ -68,32 +73,8 @@ const KiemTraPhong = () => {
             fontWeight: 'bold',
           }}
         >
-          Tìm kiếm thông tin kiểm tra phòng
+          Danh sách phòng cần kiểm tra
         </Typography>
-        <Stack
-          direction={isMobile ? 'column' : 'row'}
-          spacing={isMobile ? 1 : 2}
-          alignItems="center"
-          justifyContent="center"
-          sx={{ width: '100%' }}
-        >
-          <Input
-            fullWidth
-            placeholder="Nhập mã hoặc từ khóa..."
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            startDecorator={<SearchIcon />}
-            sx={{ mb: isMobile ? 1 : 0, width: '100%' }}
-          />
-          <Button
-            variant="solid"
-            color="primary"
-            onClick={() => searchRoom(key)}
-            sx={{ width: isMobile ? '100%' : 'auto', minWidth: isMobile ? '100%' : '120px' }}
-          >
-            Tìm kiếm
-          </Button>
-        </Stack>
       </Box>
 
       <Box
@@ -103,7 +84,11 @@ const KiemTraPhong = () => {
           flexGrow: 1,
         }}
       >
-        {kiemTraPhong.length > 0 ? (
+        {loading ? (
+          <Typography sx={{ textAlign: 'center', mt: 2 }}>Đang tải...</Typography>
+        ) : error ? (
+          <Typography sx={{ textAlign: 'center', mt: 2, color: 'red' }}>{error}</Typography>
+        ) : kiemTraPhong.length > 0 ? (
           <Sheet
             sx={{
               mt: isMobile ? 1 : 2,
@@ -135,14 +120,14 @@ const KiemTraPhong = () => {
                 },
                 ...(isMobile && {
                   '&': {
-                    minWidth: '300px', // Đảm bảo bảng đủ rộng để cuộn ngang nếu cần
+                    minWidth: '300px',
                   },
                   '& thead': {
                     display: 'block',
                   },
                   '& tbody': {
                     display: 'block',
-                    overflowX: 'auto', // Cuộn ngang trên mobile
+                    overflowX: 'auto',
                   },
                   '& tr': {
                     display: 'table',
@@ -159,6 +144,7 @@ const KiemTraPhong = () => {
                   {!isMobile && <th>Ngày trả</th>}
                   {!isMobile && <th>Loại phòng</th>}
                   {!isMobile && <th>Phòng</th>}
+                  {!isMobile && <th>Trạng thái</th>}
                   <th>{isMobile ? 'Hành động' : 'Chức năng'}</th>
                 </tr>
               </thead>
@@ -170,6 +156,7 @@ const KiemTraPhong = () => {
                     {!isMobile && <td>{value.ngayTraPhong}</td>}
                     {!isMobile && <td>{value.tenLoaiPhong}</td>}
                     {!isMobile && <td>{value.tenPhong}</td>}
+                    {!isMobile && <td>{value.trangThaiXepPhong}</td>}
                     <td>
                       <Stack direction="row" spacing={1}>
                         <Tooltip title="Kiểm tra phòng" variant="plain">
@@ -200,14 +187,14 @@ const KiemTraPhong = () => {
         ) : (
           <Box sx={{ textAlign: 'center', mt: isMobile ? 1 : 2, width: '100%' }}>
             <Typography level="body1" sx={{ mb: 1, fontSize: isMobile ? '0.9rem' : '1rem' }}>
-              Không tìm thấy thông tin.
+              Không có phòng nào cần kiểm tra.
             </Typography>
             <Typography
               level="body2"
               color="neutral"
               sx={{ fontSize: isMobile ? '0.8rem' : '0.9rem' }}
             >
-              Hãy thử tìm kiếm lại bằng mã hoặc từ khóa khác.
+              Vui lòng kiểm tra lại sau.
             </Typography>
           </Box>
         )}
@@ -234,6 +221,9 @@ const KiemTraPhong = () => {
               </Typography>
               <Typography>
                 <strong>Phòng:</strong> {selectedRow.tenPhong}
+              </Typography>
+              <Typography>
+                <strong>Trạng thái:</strong> {selectedRow.trangThaiXepPhong}
               </Typography>
             </Stack>
             <Button

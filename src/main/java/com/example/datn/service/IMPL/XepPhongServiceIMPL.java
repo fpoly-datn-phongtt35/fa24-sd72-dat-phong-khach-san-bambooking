@@ -84,7 +84,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
         if (ngayNhanPhong == null) {
             throw new IllegalArgumentException("Ngày nhận phòng không được null");
         }
-        System.out.println(ngayNhanPhong);
+
         try {
             XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId())
                     .orElseGet(() -> this.addXepPhong(xepPhongRequest));

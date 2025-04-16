@@ -124,15 +124,7 @@ public class DatPhongController {
     }
 
     @GetMapping("dat-phong-to-checkin")
-    public ResponseEntity<?> findDatPhongToCheckin(@RequestParam("key") String key,
-                                                   @RequestParam(value = "page", defaultValue = "0") int page,
-                                                   @RequestParam(value = "size", defaultValue = "10") int size) {
-        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(key, page, size);
-        return ResponseEntity.status(HttpStatus.OK).body(responses);
-    }
-
-    @GetMapping("danh-sach-dat-phong")
-    public ResponseEntity<Page<DatPhongResponse>> findDatPhong(
+    public ResponseEntity<?> findDatPhongToCheckin(
             @RequestParam(value = "key", defaultValue = "", required = false) String key,
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
@@ -140,8 +132,20 @@ public class DatPhongController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
             @RequestParam(value = "ngayTraPhong", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong) {
+        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(key, page, size,ngayNhanPhong,ngayTraPhong);
+        return ResponseEntity.status(HttpStatus.OK).body(responses);
+    }
+
+    @GetMapping("danh-sach-dat-phong")
+    public ResponseEntity<Page<DatPhongResponse>> findDatPhong(
+            @RequestParam(value = "key", defaultValue = "", required = false) String key,
+            Pageable pageable,
+            @RequestParam(value = "ngayNhanPhong", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+            @RequestParam(value = "ngayTraPhong", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong) {
         Page<DatPhongResponse> result = datPhongServiceIMPL.findDatPhong(
-                key, ngayNhanPhong, ngayTraPhong, page, size);
+                key, ngayNhanPhong, ngayTraPhong, pageable);
         return ResponseEntity.ok(result);
     }
 

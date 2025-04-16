@@ -10,11 +10,14 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
+
     @Query("""
         SELECT kh
         FROM KhachHang kh
         WHERE kh.ho LIKE %:keyword%
         OR kh.ten LIKE %:keyword%
+        OR CONCAT(kh.ho, ' ', kh.ten) LIKE %:keyword
+        OR kh.cmnd LIKE %:keyword%
         OR kh.sdt LIKE %:keyword%
         OR kh.email LIKE %:keyword%
         OR (CAST(:keyword AS string) = 'true' AND kh.trangThai = true)
