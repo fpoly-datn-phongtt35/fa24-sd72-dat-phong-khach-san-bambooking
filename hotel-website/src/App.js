@@ -14,6 +14,7 @@ import Footer from "./components/Footer";
 import AboutPage from "./pages/AboutPage";
 import HotelRules from "./pages/HotelRules";
 import Signup from "./components/Signup";
+import AccountPage from "./pages/AccountPage";
 
 function App() {
   const UnauthorizedRoutes = () => {
@@ -87,6 +88,7 @@ function App() {
         <Route path="/information" element={<Information />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/account" element={<AccountPage />} />
         {/* <Route path="/about" element={<AboutPage />} /> */}
         <Route path="/rules" element={<HotelRules />} />
       </Route>

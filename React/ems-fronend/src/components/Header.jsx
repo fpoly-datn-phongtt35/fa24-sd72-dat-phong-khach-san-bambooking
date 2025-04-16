@@ -5,6 +5,7 @@ import '../assets/Header.css';
 const Header = ({ isAuthenticated }) => {
     const [showUserInfo, setShowUserInfo] = useState(false);
     const [userInfo, setUserInfo] = useState(null);
+    const [avatar, setAvatar] = useState("https://res.cloudinary.com/dy9md2des/image/upload/v1744199850/rrbede72z7nagjdlrdx3.png");
 
     const navigate = useNavigate();
 
@@ -13,7 +14,8 @@ const Header = ({ isAuthenticated }) => {
         if (isAuthenticated) {
             const user = localStorage.getItem('user');
             if (user) {
-                setUserInfo(user); // Cập nhật thông tin người dùng nếu tồn tại
+                setUserInfo(user);
+                setAvatar(localStorage.getItem('avatar'));
             }
         } else {
             setUserInfo(null); // Xóa thông tin người dùng khi chưa đăng nhập
@@ -28,7 +30,8 @@ const Header = ({ isAuthenticated }) => {
     // Hàm xử lý đăng xuất
     const handleLogoutClick = () => {
         localStorage.removeItem('accessToken');
-        localStorage.removeItem('user'); // Xóa thông tin user khỏi localStorage khi đăng xuất
+        localStorage.removeItem('user');
+        localStorage.removeItem('avatar');
         setUserInfo(null); // Xóa user info khỏi state
         navigate("/login")
     };
@@ -52,6 +55,7 @@ const Header = ({ isAuthenticated }) => {
                             <img
                                 alt="User Avatar"
                                 className="avatar-img"
+                                src={avatar}
                             />
                         </div>
 

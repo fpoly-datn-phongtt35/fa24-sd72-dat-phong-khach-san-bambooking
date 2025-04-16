@@ -154,12 +154,22 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
             </List>
           </Collapse>
           <Divider />
-          <ListItemButton component={Link} to="/NhanVien">
-            <ListItemText primary="Nhân viên" />
+
+
+          <ListItemButton onClick={() => handleToggle('nguoiDung')}>
+            <ListItemText primary="Người dùng" />
+            {openSubmenu['nguoiDung'] ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
-          <ListItemButton component={Link} to="/khach-hang">
-            <ListItemText primary="Khách hàng" />
-          </ListItemButton>
+          <Collapse in={openSubmenu['nguoiDung']} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItemButton component={Link} to="/NhanVien" sx={{ pl: 4 }}>
+                <ListItemText primary="Nhân viên" />
+              </ListItemButton>
+              <ListItemButton component={Link} to="/khach-hang" sx={{ pl: 4 }}>
+                <ListItemText primary="Khách hàng" />
+              </ListItemButton>
+            </List>
+          </Collapse>
         </List>
       </Drawer>
     </>
