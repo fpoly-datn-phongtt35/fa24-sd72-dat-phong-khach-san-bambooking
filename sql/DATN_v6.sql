@@ -1,8 +1,8 @@
 ﻿create database DATN_v6
 go
+
 use DATN_v6
 go
-
 
 CREATE TABLE vai_tro (
   id INT IDENTITY(1,1) PRIMARY KEY,
