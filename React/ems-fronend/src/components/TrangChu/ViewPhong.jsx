@@ -153,12 +153,11 @@ const ViewPhong = () => {
               intervals: filledIntervals,
             };
 
-            console.log(`Date ${dateKey}, Room ${roomId}, Status: ${filledIntervals[0].status}, Intervals:`, filledIntervals);
+          
           });
         });
 
         setStatus(newStatus);
-        console.log("newStatus:", newStatus);
       } catch (error) {
         console.error("Lỗi khi lấy trạng thái phòng:", error);
       }
