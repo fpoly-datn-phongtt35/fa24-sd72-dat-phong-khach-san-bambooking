@@ -26,35 +26,34 @@ const Demo = () => {
 
     const CheckOut = async () => {
         try {
-            await Promise.all(
-                traPhong.map(async (item) => {
-                    await checkOut(item.id);
+            // Gọi tuần tự thay vì Promise.all
+            for (const item of traPhong) {
+                await checkOut(item.id);
 
-                    if (!item.xepPhong) return;
+                if (!item.xepPhong) continue;
 
-                    const ngayTraPhong = new Date(item.xepPhong.ngayTraPhong);
-                    const ngayTraThucTe = new Date(item.ngayTraThucTe);
+                const ngayTraPhong = new Date(item.xepPhong.ngayTraPhong);
+                const ngayTraThucTe = new Date(item.ngayTraThucTe);
 
-                    if (isNaN(ngayTraPhong) || isNaN(ngayTraThucTe)) {
-                        throw new Error(`Ngày không hợp lệ cho phòng ID: ${item.id}`);
-                    }
+                if (isNaN(ngayTraPhong) || isNaN(ngayTraThucTe)) {
+                    throw new Error(`Ngày không hợp lệ cho phòng ID: ${item.id}`);
+                }
 
-                    const gio12Trua = new Date(ngayTraPhong);
-                    gio12Trua.setHours(12, 0, 0, 0);
+                const gio12Trua = new Date(ngayTraPhong);
+                gio12Trua.setHours(12, 0, 0, 0);
 
-                    if (ngayTraThucTe > gio12Trua) {
-                        const phuThuRequest = {
-                            xepPhong: { id: item.xepPhong.id },
-                            tenPhuThu: 'Phụ thu do trả phòng muộn',
-                            tienPhuThu: 70000,
-                            soLuong: 1,
-                            trangThai: true,
-                        };
-                        await ThemPhuThu(phuThuRequest);
-                        alert(`Phụ thu đã được thêm cho phòng ${item.xepPhong.id}`);
-                    }
-                })
-            );
+                if (ngayTraThucTe > gio12Trua) {
+                    const phuThuRequest = {
+                        xepPhong: { id: item.xepPhong.id },
+                        tenPhuThu: 'Phụ thu do trả phòng muộn',
+                        tienPhuThu: 70000,
+                        soLuong: 1,
+                        trangThai: true,
+                    };
+                    await ThemPhuThu(phuThuRequest);
+                    alert(`Phụ thu đã được thêm cho phòng ${item.xepPhong.id}`);
+                }
+            }
 
             localStorage.setItem('traPhong', JSON.stringify(traPhong));
             navigate('/tao-hoa-don');

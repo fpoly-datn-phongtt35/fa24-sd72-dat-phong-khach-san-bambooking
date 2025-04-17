@@ -45,4 +45,6 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
         WHERE p.tinhTrang = :tinhTrang AND xp.trangThai = :trangThai
         """)
     List<XepPhong> findByPhongTinhTrangAndTrangThai(String tinhTrang, String trangThai);
+
+    List<XepPhong> findByThongTinDatPhongId(Integer id);
 }
