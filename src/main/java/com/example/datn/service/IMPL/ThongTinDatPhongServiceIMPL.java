@@ -47,14 +47,8 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         UniqueDatPhongCode code = new UniqueDatPhongCode();
         long soDem = ChronoUnit.DAYS.between(request.getNgayNhanPhong(), request.getNgayTraPhong());
         Double tienPhong = soDem * request.getGiaDat();
-        long soNguoiToiDa = lp.getSoKhachToiDa();
-        long soNguoi = request.getSoNguoi();
-        Double tienPhuThu = 0.0;
-        if (soNguoi > soNguoiToiDa) {
-            tienPhuThu += (soNguoi - soNguoiToiDa) * lp.getDonGiaPhuThu();
-        }
         DatPhong dp = request.getDatPhong();
-        dp.setTongTien(dp.getTongTien() + tienPhong + tienPhuThu);
+        dp.setTongTien(dp.getTongTien() + tienPhong);
         ttdp.setDatPhong(dp);
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));

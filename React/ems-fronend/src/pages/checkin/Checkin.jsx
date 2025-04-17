@@ -308,7 +308,6 @@ const Checkin = () => {
                     <DateTimePicker
                       label="Ngày nhận phòng"
                       value={ngayNhan}
-                      minDate={dayjs()}
                       onChange={(newValue) => {
                         setNgayNhan(newValue);
                         if (newValue && ngayTra && newValue.isAfter(ngayTra)) {

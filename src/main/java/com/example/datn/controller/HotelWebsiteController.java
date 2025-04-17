@@ -102,15 +102,9 @@ public class HotelWebsiteController {
     public ResponseEntity<Page<ToHopPhongPhuHop>> toHopLoaiPhongKhaDung(
             @RequestBody ToHopRequest request,
             @PageableDefault(size = 5) Pageable pageable) {
-        LocalDateTime ngayNhanPhongLocal = request.getNgayNhanPhong() != null
-                ? ZonedDateTime.parse(request.getNgayNhanPhong()).toLocalDateTime()
-                : null;
-        LocalDateTime ngayTraPhongLocal = request.getNgayTraPhong() != null
-                ? ZonedDateTime.parse(request.getNgayTraPhong()).toLocalDateTime()
-                : null;
         Page<ToHopPhongPhuHop> p = loaiPhongServiceIMPL.getToHopPhongPhuHop(
-                ngayNhanPhongLocal,
-                ngayTraPhongLocal,
+                request.getNgayNhanPhong(),
+                request.getNgayTraPhong(),
                 request.getSoNguoi(),
                 request.getKey(),
                 request.getTongChiPhiMin(),
