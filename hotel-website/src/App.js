@@ -16,6 +16,7 @@ import HotelRules from "./pages/HotelRules";
 import Signup from "./components/Signup";
 import HotelBookingForm from "./pages/HotelBookingForm";
 import HotelBookingConfirmation from "./pages/HotelBookingConfirmation";
+import PendingBooking from "./pages/PendingBooking";
 function App() {
   const UnauthorizedRoutes = () => {
     // const accessToken = localStorage.getItem("accessToken");
@@ -91,7 +92,11 @@ function App() {
         {/* <Route path="/about" element={<AboutPage />} /> */}
         <Route path="/rules" element={<HotelRules />} />
         <Route path="/booking" element={<HotelBookingForm />} />
-        <Route path="/booking-confirmation" element={<HotelBookingConfirmation />} />
+        <Route
+          path="/booking-confirmation"
+          element={<HotelBookingConfirmation />}
+        />
+        <Route path="/pending-booking" element={<PendingBooking />} />
       </Route>
 
       <Route element={<ProtectedRoutes />}>

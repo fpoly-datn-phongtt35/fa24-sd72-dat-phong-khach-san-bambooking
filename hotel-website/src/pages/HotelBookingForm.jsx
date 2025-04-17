@@ -6,6 +6,7 @@ import {
   ThemKhachHangDatPhong,
   ThemMoiDatPhong,
   addThongTinDatPhong,
+  getKhachHangByUsername,
 } from "../services/DatPhong";
 import dayjs from "dayjs";
 import { Button, TextField, Snackbar } from "@mui/material";
@@ -43,7 +44,7 @@ const HotelBookingForm = () => {
   const [tongSoPhongMin, setTongSoPhongMin] = useState("");
   const [tongSoPhongMax, setTongSoPhongMax] = useState("");
   const [key, setKey] = useState("");
-  
+
   // State cho Snackbar
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -135,21 +136,57 @@ const HotelBookingForm = () => {
     let khachHangResponse = null;
     let datPhongResponse = null;
     let thongTinDatPhongResponseList = [];
+
     try {
-      const khachHangRequest = {
-        ho: "",
-        ten: "",
-        email: "",
-        sdt: "",
-        trangThai: false,
-      };
-      khachHangResponse = await ThemKhachHangDatPhong(khachHangRequest);
-      if (!khachHangResponse || !khachHangResponse.data) {
-        throw new Error("Không thể tạo khách hàng.");
+      // Kiểm tra người dùng đã đăng nhập
+      let user;
+      try {
+        user = JSON.parse(localStorage.getItem("user"));
+      } catch (error) {
+        console.error("Lỗi khi parse user từ localStorage:", error);
       }
 
+      if (!user || !user.tenDangNhap) {
+        // Nếu chưa đăng nhập, lưu tổ hợp phòng và thông tin form vào localStorage
+        localStorage.setItem(
+          "pendingData",
+          JSON.stringify({
+            combination,
+            ngayNhanPhong: ngayNhanPhong.toISOString(),
+            ngayTraPhong: ngayTraPhong.toISOString(),
+            soNguoi,
+          })
+        );
+        handleSnackbar("Vui lòng đăng nhập để tiếp tục đặt phòng.");
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000); // Chuyển hướng sau 2 giây để người dùng thấy thông báo
+        return;
+      }
+
+      // Nếu đã đăng nhập, lấy thông tin khách hàng từ API
+      let khachHangData;
+      try {
+        const response = await getKhachHangByUsername(user.tenDangNhap);
+        console.log("Khách hàng:", response.data);
+        if (!response || !response.data) {
+          throw new Error("Không tìm thấy thông tin khách hàng.");
+        }
+        khachHangData = response.data;
+      } catch (error) {
+        console.error("Lỗi khi lấy thông tin khách hàng:", error);
+        handleSnackbar(
+          "Không thể lấy thông tin khách hàng. Vui lòng đăng nhập lại."
+        );
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+        return;
+      }
+
+      // Tạo đặt phòng
       const datPhongRequest = {
-        khachHang: khachHangResponse.data,
+        khachHang: khachHangData,
         maDatPhong: "DP" + new Date().getTime(),
         soNguoi: soNguoi,
         soPhong: combination.tongSoPhong,
@@ -163,6 +200,7 @@ const HotelBookingForm = () => {
         throw new Error("Không thể tạo đặt phòng.");
       }
 
+      // Tạo thông tin đặt phòng
       for (const phong of combination.phongs) {
         if (phong.soLuongChon > 0) {
           for (let i = 0; i < phong.soLuongChon; i++) {
@@ -184,12 +222,16 @@ const HotelBookingForm = () => {
           }
         }
       }
+
+      // Xóa dữ liệu pendingBooking khỏi localStorage sau khi đặt phòng thành công
+      localStorage.removeItem("pendingBooking");
+
       handleSnackbar("Đặt phòng thành công!");
       navigate("/booking-confirmation", {
         state: {
           combination: combination,
           datPhong: datPhongResponse.data,
-          khachHang: khachHangResponse.data,
+          khachHang: khachHangData,
           thongTinDatPhong: thongTinDatPhongResponseList,
         },
       });

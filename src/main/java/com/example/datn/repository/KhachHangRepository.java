@@ -31,6 +31,9 @@ public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
             Pageable pageable
     );
 
+    @Query("SELECT kh FROM KhachHang kh WHERE kh.taiKhoan.tenDangNhap = :userName")
+    KhachHang getKHByUsername(@Param("userName") String userName);
+
     Optional<KhachHang> findByEmail(String email);
 
 }

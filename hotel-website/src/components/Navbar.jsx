@@ -11,7 +11,7 @@ export default function Navbar() {
   const [guests, setGuests] = useState(1);
   const accessToken = localStorage.getItem("accessToken");
   const navigate = useNavigate();
-
+  const pendingData = localStorage.getItem("pendingData");
   const handleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -53,6 +53,8 @@ export default function Navbar() {
 
   useEffect(() => {
     setIsAuthenticated(!!accessToken);
+    const jsonData = JSON.parse(pendingData);
+    console.log(jsonData);
   }, [accessToken]);
 
   return (
@@ -154,22 +156,21 @@ export default function Navbar() {
               ƯU ĐÃI
             </Link>
           </li>
-          <li>
-            <Link
-              to="/rooms"
-              className={location.pathname === "/rooms" ? "active" : ""}
-            >
-              PHÒNG
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/history"
-              className={location.pathname === "/history" ? "active" : ""}
-            >
-              LỊCH SỬ ĐẶT PHÒNG
-            </Link>
-          </li>
+          {pendingData && (
+            <li>
+              <Link to="/pending-booking">ĐƠN ĐẶT PHÒNG</Link>
+            </li>
+          )}
+          {isAuthenticated && (
+            <li>
+              <Link
+                to="/history"
+                className={location.pathname === "/history" ? "active" : ""}
+              >
+                LỊCH SỬ ĐẶT PHÒNG
+              </Link>
+            </li>
+          )}
         </ul>
         <div className="navbar-buttons">
           {!isAuthenticated && location.pathname !== "/login" && (
