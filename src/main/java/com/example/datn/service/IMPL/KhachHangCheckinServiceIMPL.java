@@ -22,7 +22,7 @@ public class KhachHangCheckinServiceIMPL implements KhachHangCheckinService {
         KhachHangCheckin checkin = new KhachHangCheckin();
         checkin.setKhachHang(request.getKhachHang());
         checkin.setThongTinDatPhong(request.getThongTinDatPhong());
-        checkin.setTrangThai(true);
+        checkin.setTrangThai(false);
         return repository.save(checkin);
     }
 
@@ -48,5 +48,10 @@ public class KhachHangCheckinServiceIMPL implements KhachHangCheckinService {
         }else {
             return false;
         }
+    }
+
+    @Override
+    public List<Object[]> findKhachHangCheckin(String keyword) {
+        return repository.findKhachHangCheckin(keyword);
     }
 }

@@ -133,7 +133,7 @@ const ModalKhachHangCheckin = ({
       const checkinRequests = khachHangToCreate.map((kh) => ({
         khachHang: kh,
         thongTinDatPhong: thongTinDatPhong,
-        trangThai: true,
+        trangThai: false,
       }));
 
       const responses = await Promise.all(

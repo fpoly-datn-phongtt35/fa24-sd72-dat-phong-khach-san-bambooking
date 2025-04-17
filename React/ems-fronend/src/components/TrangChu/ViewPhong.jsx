@@ -9,10 +9,12 @@ import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import Popper from '@mui/material/Popper';
 import IconButton from '@mui/material/IconButton';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import Tooltip from '@mui/material/Tooltip';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import { getRoomDetail } from '../../services/ViewPhong';
+
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -58,40 +60,101 @@ const ViewPhong = () => {
     const fetchRoomStatus = async () => {
       try {
         const [responseXepPhong, responseTraPhong] = await Promise.all([ttXepPhong(), dsTraPhong()]);
-      const statusData = responseXepPhong.data;
-      const traPhongData = responseTraPhong.data;
-      const newStatus = {};
-      const traPhongIds = new Set(traPhongData.map(tp => tp.xepPhong.id));
+        const statusData = responseXepPhong.data;
+        const traPhongData = responseTraPhong.data;
+        const newStatus = {};
+        const traPhongMap = new Map(traPhongData.map(tp => [tp.xepPhong.id, tp]));
 
-      statusData.forEach((item) => {
-        const { ngayNhanPhong, ngayTraPhong, phong, trangThai } = item;
-        const startDate = dayjs(ngayNhanPhong).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
-        const endDate = dayjs(ngayTraPhong).tz('Asia/Ho_Chi_Minh').format('YYYY-MM-DD');
-        const roomId = phong.id;
-        const isReturned = traPhongIds.has(item.id);
+        // Nhóm các bản ghi XepPhong theo phòng
+        const roomXepPhongMap = new Map();
+        statusData.forEach((item) => {
+          const roomId = item.phong.id;
+          if (!roomXepPhongMap.has(roomId)) {
+            roomXepPhongMap.set(roomId, []);
+          }
+          roomXepPhongMap.get(roomId).push(item);
+        });
 
-          let currentDate = dayjs(startDate);
-          while (currentDate.isBefore(dayjs(endDate)) || currentDate.isSame(dayjs(endDate))) {
-            const dateKey = currentDate.format('YYYY-MM-DD');
-            const key = `${roomId}_${dateKey}`;
-            
-            let roomStatus = 'Empty'; 
-            if (isReturned) {
-              roomStatus = 'CheckedOut'; // Đã trả phòng
-            } else if (trangThai === 'Đã kiểm tra') {
-              roomStatus = 'Checked'; // Đã kiểm tra
-            } else if (trangThai === 'Đang ở') {
-              roomStatus = 'Occupied'; // Đang ở
-            } else if (trangThai === 'Đã xếp'){
-              roomStatus = 'Booked'; // Đã xếp
+        // Xử lý từng phòng
+        roomXepPhongMap.forEach((xepPhongList, roomId) => {
+          const allIntervalsByDate = new Map();
+
+          // Xử lý từng bản ghi XepPhong của phòng
+          xepPhongList.forEach((item) => {
+            const { ngayNhanPhong, ngayTraPhong, phong, trangThai } = item;
+            const startTime = dayjs(ngayNhanPhong).tz('Asia/Ho_Chi_Minh');
+            const traPhongRecord = traPhongMap.get(item.id);
+
+            let endTime;
+            let isReturned = false;
+
+            if (traPhongRecord && traPhongRecord.ngayTraThucTe) {
+              const parsedEndTime = dayjs(traPhongRecord.ngayTraThucTe).tz('Asia/Ho_Chi_Minh');
+              if (parsedEndTime.isValid()) {
+                endTime = parsedEndTime;
+                isReturned = true;
+              } else {
+                endTime = dayjs(ngayTraPhong).tz('Asia/Ho_Chi_Minh');
+              }
+            } else {
+              endTime = dayjs(ngayTraPhong).tz('Asia/Ho_Chi_Minh');
             }
 
+            let currentDate = startTime.startOf('day');
+            const endDate = endTime.endOf('day');
+
+            while (currentDate.isBefore(endDate) || currentDate.isSame(endDate)) {
+              const dateKey = currentDate.format('YYYY-MM-DD');
+              if (!allIntervalsByDate.has(dateKey)) {
+                allIntervalsByDate.set(dateKey, []);
+              }
+
+              let roomStatus = 'Empty';
+              if (startTime.isBefore(currentDate.endOf('day')) && endTime.isAfter(currentDate.startOf('day'))) {
+                const intervalStart = startTime.isSame(currentDate, 'day') ? startTime : currentDate.startOf('day');
+                const intervalEnd = endTime.isSame(currentDate, 'day') ? endTime : currentDate.endOf('day');
+
+                if (isReturned && currentDate.isSame(endTime, 'day')) {
+                  roomStatus = 'CheckedOut';
+                } else {
+                  if (trangThai === 'Đã kiểm tra') {
+                    roomStatus = 'Checked';
+                  } else if (trangThai === 'Đang ở') {
+                    roomStatus = 'Occupied';
+                  } else if (trangThai === 'Đã xếp') {
+                    roomStatus = 'Booked';
+                  }
+                }
+
+                allIntervalsByDate.get(dateKey).push({
+                  start: intervalStart.format('HH:mm'),
+                  end: intervalEnd.format('HH:mm'),
+                  status: roomStatus,
+                });
+              }
+
+              currentDate = currentDate.add(1, 'day');
+            }
+          });
+
+          // Gộp và sắp xếp các intervals cho mỗi ngày
+          allIntervalsByDate.forEach((intervals, dateKey) => {
+            // Sắp xếp intervals theo thời gian bắt đầu
+            intervals.sort((a, b) => {
+              return dayjs(`2000-01-01 ${a.start}`) - dayjs(`2000-01-01 ${b.start}`);
+            });
+
+            // Lấp đầy khoảng trống
+            const filledIntervals = fillEmptyIntervals(intervals);
+
+            const key = `${roomId}_${dateKey}`;
             newStatus[key] = {
-              status: roomStatus,
-              ngayNhanPhong: startDate
+              status: filledIntervals[0].status, // Trạng thái chính là trạng thái của interval đầu tiên
+              intervals: filledIntervals,
             };
-            currentDate = currentDate.add(1, 'day');
-          }
+
+          
+          });
         });
 
         setStatus(newStatus);
@@ -101,6 +164,46 @@ const ViewPhong = () => {
     };
     fetchRoomStatus();
   }, []);
+
+  const fillEmptyIntervals = (intervals) => {
+    if (!intervals || intervals.length === 0) {
+      return [{ start: '00:00', end: '23:59', status: 'Empty' }];
+    }
+
+    const sortedIntervals = intervals.sort((a, b) => {
+      return dayjs(`2000-01-01 ${a.start}`) - dayjs(`2000-01-01 ${b.start}`);
+    });
+
+    const fullIntervals = [];
+    let currentTime = dayjs('2000-01-01 00:00');
+
+    sortedIntervals.forEach((interval, index) => {
+      const intervalStart = dayjs(`2000-01-01 ${interval.start}`);
+      const intervalEnd = dayjs(`2000-01-01 ${interval.end}`);
+
+      if (currentTime.isBefore(intervalStart)) {
+        fullIntervals.push({
+          start: currentTime.format('HH:mm'),
+          end: intervalStart.subtract(1, 'minute').format('HH:mm'),
+          status: 'Empty',
+        });
+      }
+
+      fullIntervals.push(interval);
+
+      currentTime = intervalEnd.add(1, 'minute');
+
+      if (index === sortedIntervals.length - 1 && currentTime.isBefore(dayjs('2000-01-01 23:59'))) {
+        fullIntervals.push({
+          start: currentTime.format('HH:mm'),
+          end: '23:59',
+          status: 'Empty',
+        });
+      }
+    });
+
+    return fullIntervals;
+  };
 
   const handleDateChange = (newValue) => {
     const newDate = newValue.format("YYYY-MM-DD");
@@ -135,17 +238,18 @@ const ViewPhong = () => {
     };
   }, [viewDays]);
 
-  const handleRoomClick = async (roomId, date) => {
-
-
+  const handleRoomClick = async (roomId, date, clickTime) => {
     if (!date) {
       console.log("Date is missing, skipping navigation.");
       return;
     }
 
-    // Chuyển date thành định dạng LocalDateTime (YYYY-MM-DDTHH:mm:ss)
-    const formattedDate = dayjs(date).format("YYYY-MM-DDTHH:mm:ss"); // Ví dụ: 2025-04-01T00:00:00
-    console.log("Room ID:", roomId, "Date:", formattedDate);
+    const formattedDate = clickTime
+      ? dayjs(`${date} ${clickTime}`, "YYYY-MM-DD HH:mm").format("YYYY-MM-DDTHH:mm:ss")
+      : dayjs(date).format("YYYY-MM-DDTHH:mm:ss");
+
+    console.log("Clicked at:", formattedDate);
+
     try {
       const response = await getRoomDetail(roomId, formattedDate);
       if (!response) {
@@ -159,6 +263,89 @@ const ViewPhong = () => {
     }
   };
 
+  const getTooltipContent = (interval) => {
+    if (!interval) {
+      return "Phòng trống";
+    }
+    const statusText = {
+      Occupied: 'Phòng đang ở',
+      CheckedOut: 'Đã trả phòng',
+      Booked: 'Phòng đã được xếp',
+      Checked: 'Phòng đã kiểm tra',
+      Empty: 'Phòng trống',
+    };
+    return `${interval.start} - ${interval.end}: ${statusText[interval.status] || interval.status}`;
+  };
+
+  const renderStatusBar = (intervals, roomId, date) => {
+    const totalMinutes = 24 * 60;
+
+    return (
+      <div style={{ display: 'flex', width: '100%', height: '10px' }}>
+        {intervals.map((interval, index) => {
+          const startTime = interval.start.split(':');
+          const endTime = interval.end.split(':');
+          const startMinutes = parseInt(startTime[0]) * 60 + parseInt(startTime[1]);
+          let endMinutes = parseInt(endTime[0]) * 60 + parseInt(endTime[1]);
+
+          if (interval.end === '23:59') {
+            endMinutes = totalMinutes;
+          } else {
+            endMinutes += 1;
+          }
+
+          const width = ((endMinutes - startMinutes) / totalMinutes) * 100;
+          let bgColor = "#B7B7B7";
+
+          switch (interval.status) {
+            case 'Occupied':
+              bgColor = "#00FF33";
+              break;
+            case 'CheckedOut':
+              bgColor = "#FF6699";
+              break;
+            case 'Booked':
+              bgColor = "#00B2BF";
+              break;
+            case 'Checked':
+              bgColor = "#FFFF00";
+              break;
+            default:
+              bgColor = "#B7B7B7";
+          }
+
+          return (
+            <Tooltip
+              key={index}
+              title={getTooltipContent(interval)}
+              placement="top"
+            >
+              <div
+                style={{
+                  width: `${width}%`,
+                  backgroundColor: bgColor,
+                  height: '10px',
+                }}
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const clickX = e.clientX - rect.left;
+                  const widthPx = rect.width;
+                  const segmentMinutes = endMinutes - startMinutes;
+                  const minutesPerPixel = segmentMinutes / widthPx;
+                  const clickedMinutesInSegment = Math.round(clickX * minutesPerPixel);
+                  const totalClickedMinutes = startMinutes + clickedMinutesInSegment;
+                  const hours = Math.floor(totalClickedMinutes / 60);
+                  const minutes = totalClickedMinutes % 60;
+                  const clickTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                  handleRoomClick(roomId, date, clickTime);
+                }}
+              />
+            </Tooltip>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif", width: "100%" }}>
@@ -168,7 +355,7 @@ const ViewPhong = () => {
           overflowX: "auto",
           whiteSpace: "nowrap",
           scrollbarWidth: "none",
-          msOverflowStyle: "none"
+          msOverflowStyle: "none",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "10px", backgroundColor: "#007BFF", color: "#fff", padding: "10px" }}>
@@ -203,7 +390,7 @@ const ViewPhong = () => {
             gridTemplateColumns: `150px repeat(${viewDays}, 1fr)`,
             border: "1px solid #ddd",
             borderRadius: "8px",
-            width: "100%"
+            width: "100%",
           }}
         >
           <div
@@ -230,59 +417,52 @@ const ViewPhong = () => {
               {date}
             </div>
           ))}
-          {rooms.map((room) => {
-            let isOccupiedChain = false;
-            return (
-              <React.Fragment key={room.id}>
-                <div
-                  style={{
-                    backgroundColor: "#f8f9fa",
-                    padding: "4px",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    textAlign: "center",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleRoomClick(room.id, null)} // Nếu click vào tên phòng, không truyền ngày
-                >
-                  {room.maPhong}
-                </div>
-                {dates.map((date) => {
-                  const key = `${room.id}_${date}`;
-                  const roomStatus = status[key]?.status;
-                  let bgColor = "#B7B7B7";
+          {rooms.map((room) => (
+            <React.Fragment key={room.id}>
+              <div
+                style={{
+                  backgroundColor: "#f8f9fa",
+                  padding: "4px",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  textAlign: "center",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleRoomClick(room.id, null)}
+              >
+                {room.maPhong}
+              </div>
+              {dates.map((date) => {
+                const key = `${room.id}_${date}`;
+                const roomStatus = status[key];
 
-                  switch (roomStatus) {
-                    case 'Occupied':
-                      bgColor = "#00FF33"; // Đang ở 
-                      break;
-                    case 'CheckedOut':
-                      bgColor = "#FF6699"; // Đã trả phòng
-                      break;
-                    case 'Booked':
-                      bgColor = "#00B2BF"; // Đã xếp
-                      break;
-                    case 'Checked':
-                      bgColor = "#FFFF00"; // Đã kiểm tra
-                      break;
-                    default:
-                      bgColor = "#B7B7B7"; // Phòng trống
-                  }
-                  return (
-                    <div
-                      key={key}
-                      style={{
-                        backgroundColor: bgColor,
-                        margin: "15px 0px 12px 0px",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => handleRoomClick(room.id, date)}
-                    ></div>
-                  );
-                })}
-              </React.Fragment>
-            );
-          })}
+                return (
+                  <div
+                    key={key}
+                    style={{
+                      margin: "15px 0px 12px 0px",
+                      cursor: "pointer",
+                      height: "10px",
+                    }}
+                  >
+                    {roomStatus && roomStatus.intervals
+                      ? renderStatusBar(roomStatus.intervals, room.id, date)
+                      : (
+                        <Tooltip
+                          title={getTooltipContent({ start: '00:00', end: '23:59', status: 'Empty' })}
+                          placement="top"
+                        >
+                          <div
+                            style={{ width: '100%', height: '10px', backgroundColor: '#B7B7B7' }}
+                            onClick={() => handleRoomClick(room.id, date, '00:00')}
+                          />
+                        </Tooltip>
+                      )}
+                  </div>
+                );
+              })}
+            </React.Fragment>
+          ))}
         </div>
 
         <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "20px" }}>

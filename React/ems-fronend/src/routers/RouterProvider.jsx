@@ -36,6 +36,7 @@ import { XoaDichVuDiKem } from "../services/DichVuDiKemService";
 import DatPhong from '../pages/datphong/DatPhong'
 import QuanLyDatPhong from '../pages/quanlydatphong/QuanLyDatPhong';
 import Checkin from '../pages/checkin/Checkin';
+import {KhachHangLuuTru} from '../pages/customer/KhachHangLuuTru'
 
 function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
   const UnauthorizedRoutes = () => {
@@ -116,6 +117,7 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/dat-phong" element={<DatPhong />} />
         <Route path="/quan-ly-dat-phong" element={<QuanLyDatPhong />} />
         <Route path="/nhan-phong" element={<Checkin />} />
+        <Route path="/khach-hang-luu-tru" element={<KhachHangLuuTru />} />
       </Route>
     </Routes>
   );

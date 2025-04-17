@@ -2,6 +2,7 @@ import { Box, Container, Input, Option, Select, Sheet, Switch, Table, Tooltip, T
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import ListIcon from '@mui/icons-material/List';
 import { IconButton, Pagination, Stack } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { fetchAllCustomer, updatStatus } from '../../apis/customerApi';
@@ -49,24 +50,44 @@ export const Customer = () => {
 
     return (
         <Container>
-            
-            <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginTop: '20px'
-            }}>
-                <Typography level='h3'>Quản lý khách hàng</Typography>
-                <Typography
-                    color="primary"
-                    level="title-sm"
-                    variant="plain"
-                    startDecorator={<AddIcon />}
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => navigate('/add-khach-hang')}
+
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between', // Giữ tiêu đề bên trái, các nút bên phải
+                    marginTop: '20px',
+                }}
+            >
+                <Typography level="h3">Quản lý khách hàng</Typography>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '25px', // Khoảng cách nhỏ giữa hai nút
+                    }}
                 >
-                    Thêm khách hàng
-                </Typography>
+                    <Typography
+                        color="primary"
+                        level="title-sm"
+                        variant="plain"
+                        startDecorator={<ListIcon />}
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() => navigate('/khach-hang-luu-tru')}
+                    >
+                        Danh sách khách lưu trú
+                    </Typography>
+                    <Typography
+                        color="primary"
+                        level="title-sm"
+                        variant="plain"
+                        startDecorator={<AddIcon />}
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() => navigate('/add-khach-hang')}
+                    >
+                        Thêm khách hàng
+                    </Typography>
+                </Box>
             </Box>
             <Box sx={{ marginTop: 3, display: 'flex', justifyContent: 'space-between', alignContent: 'center' }} >
                 <Stack sx={{
@@ -123,7 +144,7 @@ export const Customer = () => {
                             data && data?.data.map((value) => (
                                 <tr key={value.id}>
                                     <td>
-                                        <Avatar src={value?.avatar}/>
+                                        <Avatar src={value?.avatar} />
                                     </td>
                                     <td>{value.username}</td>
                                     <td>{value.fullName}</td>
