@@ -12,4 +12,5 @@ public interface TraPhongService {
     TraPhong checkOutById(Integer idTraPhong);
     List<TraPhongResponse> checkOutByKey(String key);
     List<TraPhong> DSTraPhong();
+    void sendMailCheckout(Integer idTraPhong);
 }

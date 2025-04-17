@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/AccountPage.css';
+import { getProfile } from '../api/profileApi';
 
 const AccountPage = () => {
   const [formData, setFormData] = useState({
@@ -14,18 +15,29 @@ const AccountPage = () => {
   const [userEmail, setUserEmail] = useState('');
   const [editingField, setEditingField] = useState(null);
   const [backupData, setBackupData] = useState({});
-  useEffect(() => {
-    if (userEmail) {
-      setFormData((prev) => ({ ...prev, email: userEmail }));
-    }
-  }, [userEmail]);
-
 
   useEffect(() => {
-    const storedEmail = localStorage.getItem('userEmail');
-    const storedUsername = localStorage.getItem('user');
-    setUserEmail(storedEmail || storedUsername || 'Chưa có thông tin');
+    fetchUserData();
   }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const res = await getProfile();
+      const userData = res.data?.data || {};
+      setFormData({
+        ...userData,
+        email: userData.email || 'Chưa có thông tin', // Đảm bảo email luôn có giá trị
+      });
+      setUserEmail(userData.email || 'Chưa có thông tin');
+    } catch (error) {
+      console.error('Lỗi khi lấy dữ liệu người dùng:', error);
+      setFormData((prev) => ({
+        ...prev,
+        email: 'Chưa có thông tin', // Xử lý lỗi bằng cách đặt giá trị mặc định
+      }));
+      setUserEmail('Chưa có thông tin');
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
