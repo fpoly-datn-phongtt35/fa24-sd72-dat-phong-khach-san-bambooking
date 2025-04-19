@@ -202,5 +202,11 @@ public class HotelWebsiteController {
         return ResponseEntity.status(HttpStatus.OK).body(kh);
     }
 
+    @GetMapping("/loai-phong/loai-phong-kha-dung-list")
+    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong){
+        return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
+    }
+
 }
 

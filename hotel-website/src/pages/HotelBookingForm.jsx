@@ -3,13 +3,26 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/HotelBookingForm.css";
 import {
   toHopLoaiPhong,
-  ThemKhachHangDatPhong,
   ThemMoiDatPhong,
   addThongTinDatPhong,
   getKhachHangByUsername,
+  getLPKDR,
 } from "../services/DatPhong";
 import dayjs from "dayjs";
-import { Button, TextField, Snackbar } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Snackbar,
+  Box,
+  Grid,
+  Divider,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
+} from "@mui/material";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -20,9 +33,10 @@ const HotelBookingForm = () => {
   const [loaiPhongKhaDung, setLoaiPhongKhaDung] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const pageSize = 10;
 
-  // State cho form chính
+  // State for the main form, initialized with location.state
   const [ngayNhanPhong, setNgayNhanPhong] = useState(
     location.state?.ngayNhanPhong
       ? dayjs(location.state.ngayNhanPhong)
@@ -35,32 +49,57 @@ const HotelBookingForm = () => {
   );
   const [soNguoi, setSoNguoi] = useState(location.state?.soNguoi || 1);
 
-  // State cho bộ lọc nâng cao
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-  const [tongChiPhiMin, setTongChiPhiMin] = useState("");
-  const [tongChiPhiMax, setTongChiPhiMax] = useState("");
-  const [tongSucChuaMin, setTongSucChuaMin] = useState("");
-  const [tongSucChuaMax, setTongSucChuaMax] = useState("");
-  const [tongSoPhongMin, setTongSoPhongMin] = useState("");
-  const [tongSoPhongMax, setTongSoPhongMax] = useState("");
-  const [key, setKey] = useState("");
+  // State for advanced filters, initialized with location.state
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(
+    !!location.state?.tongChiPhiMin ||
+      !!location.state?.tongChiPhiMax ||
+      !!location.state?.tongSucChuaMin ||
+      !!location.state?.tongSucChuaMax ||
+      !!location.state?.tongSoPhongMin ||
+      !!location.state?.tongSoPhongMax ||
+      !!location.state?.loaiPhongChons?.length ||
+      !!location.state?.key
+  );
+  const [tongChiPhiMin, setTongChiPhiMin] = useState(
+    location.state?.tongChiPhiMin || ""
+  );
+  const [tongChiPhiMax, setTongChiPhiMax] = useState(
+    location.state?.tongChiPhiMax || ""
+  );
+  const [tongSucChuaMin, setTongSucChuaMin] = useState(
+    location.state?.tongSucChuaMin || ""
+  );
+  const [tongSucChuaMax, setTongSucChuaMax] = useState(
+    location.state?.tongSucChuaMax || ""
+  );
+  const [tongSoPhongMin, setTongSoPhongMin] = useState(
+    location.state?.tongSoPhongMin || ""
+  );
+  const [tongSoPhongMax, setTongSoPhongMax] = useState(
+    location.state?.tongSoPhongMax || ""
+  );
+  const [loaiPhongChons, setLoaiPhongChons] = useState(
+    location.state?.loaiPhongChons || []
+  );
+  const [loaiPhongList, setLoaiPhongList] = useState([]);
+  const [key, setKey] = useState(location.state?.key || "");
 
-  // State cho Snackbar
+  // State for Snackbar
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  // Xử lý thông báo Snackbar
+  // Handle Snackbar notifications
   const handleSnackbar = (message) => {
     setSnackbarMessage(message);
     setOpenSnackbar(true);
   };
 
-  // Xử lý thay đổi số người qua nút
+  // Handle guest count change via buttons
   const handleAdultChange = (change) => {
     setSoNguoi((prev) => Math.max(1, prev + change));
   };
 
-  // Xử lý thay đổi số người qua input
+  // Handle guest count change via input
   const handleSoNguoiChange = (e) => {
     const value = e.target.value;
     if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
@@ -68,10 +107,13 @@ const HotelBookingForm = () => {
     }
   };
 
+  const CHECK_IN_TIME = { hour: 12, minute: 0, second: 0 };
+  const CHECK_OUT_TIME = { hour: 14, minute: 0, second: 0 };
+
   const handleSearch = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    // Kiểm tra ngày hợp lệ trước khi gọi API
     if (
       !ngayNhanPhong ||
       !ngayTraPhong ||
@@ -79,18 +121,21 @@ const HotelBookingForm = () => {
       !ngayTraPhong.isValid()
     ) {
       handleSnackbar("Vui lòng chọn ngày nhận và trả phòng hợp lệ.");
+      setIsLoading(false);
+      return;
+    }
+
+    if (ngayTraPhong.diff(ngayNhanPhong, "day") <= 0) {
+      handleSnackbar("Ngày trả phòng phải sau ngày nhận phòng.");
+      setIsLoading(false);
       return;
     }
 
     const ngayNhanPhongFormatted = ngayNhanPhong
-      .hour(12)
-      .minute(0)
-      .second(0)
+      .set(CHECK_IN_TIME)
       .toISOString();
     const ngayTraPhongFormatted = ngayTraPhong
-      .hour(14)
-      .minute(0)
-      .second(0)
+      .set(CHECK_OUT_TIME)
       .toISOString();
 
     const pageable = { page: currentPage, size: pageSize };
@@ -107,38 +152,89 @@ const HotelBookingForm = () => {
         tongSucChuaMax || null,
         tongSoPhongMin || null,
         tongSoPhongMax || null,
-        [],
+        loaiPhongChons || null,
         pageable
       );
 
-      setLoaiPhongKhaDung(response.content || []);
-      setTotalPages(response.totalPages || 1);
-      setCurrentPage(response.number || 0);
+      console.log("Tổ hợp phòng khả dụng:", response.content[0]?.phongs);
+      if (!response || !response.content) {
+        handleSnackbar("Không tìm thấy tổ hợp phòng phù hợp.");
+        setLoaiPhongKhaDung([]);
+        setTotalPages(1);
+        setCurrentPage(0);
+      } else {
+        setLoaiPhongKhaDung(response.content);
+        setTotalPages(response.totalPages || 1);
+        setCurrentPage(response.number || 0);
+      }
     } catch (error) {
       console.error("Lỗi khi lấy tổ hợp phòng:", error);
       handleSnackbar("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
+      setLoaiPhongKhaDung([]);
+      setTotalPages(1);
+      setCurrentPage(0);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchLoaiPhong = async () => {
+    try {
+      const n = dayjs(ngayNhanPhong).format("YYYY-MM-DD");
+      const t = dayjs(ngayNhanPhong).format("YYYY-MM-DD");
+      const response = await getLPKDR(n, t);
+      console.log("Loại phòng khả dụng:", response);
+      if (response && response.data) {
+        setLoaiPhongList(response.data);
+      } else {
+        handleSnackbar("Không tìm thấy loại phòng nào.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy loại phòng:", error);
+      handleSnackbar("Đã xảy ra lỗi khi tải loại phòng.");
     }
   };
 
   useEffect(() => {
-    if (
-      ngayNhanPhong &&
-      ngayTraPhong &&
-      soNguoi &&
-      ngayNhanPhong.isValid() &&
-      ngayTraPhong.isValid()
-    ) {
-      handleSearch({ preventDefault: () => {} });
-    }
-  }, [currentPage, ngayNhanPhong, ngayTraPhong, soNguoi]);
+    fetchLoaiPhong();
+    let timeoutId;
+    const fetchData = async () => {
+      if (
+        ngayNhanPhong &&
+        ngayTraPhong &&
+        soNguoi &&
+        ngayNhanPhong.isValid() &&
+        ngayTraPhong.isValid()
+      ) {
+        handleSearch({ preventDefault: () => {} });
+      }
+    };
+
+    timeoutId = setTimeout(fetchData, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [
+    currentPage,
+    ngayNhanPhong,
+    ngayTraPhong,
+    soNguoi,
+    tongChiPhiMin,
+    tongChiPhiMax,
+    tongSucChuaMin,
+    tongSucChuaMax,
+    tongSoPhongMin,
+    tongSoPhongMax,
+    loaiPhongChons,
+    key,
+  ]);
 
   const handleCreateBooking = async (combination) => {
+    setIsLoading(true);
     let khachHangResponse = null;
     let datPhongResponse = null;
     let thongTinDatPhongResponseList = [];
 
     try {
-      // Kiểm tra người dùng đã đăng nhập
       let user;
       try {
         user = JSON.parse(localStorage.getItem("user"));
@@ -147,7 +243,6 @@ const HotelBookingForm = () => {
       }
 
       if (!user || !user.tenDangNhap) {
-        // Nếu chưa đăng nhập, lưu tổ hợp phòng và thông tin form vào localStorage
         localStorage.setItem(
           "pendingData",
           JSON.stringify({
@@ -159,12 +254,11 @@ const HotelBookingForm = () => {
         );
         handleSnackbar("Vui lòng đăng nhập để tiếp tục đặt phòng.");
         setTimeout(() => {
-          navigate("/login");
-        }, 1000); // Chuyển hướng sau 2 giây để người dùng thấy thông báo
+          navigate("/login", { state: { from: location.pathname } });
+        }, 1000);
         return;
       }
 
-      // Nếu đã đăng nhập, lấy thông tin khách hàng từ API
       let khachHangData;
       try {
         const response = await getKhachHangByUsername(user.tenDangNhap);
@@ -179,12 +273,11 @@ const HotelBookingForm = () => {
           "Không thể lấy thông tin khách hàng. Vui lòng đăng nhập lại."
         );
         setTimeout(() => {
-          navigate("/login");
+          navigate("/login", { state: { from: location.pathname } });
         }, 2000);
         return;
       }
 
-      // Tạo đặt phòng
       const datPhongRequest = {
         khachHang: khachHangData,
         maDatPhong: "DP" + new Date().getTime(),
@@ -200,14 +293,13 @@ const HotelBookingForm = () => {
         throw new Error("Không thể tạo đặt phòng.");
       }
 
-      // Tạo thông tin đặt phòng
       for (const phong of combination.phongs) {
         if (phong.soLuongChon > 0) {
           for (let i = 0; i < phong.soLuongChon; i++) {
             const thongTinDatPhongRequest = {
               datPhong: datPhongResponse.data,
               idLoaiPhong: phong.loaiPhong.id,
-              maThongTinDatPhong: "",
+              maThongTinDatPhong: "TTD" + new Date().getTime() + i,
               ngayNhanPhong: ngayNhanPhong.format("YYYY-MM-DD"),
               ngayTraPhong: ngayTraPhong.format("YYYY-MM-DD"),
               soNguoi: phong.loaiPhong.soKhachToiDa,
@@ -223,8 +315,7 @@ const HotelBookingForm = () => {
         }
       }
 
-      // Xóa dữ liệu pendingBooking khỏi localStorage sau khi đặt phòng thành công
-      localStorage.removeItem("pendingBooking");
+      localStorage.removeItem("pendingData");
 
       handleSnackbar("Đặt phòng thành công!");
       navigate("/booking-confirmation", {
@@ -238,31 +329,30 @@ const HotelBookingForm = () => {
     } catch (error) {
       console.error("Lỗi khi tạo đặt phòng:", error);
       handleSnackbar("Đã xảy ra lỗi khi tạo đặt phòng. Vui lòng thử lại.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className="booking-container">
-        {/* Header */}
         <div className="booking-header">
           <h1>Đặt Phòng Khách Sạn</h1>
           <p>Tìm kiếm phòng nhanh chóng với giá tốt nhất</p>
         </div>
 
-        {/* Form */}
         <form className="booking-form" onSubmit={handleSearch}>
           <div className="form-row">
             <div className="form-group">
               <label>Ngày nhận phòng (12:00)</label>
               <DatePicker
                 value={ngayNhanPhong}
-                minDate={dayjs()} // Không cho chọn ngày quá khứ
+                minDate={dayjs()}
                 onChange={(newValue) => {
                   if (newValue && dayjs(newValue).isValid()) {
                     const newCheckInDate = dayjs(newValue);
                     setNgayNhanPhong(newCheckInDate);
-                    // Nếu ngày nhận phòng bằng hoặc sau ngày trả phòng, cập nhật ngày trả phòng
                     if (
                       newCheckInDate.isSame(ngayTraPhong, "day") ||
                       newCheckInDate.isAfter(ngayTraPhong)
@@ -270,7 +360,7 @@ const HotelBookingForm = () => {
                       setNgayTraPhong(newCheckInDate.add(1, "day"));
                     }
                   } else {
-                    setNgayNhanPhong(null); // Cho phép xóa ngày
+                    setNgayNhanPhong(null);
                   }
                 }}
                 slotProps={{
@@ -278,6 +368,12 @@ const HotelBookingForm = () => {
                     fullWidth: true,
                     size: "small",
                     required: true,
+                    sx: {
+                      "& .MuiInputBase-root": {
+                        borderRadius: 1,
+                        backgroundColor: "#fff",
+                      },
+                    },
                   },
                 }}
               />
@@ -290,12 +386,12 @@ const HotelBookingForm = () => {
                   ngayNhanPhong
                     ? ngayNhanPhong.add(1, "day")
                     : dayjs().add(1, "day")
-                } // Đảm bảo ngày trả phòng sau ngày nhận phòng
+                }
                 onChange={(newValue) => {
                   if (newValue && dayjs(newValue).isValid()) {
                     setNgayTraPhong(dayjs(newValue));
                   } else {
-                    setNgayTraPhong(null); // Cho phép xóa ngày
+                    setNgayTraPhong(null);
                   }
                 }}
                 slotProps={{
@@ -303,6 +399,12 @@ const HotelBookingForm = () => {
                     fullWidth: true,
                     size: "small",
                     required: true,
+                    sx: {
+                      "& .MuiInputBase-root": {
+                        borderRadius: 1,
+                        backgroundColor: "#fff",
+                      },
+                    },
                   },
                 }}
               />
@@ -310,14 +412,13 @@ const HotelBookingForm = () => {
             <div className="form-group guest-group">
               <label>Số người</label>
               <div className="guest-counter">
-                <Button
-                  type="button"
+                <IconButton
                   onClick={() => handleAdultChange(-1)}
-                  variant="outlined"
-                  size="small"
+                  disabled={soNguoi <= 1}
+                  sx={{ border: "1px solid #e0e0e0", borderRadius: 1 }}
                 >
                   -
-                </Button>
+                </IconButton>
                 <TextField
                   type="number"
                   value={soNguoi}
@@ -325,108 +426,285 @@ const HotelBookingForm = () => {
                   inputProps={{ min: 1 }}
                   size="small"
                   className="so-nguoi-input"
+                  sx={{
+                    width: 80,
+                    mx: 1,
+                    "& .MuiInputBase-root": {
+                      borderRadius: 1,
+                      backgroundColor: "#fff",
+                    },
+                  }}
                 />
-                <Button
-                  type="button"
+                <IconButton
                   onClick={() => handleAdultChange(1)}
-                  variant="outlined"
-                  size="small"
+                  sx={{ border: "1px solid #e0e0e0", borderRadius: 1 }}
                 >
                   +
-                </Button>
+                </IconButton>
               </div>
             </div>
-            <Button type="submit" variant="contained" className="search-btn">
+            <Button
+              type="submit"
+              variant="contained"
+              className="search-btn"
+              sx={{
+                borderRadius: 1,
+                bgcolor: "#1976d2",
+                "&:hover": { bgcolor: "#1565c0" },
+              }}
+            >
               Tìm kiếm
             </Button>
           </div>
 
-          {/* Advanced Filters */}
           <div className="advanced-filters">
             <Button
               type="button"
               className="toggle-filters"
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              variant="outlined"
+              sx={{ mb: 2, borderRadius: 1 }}
             >
               {showAdvancedFilters ? "Ẩn bộ lọc" : "Bộ lọc nâng cao"}
             </Button>
             {showAdvancedFilters && (
-              <div className="filter-grid">
-                <div className="form-group">
-                  <label>Tổng chi phí tối thiểu (VND)</label>
-                  <TextField
-                    type="number"
-                    value={tongChiPhiMin}
-                    onChange={(e) => setTongChiPhiMin(e.target.value)}
-                    inputProps={{ min: 0 }}
-                    fullWidth
-                    size="small"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Tổng chi phí tối đa (VND)</label>
-                  <TextField
-                    type="number"
-                    value={tongChiPhiMax}
-                    onChange={(e) => setTongChiPhiMax(e.target.value)}
-                    inputProps={{ min: 0 }}
-                    fullWidth
-                    size="small"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Tổng sức chứa tối thiểu</label>
-                  <TextField
-                    type="number"
-                    value={tongSucChuaMin}
-                    onChange={(e) => setTongSucChuaMin(e.target.value)}
-                    inputProps={{ min: 1 }}
-                    fullWidth
-                    size="small"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Tổng sức chứa tối đa</label>
-                  <TextField
-                    type="number"
-                    value={tongSucChuaMax}
-                    onChange={(e) => setTongSucChuaMax(e.target.value)}
-                    inputProps={{ min: 1 }}
-                    fullWidth
-                    size="small"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Tổng số phòng tối thiểu</label>
-                  <TextField
-                    type="number"
-                    value={tongSoPhongMin}
-                    onChange={(e) => setTongSoPhongMin(e.target.value)}
-                    inputProps={{ min: 1 }}
-                    fullWidth
-                    size="small"
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Tổng số phòng tối đa</label>
-                  <TextField
-                    type="number"
-                    value={tongSoPhongMax}
-                    onChange={(e) => setTongSoPhongMax(e.target.value)}
-                    inputProps={{ min: 1 }}
-                    fullWidth
-                    size="small"
-                  />
-                </div>
-              </div>
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  border: "1px solid #e0e0e0",
+                  borderRadius: 1,
+                  bgcolor: "#fafafa",
+                }}
+              >
+                <Divider sx={{ mb: 3 }} />
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      label="Tổng chi phí tối thiểu"
+                      type="number"
+                      value={tongChiPhiMin}
+                      onChange={(e) => setTongChiPhiMin(e.target.value)}
+                      fullWidth
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#fff",
+                        },
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <AttachMoneyIcon
+                            sx={{ color: "text.secondary", mr: 1 }}
+                          />
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      label="Tổng chi phí tối đa"
+                      type="number"
+                      value={tongChiPhiMax}
+                      onChange={(e) => setTongChiPhiMax(e.target.value)}
+                      fullWidth
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#fff",
+                        },
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <AttachMoneyIcon
+                            sx={{ color: "text.secondary", mr: 1 }}
+                          />
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      label="Tổng sức chứa tối thiểu"
+                      type="number"
+                      value={tongSucChuaMin}
+                      onChange={(e) => setTongSucChuaMin(e.target.value)}
+                      fullWidth
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#fff",
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      label="Tổng sức chứa tối đa"
+                      type="number"
+                      value={tongSucChuaMax}
+                      onChange={(e) => setTongSucChuaMax(e.target.value)}
+                      fullWidth
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#fff",
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      label="Tổng số phòng tối thiểu"
+                      type="number"
+                      value={tongSoPhongMin}
+                      onChange={(e) => setTongSoPhongMin(e.target.value)}
+                      fullWidth
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#fff",
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <TextField
+                      label="Tổng số phòng tối đa"
+                      type="number"
+                      value={tongSoPhongMax}
+                      onChange={(e) => setTongSoPhongMax(e.target.value)}
+                      fullWidth
+                      sx={{
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#fff",
+                        },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={6}>
+                    <FormControl fullWidth>
+                      <InputLabel id="search-method-label">
+                        Phương thức tìm kiếm
+                      </InputLabel>
+                      <Select
+                        labelId="search-method-label"
+                        value={key}
+                        onChange={(e) => setKey(e.target.value)}
+                        fullWidth
+                        label="Phương thức tìm kiếm"
+                        sx={{
+                          "& .MuiInputBase-root": {
+                            borderRadius: 1,
+                            backgroundColor: "#fff",
+                          },
+                        }}
+                      >
+                        <MenuItem value="">Lựa chọn</MenuItem>
+                        <MenuItem value="leastRooms">
+                          Tổ hợp ít phòng nhất
+                        </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  {loaiPhongChons.map((lpc, index) => (
+                    <Grid container item spacing={2} key={index}>
+                      <Grid item xs={6}>
+                        <FormControl fullWidth>
+                          <InputLabel>Loại phòng</InputLabel>
+                          <Select
+                            value={lpc.loaiPhong?.tenLoaiPhong || ""}
+                            onChange={(e) => {
+                              const newList = [...loaiPhongChons];
+                              const selectedLoaiPhong = loaiPhongList.find(
+                                (lp) => lp.tenLoaiPhong === e.target.value
+                              );
+                              newList[index] = {
+                                ...newList[index],
+                                loaiPhong: selectedLoaiPhong,
+                              };
+                              setLoaiPhongChons(newList);
+                            }}
+                            label="Loại phòng"
+                            sx={{ borderRadius: 1, backgroundColor: "#fff" }}
+                          >
+                            <MenuItem value="">Chọn loại phòng</MenuItem>
+                            {loaiPhongList.map((lp) => (
+                              <MenuItem key={lp.id} value={lp.tenLoaiPhong}>
+                                {lp.tenLoaiPhong}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <TextField
+                          label="Số lượng"
+                          type="number"
+                          value={lpc.soLuongChon || ""}
+                          onChange={(e) => {
+                            const newList = [...loaiPhongChons];
+                            newList[index] = {
+                              ...newList[index],
+                              soLuongChon: e.target.value
+                                ? Number(e.target.value)
+                                : null,
+                            };
+                            setLoaiPhongChons(newList);
+                          }}
+                          fullWidth
+                          sx={{
+                            "& .MuiInputBase-root": {
+                              borderRadius: 1,
+                              backgroundColor: "#fff",
+                            },
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={2}>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          onClick={() => {
+                            const newList = loaiPhongChons.filter(
+                              (_, i) => i !== index
+                            );
+                            setLoaiPhongChons(newList);
+                          }}
+                          sx={{ borderRadius: 1 }}
+                        >
+                          Xóa
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  ))}
+                  <Grid item xs={12}>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() =>
+                        setLoaiPhongChons([
+                          ...loaiPhongChons,
+                          { loaiPhong: null, soLuongChon: null },
+                        ])
+                      }
+                      sx={{ borderRadius: 1 }}
+                    >
+                      Thêm loại phòng
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Box>
             )}
           </div>
         </form>
 
-        {/* Results */}
         <div className="results-section">
           <h2>Các lựa chọn phòng khả dụng</h2>
-          {loaiPhongKhaDung.length > 0 ? (
+          {isLoading ? (
+            <p>Đang tải dữ liệu...</p>
+          ) : loaiPhongKhaDung.length > 0 ? (
             loaiPhongKhaDung.map((combination, combIndex) => (
               <div key={combIndex} className="room-option">
                 <div className="room-header">
@@ -440,6 +718,11 @@ const HotelBookingForm = () => {
                     color="success"
                     className="book-btn"
                     onClick={() => handleCreateBooking(combination)}
+                    disabled={isLoading}
+                    sx={{
+                      borderRadius: 1,
+                      "&:hover": { bgcolor: "#388e3c" },
+                    }}
                   >
                     Đặt phòng
                   </Button>
@@ -483,13 +766,13 @@ const HotelBookingForm = () => {
             </p>
           )}
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="pagination">
               <Button
-                disabled={currentPage === 0}
+                disabled={currentPage === 0 || isLoading}
                 onClick={() => setCurrentPage((prev) => prev - 1)}
                 variant="outlined"
+                sx={{ borderRadius: 1 }}
               >
                 Trước
               </Button>
@@ -497,9 +780,10 @@ const HotelBookingForm = () => {
                 Trang {currentPage + 1} / {totalPages}
               </span>
               <Button
-                disabled={currentPage === totalPages - 1}
+                disabled={currentPage === totalPages - 1 || isLoading}
                 onClick={() => setCurrentPage((prev) => prev + 1)}
                 variant="outlined"
+                sx={{ borderRadius: 1 }}
               >
                 Sau
               </Button>
@@ -507,7 +791,6 @@ const HotelBookingForm = () => {
           )}
         </div>
 
-        {/* Snackbar cho thông báo lỗi/thành công */}
         <Snackbar
           open={openSnackbar}
           autoHideDuration={6000}

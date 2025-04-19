@@ -63,9 +63,6 @@ export default function Navbar() {
         <nav style={{ backgroundColor: "#F5F5F5", height: "20vh" }}>
           <div className="container">
             <form className="row p-4" onSubmit={handleBooking}>
-              <div className="col-3">
-                <h1>Đặt phòng ngay</h1>
-              </div>
               <div className="col-6">
                 <div className="row">
                   <div className="col-4">

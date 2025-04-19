@@ -17,6 +17,7 @@ import Signup from "./components/Signup";
 import HotelBookingForm from "./pages/HotelBookingForm";
 import HotelBookingConfirmation from "./pages/HotelBookingConfirmation";
 import PendingBooking from "./pages/PendingBooking";
+import HomePage from "./pages/HomePage";
 function App() {
   const UnauthorizedRoutes = () => {
     // const accessToken = localStorage.getItem("accessToken");
@@ -80,7 +81,7 @@ function App() {
 
       <Route element={<UnauthorizedRoutes />}>
         {/* Pages không cần đăng nhập */}
-        <Route path="/" element={<Information />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />

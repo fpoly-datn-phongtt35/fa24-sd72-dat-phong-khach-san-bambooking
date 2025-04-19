@@ -14,6 +14,7 @@ const apiToHopLoaiPhong =
   const apiXoaDatPhong = "http://localhost:8080/api/dp/xoa";
   const apiDeleteKHDP = "http://localhost:8080/api/kh/delete-kh-dp";
   const apiGetDPByUsername = "http://localhost:8080/api/kh/get-by-username";
+  const apiGetLPKDL = "http://localhost:8080/api/loai-phong/loai-phong-kha-dung-list";
 export const getDatPhongbyTDN = (tenDangNhap,pageable) => {
     return authorizedAxiosInstance.get(apiGetDP, {
         params: {
@@ -119,4 +120,13 @@ export const getKhachHangByUsername = (username) => {
       userName: username,
     },
   });
+};
+
+export const getLPKDR = (ngayNhanPhong, ngayTraPhong) => {
+    return authorizedAxiosInstance.get(apiGetLPKDL, {
+      params: {
+        ngayNhanPhong,
+        ngayTraPhong,
+      },
+    });
 };
