@@ -28,4 +28,8 @@ public interface KhachHangCheckinRepository extends JpaRepository<KhachHangCheck
             "AND checkin.trangThai = true " +
             "ORDER BY xp.phong.maPhong ASC")
     List<Object[]> findKhachHangCheckin(@Param("keyword") String keyword);
+
+    @Query("SELECT checkin FROM KhachHangCheckin checkin " +
+           "WHERE checkin.thongTinDatPhong.trangThai IN (:trangthaiTTDP)")
+    List<KhachHangCheckin> findByTrangThaiTTDP(List<String> trangthaiTTDP);
 }

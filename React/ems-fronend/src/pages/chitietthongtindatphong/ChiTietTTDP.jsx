@@ -57,10 +57,14 @@ const ChiTietTTDP = () => {
 
   const fetchPhongDaXep = (maThongTinDatPhong) => {
     phongDaXep(maThongTinDatPhong)
-      .then((response) => setXepPhong(response.data))
+      .then((response) => {
+        setXepPhong(response.data);
+        console.log(response.data)
+      })
       .catch((error) =>
         console.error("Lỗi khi lấy thông tin phòng đã xếp:", error)
       );
+
   };
 
   const capNhatTTDP = () => {
@@ -163,7 +167,7 @@ const ChiTietTTDP = () => {
   }, [maThongTinDatPhong]);
 
   const handleModalKHC = () => setModalOpen(true);
-  const handleClose = () =>{
+  const handleClose = () => {
     setModalOpen(false);
     fetchKhachHangCheckin(maThongTinDatPhong);
   }
@@ -439,16 +443,18 @@ const ChiTietTTDP = () => {
                         <CardActions
                           sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
                         >
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            color="error"
-                            onClick={() => handleDelete(khc.id)} // Xóa với ID của khachHangCheckin
-                          >
-                            Xóa
-                          </Button>
+                          {(xepPhong?.trangThai == 'Đang ở' || xepPhong?.trangThai == 'Đã xếp') && (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="error"
+                              onClick={() => handleDelete(khc.id)} // Xóa với ID của khachHangCheckin
+                            >
+                              Xóa
+                            </Button>
+                          )}
 
-                          {xepPhong.trangThai === 'Đang ở' && (
+                          {xepPhong?.trangThai === 'Đang ở' && (
                             <>
                               <Button
                                 size="small"
@@ -484,15 +490,19 @@ const ChiTietTTDP = () => {
                   </Grid>
                 )}
               </Grid>
-              <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleModalKHC}
-                >
-                  + Thêm khách
-                </Button>
-              </Box>
+              {(xepPhong?.trangThai == 'Đang ở' || xepPhong?.trangThai == 'Đã xếp') && (
+                <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleModalKHC}
+                  >
+                    + Thêm khách
+                  </Button>
+
+                </Box>
+              )}
             </CardContent>
           </Card>
         </Grid>

@@ -26,9 +26,8 @@ import UploadQR from "../../components/UploadQR";
 import {
   createKhachHang,
   getKhachHangByKey,
-  updateKhachHang,
 } from "../../services/KhachHangService";
-import { them } from "../../services/KhachHangCheckin";
+import { them, DanhSachKHC } from "../../services/KhachHangCheckin";
 
 const ModalKhachHangCheckin = ({
   isOpen,
@@ -43,11 +42,32 @@ const ModalKhachHangCheckin = ({
   const [selectedKhachHang, setSelectedKhachHang] = useState([]);
   const [khachHangList, setKhachHangList] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState(null);
-  const [trangThai, setTrangThai] = useState(null); // Use null for "Tất cả"
+  const [trangThai, setTrangThai] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [checkedInKhachHangIds, setCheckedInKhachHangIds] = useState([]);
   const navigate = useNavigate();
   const rowsPerPage = 5;
+
+  // Lấy danh sách khách hàng đã check-in
+  const fetchCheckedInKhachHang = async () => {
+    try {
+      const response = await DanhSachKHC(thongTinDatPhong.maThongTinDatPhong);
+      const ids = response.data.map((item) => item.khachHang.id);
+      setCheckedInKhachHangIds(ids);
+    } catch (error) {
+      console.log("Lỗi khi lấy danh sách khách hàng check-in:", error);
+      setCheckedInKhachHangIds([]);
+    }
+  };
+
+  // Reset selectedKhachHang và lấy danh sách check-in khi modal mở
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedKhachHang([]); // Reset danh sách khách hàng được chọn
+      fetchCheckedInKhachHang(); // Lấy danh sách khách hàng đã check-in
+    }
+  }, [isOpen, thongTinDatPhong]);
 
   const handleOpenModalKHC = () => {
     setInitialQRData(null);
@@ -147,6 +167,8 @@ const ModalKhachHangCheckin = ({
       if (onCheckinSuccess) {
         onCheckinSuccess();
       }
+
+      setSelectedKhachHang([]); // Reset sau khi tạo check-in thành công
     } catch (error) {
       console.log("Lỗi khi thêm nhiều khách hàng check-in:", error);
     }
@@ -154,12 +176,10 @@ const ModalKhachHangCheckin = ({
 
   const fetchKhachHangList = async (trangThai, keyword, pageNumber) => {
     try {
-      console.log(trangThai, keyword, pageNumber);
       const response = await getKhachHangByKey(trangThai, keyword, {
         page: pageNumber - 1,
         size: rowsPerPage,
       });
-      console.log("Danh sách khách hàng:", response);
       setKhachHangList(response.data.content || []);
       setTotalPages(response.data.totalPages || 1);
     } catch (error) {
@@ -195,20 +215,23 @@ const ModalKhachHangCheckin = ({
   };
 
   const handleRowSelection = (kh) => {
-    setSelectedKhachHang((prev) => {
-      const isSelected = prev.some((item) => item.id === kh.id);
-      if (isSelected) {
-        return prev.filter((item) => item.id !== kh.id);
-      } else {
-        return [...prev, kh];
-      }
-    });
+    if (!checkedInKhachHangIds.includes(kh.id)) {
+      setSelectedKhachHang((prev) => {
+        const isSelected = prev.some((item) => item.id === kh.id);
+        if (isSelected) {
+          return prev.filter((item) => item.id !== kh.id);
+        } else {
+          return [...prev, kh];
+        }
+      });
+    }
   };
 
   const isSelected = (id) => selectedKhachHang.some((kh) => kh.id === id);
 
   const handleKhachHangAdded = () => {
     fetchKhachHangList(trangThai, searchKeyword, page);
+    fetchCheckedInKhachHang();
   };
 
   if (!isOpen) return null;
@@ -218,7 +241,7 @@ const ModalKhachHangCheckin = ({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: { xs: "90%", sm: 1200 }, // Responsive width
+    width: { xs: "90%", sm: 1200 },
     bgcolor: "background.paper",
     boxShadow: 24,
     p: 4,
@@ -297,6 +320,7 @@ const ModalKhachHangCheckin = ({
                           <Checkbox
                             checked={isSelected(kh.id)}
                             onChange={() => handleRowSelection(kh)}
+                            disabled={checkedInKhachHangIds.includes(kh.id)}
                           />
                         </TableCell>
                         <TableCell>

@@ -15,4 +15,6 @@ public interface KhachHangCheckinService {
 
     List<Object[]> findKhachHangCheckin(String keyword);
 
+     List<KhachHangCheckin> findByTrangThaiTTDP();
+
 }
