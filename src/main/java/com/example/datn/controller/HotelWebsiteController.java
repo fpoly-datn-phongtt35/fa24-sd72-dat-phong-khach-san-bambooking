@@ -7,13 +7,11 @@ import com.example.datn.dto.request.ToHopRequest;
 import com.example.datn.dto.response.*;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.HinhAnh;
+import com.example.datn.model.KhachHang;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.*;
-import com.example.datn.service.IMPL.DatPhongServiceIMPL;
-import com.example.datn.service.IMPL.HotelWebsiteServiceImpl;
-import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
-import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
+import com.example.datn.service.IMPL.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,9 +43,10 @@ public class HotelWebsiteController {
     HoaDonService hoaDonService;
     @Autowired
     ThongTinHoaDonService thongTinHoaDonService;
-
     @Autowired
     KhachHangService khachHangService;
+    @Autowired
+    KhachHangServiceIMPL khachHangServiceIMPL;
 
     @GetMapping("/loai-phong")
     public ResponseEntity<?> home(){
@@ -194,6 +193,19 @@ public class HotelWebsiteController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Đã xảy ra lỗi trong quá trình xóa khách hàng.");
         }
+    }
+
+
+    @GetMapping("/kh/get-by-username")
+    public ResponseEntity<?> getKhachHangByUsername(@RequestParam(value = "userName", required = false) String userName){
+        KhachHang kh = khachHangServiceIMPL.getKHByUsername(userName);
+        return ResponseEntity.status(HttpStatus.OK).body(kh);
+    }
+
+    @GetMapping("/loai-phong/loai-phong-kha-dung-list")
+    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong){
+        return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
     }
 
 }

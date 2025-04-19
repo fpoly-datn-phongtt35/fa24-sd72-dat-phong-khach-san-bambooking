@@ -16,7 +16,7 @@ export default function Navbar() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   const navigate = useNavigate();
-
+  const pendingData = localStorage.getItem("pendingData");
   const handleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -65,6 +65,9 @@ export default function Navbar() {
       setIsAuthenticated(false);
       setUser(null);
     }
+    setIsAuthenticated(!!accessToken);
+    const jsonData = JSON.parse(pendingData);
+    console.log(jsonData);
   }, [accessToken]);
 
   const toggleProfileMenu = () => {
@@ -77,9 +80,6 @@ export default function Navbar() {
         <nav style={{ backgroundColor: "#F5F5F5", height: "20vh" }}>
           <div className="container">
             <form className="row p-4" onSubmit={handleBooking}>
-              <div className="col-3">
-                <h1>Đặt phòng ngay</h1>
-              </div>
               <div className="col-6">
                 <div className="row">
                   <div className="col-4">
@@ -170,22 +170,21 @@ export default function Navbar() {
               ƯU ĐÃI
             </Link>
           </li>
-          <li>
-            <Link
-              to="/rooms"
-              className={location.pathname === "/rooms" ? "active" : ""}
-            >
-              PHÒNG
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/history"
-              className={location.pathname === "/history" ? "active" : ""}
-            >
-              LỊCH SỬ ĐẶT PHÒNG
-            </Link>
-          </li>
+          {pendingData && (
+            <li>
+              <Link to="/pending-booking">ĐƠN ĐẶT PHÒNG</Link>
+            </li>
+          )}
+          {isAuthenticated && (
+            <li>
+              <Link
+                to="/history"
+                className={location.pathname === "/history" ? "active" : ""}
+              >
+                LỊCH SỬ ĐẶT PHÒNG
+              </Link>
+            </li>
+          )}
         </ul>
         <div className="navbar-buttons d-flex align-items-center">
           <button className="book-now-button me-2" onClick={handleDropdown}>
