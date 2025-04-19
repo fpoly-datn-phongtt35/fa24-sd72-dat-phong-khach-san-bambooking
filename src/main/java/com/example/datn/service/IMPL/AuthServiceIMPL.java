@@ -9,12 +9,10 @@ import com.example.datn.dto.response.auth.TokenResponse;
 import com.example.datn.exception.AuthenticationCustomException;
 import com.example.datn.exception.InvalidDataException;
 import com.example.datn.model.KhachHang;
+import com.example.datn.model.NhanVien;
 import com.example.datn.model.TaiKhoan;
 import com.example.datn.model.ThongTinNhanVien;
-import com.example.datn.repository.KhachHangRepository;
-import com.example.datn.repository.TaiKhoanRepository;
-import com.example.datn.repository.ThongTinNhanVienRepository;
-import com.example.datn.repository.VaiTroRepository;
+import com.example.datn.repository.*;
 import com.example.datn.service.AuthService;
 import com.example.datn.service.JwtService;
 import com.example.datn.utilities.CommonUtils;
@@ -41,7 +39,7 @@ import java.util.Optional;
 @Slf4j
 public class AuthServiceIMPL implements AuthService {
 
-    private final ThongTinNhanVienRepository thongTinNhanVienRepository;
+    private final NhanVienRepository nhanVienRepository;
 
     private final TaiKhoanRepository taiKhoanRepository;
 
@@ -61,50 +59,22 @@ public class AuthServiceIMPL implements AuthService {
     private String username;
 
     @Override
-    public TaiKhoan login(String tenDangNhap, String matKhau) {
-        Optional<TaiKhoan> taiKhoanOptional = taiKhoanRepository.findByTenDangNhap(tenDangNhap);
-        if (taiKhoanOptional.isPresent()) {
-            TaiKhoan taiKhoan = taiKhoanOptional.get();
-            if (taiKhoan.getMatKhau().equals(matKhau)) {
-                return taiKhoan;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public TaiKhoan register(TaiKhoan taiKhoan) {
-        return taiKhoanRepository.save(taiKhoan);
-    }
-
-    @Override
-    public ThongTinNhanVienRequest getThongTinNhanVien(String tenDangNhap) {
-        Optional<ThongTinNhanVien> optionalThongTin =
-                thongTinNhanVienRepository.findByTaiKhoan_TenDangNhap(tenDangNhap);
-
-        if (optionalThongTin.isPresent()) {
-            ThongTinNhanVien thongTin = optionalThongTin.get();
-
-            // Chuyển đổi từ entity sang DTO
-            return new ThongTinNhanVienRequest(
-                    thongTin.getHo(),
-                    thongTin.getTen(),
-                    thongTin.getGioiTinh(),
-                    thongTin.getDiaChi(),
-                    thongTin.getSdt(),
-                    thongTin.getEmail()
-            );
-        } else {
-            // Nếu không tìm thấy, ném ra lỗi
-            throw new RuntimeException("Không tìm thấy thông tin nhân viên cho tài khoản này");
-        }
-    }
-
-    @Override
     public TokenResponse authenticate(SigninRequest signinRequest) {
         var user = this.taiKhoanRepository.findByUsername(signinRequest.getUsername());
         if(user == null) {
             throw new AuthenticationCustomException("Tài khoản không tồn tại");
+        }
+        String avatar = null;
+        if(user.getIdVaiTro().getId() == 1) {
+            var nhanVien = this.nhanVienRepository.findByUsername(signinRequest.getUsername());
+            if(nhanVien.isPresent()) {
+                avatar = nhanVien.get().getAvatar();
+            }
+        } else if (user.getIdVaiTro().getId() == 2) {
+            var khachHang = this.khachHangRepository.findByUsername(signinRequest.getUsername());
+            if(khachHang.isPresent()) {
+                avatar = khachHang.get().getAvatar();
+            }
         }
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinRequest.getUsername(), signinRequest.getPassword(), user.getAuthorities()));
         String accessToken = this.jwtService.generateAccessToken(user.getId(), user.getUsername(), user.getAuthorities());
@@ -113,6 +83,7 @@ public class AuthServiceIMPL implements AuthService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .username(user.getUsername())
+                .avatar(avatar)
                 .role(user.getAuthorities())
                 .build();
     }

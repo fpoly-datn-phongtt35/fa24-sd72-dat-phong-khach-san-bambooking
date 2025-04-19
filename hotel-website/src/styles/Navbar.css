@@ -120,3 +120,32 @@ html, body {
   transition: background-color 0.3s ease-in-out;
   
 }
+
+/* Định dạng container của menu */
+.user-profile-container {
+  position: relative;
+}
+
+/* Định dạng menu dropdown */
+.profile-menu {
+  top: 100%; /* Hiển thị ngay bên dưới avatar */
+  right: 0;
+  min-width: 150px;
+  border-radius: 5px;
+  z-index: 1000;
+}
+
+/* Định dạng nút trong menu */
+.profile-menu .logout-button {
+  background-color: transparent;
+  border: none;
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.profile-menu .logout-button:hover {
+  background-color: #f5f5f5;
+}
