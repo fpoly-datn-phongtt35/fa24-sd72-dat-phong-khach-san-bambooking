@@ -237,12 +237,13 @@ const HotelBookingForm = () => {
     try {
       let user;
       try {
-        user = JSON.parse(localStorage.getItem("user"));
+        user = localStorage.getItem("user");
+        console.log("User:", user);
       } catch (error) {
         console.error("Lỗi khi parse user từ localStorage:", error);
       }
 
-      if (!user || !user.tenDangNhap) {
+      if (!user) {
         localStorage.setItem(
           "pendingData",
           JSON.stringify({
@@ -261,7 +262,7 @@ const HotelBookingForm = () => {
 
       let khachHangData;
       try {
-        const response = await getKhachHangByUsername(user.tenDangNhap);
+        const response = await getKhachHangByUsername(user);
         console.log("Khách hàng:", response.data);
         if (!response || !response.data) {
           throw new Error("Không tìm thấy thông tin khách hàng.");

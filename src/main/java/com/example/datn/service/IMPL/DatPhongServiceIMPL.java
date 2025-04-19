@@ -142,7 +142,9 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
     @Override
     public void xoaDatPhong(Integer iddp) {
-        datPhongRepository.deleteById(iddp);
+        DatPhong dp = datPhongRepository.findById(iddp).get();
+        dp.setTrangThai("Đã hủy");
+        datPhongRepository.save(dp);
     }
 
     public  Page<DatPhongResponse> findDatPhongToCheckin(String key, int page, int size,LocalDate ngayNhanPhong, LocalDate ngayTraPhong){
