@@ -26,11 +26,9 @@ const HotelBookingConfirmation = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [showError, setShowError] = useState(false);
-
   const [ttdpData, setTtdpData] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const [timeLeft, setTimeLeft] = useState(5); // giây
+  const [timeLeft, setTimeLeft] = useState(30);
   const timeoutRef = useRef(null);
 
   const groupAndNumberRooms = (rooms) => {
@@ -52,7 +50,6 @@ const HotelBookingConfirmation = () => {
       const numberedRooms = groupAndNumberRooms(response.data);
       setTtdpData(numberedRooms);
     } catch (error) {
-      console.error("Lỗi khi lấy thông tin đặt phòng:", error);
       alert("Lỗi khi lấy thông tin đặt phòng");
     }
   };
@@ -62,39 +59,20 @@ const HotelBookingConfirmation = () => {
       for (const ttdp of thongTinDatPhong) {
         await huyTTDP(ttdp.maThongTinDatPhong);
       }
-      
-      if (datPhong?.id) {
-        console.log("Hủy đặt phòng với ID:", datPhong.id);
-        await XoaDatPhong(datPhong.id);
-      }
-
       alert("Đã hết thời gian xác nhận. Đặt phòng đã bị hủy.");
-      navigate("/dat-phong");
+      navigate("/information");
     } catch (error) {
-      console.error("Lỗi khi hủy đặt phòng:", error);
       alert("Lỗi khi hủy đặt phòng. Vui lòng thử lại.");
-      navigate("/dat-phong");
+      navigate("/information");
     }
   };
 
   useEffect(() => {
     if (datPhong && thongTinDatPhong) {
-      timeoutRef.current = setTimeout(() => {
-        cancelBooking();
-      }, 5000); // milliseconds
-
-      // Thiết lập countdown timer
+      timeoutRef.current = setTimeout(cancelBooking, 30000);
       const timer = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            clearInterval(timer);
-            return 0;
-          }
-          return prev - 1;
-        });
+        setTimeLeft((prev) => (prev <= 1 ? 0 : prev - 1));
       }, 1000);
-
-      // Cleanup khi component unmount hoặc xác nhận
       return () => {
         clearTimeout(timeoutRef.current);
         clearInterval(timer);
@@ -102,7 +80,6 @@ const HotelBookingConfirmation = () => {
     }
   }, [datPhong, thongTinDatPhong]);
 
-  // Xử lý thay đổi input
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -110,7 +87,6 @@ const HotelBookingConfirmation = () => {
     setShowError(false);
   };
 
-  // Tính số ngày đặt phòng
   const calculateBookingDays = (ngayNhanPhong, ngayTraPhong) => {
     const start = dayjs(ngayNhanPhong);
     const end = dayjs(ngayTraPhong);
@@ -118,7 +94,6 @@ const HotelBookingConfirmation = () => {
     return diffDays > 0 ? diffDays : 1;
   };
 
-  // Tính tổng chi phí
   const calculateTotalAmount = () => {
     return ttdpData.reduce((total, room) => {
       const days = calculateBookingDays(room.ngayNhanPhong, room.ngayTraPhong);
@@ -126,13 +101,7 @@ const HotelBookingConfirmation = () => {
     }, 0);
   };
 
-  // Lấy thông tin đặt phòng khi component mount
   useEffect(() => {
-    console.log("thongTinDatPhong", thongTinDatPhong);
-    console.log("datPhong", datPhong);
-    console.log("khachHang", khachHang);
-    console.log("ttdp", ttdpData);
-
     if (datPhong && datPhong.id) {
       fetchThongTinDatPhongById(datPhong.id);
     } else if (thongTinDatPhong) {
@@ -141,12 +110,9 @@ const HotelBookingConfirmation = () => {
     }
   }, [datPhong, thongTinDatPhong]);
 
-  // Xử lý submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Kiểm tra nếu không có phòng nào được chọn
     if (ttdpData.length === 0) {
       alert("Vui lòng chọn ít nhất một phòng trước khi xác nhận đặt phòng.");
       navigate("/dat-phong");
@@ -154,7 +120,6 @@ const HotelBookingConfirmation = () => {
       return;
     }
 
-    // Validate form
     const errors = {};
     if (!formData.ho.trim()) errors.ho = "Vui lòng nhập họ";
     if (!formData.ten.trim()) errors.ten = "Vui lòng nhập tên";
@@ -178,44 +143,34 @@ const HotelBookingConfirmation = () => {
     let datPhongResponse = null;
 
     try {
-      // Cập nhật thông tin khách hàng
-      const khachHangRequest = {
+      khachHangResponse = await SuaKhachHangDatPhong({
         id: khachHang ? khachHang.id : null,
         ho: formData.ho,
         ten: formData.ten,
         sdt: formData.soDienThoai,
         email: formData.email,
         trangThai: true,
-      };
-      khachHangResponse = await SuaKhachHangDatPhong(khachHangRequest);
-      if (!khachHangResponse || !khachHangResponse.data) {
-        throw new Error("Không thể cập nhật thông tin khách hàng.");
-      }
+      });
+      if (!khachHangResponse || !khachHangResponse.data) throw new Error();
 
-      // Cập nhật thông tin đặt phòng
-      const datPhongRequest = {
-        id: datPhong ? datPhong.id : null,
+      datPhongResponse = await CapNhatDatPhong({
+        id: datPhong?.id,
         khachHang: khachHangResponse.data,
-        maDatPhong: datPhong ? datPhong.maDatPhong : "",
+        maDatPhong: datPhong?.maDatPhong || "",
         soNguoi: ttdpData.reduce(
           (total, room) => total + room.soNguoi * room.soPhong,
           0
         ),
         soPhong: ttdpData.reduce((total, room) => total + room.soPhong, 0),
-        ngayDat: datPhong ? datPhong.ngayDat : new Date().toISOString(),
+        ngayDat: datPhong?.ngayDat,
         tongTien: calculateTotalAmount(),
         ghiChu: "Ghi chú thêm nếu cần",
         trangThai: "Đã xác nhận",
-      };
-      datPhongResponse = await CapNhatDatPhong(datPhongRequest);
-      if (!datPhongResponse || !datPhongResponse.data) {
-        throw new Error("Không thể cập nhật đặt phòng.");
-      }
+      });
+      if (!datPhongResponse || !datPhongResponse.data) throw new Error();
 
-      // Cập nhật thông tin chi tiết đặt phòng
-      const thongTinDatPhongRequestList = [];
-      thongTinDatPhong.forEach((room) => {
-        thongTinDatPhongRequestList.push({
+      for (const room of thongTinDatPhong) {
+        await updateThongTinDatPhong({
           id: room.id,
           datPhong: room.datPhong,
           idLoaiPhong: room.loaiPhong.id,
@@ -226,46 +181,21 @@ const HotelBookingConfirmation = () => {
           giaDat: room.giaDat,
           trangThai: "Chưa xếp",
         });
-      });
-
-      for (const thongTinDatPhong of thongTinDatPhongRequestList) {
-        const response = await updateThongTinDatPhong(thongTinDatPhong);
-        if (!response || !response.data) {
-          throw new Error("Không thể cập nhật thông tin đặt phòng.");
-        }
       }
 
-      // Xóa timeout khi xác nhận thành công
       clearTimeout(timeoutRef.current);
-
       alert("Xác nhận đặt phòng thành công!");
       navigate("/thong-tin-dat-phong-search");
     } catch (error) {
-      console.error("Lỗi khi xác nhận đặt phòng:", error);
-
-      // Rollback nếu có lỗi
-      if (datPhongResponse && datPhongResponse.data) {
-        try {
-          await XoaDatPhong(datPhongResponse.data.id);
-        } catch (err) {
-          console.error("Lỗi khi rollback datPhong:", err);
-        }
-      }
-      if (khachHangResponse && khachHangResponse.data) {
-        try {
-          await XoaKhachHangDatPhong(khachHangResponse.data);
-        } catch (err) {
-          console.error("Lỗi khi rollback khachHang:", err);
-        }
-      }
-
+      if (datPhongResponse?.data) await XoaDatPhong(datPhongResponse.data.id);
+      if (khachHangResponse?.data)
+        await XoaKhachHangDatPhong(khachHangResponse.data);
       alert("Đã xảy ra lỗi khi xác nhận đặt phòng, vui lòng thử lại.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Format thời gian còn lại
   const formatTimeLeft = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -278,78 +208,49 @@ const HotelBookingConfirmation = () => {
 
   return (
     <div className="confirmation-container">
-      {/* Header */}
       <div className="confirmation-header">
         <h1>Xác Nhận Đặt Phòng</h1>
+        <p className="countdown-timer">
+          ⏳ {formatTimeLeft(timeLeft)} còn lại để xác nhận
+        </p>
         <p>Vui lòng kiểm tra thông tin và cập nhật chi tiết khách hàng</p>
-        <p className="timeout-warning">
-          Thời gian xác nhận còn lại: {formatTimeLeft(timeLeft)} (Đặt phòng sẽ
-          bị hủy sau 5 phút nếu không xác nhận)
+      </div>
+
+      <div className="room-summary">
+        <h2>Thông tin đặt phòng</h2>
+        <p>
+          Mã đặt phòng: <strong>{datPhong.maDatPhong}</strong>
+        </p>
+        <p>
+          Tổng chi phí:{" "}
+          <strong>{Number(combination.tongChiPhi).toLocaleString()} VND</strong>
+        </p>
+        <p>
+          Tổng số phòng: <strong>{combination.tongSoPhong}</strong>
+        </p>
+        <p>
+          Tổng sức chứa: <strong>{combination.tongSucChua}</strong> người
+        </p>
+        <p>
+          Ngày nhận phòng:{" "}
+          <strong>
+            {new Date(thongTinDatPhong[0]?.ngayNhanPhong).toLocaleDateString()}{" "}
+            (12:00)
+          </strong>
+        </p>
+        <p>
+          Ngày trả phòng:{" "}
+          <strong>
+            {new Date(thongTinDatPhong[0]?.ngayTraPhong).toLocaleDateString()}{" "}
+            (14:00)
+          </strong>
+        </p>
+        <p>
+          Ngày đặt:{" "}
+          <strong>{datPhong.ngayDat.toLocaleString()}</strong>
         </p>
       </div>
 
-      {/* Thông tin tổ hợp phòng */}
-      <div className="room-details">
-        <h2>Thông tin đặt phòng</h2>
-        <div className="room-option">
-          <div className="room-header">
-            <h3>
-              Mã đặt phòng: {datPhong.maDatPhong} - Tổng sức chứa:{" "}
-              {combination.tongSucChua} người - Tổng chi phí:{" "}
-              {Number(combination.tongChiPhi).toLocaleString()} VND - Tổng số
-              phòng: {combination.tongSoPhong}
-            </h3>
-          </div>
-          <table>
-            <thead>
-              <tr>
-                <th>STT</th>
-                <th>Loại phòng</th>
-                <th>Diện tích</th>
-                <th>Số khách</th>
-                <th>Đơn giá</th>
-                <th>Số lượng</th>
-                <th>Thành tiền</th>
-              </tr>
-            </thead>
-            <tbody>
-              {combination.phongs.map((room, idx) => (
-                <tr key={room.loaiPhong.id}>
-                  <td>{idx + 1}</td>
-                  <td>{room.loaiPhong.tenLoaiPhong}</td>
-                  <td>{room.loaiPhong.dienTich} m²</td>
-                  <td>{room.loaiPhong.soKhachToiDa}</td>
-                  <td>{room.loaiPhong.donGia.toLocaleString()} VND</td>
-                  <td>{room.soLuongChon}</td>
-                  <td>
-                    {(
-                      room.soLuongChon * room.loaiPhong.donGia
-                    ).toLocaleString()}{" "}
-                    VND
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="date-info">
-            <p>
-              Ngày nhận phòng:{" "}
-              {new Date(
-                thongTinDatPhong[0]?.ngayNhanPhong
-              ).toLocaleDateString()}{" "}
-              (12:00)
-            </p>
-            <p>
-              Ngày trả phòng:{" "}
-              {new Date(thongTinDatPhong[0]?.ngayTraPhong).toLocaleDateString()}{" "}
-              (14:00)
-            </p>
-            <p>Ngày đặt: {new Date(datPhong.ngayDat).toLocaleString()}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Form thông tin khách hàng */}
       <form className="booking-info-form" onSubmit={handleSubmit}>
         <h2>Thông tin khách hàng</h2>
         {showError && (
@@ -366,7 +267,6 @@ const HotelBookingConfirmation = () => {
               value={formData.ho}
               onChange={handleInputChange}
               required
-              placeholder="Nhập họ"
             />
             {formErrors.ho && <span className="error">{formErrors.ho}</span>}
           </div>
@@ -378,7 +278,6 @@ const HotelBookingConfirmation = () => {
               value={formData.ten}
               onChange={handleInputChange}
               required
-              placeholder="Nhập tên"
             />
             {formErrors.ten && <span className="error">{formErrors.ten}</span>}
           </div>
@@ -391,7 +290,6 @@ const HotelBookingConfirmation = () => {
               onChange={handleInputChange}
               required
               pattern="[0-9]{10}"
-              placeholder="Nhập số điện thoại (10 số)"
             />
             {formErrors.soDienThoai && (
               <span className="error">{formErrors.soDienThoai}</span>
@@ -405,7 +303,6 @@ const HotelBookingConfirmation = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
-              placeholder="Nhập email"
             />
             {formErrors.email && (
               <span className="error">{formErrors.email}</span>
@@ -413,13 +310,6 @@ const HotelBookingConfirmation = () => {
           </div>
         </div>
         <div className="form-actions">
-          <button
-            type="button"
-            className="cancel-btn"
-            onClick={() => navigate(-1)}
-          >
-            Quay lại
-          </button>
           <button type="submit" className="confirm-btn" disabled={isSubmitting}>
             {isSubmitting ? "Đang xử lý..." : "Xác nhận đặt phòng"}
           </button>

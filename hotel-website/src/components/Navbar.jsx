@@ -148,20 +148,28 @@ export default function Navbar() {
           </li>
           <li>
             <Link
+              to="/rooms"
+              className={location.pathname === "/rooms" ? "active" : ""}
+            >
+              PHÒNG
+            </Link>
+          </li>
+          <li>
+            <Link
               to="/services"
               className={location.pathname === "/services" ? "active" : ""}
             >
               DỊCH VỤ
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link
               to="/about"
               className={location.pathname === "/about" ? "active" : ""}
             >
               KHÁM PHÁ
             </Link>
-          </li>
+          </li> */}
           <li>
             <Link
               to="/offers"
@@ -188,11 +196,14 @@ export default function Navbar() {
         </ul>
         <div className="navbar-buttons d-flex align-items-center">
           <button className="book-now-button me-2" onClick={handleDropdown}>
-            {isOpen ? 'ĐÓNG' : 'ĐẶT PHÒNG'}
+            {isOpen ? "ĐÓNG" : "ĐẶT PHÒNG"}
           </button>
           {/* Show login button if not authenticated and not on login page */}
-          {!isAuthenticated && location.pathname !== '/login' && (
-            <button className="login-button me-2" onClick={() => navigate("/login")}>
+          {!isAuthenticated && location.pathname !== "/login" && (
+            <button
+              className="login-button me-2"
+              onClick={() => navigate("/login")}
+            >
               Đăng nhập
             </button>
           )}
@@ -211,15 +222,21 @@ export default function Navbar() {
                   style={{ width: "30px", height: "30px", objectFit: "cover" }}
                 />
                 <div className="user-info">
-                  <span>Tài khoản của bạn</span>
+                  <span>{user}</span>
                 </div>
               </div>
               {isProfileMenuOpen && (
                 <div className="profile-menu position-absolute bg-white shadow-sm p-2">
-                  <button className="logout-button w-100 text-start" onClick={() => navigate("/account")}>
+                  <button
+                    className="logout-button w-100 text-start"
+                    onClick={() => navigate("/account")}
+                  >
                     Tài khoản
                   </button>
-                  <button className="logout-button w-100 text-start" onClick={logout}>
+                  <button
+                    className="logout-button w-100 text-start"
+                    onClick={logout}
+                  >
                     Đăng xuất
                   </button>
                 </div>
@@ -228,7 +245,10 @@ export default function Navbar() {
           )}
           {/* Show sign-up button if not authenticated */}
           {!isAuthenticated && (
-            <button className="sign-up-button" onClick={() => navigate("/signup")}>
+            <button
+              className="sign-up-button"
+              onClick={() => navigate("/signup")}
+            >
               Đăng kí
             </button>
           )}

@@ -193,7 +193,7 @@ const HomePage = () => {
                   >
                     <Box mr={2}>
                       <Typography variant="body1">
-                        {soNguoi} người lớn
+                        {soNguoi} người
                       </Typography>
                     </Box>
                     <IconButton
