@@ -127,8 +127,7 @@ public class TraPhongServiceImpl implements TraPhongService {
                     KiemTraPhong kiemTraPhong = kiemTraPhongRepository.findByXepPhongId(xepPhong.getId()).orElse(null);
                     return convertToTraPhongResponse(traPhong, xepPhong, kiemTraPhong);
                 })
-                .distinct()
-                .collect(Collectors.toList());
+                .distinct().collect(Collectors.toList());
     }
 
     @Override
