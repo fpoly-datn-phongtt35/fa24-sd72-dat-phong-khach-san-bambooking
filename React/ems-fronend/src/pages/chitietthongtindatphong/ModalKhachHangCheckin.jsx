@@ -16,9 +16,12 @@ import {
   TableRow,
   Checkbox,
   Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import ModalCreateKHC from "./ModalCreateKHC";
-import ModalCreateKHCU from "./ModalCreateKHCU";
 import UploadQR from "../../components/UploadQR";
 import {
   createKhachHang,
@@ -34,21 +37,20 @@ const ModalKhachHangCheckin = ({
   onCheckinSuccess,
 }) => {
   const [isModalKHCOpen, setModalKHCOpen] = useState(false);
-  const [isModalKHCUOpen, setModalKHCUOpen] = useState(false);
   const [isQRModalOpen, setQRModalOpen] = useState(false);
   const [qrData, setQRData] = useState("");
-  const [initialQRData, setInitialQRData] = useState(null); // Dữ liệu QR để truyền vào form tạo mới
+  const [initialQRData, setInitialQRData] = useState(null);
   const [selectedKhachHang, setSelectedKhachHang] = useState([]);
   const [khachHangList, setKhachHangList] = useState([]);
-  const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState(null);
+  const [trangThai, setTrangThai] = useState(null); // Use null for "Tất cả"
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
-
   const rowsPerPage = 5;
 
   const handleOpenModalKHC = () => {
-    setInitialQRData(null); // Reset dữ liệu QR khi mở form thủ công
+    setInitialQRData(null);
     setModalKHCOpen(true);
   };
 
@@ -57,12 +59,9 @@ const ModalKhachHangCheckin = ({
     setModalKHCOpen(false);
   };
 
-  const handleOpenModalKHCU = () => {
-    setModalKHCUOpen(true);
-  };
-
-  const handleCloseModalKHCU = () => {
-    setModalKHCUOpen(false);
+  const handleCloseModalKC = () => {
+    setSelectedKhachHang([]);
+    onClose();
   };
 
   const openQRScanner = () => {
@@ -94,23 +93,20 @@ const ModalKhachHangCheckin = ({
     setSearchKeyword(cmnd);
 
     try {
-      const response = await getKhachHangByKey(cmnd, {
+      const response = await getKhachHangByKey(trangThai, cmnd, {
         page: 0,
         size: rowsPerPage,
       });
 
       if (response.data.content && response.data.content.length > 0) {
-        // Nếu tìm thấy khách hàng
         setKhachHangList(response.data.content);
         setTotalPages(response.data.totalPages || 1);
       } else {
-        // Nếu không tìm thấy, mở form tạo mới với dữ liệu QR
         setInitialQRData(qrParsedData);
         setModalKHCOpen(true);
       }
     } catch (error) {
       console.log("Lỗi khi tìm khách hàng:", error);
-      // Nếu có lỗi, cũng mở form tạo mới với dữ liệu QR
       setInitialQRData(qrParsedData);
       setModalKHCOpen(true);
     }
@@ -137,7 +133,7 @@ const ModalKhachHangCheckin = ({
       const checkinRequests = khachHangToCreate.map((kh) => ({
         khachHang: kh,
         thongTinDatPhong: thongTinDatPhong,
-        trangThai: true,
+        trangThai: false,
       }));
 
       const responses = await Promise.all(
@@ -156,12 +152,14 @@ const ModalKhachHangCheckin = ({
     }
   };
 
-  const fetchKhachHangList = async (keyword, pageNumber) => {
+  const fetchKhachHangList = async (trangThai, keyword, pageNumber) => {
     try {
-      const response = await getKhachHangByKey(keyword, {
+      console.log(trangThai, keyword, pageNumber);
+      const response = await getKhachHangByKey(trangThai, keyword, {
         page: pageNumber - 1,
         size: rowsPerPage,
       });
+      console.log("Danh sách khách hàng:", response);
       setKhachHangList(response.data.content || []);
       setTotalPages(response.data.totalPages || 1);
     } catch (error) {
@@ -178,11 +176,17 @@ const ModalKhachHangCheckin = ({
   }, [qrData]);
 
   useEffect(() => {
-    fetchKhachHangList(searchKeyword, page);
-  }, [searchKeyword, page]);
+    fetchKhachHangList(trangThai, searchKeyword, page);
+  }, [searchKeyword, trangThai, page]);
 
   const handleSearchChange = (e) => {
     setSearchKeyword(e.target.value);
+    setPage(1);
+  };
+
+  const handleTrangThaiChange = (e) => {
+    const value = e.target.value === "" ? null : e.target.value;
+    setTrangThai(value);
     setPage(1);
   };
 
@@ -204,7 +208,7 @@ const ModalKhachHangCheckin = ({
   const isSelected = (id) => selectedKhachHang.some((kh) => kh.id === id);
 
   const handleKhachHangAdded = () => {
-    fetchKhachHangList(searchKeyword, page);
+    fetchKhachHangList(trangThai, searchKeyword, page);
   };
 
   if (!isOpen) return null;
@@ -214,7 +218,7 @@ const ModalKhachHangCheckin = ({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 1200,
+    width: { xs: "90%", sm: 1200 }, // Responsive width
     bgcolor: "background.paper",
     boxShadow: 24,
     p: 4,
@@ -232,13 +236,27 @@ const ModalKhachHangCheckin = ({
           </Typography>
 
           <Stack spacing={2}>
-            <TextField
-              fullWidth
-              label="Tìm kiếm (Họ, Tên, SĐT, Email, CMND)"
-              variant="outlined"
-              value={searchKeyword}
-              onChange={handleSearchChange}
-            />
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <TextField
+                fullWidth
+                label="Tìm kiếm (Họ, Tên, SĐT, Email, CMND)"
+                variant="outlined"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+              />
+              <FormControl sx={{ minWidth: { xs: "100%", sm: 200 } }}>
+                <InputLabel>Trạng thái</InputLabel>
+                <Select
+                  value={trangThai === null ? "" : trangThai}
+                  onChange={handleTrangThaiChange}
+                  label="Trạng thái"
+                >
+                  <MenuItem value="">Tất cả</MenuItem>
+                  <MenuItem value={true}>Hoạt động</MenuItem>
+                  <MenuItem value={false}>Không hoạt động</MenuItem>
+                </Select>
+              </FormControl>
+            </Stack>
             <Stack direction="row" spacing={2}>
               <Button variant="contained" onClick={handleOpenModalKHC}>
                 Tạo Mới
@@ -249,7 +267,10 @@ const ModalKhachHangCheckin = ({
             </Stack>
 
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 1000 }} aria-label="bảng khách hàng">
+              <Table
+                sx={{ minWidth: { xs: 300, sm: 1000 } }}
+                aria-label="bảng khách hàng"
+              >
                 <TableHead>
                   <TableRow>
                     <TableCell padding="checkbox"></TableCell>
@@ -324,7 +345,7 @@ const ModalKhachHangCheckin = ({
                 Tạo Check-in ({selectedKhachHang.length})
               </Button>
             )}
-            <Button variant="outlined" onClick={onClose}>
+            <Button variant="outlined" onClick={handleCloseModalKC}>
               Đóng
             </Button>
           </Stack>
@@ -336,14 +357,7 @@ const ModalKhachHangCheckin = ({
         onClose={handleCloseModalKHC}
         thongTinDatPhong={thongTinDatPhong}
         onKhachHangAdded={handleKhachHangAdded}
-        initialData={initialQRData} // Truyền dữ liệu QR vào form
-      />
-
-      <ModalCreateKHCU
-        isOpen={isModalKHCUOpen}
-        onClose={handleCloseModalKHCU}
-        thongTinDatPhong={thongTinDatPhong}
-        onKhachHangAdded={handleKhachHangAdded}
+        initialData={initialQRData}
       />
 
       <Modal open={isQRModalOpen} onClose={closeQRScanner}>

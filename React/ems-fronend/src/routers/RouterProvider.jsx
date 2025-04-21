@@ -36,12 +36,13 @@ import { XoaDichVuDiKem } from "../services/DichVuDiKemService";
 import DatPhong from '../pages/datphong/DatPhong'
 import QuanLyDatPhong from '../pages/quanlydatphong/QuanLyDatPhong';
 import Checkin from '../pages/checkin/Checkin';
+import {KhachHangLuuTru} from '../pages/customer/KhachHangLuuTru'
 
 function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
   const UnauthorizedRoutes = () => {
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken) {
-      return <Navigate to="/TrangChu" replace={true} />;
+      return <Navigate to="/trang-chu" replace={true} />;
     }
     return (
       <div className="app-container">
@@ -77,17 +78,16 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/login" element={<Login />} />
       </Route>
       <Route element={<ProtectedRoutes />}>
-        <Route path="/TrangChu" element={<ViewPhong />} />
-        <Route path="/LoaiPhong" element={<LoaiPhong />} />
-        <Route path="/NhanVien" element={<Employee />} />
+        <Route path="/trang-chu" element={<ViewPhong />} />
+        <Route path="/loai-phong" element={<LoaiPhong />} />
+        <Route path="/nhan-vien" element={<Employee />} />
         <Route path="/add-nhan-vien" element={<NewEmployee />} />
         <Route path="/update-nhan-vien/:id" element={<DetailEmployee />} />
-        <Route path="/LoaiPhong" element={<LoaiPhong />} />
         <Route path="/DichVuDikem" element={<XoaDichVuDiKem />} />
-        <Route path="/DichVu" element={<DanhSach />} />
+        <Route path="/dich-vu" element={<DanhSach />} />
         <Route path="/DichVuDiKem" element={<DanhSachDichVuDiKem />} />
         <Route path="/DichVuSuDung" element={<DanhSachDichVuSuDung />} />
-        <Route path="/VatTu" element={<VatTu />} />
+        <Route path="/vat-tu" element={<VatTu />} />
         <Route path="/VatTuLoaiPhong" element={<VatTuLoaiPhong />} />
         <Route path="/phong" element={<ListPhong />} />
         <Route path="/add-phong" element={<Phong />} />
@@ -116,6 +116,7 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/dat-phong" element={<DatPhong />} />
         <Route path="/quan-ly-dat-phong" element={<QuanLyDatPhong />} />
         <Route path="/nhan-phong" element={<Checkin />} />
+        <Route path="/khach-hang-luu-tru" element={<KhachHangLuuTru />} />
       </Route>
     </Routes>
   );

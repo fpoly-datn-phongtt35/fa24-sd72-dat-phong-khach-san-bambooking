@@ -1,146 +1,132 @@
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
+/* DetailTTDP.css */
+.ttdp-container {
     padding: 20px;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f9f9f9;
 }
 
-.header {
+.ttdp-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
-h2 {
-    color: #2c3e50;
-    font-size: 28px;
-    margin: 0;
+.ttdp-header h2 {
+    font-size: 24px;
+    color: #333;
 }
 
-.back-btn {
-    padding: 10px 20px;
+.btn-back {
     background-color: #3498db;
-    color: white;
+    color: #fff;
+    padding: 8px 16px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background 0.3s ease;
 }
 
-.back-btn:hover {
+.btn-back:hover {
     background-color: #2980b9;
 }
 
-.back-btn span {
-    margin-right: 5px;
+.card {
+    background-color: #fff;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.card h3 {
+    margin-bottom: 16px;
+    color: #2c3e50;
+    font-size: 20px;
+}
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.info-table th,
+.info-table td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.info-table th {
+    background-color: #f0f0f0;
+    color: #444;
+    font-weight: 600;
+}
+
+.expand-row {
+    background-color: #fcfcfc;
+}
+
+.expand-content {
+    padding: 10px 0;
+    font-size: 15px;
+    color: #555;
+}
+
+.expand-content .section {
+    margin-bottom: 16px;
+}
+
+.expand-content h4 {
+    margin-bottom: 8px;
+    font-size: 16px;
+    color: #2d3436;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 4px;
+}
+
+.status-label {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+    font-size: 14px;
+}
+
+.status-pending {
+    background-color: #fdcb6e;
+    color: #2d3436;
+}
+
+.status-unpaid {
+    background-color: #fab1a0;
+    color: #2d3436;
+}
+
+.status-paid {
+    background-color: #55efc4;
+    color: #2d3436;
+}
+
+.invoice-section div {
+    margin-bottom: 10px;
+    font-size: 15px;
+    color: #444;
+}
+
+.highlighted {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.text-center {
+    text-align: center;
+    color: #888;
+    font-style: italic;
 }
 
 .loading {
-    text-align: center;
-    padding: 20px;
-    color: #7f8c8d;
     font-size: 16px;
-}
-
-.card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 20px;
-    margin-bottom: 30px;
-}
-
-h3 {
-    color: #34495e;
-    margin-top: 0;
-    border-bottom: 2px solid #ecf0f1;
-    padding-bottom: 10px;
-}
-
-.table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-th, td {
-    padding: 12px 15px;
-    text-align: left;
-}
-
-th {
-    background: #3498db;
-    color: white;
-    font-weight: 600;
-}
-
-tr:nth-child(even) {
-    background: #f8f9fa;
-}
-
-.status {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 15px;
-}
-
-.status.choxacnhan {
-    color: rgb(255, 238, 0);
-    font-weight: 600;
-}
-
-.status.dathanhtoan {
-    color: rgb(29, 248, 0);
-    font-weight: 600;
-}
-.status.chuathanhtoan {
-    color: rgb(231, 0, 0);
-    font-weight: 600;
-}
-
-
-.invoice-info {
-    background: #fff;
-}
-
-.invoice-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.label {
-    font-weight: 600;
-    color: #000000;
-    margin-bottom: 5px;
-}
-
-/* .total {
-    color: #e74c3c;
-    font-weight: 600;
-} */
-
-.expanded-details {
-    background: #f0f8ff;
-    padding: 15px;
-    border-radius: 5px;
-    margin: 10px 0;
-}
-
-.expanded-details h4 {
-    color: #2c3e50;
-    margin: 10px 0;
-}
-
-.no-invoice {
+    color: #666;
     text-align: center;
-    font-size: 20px;
-    padding: 20px;
-    margin: 0;
 }

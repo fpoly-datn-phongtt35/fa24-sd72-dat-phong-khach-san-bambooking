@@ -131,12 +131,13 @@ const ChiTietDatPhong = () => {
       });
   };
 
-  const handleHuyTTDP = (idTTDP) => {
+  const handleHuyTTDP = (ttdp) => {
+    console.log("ID thông tin đặt phòng:", ttdp.id);
     const confirmCancel = window.confirm(
-      `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${maDatPhong} không?`
+      `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${ttdp.maDatPhong} không?`
     );
     if (confirmCancel) {
-      huyTTDP(idTTDP)
+      huyTTDP(ttdp.maThongTinDatPhong)
         .then(() => {
           showSnackbar("Hủy thành công", "success");
           getDetailDatPhong(maDatPhong);
@@ -601,7 +602,7 @@ const ChiTietDatPhong = () => {
                         <Tooltip title="Hủy thông tin đặt phòng">
                           <IconButton
                             color="error"
-                            onClick={() => handleHuyTTDP(ttdp.id)}
+                            onClick={() => handleHuyTTDP(ttdp)}
                             size="small"
                           >
                             <RemoveCircleOutlineIcon />

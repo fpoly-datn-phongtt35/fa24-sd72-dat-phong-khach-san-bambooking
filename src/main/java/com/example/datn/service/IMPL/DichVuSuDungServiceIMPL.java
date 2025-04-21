@@ -83,12 +83,11 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
 
     @Override
     public DichVuSuDung addPhieuDichVu2(DichVuSuDungRequest dichVuSuDungRequest) {
-        List<DichVuSuDung> DVSDtrue = phieuDichVuRepository.getByTrangThai();
+        List<DichVuSuDung> DVSDtrue = phieuDichVuRepository.getByTrangThai(dichVuSuDungRequest.getXepPhong().getId());
 
         for (DichVuSuDung dvsd : DVSDtrue) {
             if (dvsd.getDichVu().getId().equals(dichVuSuDungRequest.getDichVu().getId())
                     && dvsd.getGiaSuDung().equals(dichVuSuDungRequest.getGiaSuDung())) {
-
                 dvsd.setSoLuongSuDung(dvsd.getSoLuongSuDung() + dichVuSuDungRequest.getSoLuongSuDung());
                 return phieuDichVuRepository.save(dvsd);
             }

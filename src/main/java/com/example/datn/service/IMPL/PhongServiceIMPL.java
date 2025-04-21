@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -87,7 +88,7 @@ public class PhongServiceIMPL implements PhongService {
     }
 
     @Override
-    public List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDateTime ngayNhanPhong,LocalDateTime ngayTraPhong) {
+    public List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDate ngayNhanPhong, LocalDate ngayTraPhong) {
         List<String> trangThai = Arrays.asList("Đang ở","Đã xếp");
         List<String> tinhTrang = Arrays.asList("Trống","Đang đặt");
         return phongRepository.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong,trangThai,tinhTrang);

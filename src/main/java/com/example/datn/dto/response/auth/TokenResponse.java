@@ -13,5 +13,6 @@ public class TokenResponse implements Serializable {
     private String accessToken;
     private String refreshToken;
     private String username;
+    private String avatar;
     private Collection<? extends GrantedAuthority> role;
 }

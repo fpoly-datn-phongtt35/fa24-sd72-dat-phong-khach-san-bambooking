@@ -14,8 +14,12 @@ import Footer from "./components/Footer";
 import AboutPage from "./pages/AboutPage";
 import HotelRules from "./pages/HotelRules";
 import Signup from "./components/Signup";
+import AccountPage from "./pages/AccountPage";
+
 import HotelBookingForm from "./pages/HotelBookingForm";
 import HotelBookingConfirmation from "./pages/HotelBookingConfirmation";
+import PendingBooking from "./pages/PendingBooking";
+import HomePage from "./pages/HomePage";
 function App() {
   const UnauthorizedRoutes = () => {
     // const accessToken = localStorage.getItem("accessToken");
@@ -79,7 +83,7 @@ function App() {
 
       <Route element={<UnauthorizedRoutes />}>
         {/* Pages không cần đăng nhập */}
-        <Route path="/" element={<Information />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />
@@ -88,10 +92,15 @@ function App() {
         <Route path="/information" element={<Information />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/account" element={<AccountPage />} />
         {/* <Route path="/about" element={<AboutPage />} /> */}
         <Route path="/rules" element={<HotelRules />} />
         <Route path="/booking" element={<HotelBookingForm />} />
-        <Route path="/booking-confirmation" element={<HotelBookingConfirmation />} />
+        <Route
+          path="/booking-confirmation"
+          element={<HotelBookingConfirmation />}
+        />
+        <Route path="/pending-booking" element={<PendingBooking />} />
       </Route>
 
       <Route element={<ProtectedRoutes />}>

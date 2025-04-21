@@ -49,4 +49,9 @@ public class KhachHangCheckinController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("ds-luu-tru")
+    public ResponseEntity<List<Object[]>> findKhachHangCheckin(@RequestParam(value="keyword", required = false) String keyword){
+        return ResponseEntity.ok(khachHangCheckinServiceIMPL.findKhachHangCheckin(keyword));
+    }
 }

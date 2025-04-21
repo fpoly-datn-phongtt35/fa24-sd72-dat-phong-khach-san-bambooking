@@ -10,9 +10,10 @@ export const listKhachHang = (pageable, searchQuery = "") => {
     },
   });
 };
-export const getKhachHangByKey = (keyword, pageable) => {
+export const getKhachHangByKey = (trangThai, keyword, pageable) => {
   return authorizedAxiosInstance.get(apiGetKHByKey, {
     params: {
+      trangThai: trangThai,
       keyword: keyword,
       page: pageable.page,
       size: pageable.size,

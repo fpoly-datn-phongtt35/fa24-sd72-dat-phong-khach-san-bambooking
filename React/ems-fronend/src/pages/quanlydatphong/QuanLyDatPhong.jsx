@@ -41,7 +41,8 @@ const QuanLyDatPhong = () => {
   const navigate = useNavigate();
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [datPhong, setDatPhong] = useState([]);
-  const [ngayNhan, setNgayNhan] = useState(null);
+  const [ngayNhan, setNgayNhan] = useState(
+      dayjs().hour(14).minute(0));
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
   const [page, setPage] = useState(0);
@@ -93,7 +94,7 @@ const QuanLyDatPhong = () => {
 
   useEffect(() => {
     searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
-    return () => searchDatPhong.cancel(); // Cleanup debounce on unmount
+    return () => searchDatPhong.cancel();
   }, [key, ngayNhan, ngayTra, page, pageSize, searchDatPhong]);
 
   const handlePageChange = (event, newPage) => {
@@ -393,7 +394,6 @@ const QuanLyDatPhong = () => {
                 <TableCell>Số Phòng</TableCell>
                 <TableCell>Ngày Đặt</TableCell>
                 <TableCell>Tổng Tiền</TableCell>
-                <TableCell>Ghi Chú</TableCell>
                 <TableCell>Trạng Thái</TableCell>
                 <TableCell>Hành Động</TableCell>
               </TableRow>
@@ -420,11 +420,10 @@ const QuanLyDatPhong = () => {
                     {dayjs(dp.ngayDat).format("DD/MM/YYYY")}
                   </TableCell>
                   <TableCell>{dp.tongTien?.toLocaleString()} VND</TableCell>
-                  <TableCell>{dp.ghiChu}</TableCell>
                   <TableCell>{dp.trangThai}</TableCell>
                   <TableCell>
                     <Stack direction="row" spacing={1}>
-                      {dp.trangThai === "Chua xep" && (
+                      {/* {dp.trangThai === "Chua xep" && (
                         <IconButton
                           size="small"
                           onClick={() => handleAssign(dp)}
@@ -445,7 +444,7 @@ const QuanLyDatPhong = () => {
                             <CheckCircleIcon />
                           )}
                         </IconButton>
-                      )}
+                      )} */}
                       {["Đang đặt phòng", "Đã xác nhận"].includes(
                         dp.trangThai
                       ) && (

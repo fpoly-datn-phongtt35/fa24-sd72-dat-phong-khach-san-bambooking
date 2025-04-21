@@ -85,6 +85,12 @@ public class XepPhongServiceIMPL implements XepPhongService {
             throw new IllegalArgumentException("Ngày nhận phòng không được null");
         }
 
+        LocalDate currentDate = LocalDate.now();
+        LocalDate checkInDate = ngayNhanPhong.toLocalDate();
+        if (!checkInDate.equals(currentDate)) {
+            throw new IllegalArgumentException("Chỉ có thể check-in trong ngày hiện tại");
+        }
+
         try {
             XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId())
                     .orElseGet(() -> this.addXepPhong(xepPhongRequest));
