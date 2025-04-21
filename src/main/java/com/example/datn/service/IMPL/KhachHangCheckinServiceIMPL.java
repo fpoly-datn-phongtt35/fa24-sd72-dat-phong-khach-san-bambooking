@@ -10,6 +10,7 @@ import com.example.datn.service.KhachHangService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -53,5 +54,11 @@ public class KhachHangCheckinServiceIMPL implements KhachHangCheckinService {
     @Override
     public List<Object[]> findKhachHangCheckin(String keyword) {
         return repository.findKhachHangCheckin(keyword);
+    }
+
+    @Override
+    public List<KhachHangCheckin> findByTrangThaiTTDP() {
+        List<String> trangthai = Arrays.asList("Đang ở", "Đã xếp", "Đã kiểm tra phòng");
+        return repository.findByTrangThaiTTDP(trangthai);
     }
 }

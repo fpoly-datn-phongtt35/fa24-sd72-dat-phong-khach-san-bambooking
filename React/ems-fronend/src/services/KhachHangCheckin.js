@@ -5,6 +5,7 @@ const apiThem = "http://localhost:8080/khach-hang-checkin/them"
 const apiSua = "http://localhost:8080/khach-hang-checkin/sua";
 const apiXoa = "http://localhost:8080/khach-hang-checkin/xoa";
 const apiKHLuuTru = "http://localhost:8080/khach-hang-checkin/ds-luu-tru"
+const apiGetAll = "http://localhost:8080/khach-hang-checkin/danh-sach"
 
 export const hienThi = (maThongTinDatPhong) => {
     return authorizedAxiosInstance.get(apiHienThi, {
@@ -31,4 +32,8 @@ export const dsKhachHangLuuTru = (keyword) => {
         keyword: keyword
           }
   });
+};
+
+export const DanhSachKHC = () => {
+  return authorizedAxiosInstance.get(apiGetAll);
 };
