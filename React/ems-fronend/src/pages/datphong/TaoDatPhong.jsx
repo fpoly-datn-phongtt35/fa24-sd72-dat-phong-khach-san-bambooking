@@ -80,12 +80,6 @@ const TaoDatPhong = () => {
     }
   }, [datPhong, thongTinDatPhong]);
 
-  const handleChoseRoom = (room) => {
-    setSelectedRoom(room);
-    setNewRoomCount(room.soPhong);
-    setOpenDialog(true);
-  };
-
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedRoom(null);
@@ -420,9 +414,6 @@ const TaoDatPhong = () => {
                           {(calculateBookingDays(room.ngayNhanPhong, room.ngayTraPhong) * room.loaiPhong.donGia * room.soPhong).toLocaleString()}
                         </TableCell>
                         <TableCell>
-                          <IconButton color="primary" onClick={() => handleChoseRoom(room)} title="Chọn số phòng">
-                            <EditIcon />
-                          </IconButton>
                           <IconButton color="warning" onClick={() => handleRemoveRoom(room)} title="Hủy phòng này">
                             <RemoveIcon />
                           </IconButton>
@@ -445,36 +436,6 @@ const TaoDatPhong = () => {
             </Paper>
           </Grid>
         </Grid>
-
-        {/* Dialog chọn số phòng */}
-        <Dialog
-          open={openDialog}
-          onClose={handleCloseDialog}
-          sx={{ "& .MuiDialog-paper": { width: "500px", maxWidth: "none" } }}
-        >
-          <DialogTitle>Chọn số phòng</DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Số phòng"
-              type="number"
-              fullWidth
-              value={newRoomCount}
-              onChange={(e) => setNewRoomCount(e.target.value)}
-              inputProps={{ min: 0, max: selectedRoom?.soPhong }}
-            />
-            <Typography variant="caption">
-              Số phòng tối đa: {selectedRoom?.soPhong}
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseDialog}>Hủy</Button>
-            <Button onClick={handleUpdateRoomCount} color="primary">
-              Xác nhận
-            </Button>
-          </DialogActions>
-        </Dialog>
       </Paper>
     </Container>
   );
