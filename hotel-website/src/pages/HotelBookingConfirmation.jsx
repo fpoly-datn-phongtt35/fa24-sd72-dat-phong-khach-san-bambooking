@@ -165,7 +165,7 @@ const HotelBookingConfirmation = () => {
         ngayDat: datPhong?.ngayDat,
         tongTien: calculateTotalAmount(),
         ghiChu: "Ghi chú thêm nếu cần",
-        trangThai: "Đã xác nhận",
+        trangThai: "Chưa xác nhận",
       });
       if (!datPhongResponse || !datPhongResponse.data) throw new Error();
 

@@ -186,34 +186,26 @@ const HomePage = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={3}>
-                  <Box
-                    display="flex"
-                    alignItems="center"
-                    className="guest-room-box"
-                  >
-                    <Box mr={2}>
-                      <Typography variant="body1">
-                        {soNguoi} người
-                      </Typography>
-                    </Box>
-                    <IconButton
-                      onClick={() => handleGuestChange(-1)}
-                      disabled={soNguoi <= 1}
-                      sx={{ border: "1px solid #e0e0e0", borderRadius: 1 }}
-                    >
-                      <RemoveIcon />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => handleGuestChange(1)}
-                      sx={{
-                        border: "1px solid #e0e0e0",
+                  <TextField
+                    label="Số người"
+                    type="number"
+                    value={soNguoi}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Ensure the value is a positive number and at least 1
+                      setSoNguoi(
+                        value && Number(value) >= 1 ? Number(value) : 1
+                      );
+                    }}
+                    fullWidth
+                    inputProps={{ min: 1 }} // Prevent negative numbers in the input
+                    sx={{
+                      "& .MuiInputBase-root": {
                         borderRadius: 1,
-                        ml: 1,
-                      }}
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  </Box>
+                        backgroundColor: "#fff",
+                      },
+                    }}
+                  />
                 </Grid>
                 <Grid item xs={12} sm={3}>
                   <Button
@@ -239,9 +231,7 @@ const HomePage = () => {
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                   sx={{ color: "#1976d2" }}
                 >
-                  {showAdvancedFilters
-                    ? "Ẩn bộ lọc"
-                    : "Bộ lọc"}
+                  {showAdvancedFilters ? "Ẩn bộ lọc" : "Bộ lọc"}
                 </Button>
                 {showAdvancedFilters && (
                   <Box
@@ -421,18 +411,21 @@ const HomePage = () => {
                             <TextField
                               label="Số lượng"
                               type="number"
-                              value={lpc.soLuongChon || ""}
+                              value={lpc.soLuongChon || 1} // Default to 1 if null or undefined
                               onChange={(e) => {
                                 const newList = [...loaiPhongChons];
+                                const value = e.target.value;
                                 newList[index] = {
                                   ...newList[index],
-                                  soLuongChon: e.target.value
-                                    ? Number(e.target.value)
-                                    : null,
+                                  soLuongChon:
+                                    value && Number(value) >= 1
+                                      ? Number(value)
+                                      : 1, // Enforce minimum of 1
                                 };
                                 setLoaiPhongChons(newList);
                               }}
                               fullWidth
+                              inputProps={{ min: 1 }} // Prevent negative numbers in the input
                               sx={{
                                 "& .MuiInputBase-root": {
                                   borderRadius: 1,

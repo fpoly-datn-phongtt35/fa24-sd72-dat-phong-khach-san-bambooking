@@ -153,7 +153,7 @@ const Checkin = () => {
         id: xepPhong.id,
         phong: xepPhong.phong,
         thongTinDatPhong: xepPhong.thongTinDatPhong,
-        ngayNhanPhong: new Date(),
+        ngayNhanPhong: new Date().toLocaleString(),
         ngayTraPhong: new Date(new Date(dp.ngayTraPhong).setHours(12, 0, 0, 0)),
         trangThai: "Da nhan",
       };
