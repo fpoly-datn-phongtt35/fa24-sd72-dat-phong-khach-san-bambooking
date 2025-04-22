@@ -31,6 +31,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Autowired
     DatPhongRepository datPhongRepository;
 
+    @Autowired
+    KhachHangServiceIMPL khachHangServiceIMPL;
+
 
     @Override
     public List<ThongTinDatPhong> getAll() {
@@ -44,14 +47,8 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         UniqueDatPhongCode code = new UniqueDatPhongCode();
         long soDem = ChronoUnit.DAYS.between(request.getNgayNhanPhong(), request.getNgayTraPhong());
         Double tienPhong = soDem * request.getGiaDat();
-        long soNguoiToiDa = lp.getSoKhachToiDa();
-        long soNguoi = request.getSoNguoi();
-        Double tienPhuThu = 0.0;
-        if (soNguoi > soNguoiToiDa) {
-            tienPhuThu += (soNguoi - soNguoiToiDa) * lp.getDonGiaPhuThu();
-        }
         DatPhong dp = request.getDatPhong();
-        dp.setTongTien(dp.getTongTien() + tienPhong + tienPhuThu);
+        dp.setTongTien(dp.getTongTien() + tienPhong);
         ttdp.setDatPhong(dp);
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
@@ -112,6 +109,10 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByMa(maTTDP);
         XepPhong xp = xepPhongRepository.getByMaTTDP(maTTDP);
         DatPhong dp = datPhongRepository.findByMaDatPhong(ttdp.getDatPhong().getMaDatPhong());
+
+//        if(ttdp.getTrangThai().equalsIgnoreCase("Đang đặt phòng")){
+//            khachHangServiceIMPL.deleteKhachHangDatPhong(dp.getKhachHang().getId());
+//        }
 
         // Nếu có XepPhong liên quan, cập nhật trạng thái thành false
         if (xp != null) {

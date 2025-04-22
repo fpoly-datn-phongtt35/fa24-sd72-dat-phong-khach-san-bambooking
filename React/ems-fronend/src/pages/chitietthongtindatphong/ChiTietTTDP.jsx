@@ -23,7 +23,7 @@ import HotelIcon from "@mui/icons-material/Hotel";
 import PersonIcon from "@mui/icons-material/Person";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import {updateKhachHang,} from "../../services/KhachHangService";
+import { updateKhachHang, } from "../../services/KhachHangService";
 const ChiTietTTDP = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,10 +57,14 @@ const ChiTietTTDP = () => {
 
   const fetchPhongDaXep = (maThongTinDatPhong) => {
     phongDaXep(maThongTinDatPhong)
-      .then((response) => setXepPhong(response.data))
+      .then((response) => {
+        setXepPhong(response.data);
+        console.log(response.data)
+      })
       .catch((error) =>
         console.error("Lỗi khi lấy thông tin phòng đã xếp:", error)
       );
+
   };
 
   const capNhatTTDP = () => {
@@ -107,17 +111,10 @@ const ChiTietTTDP = () => {
 
     try {
       const khachHangRequest = {
-        id: khc.khachHang.id,
-        cccd: khc.khachHang.cmnd,
-        ho: khc.khachHang.ho,
-        ten: khc.khachHang.ten,
-        sdt: khc.khachHang.sdt,
-        email: khc.khachHang.email,
-        gioiTinh: khc.khachHang.gioiTinh,
-        diaChi: khc.khachHang.diaChi,
+        ...khc,
         trangThai: true,
       };
-      const response = await updateKhachHang(khachHangRequest); // Gọi API sửa
+      const response = await sua(khachHangRequest); // Gọi API sửa
       console.log("Xác nhận khách hàng thành công:", response);
       fetchKhachHangCheckin(maThongTinDatPhong); // Tải lại danh sách sau khi sửa
     } catch (error) {
@@ -138,17 +135,10 @@ const ChiTietTTDP = () => {
 
     try {
       const khachHangRequest = {
-        id: khc.khachHang.id,
-        cccd: khc.khachHang.cmnd,
-        ho: khc.khachHang.ho,
-        ten: khc.khachHang.ten,
-        sdt: khc.khachHang.sdt,
-        email: khc.khachHang.email,
-        gioiTinh: khc.khachHang.gioiTinh,
-        diaChi: khc.khachHang.diaChi,
+        ...khc,
         trangThai: false,
       };
-      const response = await updateKhachHang(khachHangRequest); // Gọi API sửa
+      const response = await sua(khachHangRequest); // Gọi API sửa
       console.log("Xác nhận khách hàng thành công:", response);
       fetchKhachHangCheckin(maThongTinDatPhong); // Tải lại danh sách sau khi sửa
     } catch (error) {
@@ -177,7 +167,10 @@ const ChiTietTTDP = () => {
   }, [maThongTinDatPhong]);
 
   const handleModalKHC = () => setModalOpen(true);
-  const handleClose = () => setModalOpen(false);
+  const handleClose = () => {
+    setModalOpen(false);
+    fetchKhachHangCheckin(maThongTinDatPhong);
+  }
 
   const openXepPhongModal = (thongTinDatPhong) => {
     setSelectedTTDPs([thongTinDatPhong]);
@@ -319,11 +312,11 @@ const ChiTietTTDP = () => {
                   <Typography variant="body1" sx={{ fontWeight: "medium" }}>
                     {xepPhong?.ngayNhanPhong
                       ? new Date(xepPhong.ngayNhanPhong).toLocaleDateString(
-                          "vi-VN"
-                        )
+                        "vi-VN"
+                      )
                       : new Date(
-                          thongTinDatPhong?.ngayNhanPhong
-                        ).toLocaleDateString("vi-VN") || "N/A"}
+                        thongTinDatPhong?.ngayNhanPhong
+                      ).toLocaleDateString("vi-VN") || "N/A"}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "center" }}>
@@ -343,11 +336,11 @@ const ChiTietTTDP = () => {
                   <Typography variant="body1" sx={{ fontWeight: "medium" }}>
                     {xepPhong?.ngayTraPhong
                       ? new Date(xepPhong.ngayTraPhong).toLocaleDateString(
-                          "vi-VN"
-                        )
+                        "vi-VN"
+                      )
                       : new Date(
-                          thongTinDatPhong?.ngayTraPhong
-                        ).toLocaleDateString("vi-VN") || "N/A"}
+                        thongTinDatPhong?.ngayTraPhong
+                      ).toLocaleDateString("vi-VN") || "N/A"}
                   </Typography>
                 </Box>
               </Box>
@@ -414,12 +407,12 @@ const ChiTietTTDP = () => {
                             </Typography>
                             <Chip
                               label={
-                                khc?.khachHang?.trangThai === true
+                                khc?.trangThai === true
                                   ? "Active"
                                   : "Inactive"
                               }
                               color={
-                                khc?.khachHang?.trangThai === true
+                                khc?.trangThai === true
                                   ? "success"
                                   : "error"
                               }
@@ -450,29 +443,37 @@ const ChiTietTTDP = () => {
                         <CardActions
                           sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
                         >
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            color="error"
-                            onClick={() => handleDelete(khc.id)} // Xóa với ID của khachHangCheckin
-                          >
-                            Xóa
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="contained"
-                            color="primary"
-                            onClick={() => handleXacNhan(khc)} // Xác nhận
-                          >
-                            Xác nhận
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="outlined"
-                            onClick={() => handleUpdate(khc, !khc.trangThai)} // Đổi trạng thái
-                          >
-                            Hủy
-                          </Button>
+                          {(xepPhong?.trangThai == 'Đang ở' || xepPhong?.trangThai == 'Đã xếp') && (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="error"
+                              onClick={() => handleDelete(khc.id)} // Xóa với ID của khachHangCheckin
+                            >
+                              Xóa
+                            </Button>
+                          )}
+
+                          {xepPhong?.trangThai === 'Đang ở' && (
+                            <>
+                              <Button
+                                size="small"
+                                variant="contained"
+                                color="primary"
+                                onClick={() => handleXacNhan(khc)} // Xác nhận
+                              >
+                                Xác nhận
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => handleUpdate(khc)} // Đổi trạng thái
+                              >
+                                Hủy
+                              </Button>
+                            </>
+                          )}
+
                         </CardActions>
                       </Card>
                     </Grid>
@@ -489,15 +490,19 @@ const ChiTietTTDP = () => {
                   </Grid>
                 )}
               </Grid>
-              <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleModalKHC}
-                >
-                  + Thêm khách
-                </Button>
-              </Box>
+              {(xepPhong?.trangThai == 'Đang ở' || xepPhong?.trangThai == 'Đã xếp') && (
+                <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleModalKHC}
+                  >
+                    + Thêm khách
+                  </Button>
+
+                </Box>
+              )}
             </CardContent>
           </Card>
         </Grid>

@@ -41,7 +41,7 @@ const QuanLyDatPhong = () => {
   const navigate = useNavigate();
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [datPhong, setDatPhong] = useState([]);
-  const [ngayNhan, setNgayNhan] = useState(null);
+  const [ngayNhan, setNgayNhan] = useState(dayjs().hour(14).minute(0));
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
   const [page, setPage] = useState(0);
@@ -69,13 +69,12 @@ const QuanLyDatPhong = () => {
             ngayNhanPhong: formattedNgayNhan,
             ngayTraPhong: formattedNgayTra,
             pageable: {
-              page: currentPage, // Spring Boot bắt đầu từ 0
+              page: currentPage,
               size: size,
             },
           };
 
           const res = await findDatPhong(params);
-          console.log("Response data:", res);
           setDatPhong(res.content || []);
           setTotalPages(res.totalPages || 0);
         } catch (err) {
@@ -93,17 +92,17 @@ const QuanLyDatPhong = () => {
 
   useEffect(() => {
     searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
-    return () => searchDatPhong.cancel(); // Cleanup debounce on unmount
+    return () => searchDatPhong.cancel();
   }, [key, ngayNhan, ngayTra, page, pageSize, searchDatPhong]);
 
   const handlePageChange = (event, newPage) => {
-    setPage(newPage - 1); // Pagination của MUI đếm từ 1, nhưng API đếm từ 0
+    setPage(newPage - 1);
   };
 
   const handlePageSizeChange = (event) => {
     const newSize = event.target.value;
     setPageSize(newSize);
-    setPage(0); // Reset về trang đầu khi thay đổi số bản ghi
+    setPage(0);
   };
 
   const handleViewDetails = (maDatPhong) => {
@@ -147,7 +146,7 @@ const QuanLyDatPhong = () => {
         ngayTraPhong: new Date(
           new Date(datPhongItem.ngayTraPhong).setHours(12, 0, 0, 0)
         ),
-        trangThai: "Da nhan", // Cập nhật trạng thái thành "Đã nhận"
+        trangThai: "Da nhan",
       };
       await checkIn(xepPhongRequest);
       alert("Check-in thành công!");
@@ -199,7 +198,7 @@ const QuanLyDatPhong = () => {
   };
 
   return (
-    <Container sx={{ minWidth: "1300px" }}>
+    <Container sx={{ maxWidth: "100%", padding: { xs: 2, sm: 3 } }}>
       <Paper
         elevation={3}
         sx={{
@@ -217,13 +216,13 @@ const QuanLyDatPhong = () => {
             variant="h4"
             gutterBottom
             align="center"
-            sx={{ fontWeight: "bold" }}
+            sx={{ fontWeight: "bold", fontSize: { xs: "1.5rem", sm: "2rem" } }}
           >
             Tra cứu đặt phòng
           </Typography>
         </Box>
 
-        <Box sx={{ bgcolor: "white", p: 4 }}>
+        <Box sx={{ bgcolor: "white", p: { xs: 2, sm: 4 } }}>
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={{ xs: 1, sm: 2 }}
@@ -236,22 +235,23 @@ const QuanLyDatPhong = () => {
               value={key}
               onChange={(e) => setKey(e.target.value)}
               startAdornment={<SearchIcon />}
-              size="lg"
-              sx={{ mb: { xs: 1, sm: 0 } }}
+              sx={{
+                mb: { xs: 1, sm: 0 },
+                fontSize: { xs: "1rem", sm: "1.25rem" },
+                "& .MuiInputBase-input": { padding: "12px" },
+              }}
             />
             <Button
               variant="contained"
               color="primary"
-              size="large"
               onClick={() =>
                 searchDatPhong(key, ngayNhan, ngayTra, 0, pageSize)
               }
               disabled={loading}
               sx={{
                 width: { xs: "100%", sm: "auto" },
-                minWidth: { sm: "120px" },
-                height: "56px",
-                fontWeight: "bold",
+                height: { xs: "48px", sm: "56px" },
+                fontSize: { xs: "0.875rem", sm: "1rem" },
                 borderRadius: 1,
               }}
             >
@@ -270,6 +270,7 @@ const QuanLyDatPhong = () => {
                 textTransform: "none",
                 color: "#1976d2",
                 "&:hover": { bgcolor: "#f5f5f5" },
+                fontSize: { xs: "0.875rem", sm: "1rem" },
               }}
             >
               {showAdvancedFilters
@@ -309,6 +310,7 @@ const QuanLyDatPhong = () => {
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
                               backgroundColor: "#f5f5f5",
+                              fontSize: { xs: "0.875rem", sm: "1rem" },
                             },
                           },
                         },
@@ -331,6 +333,7 @@ const QuanLyDatPhong = () => {
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
                               backgroundColor: "#f5f5f5",
+                              fontSize: { xs: "0.875rem", sm: "1rem" },
                             },
                           },
                         },
@@ -347,18 +350,21 @@ const QuanLyDatPhong = () => {
       <Box
         sx={{
           display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
           justifyContent: "space-between",
           alignItems: "center",
           p: 2,
+          gap: { xs: 2, sm: 0 },
         }}
       >
-        <FormControl sx={{ minWidth: 120 }}>
+        <FormControl sx={{ minWidth: { xs: "100%", sm: 120 } }}>
           <InputLabel>Số bản ghi</InputLabel>
           <Select
             value={pageSize}
             onChange={handlePageSizeChange}
             label="Số bản ghi"
             disabled={loading}
+            sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
           >
             <MenuItem value={5}>5</MenuItem>
             <MenuItem value={10}>10</MenuItem>
@@ -373,6 +379,12 @@ const QuanLyDatPhong = () => {
             onChange={handlePageChange}
             color="primary"
             disabled={loading}
+            size="small"
+            sx={{
+              "& .MuiPaginationItem-root": {
+                fontSize: { xs: "0.875rem", sm: "1rem" },
+              },
+            }}
           />
         )}
       </Box>
@@ -382,95 +394,157 @@ const QuanLyDatPhong = () => {
           <CircularProgress />
         </Box>
       ) : datPhong.length > 0 ? (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Mã Đặt Phòng</TableCell>
-                <TableCell>Khách Hàng</TableCell>
-                <TableCell>Số Điện Thoại</TableCell>
-                <TableCell>Số Người</TableCell>
-                <TableCell>Số Phòng</TableCell>
-                <TableCell>Ngày Đặt</TableCell>
-                <TableCell>Tổng Tiền</TableCell>
-                <TableCell>Ghi Chú</TableCell>
-                <TableCell>Trạng Thái</TableCell>
-                <TableCell>Hành Động</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {datPhong.map((dp) => (
-                <TableRow key={dp.maDatPhong}>
-                  <TableCell>
-                    <Typography
-                      variant="body2"
-                      sx={{ color: "blue", cursor: "pointer" }}
-                      onClick={() => handleViewDetails(dp.maDatPhong)}
+        <>
+          <Box sx={{ display: { xs: "block", sm: "none" } }}>
+            {datPhong.map((dp) => (
+              <Paper key={dp.maDatPhong} sx={{ p: 2, mb: 2 }}>
+                <Typography variant="body2">
+                  <strong>Mã Đặt Phòng:</strong>{" "}
+                  <span
+                    style={{ color: "blue", cursor: "pointer" }}
+                    onClick={() => handleViewDetails(dp.maDatPhong)}
+                  >
+                    {dp.maDatPhong}
+                  </span>
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Khách Hàng:</strong>{" "}
+                  {dp.khachHang?.ho + " " + dp.khachHang?.ten}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Số Điện Thoại:</strong> {dp.khachHang?.sdt}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Số Người:</strong> {dp.soNguoi}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Số Phòng:</strong> {dp.soPhong}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Ngày Đặt:</strong>{" "}
+                  {dayjs(dp.ngayDat).format("DD/MM/YYYY")}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Tổng Tiền:</strong> {dp.tongTien?.toLocaleString()} VND
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Trạng Thái:</strong> {dp.trangThai}
+                </Typography>
+                <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                  {["Đang đặt phòng", "Đã xác nhận"].includes(dp.trangThai) && (
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => handleHuyDP(dp.maDatPhong)}
+                      disabled={actionLoading}
                     >
-                      {dp.maDatPhong}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    {dp.khachHang?.ho + " " + dp.khachHang?.ten}
-                  </TableCell>
-                  <TableCell>{dp.khachHang?.sdt}</TableCell>
-                  <TableCell>{dp.soNguoi}</TableCell>
-                  <TableCell>{dp.soPhong}</TableCell>
-                  <TableCell>
-                    {dayjs(dp.ngayDat).format("DD/MM/YYYY")}
-                  </TableCell>
-                  <TableCell>{dp.tongTien?.toLocaleString()} VND</TableCell>
-                  <TableCell>{dp.ghiChu}</TableCell>
-                  <TableCell>{dp.trangThai}</TableCell>
-                  <TableCell>
-                    <Stack direction="row" spacing={1}>
-                      {dp.trangThai === "Chua xep" && (
-                        <IconButton
-                          size="small"
-                          onClick={() => handleAssign(dp)}
-                          disabled={actionLoading}
-                        >
-                          <MeetingRoomIcon />
-                        </IconButton>
+                      {actionLoading ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <RemoveCircleOutlineIcon />
                       )}
-                      {dp.trangThai === "Da xep" && (
-                        <IconButton
-                          size="small"
-                          onClick={() => handleCheckin(dp)}
-                          disabled={actionLoading}
-                        >
-                          {actionLoading ? (
-                            <CircularProgress size={20} />
-                          ) : (
-                            <CheckCircleIcon />
-                          )}
-                        </IconButton>
-                      )}
-                      {["Đang đặt phòng", "Đã xác nhận"].includes(
-                        dp.trangThai
-                      ) && (
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleHuyDP(dp.maDatPhong)}
-                          disabled={actionLoading}
-                        >
-                          {actionLoading ? (
-                            <CircularProgress size={20} />
-                          ) : (
-                            <RemoveCircleOutlineIcon />
-                          )}
-                        </IconButton>
-                      )}
-                    </Stack>
-                  </TableCell>
+                    </IconButton>
+                  )}
+                </Stack>
+              </Paper>
+            ))}
+          </Box>
+
+          <TableContainer
+            component={Paper}
+            sx={{ display: { xs: "none", sm: "block" }, overflowX: "auto" }}
+          >
+            <Table sx={{ minWidth: 650 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Mã Đặt Phòng</TableCell>
+                  <TableCell>Khách Hàng</TableCell>
+                  <TableCell>Số Điện Thoại</TableCell>
+                  <TableCell>Số Người</TableCell>
+                  <TableCell>Số Phòng</TableCell>
+                  <TableCell>Ngày Đặt</TableCell>
+                  <TableCell>Tổng Tiền</TableCell>
+                  <TableCell>Trạng Thái</TableCell>
+                  <TableCell>Hành Động</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {datPhong.map((dp) => (
+                  <TableRow key={dp.maDatPhong}>
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: "blue", cursor: "pointer" }}
+                        onClick={() => handleViewDetails(dp.maDatPhong)}
+                      >
+                        {dp.maDatPhong}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      {dp.khachHang?.ho + " " + dp.khachHang?.ten}
+                    </TableCell>
+                    <TableCell>{dp.khachHang?.sdt}</TableCell>
+                    <TableCell>{dp.soNguoi}</TableCell>
+                    <TableCell>{dp.soPhong}</TableCell>
+                    <TableCell>
+                      {dayjs(dp.ngayDat).format("DD/MM/YYYY")}
+                    </TableCell>
+                    <TableCell>{dp.tongTien?.toLocaleString()} VND</TableCell>
+                    <TableCell>{dp.trangThai}</TableCell>
+                    <TableCell>
+                      <Stack direction="row" spacing={1}>
+                        {dp.trangThai === "Chua xep" && (
+                          <IconButton
+                            size="small"
+                            onClick={() => handleAssign(dp)}
+                            disabled={actionLoading}
+                          >
+                            <MeetingRoomIcon />
+                          </IconButton>
+                        )}
+                        {dp.trangThai === "Da xep" && (
+                          <IconButton
+                            size="small"
+                            onClick={() => handleCheckin(dp)}
+                            disabled={actionLoading}
+                          >
+                            {actionLoading ? (
+                              <CircularProgress size={20} />
+                            ) : (
+                              <CheckCircleIcon />
+                            )}
+                          </IconButton>
+                        )}
+                        {["Đang đặt phòng", "Đã xác nhận"].includes(
+                          dp.trangThai
+                        ) && (
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => handleHuyDP(dp.maDatPhong)}
+                            disabled={actionLoading}
+                          >
+                            {actionLoading ? (
+                              <CircularProgress size={20} />
+                            ) : (
+                              <RemoveCircleOutlineIcon />
+                            )}
+                          </IconButton>
+                        )}
+                      </Stack>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
       ) : (
-        <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+        <Typography
+          variant="h6"
+          align="center"
+          sx={{ mt: 4, fontSize: { xs: "1rem", sm: "1.25rem" } }}
+        >
           Không tìm thấy thông tin đặt phòng
         </Typography>
       )}

@@ -12,20 +12,27 @@ import java.util.Optional;
 public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
 
     @Query("""
-        SELECT kh
-        FROM KhachHang kh
-        WHERE kh.ho LIKE %:keyword%
-        OR kh.ten LIKE %:keyword%
-        OR CONCAT(kh.ho, ' ', kh.ten) LIKE %:keyword
-        OR kh.cmnd LIKE %:keyword%
-        OR kh.sdt LIKE %:keyword%
-        OR kh.email LIKE %:keyword%
-        OR (CAST(:keyword AS string) = 'true' AND kh.trangThai = true)
-        OR (CAST(:keyword AS string) = 'false' AND kh.trangThai = false)
-        OR kh.gioiTinh LIKE %:keyword%
-        OR kh.diaChi LIKE %:keyword%
-       """)
-    Page<KhachHang> search(@Param("keyword") String keyword, Pageable pageable);
+    SELECT kh
+    FROM KhachHang kh
+    WHERE (:trangThai IS NULL OR kh.trangThai = :trangThai)
+    AND (:keyword IS NULL OR 
+        kh.ho LIKE CONCAT('%', :keyword, '%')
+        OR kh.ten LIKE CONCAT('%', :keyword, '%')
+        OR CONCAT(kh.ho, ' ', kh.ten) LIKE CONCAT('%', :keyword, '%')
+        OR kh.cmnd LIKE CONCAT('%', :keyword, '%')
+        OR kh.sdt LIKE CONCAT('%', :keyword, '%')
+        OR kh.email LIKE CONCAT('%', :keyword, '%')
+        OR kh.gioiTinh LIKE CONCAT('%', :keyword, '%')
+        OR kh.diaChi LIKE CONCAT('%', :keyword, '%'))
+""")
+    Page<KhachHang> search(
+            @Param("trangThai") Boolean trangThai,
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
+
+    @Query("SELECT kh FROM KhachHang kh WHERE kh.taiKhoan.tenDangNhap = :userName")
+    KhachHang getKHByUsername(@Param("userName") String userName);
 
     Optional<KhachHang> findByEmail(String email);
 

@@ -22,7 +22,7 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
   const [selectedPhong, setSelectedPhong] = useState({});
   const navigate = useNavigate();
 
-  const formatToLocalDateTime = (dateString) => {
+  const formatToLocalDateTime = (dateString, type) => {
     const date = new Date(dateString);
     return date.toISOString().slice(0, 19);
   };
@@ -52,12 +52,10 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
 
   const reloadPhongKhaDung = () => {
     selectedTTDPs.forEach((ttdp) => {
-      const formattedNgayNhanPhong = formatToLocalDateTime(ttdp.ngayNhanPhong);
-      const formattedNgayTraPhong = formatToLocalDateTime(ttdp.ngayTraPhong);
       phongKhaDung(
         ttdp.loaiPhong.id,
-        formattedNgayNhanPhong,
-        formattedNgayTraPhong,
+        ttdp.ngayNhanPhong,
+        ttdp.ngayTraPhong,
         ttdp.id,
         ttdp
       );
@@ -105,8 +103,8 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
       const xepPhongRequest = {
         phong: { id: selectedPhong[ttdp.id] },
         thongTinDatPhong: { id: ttdp.id },
-        ngayNhanPhong: formatToLocalDateTime(ttdp.ngayNhanPhong),
-        ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong),
+        ngayNhanPhong: formatToLocalDateTime(ttdp.ngayNhanPhong, "checkin"),
+        ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong, "checkout"),
         trangThai: "Đã xếp",
       };
 

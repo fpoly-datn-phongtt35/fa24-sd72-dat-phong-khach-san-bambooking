@@ -109,6 +109,7 @@ const RoomDetail = () => {
     if (idXepPhong != null) {
       handleAddDVDK(idXepPhong);
     }
+    console.log("Dữ liệu phòng:", roomDetail);
   }, [roomDetail, idXepPhong]); // Thay ListDVSD bằng idXepPhong để tránh vòng lặp
 
   const handleAddDVDK = (idxp) => {
@@ -298,7 +299,7 @@ const RoomDetail = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        {roomDetail && roomDetail.trangThai === "Đang ở" && (
+        {roomDetail && roomDetail.phong.tinhTrang == "Đang ở" && (
           <>
             <Button
               variant="contained"

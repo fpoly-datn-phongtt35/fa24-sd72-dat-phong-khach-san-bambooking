@@ -1,48 +1,82 @@
 .footer {
-  background-color: #E5E7E6;
-  color: #333;
-  padding: 60px 20px;
-  text-align: center;
-  width: 100%;
+  background-color: #1f2937; /* dark slate */
+  color: #f9fafb;
+  padding: 2rem 1rem;
+  font-family: 'Arial', sans-serif;
 }
 
-.footer-content {
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
+  gap: 2rem;
 }
 
-.footer-links {
-  margin-bottom: 40px;
-}
-
-.footer-links a {
-  color: #333;
-  margin: 0 15px;
-  text-decoration: none;
+.footer-section {
+  flex: 1;
+  min-width: 220px;
 }
 
 .hotel-name {
-  font-size: 28px;
-  font-weight: normal;
-  margin: 30px 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 
 .hotel-address {
-  font-style: normal;
-  margin: 20px 0;
+  font-size: 0.9rem;
+  color: #d1d5db;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-links li {
+  margin: 0.5rem 0;
+}
+
+.footer-links a {
+  text-decoration: none;
+  color: #f9fafb;
+  transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+  color: #60a5fa;
 }
 
 .social-icons {
-  margin-top: 30px;
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 .social-icons a {
-  color: #333;
-  margin: 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #f9fafb;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-.footer a:hover,
-.footer-links a:hover,
-.contact-info a:hover {
-  text-decoration: underline;
+.social-icons a:hover {
+  color: #fbbf24;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .social-icons {
+    justify-content: center;
+  }
 }

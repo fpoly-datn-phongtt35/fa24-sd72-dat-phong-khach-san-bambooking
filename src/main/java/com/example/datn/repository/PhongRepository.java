@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,15 +42,15 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
           FROM XepPhong d 
           JOIN d.thongTinDatPhong ttdp
           WHERE d.phong = p     
-            AND :ngayNhanPhong <= d.ngayTraPhong
-            AND :ngayTraPhong >= d.ngayNhanPhong
+            AND :ngayNhanPhong <= CAST(d.ngayTraPhong AS DATE)
+            AND :ngayTraPhong >= CAST(d.ngayNhanPhong AS DATE)
             AND ttdp.trangThai IN (:trangThaiTTDP)
       )
 """)
     List<Phong> searchPhongKhaDung(
             @Param("idLoaiPhong") Integer idLoaiPhong,
-            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
-            @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
+            @Param("ngayNhanPhong") LocalDate ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDate ngayTraPhong,
             List<String> trangThaiTTDP,
             List<String> tinhTrang
     );

@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,8 +17,8 @@ import java.util.List;
 @Getter
 @Setter
 public class ToHopRequest {
-    private String ngayNhanPhong; // Nhận dưới dạng String
-    private String ngayTraPhong;  // Nhận dưới dạng String
+    private LocalDate ngayNhanPhong;
+    private LocalDate ngayTraPhong;
 
     private Integer soNguoi;
     private String key;

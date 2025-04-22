@@ -209,12 +209,17 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
     private double tinhTienPhuThu(TraPhong traPhong) {
         log.info("============= Start charging surcharges =============");
         List<PhuThu> danhSachPhuThu = phuThuRepository.findByXepPhong_Id(traPhong.getXepPhong().getId());
+
+//        Double tongTien = 0.0;
+//        for(PhuThu p: danhSachPhuThu) {
+//            tongTien += p.getSoLuong() * p.getTienPhuThu();
+//        }
         double tienPhuThu = danhSachPhuThu.stream()
                 .mapToDouble(pt -> pt.getTienPhuThu() * pt.getSoLuong())
                 .sum();
-
+        log.info("id xep phong" + traPhong.getXepPhong().getId());
 //        double tienBoiThuong = tinhTienBoiThuong(traPhong);
-        System.out.println("Tổng tiền phụ thu của phòng " + traPhong.getXepPhong().getId() + ": " + tienPhuThu);
+        log.info("Tổng tiền phụ thu của phòng " + traPhong.getXepPhong().getId() + ": " + tienPhuThu);
 
         return tienPhuThu ;
     }

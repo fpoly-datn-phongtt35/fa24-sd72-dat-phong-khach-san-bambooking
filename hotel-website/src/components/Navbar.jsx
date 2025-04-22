@@ -16,7 +16,7 @@ export default function Navbar() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
   const navigate = useNavigate();
-
+  const pendingData = localStorage.getItem("pendingData");
   const handleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -65,6 +65,9 @@ export default function Navbar() {
       setIsAuthenticated(false);
       setUser(null);
     }
+    setIsAuthenticated(!!accessToken);
+    const jsonData = JSON.parse(pendingData);
+    console.log(jsonData);
   }, [accessToken]);
 
   const toggleProfileMenu = () => {
@@ -77,9 +80,6 @@ export default function Navbar() {
         <nav style={{ backgroundColor: "#F5F5F5", height: "20vh" }}>
           <div className="container">
             <form className="row p-4" onSubmit={handleBooking}>
-              <div className="col-3">
-                <h1>Đặt phòng ngay</h1>
-              </div>
               <div className="col-6">
                 <div className="row">
                   <div className="col-4">
@@ -148,30 +148,6 @@ export default function Navbar() {
           </li>
           <li>
             <Link
-              to="/services"
-              className={location.pathname === "/services" ? "active" : ""}
-            >
-              DỊCH VỤ
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/about"
-              className={location.pathname === "/about" ? "active" : ""}
-            >
-              KHÁM PHÁ
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/offers"
-              className={location.pathname === "/offers" ? "active" : ""}
-            >
-              ƯU ĐÃI
-            </Link>
-          </li>
-          <li>
-            <Link
               to="/rooms"
               className={location.pathname === "/rooms" ? "active" : ""}
             >
@@ -180,20 +156,54 @@ export default function Navbar() {
           </li>
           <li>
             <Link
-              to="/history"
-              className={location.pathname === "/history" ? "active" : ""}
+              to="/services"
+              className={location.pathname === "/services" ? "active" : ""}
             >
-              LỊCH SỬ ĐẶT PHÒNG
+              DỊCH VỤ
             </Link>
           </li>
+          {/* <li>
+            <Link
+              to="/about"
+              className={location.pathname === "/about" ? "active" : ""}
+            >
+              KHÁM PHÁ
+            </Link>
+          </li> */}
+          <li>
+            <Link
+              to="/offers"
+              className={location.pathname === "/offers" ? "active" : ""}
+            >
+              ƯU ĐÃI
+            </Link>
+          </li>
+          {pendingData && (
+            <li>
+              <Link to="/pending-booking">ĐƠN ĐẶT PHÒNG</Link>
+            </li>
+          )}
+          {isAuthenticated && (
+            <li>
+              <Link
+                to="/history"
+                className={location.pathname === "/history" ? "active" : ""}
+              >
+                LỊCH SỬ ĐẶT PHÒNG
+              </Link>
+            </li>
+          )}
         </ul>
         <div className="navbar-buttons d-flex align-items-center">
           <button className="book-now-button me-2" onClick={handleDropdown}>
-            {isOpen ? 'ĐÓNG' : 'ĐẶT PHÒNG'}
+            {isOpen ? "ĐÓNG" : "ĐẶT PHÒNG"}
           </button>
           {/* Show login button if not authenticated and not on login page */}
-          {!isAuthenticated && location.pathname !== '/login' && (
-            <button className="login-button me-2" onClick={() => navigate("/login")}>
+          {!isAuthenticated && location.pathname !== "/login" && (
+            <button
+              className="login-button me-2"
+              onClick={() => navigate("/login")}
+            >
               Đăng nhập
             </button>
           )}
@@ -212,15 +222,21 @@ export default function Navbar() {
                   style={{ width: "30px", height: "30px", objectFit: "cover" }}
                 />
                 <div className="user-info">
-                  <span>Tài khoản của bạn</span>
+                  <span>{user}</span>
                 </div>
               </div>
               {isProfileMenuOpen && (
                 <div className="profile-menu position-absolute bg-white shadow-sm p-2">
-                  <button className="logout-button w-100 text-start" onClick={() => navigate("/account")}>
+                  <button
+                    className="logout-button w-100 text-start"
+                    onClick={() => navigate("/account")}
+                  >
                     Tài khoản
                   </button>
-                  <button className="logout-button w-100 text-start" onClick={logout}>
+                  <button
+                    className="logout-button w-100 text-start"
+                    onClick={logout}
+                  >
                     Đăng xuất
                   </button>
                 </div>
@@ -229,7 +245,10 @@ export default function Navbar() {
           )}
           {/* Show sign-up button if not authenticated */}
           {!isAuthenticated && (
-            <button className="sign-up-button" onClick={() => navigate("/signup")}>
+            <button
+              className="sign-up-button"
+              onClick={() => navigate("/signup")}
+            >
               Đăng kí
             </button>
           )}

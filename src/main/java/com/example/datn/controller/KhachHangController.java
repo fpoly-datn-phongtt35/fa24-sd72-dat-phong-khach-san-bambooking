@@ -79,8 +79,9 @@ public class KhachHangController {
 //
 
     @GetMapping("/get-by-key")
-    public ResponseEntity<?> getKhachHangByKey(@RequestParam("keyword") String keyword,Pageable pageable){
-        Page<KhachHang> khs = khachHangServiceIMPL.getKhachHangsByKey(keyword,pageable);
+    public ResponseEntity<?> getKhachHangByKey(@RequestParam(value = "trangThai", required = false) Boolean trangThai,
+                                               @RequestParam(value = "keyword", required = false) String keyword,Pageable pageable){
+        Page<KhachHang> khs = khachHangServiceIMPL.getKhachHangsByKey(trangThai ,keyword,pageable);
         return ResponseEntity.status(HttpStatus.OK).body(khs);
     }
     @PostMapping("/create-kh-dp")
@@ -106,6 +107,8 @@ public class KhachHangController {
                     .body("Đã xảy ra lỗi trong quá trình xóa khách hàng.");
         }
     }
+
+
 
 //    @PostMapping("/send-email")
 //    public ResponseEntity<String> sendVerificationEmail(@RequestBody KhachHangRegister request) {

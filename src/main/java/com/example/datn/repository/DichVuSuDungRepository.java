@@ -20,8 +20,8 @@ public interface DichVuSuDungRepository extends JpaRepository<DichVuSuDung, Inte
     @Query("SELECT p FROM DichVuSuDung p WHERE p.xepPhong.id = :idXepPhong and p.giaSuDung = 0")
     public List<DichVuSuDung> getByIDXepPhong2(Integer idXepPhong);
 
-    @Query("SELECT p FROM DichVuSuDung p WHERE p.trangThai = true")
-    public List<DichVuSuDung> getByTrangThai();
+    @Query("SELECT p FROM DichVuSuDung p WHERE p.trangThai = true and p.xepPhong.id = :idXepPhong")
+    public List<DichVuSuDung> getByTrangThai(Integer idXepPhong);
 
     // Thêm phương thức kiểm tra dịch vụ có tồn tại hay không
     boolean existsByDichVu_Id(Integer idDichVu);

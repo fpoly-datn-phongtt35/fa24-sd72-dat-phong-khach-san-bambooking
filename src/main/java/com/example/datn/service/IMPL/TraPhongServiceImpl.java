@@ -51,42 +51,56 @@ public class TraPhongServiceImpl implements TraPhongService {
                 .orElseThrow(() -> new EntityNotFountException("Không tìm thấy trả phòng có id: " + idTraPhong));
 
         XepPhong xepPhong = traPhong.getXepPhong();
-        String maDatPhong = xepPhong.getThongTinDatPhong().getDatPhong().getMaDatPhong();
-
-        List<Object[]> unverifiedRooms = kiemTraPhongRepository.findUnverifiedRooms(maDatPhong);
-        if (!unverifiedRooms.isEmpty()) {
-            List<String> roomNames = unverifiedRooms.stream()
-                    .map(room -> String.valueOf(room[1])).toList();
-            throw new RoomNotCheckedException("Danh sách phòng chưa kiểm tra: "
-                                              + roomNames + ", nhân viên vui lòng kiểm tra phòng trước khi trả phòng!");
+        if(xepPhong == null) {
+            throw new RuntimeException("Xếp phòng đang bị null cho TraPhong có ID: " + idTraPhong);
         }
+
+        //Kiểm tra xem phòng này đã được kiểm tra hay chưa
+        Optional<KiemTraPhong> kiemTraPhongOp = kiemTraPhongRepository.findByXepPhongId(xepPhong.getId());
+        if (kiemTraPhongOp.isEmpty() || !"Đã kiểm tra".equals(kiemTraPhongOp.get().getTrangThai())){
+            Phong phong = xepPhong.getPhong();
+            if (phong == null) {
+                throw new EntityNotFountException("Phong bị null cho XepPhong ID: " + xepPhong.getId());
+            }
+            throw new RoomNotCheckedException("Phòng: " + xepPhong.getPhong().getTenPhong() +
+                                              " chưa được kiểm tra, vui lòng kiểm tra trước khi trả phòng!");
+        }
+
+        //Update status XepPhong and TraPhong
+        updateXepPhongAndTraPhong(xepPhong, traPhong);
 
         ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
-        DatPhong datPhong = thongTinDatPhong.getDatPhong();
-
-        thongTinDatPhong.setTrangThai("Đã trả phòng");
-        datPhong.setTrangThai("Đã trả phòng");
-        xepPhong.setTrangThai("Đã trả phòng");
-
-        thongTinDatPhongRepository.save(thongTinDatPhong);
-        datPhongRepository.save(datPhong);
-        xepPhongRepository.save(xepPhong);
-        traPhong.setTrangThai(true);
-        TraPhong savedTraPhong = traPhongRepository.save(traPhong);
-        try {
-            sendMailCheckout(savedTraPhong.getId());
-            log.info("Đã gửi email đánh giá cho trả phòng có ID: {}", savedTraPhong.getId());
-        } catch (InvalidDataException e) {
-            log.error("Lỗi khi gửi email đánh giá cho trả phòng có ID {}: {}", savedTraPhong.getId(), e.getMessage());
-            // Quyết định xem bạn có muốn re-throw exception này hay chỉ log lỗi
-            // Nếu việc gửi email không quan trọng bằng việc trả phòng, bạn có thể chỉ log lỗi.
-            // Nếu việc gửi email là một phần quan trọng của quy trình, bạn có thể re-throw.
-            // Ví dụ: throw new RuntimeException("Lỗi trong quá trình gửi email đánh giá.", e);
+        if (thongTinDatPhong == null) {
+            throw new EntityNotFountException("ThongTinDatPhong bị null cho XepPhong ID: " + xepPhong.getId());
         }
 
-        log.info("================ End checkOutById ================");
-        return savedTraPhong;
+        List<XepPhong> allXepPhong = xepPhongRepository.findByThongTinDatPhongId(thongTinDatPhong.getId());
+        boolean allRoomCheckOut = allXepPhong.stream()
+                        .allMatch(xp-> "Đã trả phòng".equals(xp.getTrangThai()));
 
+        //If all room -> tra phong => update status ThongTinDatPhong and DatPhong
+        if (allRoomCheckOut) {
+            DatPhong datPhong = thongTinDatPhong.getDatPhong();
+            if(datPhong == null) {
+                throw new EntityNotFountException("DatPhong bị null cho ThongTinDatPhong ID: " + thongTinDatPhong.getId());
+            }
+            updateThongTinDatPhongAndDatPhong(thongTinDatPhong, datPhong);
+        }
+        return traPhong;
+    }
+
+    private void updateXepPhongAndTraPhong(XepPhong xepPhong, TraPhong traPhong) {
+        xepPhong.setTrangThai("Đã trả phòng");
+        traPhong.setTrangThai(true);
+        xepPhongRepository.save(xepPhong);
+        traPhongRepository.save(traPhong);
+    }
+
+    private void updateThongTinDatPhongAndDatPhong(ThongTinDatPhong thongTinDatPhong, DatPhong datPhong) {
+        thongTinDatPhong.setTrangThai("Đã trả phòng");
+        datPhong.setTrangThai("Đã trả phòng");
+        thongTinDatPhongRepository.save(thongTinDatPhong);
+        datPhongRepository.save(datPhong);
     }
 
     @Override

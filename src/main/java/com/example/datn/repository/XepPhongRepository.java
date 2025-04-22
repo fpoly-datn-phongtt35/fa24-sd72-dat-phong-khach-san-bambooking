@@ -17,9 +17,10 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
     XepPhong getByMaTTDP(String maTTDP);
 
     @Query("SELECT xp FROM XepPhong xp " +
+            "LEFT JOIN TraPhong tp ON tp.xepPhong.id = xp.id " +
             "WHERE xp.phong.id = :idPhong " +
-            "AND (CAST(:date AS DATE) >= CAST(xp.ngayNhanPhong AS DATE) " +
-            "AND CAST(:date AS DATE) <= CAST(xp.ngayTraPhong AS DATE))")
+            "AND :date >= xp.ngayNhanPhong " +
+            "AND :date <= COALESCE(tp.ngayTraThucTe, xp.ngayTraPhong)")
     XepPhong getByIDPhong(@Param("idPhong") int idPhong, @Param("date") LocalDateTime date);
 
     @Query("SELECT xp FROM XepPhong xp " +
@@ -45,4 +46,6 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
         WHERE p.tinhTrang = :tinhTrang AND xp.trangThai = :trangThai
         """)
     List<XepPhong> findByPhongTinhTrangAndTrangThai(String tinhTrang, String trangThai);
+
+    List<XepPhong> findByThongTinDatPhongId(Integer id);
 }
