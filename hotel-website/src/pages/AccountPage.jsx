@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/AccountPage.css';
-import { getProfile } from '../api/profileApi';
+import { getProfile, updateProfileFullName, updateProfileEmail, updateProfilePhoneNumber, updateProfileGender, updateProfileAddress, updateProfileAvatar } from '../api/profileApi';
 
 const AccountPage = () => {
   const [formData, setFormData] = useState({
@@ -9,12 +9,13 @@ const AccountPage = () => {
     phoneNumber: '',
     gender: '',
     address: '',
-    email: ''
+    email: '',
+    avatar: null
   });
 
-  const [userEmail, setUserEmail] = useState('');
   const [editingField, setEditingField] = useState(null);
   const [backupData, setBackupData] = useState({});
+  const [avatarPreview, setAvatarPreview] = useState('https://via.placeholder.com/50');
 
   useEffect(() => {
     fetchUserData();
@@ -24,24 +25,24 @@ const AccountPage = () => {
     try {
       const res = await getProfile();
       const userData = res.data?.data || {};
-      setFormData({
-        ...userData,
-        email: userData.email || 'Chưa có thông tin', // Đảm bảo email luôn có giá trị
-      });
-      setUserEmail(userData.email || 'Chưa có thông tin');
+      setFormData(userData);
+      setAvatarPreview(userData.avatar || 'https://via.placeholder.com/50');
     } catch (error) {
       console.error('Lỗi khi lấy dữ liệu người dùng:', error);
-      setFormData((prev) => ({
-        ...prev,
-        email: 'Chưa có thông tin', // Xử lý lỗi bằng cách đặt giá trị mặc định
-      }));
-      setUserEmail('Chưa có thông tin');
     }
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, avatar: file }));
+      setAvatarPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleEdit = (field) => {
@@ -54,10 +55,47 @@ const AccountPage = () => {
     setEditingField(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Thông tin được lưu:', formData);
-    setEditingField(null);
+    try {
+      if (editingField === 'name') {
+        const fullNameData = {
+          id: formData.id,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        };
+        await updateProfileFullName(fullNameData);
+        console.log('Họ và tên đã được cập nhật thành công:', fullNameData);
+      } else if (editingField === 'email') {
+        const emailData = { email: formData.email, id: formData.id };
+        await updateProfileEmail(emailData);
+        console.log('Email đã được cập nhật thành công:', emailData);
+      } else if (editingField === 'phoneNumber') {
+        const phoneNumberData = { phoneNumber: formData.phoneNumber, id: formData.id };
+        await updateProfilePhoneNumber(phoneNumberData);
+        console.log('Số điện thoại đã được cập nhật thành công:', phoneNumberData);
+      } else if (editingField === 'gender') {
+        const genderData = { gender: formData.gender, id: formData.id };
+        await updateProfileGender(genderData);
+        console.log('Giới tính đã được cập nhật thành công:', genderData);
+      } else if (editingField === 'address') {
+        const addressData = { address: formData.address, id: formData.id };
+        await updateProfileAddress(addressData);
+        console.log('Địa chỉ đã được cập nhật thành công:', addressData);
+      } else if (editingField === 'avatar') {
+        console.log('Đang cập nhật ảnh đại diện...');
+
+        const formDataToSend = new FormData();
+        formDataToSend.append('id', formData.id);
+        formDataToSend.append('avatar', formData.avatar);
+        await updateProfileAvatar(formDataToSend);
+        console.log('Ảnh đại diện đã được cập nhật thành công');
+      }
+      setEditingField(null); // Only reset after successful update
+    } catch (error) {
+      console.error('Lỗi khi cập nhật thông tin:', error);
+      alert('Đã xảy ra lỗi khi cập nhật. Vui lòng thử lại.');
+    }
   };
 
   return (
@@ -66,7 +104,16 @@ const AccountPage = () => {
       <p>Cập nhật thông tin của bạn và tìm hiểu cách thông tin này được sử dụng ra sao.</p>
 
       <div className="profile-pic">
-        <img src="https://via.placeholder.com/50" alt="Profile" />
+        <img src={avatarPreview} alt="Profile" className="avatar-circle" />
+        {editingField === 'avatar' ? (
+          <div className="edit-avatar">
+            <input type="file" accept="image/*" onChange={handleAvatarChange} />
+            <button type="button" onClick={handleCancel} className="cancel-btn">Hủy</button>
+            <button type="button" onClick={handleSubmit} className="save-btn">Lưu</button>
+          </div>
+        ) : (
+          <button type="button" onClick={() => handleEdit('avatar')} className="edit-btn">Chỉnh sửa</button>
+        )}
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -111,15 +158,10 @@ const AccountPage = () => {
           ) : (
             <div className="view-row">
               <span>{formData.email || 'Chưa có thông tin'}</span>
-              <span className="verified">Xác thực</span>
               <button type="button" onClick={() => handleEdit('email')} className="edit-btn">Chỉnh sửa</button>
             </div>
           )}
-          <p>
-            Đây là địa chỉ email bạn dùng để đăng nhập. Chúng tôi cũng sẽ gửi các xác nhận đặt chỗ tới địa chỉ này.
-          </p>
         </div>
-
 
         {/* Số điện thoại */}
         <div className="form-group">
