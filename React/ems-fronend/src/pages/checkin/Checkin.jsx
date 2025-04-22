@@ -155,7 +155,7 @@ const Checkin = () => {
         thongTinDatPhong: xepPhong.thongTinDatPhong,
         ngayNhanPhong: new Date().toLocaleString(),
         ngayTraPhong: new Date(new Date(dp.ngayTraPhong).setHours(12, 0, 0, 0)),
-        trangThai: "Da nhan",
+        trangThai: "Đã nhận phòng",
       };
       await checkIn(xepPhongRequest);
       alert("Check-in thành công!");
