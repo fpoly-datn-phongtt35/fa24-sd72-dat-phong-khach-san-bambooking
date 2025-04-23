@@ -108,6 +108,8 @@ public class KhachHangController {
         }
     }
 
+
+
 //    @PostMapping("/send-email")
 //    public ResponseEntity<String> sendVerificationEmail(@RequestBody KhachHangRegister request) {
 //        // Kiểm tra xem email đã tồn tại chưa

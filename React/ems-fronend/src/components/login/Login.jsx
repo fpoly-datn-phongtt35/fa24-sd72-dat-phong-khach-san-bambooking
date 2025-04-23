@@ -8,7 +8,7 @@ import { useState } from 'react';
 const Login = () => {
   const [serverError, setServerError] = useState("");
   const navigate = useNavigate();
- 
+
   const {
     register,
     handleSubmit,
@@ -30,6 +30,7 @@ const Login = () => {
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem("refreshToken", res.data.refreshToken);
         localStorage.setItem("user", res.data.username);
+        localStorage.setItem("avatar", res.data.avatar);
         navigate("/TrangChu")
       }
 

@@ -36,7 +36,5 @@ public interface NhanVienRepository extends JpaRepository<NhanVien, Integer> {
             WHERE tk.tenDangNhap = :username
             """)
     Optional<Integer> findByIdEmployee(String username);
-
-
 }
 

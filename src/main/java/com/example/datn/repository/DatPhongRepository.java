@@ -139,5 +139,15 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
             "JOIN dat_phong dp ON ttdp.id_dat_phong = dp.id " +
             "WHERE tp.id = :idTraPhong", nativeQuery = true)
     Integer findIdDatPhongByIdTraPhong(@Param("idTraPhong") Integer idTraPhong);
+
+    // Trong DatPhongRepository.java
+    @Query("SELECT kh.email FROM DatPhong dp JOIN dp.khachHang kh WHERE dp.id = :idTraPhong")
+    String findEmailByTraPhongId(@Param("idTraPhong") Integer idTraPhong);
+
+    @Query("SELECT dp FROM DatPhong dp WHERE dp.khachHang.email = :keyword or dp.khachHang.sdt = :keyword")
+    List<DatPhong> getLichSuDPbyEmail(@Param("keyword") String keyword);
+
+    @Query("Select dp from DatPhong dp where dp.id = :iddp AND dp.trangThai = :trangThai")
+    DatPhong findByIDDPandTT(@Param("iddp") Integer iddp,String trangThai);
 }
 

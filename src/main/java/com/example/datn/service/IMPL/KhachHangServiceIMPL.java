@@ -103,6 +103,10 @@ public class KhachHangServiceIMPL implements KhachHangService {
         log.info("Update status successfully");
     }
 
+    public KhachHang getKHByUsername(String userName){
+        return khachHangRepository.getKHByUsername(userName);
+    };
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int storeCustomer(CustomerRequests.CustomerStore request) {

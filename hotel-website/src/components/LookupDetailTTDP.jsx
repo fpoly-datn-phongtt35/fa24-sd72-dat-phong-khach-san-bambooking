@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getTTDPbyidDPandidLP, getXPbymaTTDP } from "../services/TTDP.js";
+import { getTTDPbyidDPandidLPTC, getXPbymaTTDPTC } from "../services/TTDP.js";
 import {
-  getDichVuSuDung,
-  getHoaDonById,
-  getThongTinHoaDonByHoaDonId,
-  getPhuThuByHoaDonId,
-  getHDByidDatPhong,
-  getListVatTuHongThieu,
+  getDichVuSuDungTC,
+  getHoaDonByIdTC,
+  getThongTinHoaDonByHoaDonIdTC,
+  getPhuThuByHoaDonIdTC,
+  getHDByidDatPhongTC,
+  getListVatTuHongThieuTC,
 } from "../services/InfoHoaDon";
 import {
   Box,
@@ -23,7 +23,7 @@ import {
   Collapse,
 } from "@mui/material";
 
-export default function DetailTTDP() {
+export default function LookupDetailTTDP() {
   const [bookings, setBookings] = useState([]);
   const [hoaDons, setHoaDons] = useState([]);
   const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
@@ -56,7 +56,7 @@ export default function DetailTTDP() {
       setLoading(true);
 
       // Lấy dữ liệu booking
-      const bookingResponse = await getTTDPbyidDPandidLP(idDatPhong, idLoaiPhong);
+      const bookingResponse = await getTTDPbyidDPandidLPTC(idDatPhong, idLoaiPhong);
       const bookingData = Array.isArray(bookingResponse.data)
         ? bookingResponse.data
         : [bookingResponse.data];
@@ -64,7 +64,7 @@ export default function DetailTTDP() {
       const bookingsWithMaPhong = await Promise.all(
         bookingData.map(async (booking) => {
           try {
-            const xepPhongResponse = await getXPbymaTTDP(booking.maThongTinDatPhong);
+            const xepPhongResponse = await getXPbymaTTDPTC(booking.maThongTinDatPhong);
             const maPhong = xepPhongResponse?.data?.phong?.maPhong || booking.loaiPhong.tenLoaiPhong;
             const tenPhong = xepPhongResponse?.data?.phong?.tenPhong || "N/A";
             return { ...booking, maPhong, tenPhong };
@@ -77,7 +77,7 @@ export default function DetailTTDP() {
       setBookings(bookingsWithMaPhong);
 
       // Lấy dữ liệu hóa đơn
-      const hoaDonResponse = await getHDByidDatPhong(idDatPhong);
+      const hoaDonResponse = await getHDByidDatPhongTC(idDatPhong);
       let hoaDonList = Array.isArray(hoaDonResponse.data) ? hoaDonResponse.data : [hoaDonResponse.data].filter(Boolean);
       setHoaDons(hoaDonList);
 
@@ -97,11 +97,11 @@ export default function DetailTTDP() {
             hoaDonByIdResponse,
             vatTuResponse,
           ] = await Promise.all([
-            getThongTinHoaDonByHoaDonId(hoaDonData.id),
-            getDichVuSuDung(hoaDonData.id),
-            getPhuThuByHoaDonId(hoaDonData.id),
-            getHoaDonById(hoaDonData.id),
-            getListVatTuHongThieu(hoaDonData.id),
+            getThongTinHoaDonByHoaDonIdTC(hoaDonData.id),
+            getDichVuSuDungTC(hoaDonData.id),
+            getPhuThuByHoaDonIdTC(hoaDonData.id),
+            getHoaDonByIdTC(hoaDonData.id),
+            getListVatTuHongThieuTC(hoaDonData.id),
           ]);
 
           allThongTinHoaDon.push(...(thongTinHoaDonResponse?.data || []));

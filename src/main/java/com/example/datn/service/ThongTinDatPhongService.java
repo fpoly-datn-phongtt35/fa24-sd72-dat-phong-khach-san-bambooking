@@ -31,4 +31,6 @@ public interface ThongTinDatPhongService {
     ThongTinDatPhong getByMaTTDP(String maTTDP);
 
     List<ThongTinDatPhong> getAllByIDDP(Integer iddp);
+
+    List<ThongTinDatPhong> getByidDPandidLP(Integer iddp,Integer idlp);
 }

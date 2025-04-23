@@ -9,10 +9,12 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.0",
-    "@emotion/styled": "^11.11.0",
-    "@mui/material": "^5.15.0",
-    "@mui/x-date-pickers": "^6.0.0",
+    "@date-io/date-fns": "^3.2.1",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^5.17.1",
+    "@mui/material": "^5.17.1",
+    "@mui/x-date-pickers": "^6.20.2",
     "@testing-library/react": "^13.4.0",
     "assert": "^2.1.0",
     "axios": "^1.8.4",
