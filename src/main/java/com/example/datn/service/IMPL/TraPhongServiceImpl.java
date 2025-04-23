@@ -137,7 +137,7 @@ public class TraPhongServiceImpl implements TraPhongService {
 
     @Override
     public List<TraPhong> DSTraPhong() {
-        return traPhongRepository.findAll();
+        return traPhongRepository.findBytt();
     }
 
     @Override

@@ -31,5 +31,5 @@ public interface HotelWebsiteService {
 
     void guiEmailXacNhandp(DatPhongRequest datPhongRequest);
 
-     DatPhong xacNhanDP(Integer iddp);
+    boolean xacNhanDP(Integer iddp);
 }

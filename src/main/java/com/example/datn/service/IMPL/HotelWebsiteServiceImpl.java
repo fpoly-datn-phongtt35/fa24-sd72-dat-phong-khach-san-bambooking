@@ -331,19 +331,15 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
 
 
     @Override
-    public DatPhong xacNhanDP(Integer iddp) {
+    public boolean xacNhanDP(Integer iddp) {
         DatPhong datPhong = datPhongRepository.findByIDDPandTT(iddp, "Chưa xác nhận");
         if (!(datPhong == null)) {
             datPhong.setTrangThai("Đã xác nhận");
-            System.out.println("da xac nhan");
-            return datPhongRepository.save(datPhong);
-
+            datPhongRepository.save(datPhong);
+            return true;
         }
 
-        System.out.println(iddp +"2");
-        System.out.println(datPhong);
-
-        return null;
+        return false;
     }
 
 

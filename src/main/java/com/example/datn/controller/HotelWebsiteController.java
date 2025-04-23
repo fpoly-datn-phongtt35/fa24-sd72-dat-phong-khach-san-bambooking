@@ -291,8 +291,8 @@ public class HotelWebsiteController {
     }
 
     @GetMapping("/dp/xac-nhan-dp")
-    public  ResponseEntity<?> xacNhanDP(@RequestParam("iddp") Integer iddp){
-        return ResponseEntity.ok(hotelWebsiteServiceImpl.xacNhanDP(iddp));
+    public boolean xacNhanDP(@RequestParam("iddp") Integer iddp){
+        return hotelWebsiteServiceImpl.xacNhanDP(iddp);
     }
 
 }

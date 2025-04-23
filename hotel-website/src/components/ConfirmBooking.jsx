@@ -25,8 +25,11 @@ export default function ConfirmBooking() {
       try {
         setLoading(true);
         const response = await XacNhanDP(parseInt(iddp)); // Gọi API XacNhanDP
-        if (response) {
-          setSuccess(true); // API trả về DatPhong hợp lệ
+        if (response.data != false) {
+          setSuccess(true);
+          console.log(response)
+        }else{
+          setSuccess(false);
         }
       } catch (error) {
         setSuccess(false);
