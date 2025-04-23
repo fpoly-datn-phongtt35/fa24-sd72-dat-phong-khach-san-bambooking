@@ -28,22 +28,10 @@ public interface KiemTraPhongRepository extends JpaRepository<KiemTraPhong, Inte
            "AND xp.thongTinDatPhong.trangThai IN (:trangThaiThongTinDatPhong)")
     List<XepPhong> findByKeyNotChecked(@Param("key") String key, List<String> trangThaiThongTinDatPhong);
 
-    //lấy danh sách phòng chưa kiểm tra
-    @Query("""
-                SELECT xp.phong.id, p.tenPhong
-                FROM XepPhong xp
-                JOIN xp.phong p
-                JOIN xp.thongTinDatPhong ttdp
-                JOIN ttdp.datPhong dp
-                WHERE dp.maDatPhong = :maDatPhong
-                AND NOT EXISTS (
-                    SELECT 1 FROM KiemTraPhong ktp WHERE ktp.xepPhong.id = xp.id
-                )
-            """)
-    List<Object[]> findUnverifiedRooms(String maDatPhong);
-
     @Query("SELECT k FROM KiemTraPhong k WHERE k.xepPhong = :xepPhong")
     Optional<KiemTraPhong> findByXepPhong(XepPhong xepPhong);
 
     Optional<KiemTraPhong> findByXepPhongId(Integer id);
+
+    List<KiemTraPhong> findByXepPhongIdIn(List<Integer> xepPhongIds);
 }
