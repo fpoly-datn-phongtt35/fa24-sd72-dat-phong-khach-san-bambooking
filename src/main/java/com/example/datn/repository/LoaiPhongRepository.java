@@ -158,6 +158,69 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
     );
 
     @Query("""
+    SELECT new com.example.datn.dto.response.LoaiPhongKhaDungResponse(
+        lp.id,
+        lp.tenLoaiPhong,
+        lp.maLoaiPhong,
+        lp.dienTich,
+        lp.soKhachToiDa,
+        lp.donGia,
+        lp.donGiaPhuThu,
+        lp.moTa,
+        COUNT(p) AS soLuongPhong,
+        (
+            SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END)
+            - (
+                SELECT COUNT(xp) FROM XepPhong xp
+                WHERE xp.phong.loaiPhong.id = lp.id
+                AND CAST(xp.ngayNhanPhong AS LocalDate) <= :ngayTraPhong
+                AND CAST(xp.ngayTraPhong AS LocalDate) >= :ngayNhanPhong
+                AND xp.trangThai IN (:trangThaiXP)
+            )
+            - (
+                SELECT COUNT(tp) FROM ThongTinDatPhong tp
+                WHERE tp.loaiPhong.id = lp.id
+                AND tp.ngayNhanPhong <= :ngayTraPhong
+                AND tp.ngayTraPhong >= :ngayNhanPhong
+                AND tp.trangThai IN (:trangThaiTTDP)
+            )
+        ) AS soPhongKhaDung
+    )
+    FROM LoaiPhong lp
+    JOIN Phong p ON p.loaiPhong.id = lp.id
+    WHERE p.trangThai = true
+    AND lp.soKhachToiDa >= :soNguoi
+    AND (:idLoaiPhong IS NULL OR lp.id = :idLoaiPhong)
+    GROUP BY lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, lp.soKhachToiDa, lp.donGia, lp.donGiaPhuThu, lp.moTa
+    HAVING (
+        SUM(CASE WHEN p.trangThai = true THEN 1 ELSE 0 END)
+        - (
+            SELECT COUNT(xp) FROM XepPhong xp
+            WHERE xp.phong.loaiPhong.id = lp.id
+            AND CAST(xp.ngayNhanPhong AS LocalDate) <= :ngayTraPhong
+            AND CAST(xp.ngayTraPhong AS LocalDate) >= :ngayNhanPhong
+            AND xp.trangThai IN (:trangThaiXP)
+        )
+        - (
+            SELECT COUNT(tp) FROM ThongTinDatPhong tp
+            WHERE tp.loaiPhong.id = lp.id
+            AND tp.ngayNhanPhong <= :ngayTraPhong
+            AND tp.ngayTraPhong >= :ngayNhanPhong
+            AND tp.trangThai IN (:trangThaiTTDP)
+        )
+    ) >= :soPhong
+""")
+    List<LoaiPhongKhaDungResponse> findLPKDRList(
+            @Param("ngayNhanPhong") LocalDate ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDate ngayTraPhong,
+            @Param("trangThaiXP") List<String> trangThaiXP,
+            @Param("trangThaiTTDP") List<String> trangThaiTTDP,
+            @Param("soNguoi") Integer soNguoi,
+            @Param("soPhong") Integer soPhong,
+            @Param("idLoaiPhong") Integer idLoaiPhong
+    );
+
+    @Query("""
     select ha from HinhAnh ha
     join Phong p ON ha.phong.id = p.id
     join LoaiPhong lp on lp.id = p.loaiPhong.id

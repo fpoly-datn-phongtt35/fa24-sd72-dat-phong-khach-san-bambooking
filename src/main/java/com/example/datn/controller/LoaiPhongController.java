@@ -83,9 +83,17 @@ public class LoaiPhongController {
     }
 
     @GetMapping("/loai-phong-kha-dung-list")
-    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+    public ResponseEntity<?> getLoaiPhongKhaDungResponseList (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
                                         @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong){
         return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
     }
 
+    @GetMapping("/lpkdr-list")
+    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
+                                        @RequestParam("soNguoi") Integer soNguoi,
+                                        @RequestParam("soPhong") Integer soPhong,
+                                        @RequestParam(value = "idLoaiPhong", required = false) Integer idLoaiPhong){
+        return ResponseEntity.ok(loaiPhongServiceIMPL.getLoaiPhongKhaDungResponseList(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,idLoaiPhong));
+    }
 }

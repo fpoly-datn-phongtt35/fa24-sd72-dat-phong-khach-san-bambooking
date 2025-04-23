@@ -118,6 +118,15 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
     }
 
+    public List<LoaiPhongKhaDungResponse> getLoaiPhongKhaDungResponseList(LocalDate ngayNhanPhong, LocalDate ngayTraPhong,
+                                                                          Integer soNguoi, Integer soPhong, Integer idLoaiPhong) {
+        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Chưa xếp");
+        List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
+//        List<String> tinhTrangPhong = Arrays.asList("Trống","Cần kiểm tra");
+
+        return loaiPhongRepository.findLPKDRList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP,soNguoi,soPhong,idLoaiPhong);
+    }
+
     public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach) {
         List<ToHopPhongPhuHop> results = new ArrayList<>();
         int n = loaiPhong.size();
