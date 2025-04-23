@@ -224,7 +224,6 @@ const HotelBookingForm = () => {
     tongSucChuaMax,
     tongSoPhongMin,
     tongSoPhongMax,
-    loaiPhongChons,
     key,
   ]);
 

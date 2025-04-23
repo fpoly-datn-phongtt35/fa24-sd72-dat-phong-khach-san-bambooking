@@ -28,11 +28,16 @@ import SearchIcon from "@mui/icons-material/Search";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CheckIcon from "@mui/icons-material/Check";
 import { useNavigate } from "react-router-dom";
-import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import { findDatPhong, huyDatPhong } from "../../services/DatPhong";
+import {
+  findDatPhong,
+  huyDatPhong,
+  CapNhatDatPhong,
+} from "../../services/DatPhong";
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
 import { ThemPhuThu } from "../../services/PhuThuService";
 import XepPhong from "../../pages/xepphong/XepPhong";
@@ -41,7 +46,7 @@ const QuanLyDatPhong = () => {
   const navigate = useNavigate();
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [datPhong, setDatPhong] = useState([]);
-  const [ngayNhan, setNgayNhan] = useState(dayjs().hour(14).minute(0));
+  const [ngayNhan, setNgayNhan] = useState(dayjs());
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
   const [page, setPage] = useState(0);
@@ -58,10 +63,10 @@ const QuanLyDatPhong = () => {
         setLoading(true);
         try {
           const formattedNgayNhan = searchNgayNhan
-            ? dayjs(searchNgayNhan).startOf("day")
+            ? dayjs(searchNgayNhan).format("YYYY-MM-DD")
             : null;
           const formattedNgayTra = searchNgayTra
-            ? dayjs(searchNgayTra).startOf("day")
+            ? dayjs(searchNgayTra).format("YYYY-MM-DD")
             : null;
 
           const params = {
@@ -129,72 +134,35 @@ const QuanLyDatPhong = () => {
     }
   };
 
-  const handleCheckin = async (datPhongItem) => {
-    setActionLoading(true);
-    try {
-      let xepPhong = (await phongDaXep(datPhongItem.maThongTinDatPhong)).data;
-      if (!xepPhong) {
-        throw new Error("Không tìm thấy phòng đã xếp.");
-      }
-
-      const loaiPhong = xepPhong.phong.loaiPhong;
-      const xepPhongRequest = {
-        id: xepPhong.id,
-        phong: xepPhong.phong,
-        thongTinDatPhong: xepPhong.thongTinDatPhong,
-        ngayNhanPhong: new Date(),
-        ngayTraPhong: new Date(
-          new Date(datPhongItem.ngayTraPhong).setHours(12, 0, 0, 0)
-        ),
-        trangThai: "Da nhan",
-      };
-      await checkIn(xepPhongRequest);
-      alert("Check-in thành công!");
-
-      xepPhong = (await phongDaXep(datPhongItem.maThongTinDatPhong)).data;
-      const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
-      const gio14Chieu = new Date(ngayNhanPhongXepPhong);
-      gio14Chieu.setHours(14, 0, 0, 0);
-
-      if (ngayNhanPhongXepPhong < gio14Chieu) {
-        const phuThuRequest = {
-          xepPhong: { id: xepPhong.id },
-          tenPhuThu: "Phụ thu do nhận phòng sớm",
-          tienPhuThu: 50000,
-          soLuong: 1,
-          trangThai: true,
+  const handleConfirm = async (dp) => {
+    if (
+      window.confirm(
+        `Bạn có chắc chắn muốn xác nhận đặt phòng ${dp.maDatPhong} không?`
+      )
+    ) {
+      setActionLoading(true);
+      try {
+        const datPhongRequest = {
+          id: dp.id,
+          maDatPhong: dp.maDatPhong,
+          khachHang: dp.khachHang,
+          soNguoi: dp.soNguoi,
+          soPhong: dp.soPhong,
+          ngayDat: dp.ngayDat,
+          tongTien: dp.tongTien,
+          ghiChu: dp.ghiChu,
+          trangThai: "Đã xác nhận",
         };
-        await ThemPhuThu(phuThuRequest);
-        alert("Phụ thu do nhận phòng sớm đã được thêm.");
+        await CapNhatDatPhong(datPhongRequest);
+        alert("Xác nhận đặt phòng thành công!");
+        searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
+      } catch (err) {
+        console.error("Lỗi khi xác nhận đặt phòng:", err);
+        alert("Xác nhận đặt phòng thất bại!");
+      } finally {
+        setActionLoading(false);
       }
-
-      if (datPhongItem.soNguoi > loaiPhong.soKhachToiDa) {
-        const soNguoiVuot = datPhongItem.soNguoi - loaiPhong.soKhachToiDa;
-        const tienPhuThuThem = soNguoiVuot * loaiPhong.donGiaPhuThu;
-        const phuThuThemRequest = {
-          xepPhong: { id: xepPhong.id },
-          tenPhuThu: `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người)`,
-          tienPhuThu: tienPhuThuThem,
-          soLuong: 1,
-          trangThai: true,
-        };
-        await ThemPhuThu(phuThuThemRequest);
-        alert(
-          `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`
-        );
-      }
-    } catch (error) {
-      console.error("Lỗi khi check-in:", error);
-      alert(error.message || "Đã xảy ra lỗi khi thực hiện check-in.");
-    } finally {
-      setActionLoading(false);
-      searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
     }
-  };
-
-  const handleAssign = (dp) => {
-    setSelectedTTDPs([dp]);
-    setShowXepPhongModal(true);
   };
 
   return (
@@ -293,7 +261,7 @@ const QuanLyDatPhong = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
+                    <DatePicker
                       label="Ngày nhận phòng"
                       value={ngayNhan}
                       onChange={(newValue) => {
@@ -320,7 +288,7 @@ const QuanLyDatPhong = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DateTimePicker
+                    <DatePicker
                       label="Ngày trả phòng"
                       value={ngayTra}
                       minDate={ngayNhan || dayjs()}
@@ -351,6 +319,7 @@ const QuanLyDatPhong = () => {
         sx={{
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
+          justifyhandles: ["flex", "flex-col", "flex-row"],
           justifyContent: "space-between",
           alignItems: "center",
           p: 2,
@@ -425,12 +394,27 @@ const QuanLyDatPhong = () => {
                   {dayjs(dp.ngayDat).format("DD/MM/YYYY")}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Tổng Tiền:</strong> {dp.tongTien?.toLocaleString()} VND
+                  <strong>Tổng Tiền:</strong> {dp.tongTien?.toLocaleString()}{" "}
+                  VND
                 </Typography>
-                <Typography variant="body2">
+                <Typography variant="body2\">
                   <strong>Trạng Thái:</strong> {dp.trangThai}
                 </Typography>
                 <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                  {dp.trangThai === "Đang đặt phòng" && (
+                    <IconButton
+                      size="small"
+                      color="success"
+                      onClick={() => handleConfirm(dp)}
+                      disabled={actionLoading}
+                    >
+                      {actionLoading ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <CheckIcon />
+                      )}
+                    </IconButton>
+                  )}
                   {["Đang đặt phòng", "Đã xác nhận"].includes(dp.trangThai) && (
                     <IconButton
                       size="small"
@@ -493,25 +477,17 @@ const QuanLyDatPhong = () => {
                     <TableCell>{dp.trangThai}</TableCell>
                     <TableCell>
                       <Stack direction="row" spacing={1}>
-                        {dp.trangThai === "Chua xep" && (
+                        {dp.trangThai === "Chưa xác nhận" && (
                           <IconButton
                             size="small"
-                            onClick={() => handleAssign(dp)}
-                            disabled={actionLoading}
-                          >
-                            <MeetingRoomIcon />
-                          </IconButton>
-                        )}
-                        {dp.trangThai === "Da xep" && (
-                          <IconButton
-                            size="small"
-                            onClick={() => handleCheckin(dp)}
+                            color="success"
+                            onClick={() => handleConfirm(dp)}
                             disabled={actionLoading}
                           >
                             {actionLoading ? (
                               <CircularProgress size={20} />
                             ) : (
-                              <CheckCircleIcon />
+                              <CheckIcon />
                             )}
                           </IconButton>
                         )}

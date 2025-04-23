@@ -44,8 +44,10 @@ public class XepPhongServiceIMPL implements XepPhongService {
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
         xp.setPhong(xepPhongRequest.getPhong());
         xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
-        xp.setNgayNhanPhong(xepPhongRequest.getNgayNhanPhong());
-        xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
+        LocalDateTime nhan = xepPhongRequest.getNgayNhanPhong().withHour(14).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime tra = xepPhongRequest.getNgayTraPhong().withHour(12).withMinute(0).withSecond(0).withNano(0);
+        xp.setNgayNhanPhong(nhan);
+        xp.setNgayTraPhong(tra);
         xp.setTrangThai(xepPhongRequest.getTrangThai());
         ttdp.setTrangThai("Đã xếp");
         thongTinDatPhongRepository.save(ttdp);
@@ -77,6 +79,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
 
     @Override
     public XepPhong checkIn(XepPhongRequest xepPhongRequest) {
+        System.out.println(xepPhongRequest.getNgayNhanPhong());
         if (xepPhongRequest == null) {
             throw new IllegalArgumentException("XepPhongRequest cannot be null");
         }
@@ -110,7 +113,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
             dp.setTrangThai("Đã nhận phòng");
             ttdp.setTrangThai("Đang ở");
             p.setTinhTrang("Đang ở");
-            xp.setNgayNhanPhong(ngayNhanPhong);
+            xp.setNgayNhanPhong(LocalDateTime.now());
             xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
             xp.setTrangThai("Đang ở");
             datPhongRepository.save(dp);

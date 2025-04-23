@@ -162,22 +162,17 @@ export const findDatPhong = async ({
   pageable = { page: 0, size: 10 },
 } = {}) => {
   try {
-    const formatDate = (date) => date?.format("YYYY-MM-DD") ?? null;
-
-    // Tạo params theo cấu trúc mà Spring Boot Pageable mong đợi
     const params = {
       key: key.trim(),
-      ngayNhanPhong: formatDate(ngayNhanPhong),
-      ngayTraPhong: formatDate(ngayTraPhong),
-      page: pageable.page, // Spring Boot sử dụng 'page' cho số trang
-      size: pageable.size, // Spring Boot sử dụng 'size' cho kích thước trang
-      // Nếu cần sort, có thể thêm: sort: 'field,asc/desc'
+      ngayNhanPhong: ngayNhanPhong,
+      ngayTraPhong: ngayTraPhong,
+      page: pageable.page,
+      size: pageable.size,
     };
 
     const response = await authorizedAxiosInstance.get(apiFindDatPhong, {
       params,
       paramsSerializer: (params) => {
-        // Xử lý params thành query string phù hợp với Spring Boot
         const searchParams = new URLSearchParams();
         for (const [key, value] of Object.entries(params)) {
           if (value !== null && value !== undefined) {

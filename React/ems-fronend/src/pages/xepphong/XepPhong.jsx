@@ -103,8 +103,8 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
       const xepPhongRequest = {
         phong: { id: selectedPhong[ttdp.id] },
         thongTinDatPhong: { id: ttdp.id },
-        ngayNhanPhong: formatToLocalDateTime(ttdp.ngayNhanPhong, "checkin"),
-        ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong, "checkout"),
+        ngayNhanPhong: formatToLocalDateTime(ttdp.ngayNhanPhong),
+        ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong),
         trangThai: "Đã xếp",
       };
 

@@ -38,7 +38,7 @@ import {
   ThemMoiDatPhong,
 } from "../../services/DatPhong";
 import { addThongTinDatPhong } from "../../services/TTDP";
-import { getLPKDR } from "../../services/LoaiPhongService";
+import { getLoaiPhongKhaDungResponse } from "../../services/LoaiPhongService";
 
 const DatPhong = () => {
   const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs()); // Khởi tạo với ngày hiện tại
@@ -79,7 +79,7 @@ const DatPhong = () => {
         ngayNhanPhong.isValid() &&
         ngayTraPhong.isValid()
       ) {
-        const response = await getLPKDR(
+        const response = await getLoaiPhongKhaDungResponse(
           ngayNhanPhong.format("YYYY-MM-DD"),
           ngayTraPhong.format("YYYY-MM-DD")
         );

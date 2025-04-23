@@ -26,12 +26,14 @@ public class AppConfig {
 
     private final UserService userService;
     private final PrevFilter prevFilter;
-    private final String[] WHILE_LIST = {"/api/auth/**","/api/ttdp/**","/api/kh/**","/api/tra-cuu/**"}; // Những đường dẫn không yêu cầu xác thực
+
+    private final String[] WHILE_LIST = {"/api/auth/**","/api/ttdp/**","/api/kh/**","/api/loai-phong/**","/api/tthd/**","/api/hoa-don/**","/api/dp/**"}; // Những đường dẫn không yêu cầu xác thực
+
     private final String[] URI_ADMIN = {"/api/*/customer/**", "/xep-phong/**", "/ttdp/**", "/tra-phong/**",
             "/tien-ich-phong/**", "/tien-ich/**", "/thong-tin-hoa-don/**", "/phong/**", "/loai-phong/**",
             "/khach-hang-checkin/**", "/hoa-don/**", "/dich_vu_su_dung/**", "/dich_vu_di_kem/**", "/dich_vu/**",
             "/dat-phong/**","/loai-phong/add" ,"thanh-toan/**","/dat-phong/xoa"};
-    private final String[] URI_USER = {"/api/*/customer-client/**","/api/loai-phong/**","/api/tthd/**","/api/hoa-don/**","/api/dp/**"}; // URL yêu cầu xác thực và có ROLE_USER
+    private final String[] URI_USER = {"/api/*/customer-client/**"}; // URL yêu cầu xác thực và có ROLE_USER
 
 
     @Bean
