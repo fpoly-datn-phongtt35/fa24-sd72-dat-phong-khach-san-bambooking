@@ -38,15 +38,13 @@ import {
   huyDatPhong,
   CapNhatDatPhong,
 } from "../../services/DatPhong";
-import { checkIn, phongDaXep } from "../../services/XepPhongService";
-import { ThemPhuThu } from "../../services/PhuThuService";
 import XepPhong from "../../pages/xepphong/XepPhong";
 
 const QuanLyDatPhong = () => {
   const navigate = useNavigate();
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [datPhong, setDatPhong] = useState([]);
-  const [ngayNhan, setNgayNhan] = useState(dayjs());
+  const [ngayNhan, setNgayNhan] = useState(null);
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
   const [page, setPage] = useState(0);
@@ -65,6 +63,7 @@ const QuanLyDatPhong = () => {
           const formattedNgayNhan = searchNgayNhan
             ? dayjs(searchNgayNhan).format("YYYY-MM-DD")
             : null;
+            console.log("formattedNgayNhan", formattedNgayNhan);
           const formattedNgayTra = searchNgayTra
             ? dayjs(searchNgayTra).format("YYYY-MM-DD")
             : null;

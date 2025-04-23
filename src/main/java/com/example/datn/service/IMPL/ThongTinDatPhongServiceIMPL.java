@@ -45,7 +45,8 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ThongTinDatPhong ttdp = new ThongTinDatPhong();
         LoaiPhong lp = loaiPhongServiceIMPL.findByID(request.getIdLoaiPhong());
         UniqueDatPhongCode code = new UniqueDatPhongCode();
-        ttdp.setDatPhong(request.getDatPhong());
+        DatPhong dp = request.getDatPhong();
+        ttdp.setDatPhong(dp);
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
         ttdp.setGiaDat(lp.getDonGia());

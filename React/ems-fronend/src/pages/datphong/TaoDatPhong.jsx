@@ -52,6 +52,7 @@ const TaoDatPhong = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { datPhong, khachHang, thongTinDatPhong } = location.state || {};
+  console.log("datPhong", datPhong);
   const [ttdpData, setTtdpData] = useState([]);
   const [TTDP, setTTDP] = useState([]);
   const [formData, setFormData] = useState({
@@ -234,9 +235,10 @@ const TaoDatPhong = () => {
     setShowError(false);
     let khachHangResponse = null;
     let datPhongResponse = null;
+    console.log("khachHang", khachHang);
     try {
       const khachHangRequest = {
-        id: khachHang ? khachHang.id : null,
+        id: khachHang.id,
         ho: formData.ho,
         ten: formData.ten,
         email: formData.email,
@@ -244,35 +246,47 @@ const TaoDatPhong = () => {
         trangThai: false,
       };
       khachHangResponse = await SuaKhachHangDatPhong(khachHangRequest);
+      console.log("khachHangResponse", khachHangResponse);
       if (!khachHangResponse || !khachHangResponse.data) {
         throw new Error("Không thể tạo khách hàng.");
       }
+      console.log(datPhong)
       const datPhongRequest = {
-        id: datPhong ? datPhong.id : null,
+        id: datPhong.id,
         khachHang: khachHangResponse.data,
-        maDatPhong: datPhong ? datPhong.maDatPhong : `DP-${Date.now()}`,
-        soNguoi: ttdpData.reduce(
-          (total, room) => total + room.soNguoi * room.soPhong,
-          0
-        ),
+        maDatPhong: datPhong.maDatPhong,
+        soNguoi: datPhong.soNguoi,
         soPhong: ttdpData.reduce((total, room) => total + room.soPhong, 0),
         ngayDat: datPhong ? datPhong.ngayDat : new Date().toISOString(),
         tongTien: calculateTotalAmount(),
         ghiChu: "Ghi chú thêm nếu cần",
         trangThai: "Đã xác nhận",
       };
+      console.log("datPhongRequest", datPhongRequest);
       datPhongResponse = await CapNhatDatPhong(datPhongRequest);
       if (!datPhongResponse || !datPhongResponse.data) {
         throw new Error("Không thể tạo đặt phòng.");
       }
+      console.log("datPhongResponse", datPhongResponse.data);
       for (const thongTinDatPhong of TTDP) {
+        console.log("id thongTinDatPhong", thongTinDatPhong.id);
+        alert(thongTinDatPhong.id);
         const updatedThongTinDatPhong = {
-          ...thongTinDatPhong,
-          datPhong: datPhongResponse.data,
-          trangThai: "Đã xác nhận",
+          id: thongTinDatPhong.id,
+          datPhong: thongTinDatPhong.datPhong,
+          idLoaiPhong: thongTinDatPhong.loaiPhong.id,
+          maThongTinDatPhong: thongTinDatPhong.maThongTinDatPhong,
+          ngayNhanPhong: thongTinDatPhong.ngayNhanPhong,
+          ngayTraPhong: thongTinDatPhong.ngayTraPhong,
+          soNguoi: thongTinDatPhong.soNguoi,
+          giaDat: thongTinDatPhong.giaDat,
+          ghiChu: thongTinDatPhong.ghiChu,
+          trangThai: "Chưa xếp",
         };
+        console.log(updatedThongTinDatPhong);
         const response = await updateThongTinDatPhong(updatedThongTinDatPhong);
         if (!response || !response.data) {
+          alert("Lỗi khi cập nhật thông tin đặt phòng:", error);
           throw new Error(
             `Không thể cập nhật thông tin đặt phòng: ${thongTinDatPhong.maThongTinDatPhong}`
           );
@@ -281,6 +295,7 @@ const TaoDatPhong = () => {
       alert("Đặt phòng thành công!");
       // navigate("/thong-tin-dat-phong-search");
     } catch (error) {
+       alert("Lỗi khi đặt phòng:", error);
       console.error("Lỗi khi đặt phòng:", error);
       if (datPhongResponse && datPhongResponse.data) {
         try {
@@ -380,7 +395,6 @@ const TaoDatPhong = () => {
         currentKhachHang = khachHangResponse.data;
       }
 
-      // Kiểm tra và tạo DatPhong nếu chưa có
       if (!currentDatPhong) {
         const datPhongRequest = {
           id : datPhong.id,
