@@ -1,5 +1,6 @@
 package com.example.datn.repository;
 
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.model.XepPhong;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -48,4 +49,7 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
     List<XepPhong> findByPhongTinhTrangAndTrangThai(String tinhTrang, String trangThai);
 
     List<XepPhong> findByThongTinDatPhongId(Integer id);
+
+    @Query("SELECT xp FROM XepPhong xp WHERE xp.thongTinDatPhong.datPhong.id = :datPhongId")
+    List<XepPhong> findByDatPhongId(Integer datPhongId);
 }

@@ -178,28 +178,6 @@ public class KiemTraPhongServiceImpl implements KiemTraPhongService {
                 .build();
     }
 
-//    @Override
-//    public List<XepPhongResponse> timKiemXepPhong(String key) {
-//        log.info("Find xepPhong by key");
-//        List<String> trangThaiThongTinDatPhong = new ArrayList<>();
-//        trangThaiThongTinDatPhong.add("Đang ở");
-//        trangThaiThongTinDatPhong.add("Đã kiểm tra phòng");
-//        List<XepPhong> danhSachPhong = kiemTraPhongRepository.findByKeyNotChecked(key, trangThaiThongTinDatPhong);
-//
-//        return danhSachPhong.stream()
-//                .map(xp -> new XepPhongResponse(
-//                        xp.getId(),
-//                        xp.getThongTinDatPhong().getDatPhong().getFullNameKhachHang(),
-//                        xp.getThongTinDatPhong().getDatPhong().getMaDatPhong(),
-//                        xp.getThongTinDatPhong().getMaThongTinDatPhong(),
-//                        xp.getNgayNhanPhong(),
-//                        xp.getNgayTraPhong(),
-//                        xp.getPhong().getLoaiPhong().getTenLoaiPhong(),
-//                        xp.getPhong().getTenPhong(),
-//                        xp.getTrangThai()
-//                )).collect(Collectors.toList());
-//    }
-
     @Override
     public List<NhanVienResponse> findAllNhanVien() {
         List<NhanVien> danhSachNhanVien = nhanVienRepository.findAll();

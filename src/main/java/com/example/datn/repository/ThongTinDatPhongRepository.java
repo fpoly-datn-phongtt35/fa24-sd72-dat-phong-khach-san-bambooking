@@ -87,10 +87,16 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp ")
     List<ThongTinDatPhong> getAllByidDatPhong(@Param("iddp") Integer iddp);
 
+
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp and t.loaiPhong.id= :idlp")
     List<ThongTinDatPhong> getByidDPandidLP(@Param("iddp") Integer iddp,@Param("idlp") Integer idlp);
 
     @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :idDatPhong AND ttdp.trangThai = :trangThai")
     List<ThongTinDatPhong> findByIDDatPhongandTT(Integer idDatPhong,String trangThai);
+
+    @Query("SELECT CASE WHEN COUNT(ttdp) = SUM(CASE WHEN ttdp.trangThai = 'Đã trả phòng' THEN 1 ELSE 0 END) THEN true ELSE false END " +
+           "FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :datPhongId")
+    boolean areAllThongTinDatPhongCheckedOut(@Param("datPhongId") Integer datPhongId);
+
 }
 
