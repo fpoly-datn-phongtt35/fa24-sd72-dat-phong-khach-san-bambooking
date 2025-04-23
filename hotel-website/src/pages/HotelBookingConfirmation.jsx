@@ -9,6 +9,7 @@ import {
   huyTTDP,
   XoaDatPhong,
   XoaKhachHangDatPhong,
+  GuiEmailXacNhanDP,
 } from "../services/DatPhong";
 import dayjs from "dayjs";
 
@@ -28,7 +29,7 @@ const HotelBookingConfirmation = () => {
   const [showError, setShowError] = useState(false);
   const [ttdpData, setTtdpData] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(30);
+  const [timeLeft, setTimeLeft] = useState(300);
   const timeoutRef = useRef(null);
 
   const groupAndNumberRooms = (rooms) => {
@@ -69,7 +70,7 @@ const HotelBookingConfirmation = () => {
 
   useEffect(() => {
     if (datPhong && thongTinDatPhong) {
-      timeoutRef.current = setTimeout(cancelBooking, 30000);
+      timeoutRef.current = setTimeout(cancelBooking, 300000);
       const timer = setInterval(() => {
         setTimeLeft((prev) => (prev <= 1 ? 0 : prev - 1));
       }, 1000);
@@ -165,7 +166,7 @@ const HotelBookingConfirmation = () => {
         ngayDat: datPhong?.ngayDat,
         tongTien: calculateTotalAmount(),
         ghiChu: "Ghi chú thêm nếu cần",
-        trangThai: "Đã xác nhận",
+        trangThai: "Chưa xác nhận",
       });
       if (!datPhongResponse || !datPhongResponse.data) throw new Error();
 
@@ -182,6 +183,9 @@ const HotelBookingConfirmation = () => {
           trangThai: "Chưa xếp",
         });
       }
+
+      GuiEmailXacNhanDP(datPhong);
+
 
       clearTimeout(timeoutRef.current);
       alert("Xác nhận đặt phòng thành công!");

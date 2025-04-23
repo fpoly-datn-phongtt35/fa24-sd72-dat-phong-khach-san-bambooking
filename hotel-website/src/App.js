@@ -6,6 +6,12 @@ import Navbar from "./components/Navbar";
 import Rooms from "./pages/Rooms";
 import History from "./pages/History";
 import DetailTTDP from "./components/DetailTTDP";
+import TTDP from "./components/TTDP";
+import Lookup from "./pages/Lookup";
+import LookupHistory from "./components/LookupHistory";
+import LookupDetailTTDP from "./components/LookupDetailTTDP";
+import LookupTTDP from "./components/LookupTTDP";
+import ConfirmBooking from "./components/ConfirmBooking";
 import Information from "./pages/Information";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -86,7 +92,13 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />
+        <Route path="/ttdp/:idDatPhong" element={<TTDP />} />
+        <Route path="/detail-ttdp/:idDatPhong/:idLoaiPhong" element={<DetailTTDP />} />
+        <Route path="/lookup/ttdp/:idDatPhong" element={<LookupTTDP />} />
+        <Route path="/lookup/detail-ttdp/:idDatPhong/:idLoaiPhong" element={<LookupDetailTTDP />} />
+        <Route path="/lich-su-dat-phong/:email" element={<LookupHistory />} />
+        <Route path="/confirm-booking/:iddp" element={<ConfirmBooking />} />
+        <Route path="/lookup" element={<Lookup />} />
         <Route path="/history" element={<History />} />
         <Route path="/rooms" element={<Rooms />} />
         <Route path="/information" element={<Information />} />

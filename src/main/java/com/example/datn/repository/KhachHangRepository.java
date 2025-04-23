@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
@@ -39,4 +40,6 @@ public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
     @Query("FROM KhachHang WHERE taiKhoan.tenDangNhap = :username")
     Optional<KhachHang> findByUsername(String username);
 
+    @Query("SELECT kh FROM KhachHang kh WHERE kh.sdt = :keyword or kh.email = :keyword")
+    List<KhachHang> getKHbySDTorEmail(String keyword);
 }

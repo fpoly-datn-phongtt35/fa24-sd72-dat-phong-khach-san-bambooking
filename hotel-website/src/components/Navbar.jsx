@@ -193,6 +193,15 @@ export default function Navbar() {
               </Link>
             </li>
           )}
+
+          <li>
+            <Link
+              to="/lookup"
+              className={location.pathname === "/lookup" ? "active" : ""}
+            >
+              Tra cứu
+            </Link>
+          </li>
         </ul>
         <div className="navbar-buttons d-flex align-items-center">
           <button className="book-now-button me-2" onClick={handleDropdown}>

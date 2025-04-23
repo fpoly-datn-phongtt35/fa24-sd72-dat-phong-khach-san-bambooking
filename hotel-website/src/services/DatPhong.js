@@ -15,12 +15,20 @@ const apiToHopLoaiPhong =
   const apiDeleteKHDP = "http://localhost:8080/api/kh/delete-kh-dp";
   const apiGetDPByUsername = "http://localhost:8080/api/kh/get-by-username";
   const apiGetLPKDL = "http://localhost:8080/api/loai-phong/loai-phong-kha-dung-list";
-export const getDatPhongbyTDN = (tenDangNhap,pageable) => {
+  const apiTracuuLSDP = "http://localhost:8080/api/tra-cuu/search-lich-su-dp";
+  const apigetLSDPbyEmail = "http://localhost:8080/api/tra-cuu/lich-su-dp"
+
+  const apiGuiEmailXacNhan= "http://localhost:8080/api/dp/gui-email-xac-nhan-dp"
+  const apiXacNhanDP= "http://localhost:8080/api/dp/xac-nhan-dp"
+
+
+export const getDatPhongbyTDN = (tenDangNhap,keyword,ngayNhanPhong,ngayTraPhong) => {
     return authorizedAxiosInstance.get(apiGetDP, {
         params: {
             tenDangNhap: tenDangNhap,
-            page: pageable.page ?? 0,
-            size: pageable.size ?? 5
+            keyword: keyword,
+            ngayNhanPhong: ngayNhanPhong,
+            ngayTraPhong: ngayTraPhong
         }
     });
 };
@@ -129,4 +137,32 @@ export const getLPKDR = (ngayNhanPhong, ngayTraPhong) => {
         ngayTraPhong,
       },
     });
+};
+
+export const getTracuuLSDP = (keyword) => {
+  return authorizedAxiosInstance.get(apiTracuuLSDP, {
+      params: {
+          keyword: keyword
+      }
+  });
+};
+
+export const getLSDPbyEmail = (email) => {
+  return authorizedAxiosInstance.get(apigetLSDPbyEmail, {
+      params: {
+        email: email
+      }
+  });
+};
+
+export const GuiEmailXacNhanDP = (datPhong) => {
+  return authorizedAxiosInstance.post(apiGuiEmailXacNhan, datPhong);
+};
+
+export const XacNhanDP = (iddp) => {
+  return authorizedAxiosInstance.get(apiXacNhanDP, {
+      params: {
+        iddp: iddp
+      }
+  });
 };

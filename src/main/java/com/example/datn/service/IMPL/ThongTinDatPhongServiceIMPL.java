@@ -48,7 +48,8 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         long soDem = ChronoUnit.DAYS.between(request.getNgayNhanPhong(), request.getNgayTraPhong());
         Double tienPhong = soDem * request.getGiaDat();
         DatPhong dp = request.getDatPhong();
-        dp.setTongTien(dp.getTongTien() + tienPhong);
+//        dp.setTongTien(dp.getTongTien() + tienPhong);
+
         ttdp.setDatPhong(dp);
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
@@ -145,6 +146,10 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Override
     public List<ThongTinDatPhong> getAllByIDDP(Integer iddp) {
         return thongTinDatPhongRepository.getAllByidDatPhong(iddp);
+    }
+    @Override
+    public List<ThongTinDatPhong> getByidDPandidLP(Integer iddp,Integer idlp) {
+        return thongTinDatPhongRepository.getByidDPandidLP(iddp,idlp);
     }
 
     @Override
