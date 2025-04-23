@@ -4,6 +4,7 @@ import com.example.datn.dto.request.XepPhongRequest;
 import com.example.datn.model.XepPhong;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface XepPhongService {
     List<XepPhong> getAll();
@@ -13,4 +14,6 @@ public interface XepPhongService {
     XepPhong checkIn(XepPhongRequest xepPhongRequest);
 
     List<XepPhong> findByKey(String key);
+    Optional<XepPhong> getXepPhongByThongTinDatPhongId(Integer idThongTinDatPhong);
+
 }

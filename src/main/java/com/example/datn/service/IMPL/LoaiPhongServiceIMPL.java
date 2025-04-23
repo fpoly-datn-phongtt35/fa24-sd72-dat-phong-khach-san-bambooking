@@ -337,6 +337,11 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.getAnhLP(idLoaiPhong);
     }
 
+    @Override
+    public Optional<LoaiPhong> findById(int id) {
+        return loaiPhongRepository.findById(id);
+    }
+
 
     public DichVuDiKem addDichVuDiKem(DichVuDikemRequest dichVuDikemRequest) {
         DichVuDiKem dichVuDiKem = new DichVuDiKem();

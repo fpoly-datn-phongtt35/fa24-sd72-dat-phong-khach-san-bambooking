@@ -8,6 +8,7 @@ import com.example.datn.model.HinhAnh;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.service.IMPL.DichVuDiKemServiceIMPL;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
+import com.example.datn.service.LoaiPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,7 +29,8 @@ public class LoaiPhongController {
     LoaiPhongServiceIMPL phongServiceIMPL;
     @Autowired
     DichVuDiKemServiceIMPL dichVuDiKemServiceIMPL;
-
+    @Autowired
+    LoaiPhongService loaiPhongService;
     @Autowired
     LoaiPhongServiceIMPL loaiPhongServiceIMPL;
 
@@ -87,6 +89,13 @@ public class LoaiPhongController {
                                         @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong){
         return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
 
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<LoaiPhong> getLoaiPhongById(@PathVariable int id) {
+        return loaiPhongService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }

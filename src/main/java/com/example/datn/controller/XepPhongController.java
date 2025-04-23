@@ -14,6 +14,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -50,5 +51,12 @@ public class XepPhongController {
     @GetMapping("thong-tin-xep-phong")
     public ResponseEntity<?> ttXepPhong(){
         return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.getAll());
+    }
+
+    @GetMapping("/by-thong-tin/{id}")
+    public ResponseEntity<?> getXepPhongByThongTinDatPhongId(@PathVariable Integer id) {
+        Optional<XepPhong> xepPhong = xepPhongServiceIMPL.getXepPhongByThongTinDatPhongId(id);
+        return xepPhong.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

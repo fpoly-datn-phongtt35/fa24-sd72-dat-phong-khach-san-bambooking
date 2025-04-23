@@ -28,6 +28,10 @@ import {
   getKhachHangByKey,
 } from "../../services/KhachHangService";
 import { them, DanhSachKHC } from "../../services/KhachHangCheckin";
+import { ThemPhuThu } from '../../services/PhuThuService';
+import { getKhachHangCheckinByThongTinId } from '../../services/KhachHangCheckin';
+import { getLoaiPhongById } from '../../services/LoaiPhongService';
+import { getXepPhongByThongTinDatPhongId } from '../../services/XepPhongService.js';
 
 const ModalKhachHangCheckin = ({
   isOpen,
@@ -147,6 +151,40 @@ const ModalKhachHangCheckin = ({
           if (response) khachHangToCreate.push(response.data);
         } else {
           khachHangToCreate.push(kh);
+        }
+      }
+      
+      let idXepPhong = null;
+      try {
+        const resXepPhong = await getXepPhongByThongTinDatPhongId(thongTinDatPhong.id);
+        idXepPhong = resXepPhong?.data?.id || null;
+        console.log("Lấy được idXepPhong:", idXepPhong);
+      } catch (err) {
+        console.error("Lỗi khi lấy idXepPhong từ API:", err);
+      }
+
+      // Tính tổng số khách hiện có
+      const daCheckin = await getKhachHangCheckinByThongTinId(thongTinDatPhong.id);
+      const tongSoKhach = (daCheckin.data.length || 0) + (khachHangToCreate.length || 0);
+
+      const loaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
+      const soKhachVuot = tongSoKhach - (loaiPhong.data.soKhachToiDa || 0);
+
+      if (soKhachVuot > 0) {
+        const tienPhuThu = (loaiPhong.data.donGiaPhuThu || 0) * soKhachVuot;
+        const phuThuRequest = {
+          xepPhong: { id: idXepPhong },
+          tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
+          tienPhuThu: tienPhuThu,
+          soLuong: soKhachVuot,
+          trangThai: false,
+        };
+
+        try {
+          await ThemPhuThu(phuThuRequest);
+          console.log("Đã tạo phụ thu vì vượt số khách:", phuThuRequest);
+        } catch (err) {
+          console.error("Lỗi khi tạo phụ thu vượt khách:", err);
         }
       }
 
