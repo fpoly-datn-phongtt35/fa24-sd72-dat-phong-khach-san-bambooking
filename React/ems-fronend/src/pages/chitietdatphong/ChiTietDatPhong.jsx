@@ -132,9 +132,8 @@ const ChiTietDatPhong = () => {
   };
 
   const handleHuyTTDP = (ttdp) => {
-    console.log("ID thông tin đặt phòng:", ttdp.id);
     const confirmCancel = window.confirm(
-      `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${ttdp.maDatPhong} không?`
+      `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${ttdp.maThongTinDatPhong} không?`
     );
     if (confirmCancel) {
       huyTTDP(ttdp.maThongTinDatPhong)

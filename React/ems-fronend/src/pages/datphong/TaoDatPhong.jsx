@@ -372,65 +372,28 @@ const TaoDatPhong = () => {
       let currentDatPhong = datPhong;
       let currentKhachHang = khachHang;
 
-      // Kiểm tra và tạo khachHang nếu chưa có
       if (!currentKhachHang) {
-        if (!validateForm()) {
-          alert(
-            "Vui lòng nhập đầy đủ thông tin khách hàng trước khi thêm phòng."
-          );
-          setShowError(true);
-          return;
-        }
-        const khachHangRequest = {
-          ho: formData.ho,
-          ten: formData.ten,
-          email: formData.email,
-          sdt: formData.sdt,
-          trangThai: false,
-        };
-        const khachHangResponse = await SuaKhachHangDatPhong(khachHangRequest);
-        if (!khachHangResponse || !khachHangResponse.data) {
-          throw new Error("Không thể tạo khách hàng.");
-        }
-        currentKhachHang = khachHangResponse.data;
+        throw new Error("Không tồn tại khách hàng");
       }
 
       if (!currentDatPhong) {
-        const datPhongRequest = {
-          id : datPhong.id,
-          khachHang: currentKhachHang,
-          maDatPhong: `DP-${Date.now()}`,
-          soNguoi: searchForm.soNguoi * searchForm.soPhong,
-          soPhong: searchForm.soPhong,
-          ngayDat: new Date().toISOString(),
-          tongTien: 0,
-          ghiChu: "Đặt phòng tạm thời",
-          trangThai: "Đã xác nhận",
-        };
-        const datPhongResponse = await CapNhatDatPhong(datPhongRequest);
-        console.log(datPhongRequest)
-        if (!datPhongResponse || !datPhongResponse.data) {
-          throw new Error("Không thể tạo đặt phòng.");
-        }
-        currentDatPhong = datPhongResponse.data;
+          throw new Error("Không tồn tại đặt phòng");
       }
 
       const addedRooms = [];
       for (let i = 0; i < searchForm.soPhong; i++) {
         const newRoom = {
-          datPhong: {
-            id: currentDatPhong.id,
-            maDatPhong: currentDatPhong.maDatPhong,
-          },
+          datPhong: datPhong,
           idLoaiPhong: room.id,
           maThongTinDatPhong: `TDP-${Date.now()}-${room.id}-${i}`,
           ngayNhanPhong: searchForm.ngayNhanPhong,
           ngayTraPhong: searchForm.ngayTraPhong,
           soNguoi: searchForm.soNguoi,
           giaDat: room.donGia,
-          trangThai: "Chưa xếp",
+          trangThai: "Đang đặt phòng",
         };
         const response = await addThongTinDatPhong(newRoom);
+        console.log("Added room response:", response.data);
         if (!response || !response.data) {
           throw new Error(
             `Không thể thêm thông tin đặt phòng: ${newRoom.maThongTinDatPhong}`
@@ -440,6 +403,7 @@ const TaoDatPhong = () => {
       }
 
       const updatedResponse = await getThongTinDatPhong(currentDatPhong.id);
+      console.log("Updated response:", updatedResponse.data);
       const numberedRooms = groupAndNumberRooms(updatedResponse.data);
       setTtdpData(numberedRooms);
       setTTDP(updatedResponse.data);
