@@ -17,4 +17,6 @@ public interface KhachHangCheckinService {
 
      List<KhachHangCheckin> findByTrangThaiTTDP();
 
+    List<KhachHangCheckin> findByThongTinDatPhongId(int idThongTin);
+
 }

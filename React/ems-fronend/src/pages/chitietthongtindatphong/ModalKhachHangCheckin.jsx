@@ -27,7 +27,10 @@ import {
   createKhachHang,
   getKhachHangByKey,
 } from "../../services/KhachHangService";
-import { them, DanhSachKHC } from "../../services/KhachHangCheckin";
+import { them, DanhSachKHC, getKhachHangCheckinByThongTinId } from "../../services/KhachHangCheckin";
+import { ThemPhuThu, CapNhatPhuThu, CheckPhuThuExists } from '../../services/PhuThuService';
+import { getLoaiPhongById } from '../../services/LoaiPhongService';
+import { getXepPhongByThongTinDatPhongId } from '../../services/XepPhongService.js';
 
 const ModalKhachHangCheckin = ({
   isOpen,
@@ -148,6 +151,83 @@ const ModalKhachHangCheckin = ({
         } else {
           khachHangToCreate.push(kh);
         }
+      }
+      
+      let idXepPhong = null;
+      try {
+        const resXepPhong = await getXepPhongByThongTinDatPhongId(thongTinDatPhong.id);
+        idXepPhong = resXepPhong?.data?.id || null;
+        console.log("Lấy được idXepPhong:", idXepPhong);
+      } catch (err) {
+        console.error("Lỗi khi lấy idXepPhong từ API:", err);
+      }
+
+      // Tính tổng số khách hiện có
+      const daCheckin = await getKhachHangCheckinByThongTinId(thongTinDatPhong.id);
+      const tongSoKhach = (daCheckin.data.length || 0) + (khachHangToCreate.length || 0);
+
+      const loaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
+      const soKhachVuot = tongSoKhach - (loaiPhong.data.soKhachToiDa || 0);
+
+      if (soKhachVuot > 0) {
+        const tienPhuThu = (loaiPhong.data.donGiaPhuThu || 0) * soKhachVuot;
+
+        const phuThuRequest = {
+          xepPhong: { id: idXepPhong },
+          tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
+          tienPhuThu: tienPhuThu,
+          soLuong: soKhachVuot,
+          trangThai: false,
+        };
+
+        try {
+          let existingPhuThu = null;
+
+          try {
+            const response = await CheckPhuThuExists(idXepPhong);
+            existingPhuThu = response?.data;
+            console.log("Phụ thu đã có sẵn:", existingPhuThu);
+          } catch (err) {
+            if (err.response?.status === 404) {
+              console.log("Phụ thu không tồn tại, sẽ tạo mới.");
+            } else {
+              throw err;
+            }
+          }
+
+          if (existingPhuThu) {
+            // Kiểm tra xem có cần cập nhật hay không
+            const soKhachToiDa = loaiPhong.data.soKhachToiDa || 0;
+
+            if (soKhachVuot > soKhachToiDa) {
+              const updatedPhuThu = {
+                ...existingPhuThu,
+                soLuong: soKhachVuot,
+                tienPhuThu: tienPhuThu,
+                tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
+              };
+
+              try {
+                const updatedResponse = await CapNhatPhuThu(updatedPhuThu);
+                console.log("Cập nhật phụ thu thành công:", updatedResponse.data);
+              } catch (updateErr) {
+                console.error("Lỗi khi cập nhật phụ thu:", updateErr);
+                alert("Có lỗi khi cập nhật phụ thu.");
+              }
+            } else {
+              console.log("Số khách không vượt quá giới hạn hiện tại, không cần cập nhật.");
+            }
+          } else {
+            const createResponse = await ThemPhuThu(phuThuRequest);
+            console.log("Đã tạo phụ thu vì vượt số khách:", createResponse.data);
+          }
+
+        } catch (err) {
+          console.error("Lỗi khi xử lý phụ thu:", err);
+          alert("Có lỗi khi xử lý phụ thu. Kiểm tra log để biết thêm chi tiết.");
+        }
+      } else {
+        console.log("Số khách không vượt quá giới hạn, không cần phụ thu.");
       }
 
       const checkinRequests = khachHangToCreate.map((kh) => ({

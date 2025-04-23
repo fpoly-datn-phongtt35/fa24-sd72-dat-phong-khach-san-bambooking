@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
@@ -52,4 +53,5 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
 
     @Query("SELECT xp FROM XepPhong xp WHERE xp.thongTinDatPhong.datPhong.id = :datPhongId")
     List<XepPhong> findByDatPhongId(Integer datPhongId);
+    Optional<XepPhong> findByThongTinDatPhong_Id(Integer idThongTinDatPhong);
 }

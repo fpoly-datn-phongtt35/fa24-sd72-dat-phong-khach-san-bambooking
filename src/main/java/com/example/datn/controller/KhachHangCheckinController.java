@@ -59,4 +59,10 @@ public class KhachHangCheckinController {
     public ResponseEntity<List<KhachHangCheckin>> findByTrangThaiTTDP(){
         return ResponseEntity.ok(khachHangCheckinServiceIMPL.findByTrangThaiTTDP());
     }
+
+    @GetMapping("/thong-tin-dat-phong/{id}")
+    public ResponseEntity<List<KhachHangCheckin>> getByThongTinDatPhongId(@PathVariable int id) {
+        List<KhachHangCheckin> danhSach = khachHangCheckinServiceIMPL.findByThongTinDatPhongId(id);
+        return ResponseEntity.ok(danhSach);
+    }
 }

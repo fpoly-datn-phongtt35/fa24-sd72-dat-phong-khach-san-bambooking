@@ -61,4 +61,9 @@ public class KhachHangCheckinServiceIMPL implements KhachHangCheckinService {
         List<String> trangthai = Arrays.asList("Đang ở", "Đã xếp", "Đã kiểm tra phòng");
         return repository.findByTrangThaiTTDP(trangthai);
     }
+
+    @Override
+    public List<KhachHangCheckin> findByThongTinDatPhongId(int idThongTin) {
+        return repository.findByThongTinDatPhong_Id(idThongTin);
+    }
 }

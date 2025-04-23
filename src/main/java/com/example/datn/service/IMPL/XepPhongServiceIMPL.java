@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -129,5 +130,10 @@ public class XepPhongServiceIMPL implements XepPhongService {
         trangThaiThongTinDatPhong.add("Đang ở");
         trangThaiThongTinDatPhong.add("Đã kiểm tra phòng");
         return xepPhongRepository.findByKey(key, trangThaiThongTinDatPhong);
+    }
+
+    @Override
+    public Optional<XepPhong> getXepPhongByThongTinDatPhongId(Integer idThongTinDatPhong) {
+        return xepPhongRepository.findByThongTinDatPhong_Id(idThongTinDatPhong);
     }
 }

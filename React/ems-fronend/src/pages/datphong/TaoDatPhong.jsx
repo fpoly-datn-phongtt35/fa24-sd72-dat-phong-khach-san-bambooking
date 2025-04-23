@@ -293,7 +293,7 @@ const TaoDatPhong = () => {
         }
       }
       alert("Đặt phòng thành công!");
-      // navigate("/thong-tin-dat-phong-search");
+      navigate("/thong-tin-dat-phong-search");
     } catch (error) {
        alert("Lỗi khi đặt phòng:", error);
       console.error("Lỗi khi đặt phòng:", error);

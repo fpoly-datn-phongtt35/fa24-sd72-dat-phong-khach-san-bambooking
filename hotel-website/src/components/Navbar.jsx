@@ -105,12 +105,6 @@ export default function Navbar() {
             Tra cứu
           </Link>
         </li>
-
-        <div className="navbar-buttons d-flex align-items-center">
-          <button className="book-now-button me-2" onClick={handleDropdown}>
-            {isOpen ? "ĐÓNG" : "ĐẶT PHÒNG"}
-          </button>
-        </div>
       </ul>
       <div className="navbar-buttons d-flex align-items-center">
         <button
