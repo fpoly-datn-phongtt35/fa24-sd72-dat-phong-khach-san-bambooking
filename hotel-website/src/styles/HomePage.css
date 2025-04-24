@@ -1,30 +1,63 @@
+/* src/styles/HomePage.css */
 .homepage-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   padding: 40px 20px;
   font-family: Arial, sans-serif;
+  position: relative;
+  transition: background-image 1s ease-in-out; /* Hiệu ứng chuyển đổi mượt */
+}
+
+.homepage-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Lớp phủ mờ */
+  z-index: 1;
 }
 
 .hero-section {
   max-width: 1200px;
   margin: 0 auto;
   text-align: center;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+  z-index: 2; /* Đặt trên lớp phủ mờ */
+}
+
+.hero-title,
+.hero-subtitle,
+.booking-box {
+  position: relative;
+  z-index: 2;
 }
 
 .hero-title {
   font-size: 2.5rem;
-  color: #333;
+  color: #fff;
   margin-bottom: 10px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .hero-subtitle {
   font-size: 1.2rem;
-  color: #666;
+  color: #f0f0f0;
   margin-bottom: 30px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .booking-box {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.95); /* Nền trắng mờ */
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -47,6 +80,11 @@
 }
 
 @media (max-width: 768px) {
+  .hero-section {
+    min-height: 60vh;
+    padding: 15px;
+  }
+
   .hero-title {
     font-size: 2rem;
   }
@@ -63,5 +101,23 @@
     flex-wrap: wrap;
     height: auto;
     gap: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .homepage-container {
+    background-position: center; /* Đảm bảo ảnh nền căn giữa */
+  }
+
+  .booking-box {
+    max-width: 100%;
+  }
+
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.9rem;
   }
 }
