@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -109,13 +110,21 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
     }
 
-    public List<LoaiPhongKhaDungResponse> getAllLPKDR(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
+    public List<LoaiPhongKhaDungResponse> getAllLPKDR(LocalDate ngayNhanPhong, LocalDate ngayTraPhong) {
         List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Chưa xếp");
         List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
-        List<String> tinhTrangPhong = Arrays.asList("Trống","Cần kiểm tra");
-        List<LoaiPhongKhaDungResponse> l = loaiPhongRepository.findLoaiPhongKhaDungResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
+//        List<String> tinhTrangPhong = Arrays.asList("Trống","Cần kiểm tra");
 
-        return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP,tinhTrangPhong);
+        return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
+    }
+
+    public List<LoaiPhongKhaDungResponse> getLoaiPhongKhaDungResponseList(LocalDate ngayNhanPhong, LocalDate ngayTraPhong,
+                                                                          Integer soNguoi, Integer soPhong, Integer idLoaiPhong) {
+        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Chưa xếp");
+        List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
+//        List<String> tinhTrangPhong = Arrays.asList("Trống","Cần kiểm tra");
+
+        return loaiPhongRepository.findLPKDRList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP,soNguoi,soPhong,idLoaiPhong);
     }
 
     public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach) {
@@ -205,7 +214,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return new PageImpl<>(pageContent, pageable, list.size());
     }
 
-    public Page<ToHopPhongPhuHop> getToHopPhongPhuHop(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi,
+    public Page<ToHopPhongPhuHop> getToHopPhongPhuHop(LocalDate ngayNhanPhong, LocalDate ngayTraPhong, Integer soNguoi,
                                                String key, Double tongChiPhiMin,
                                                Double tongChiPhiMax, Integer tongSoPhongMin, Integer tongSoPhongMax,
                                                Integer tongSucChuaMin, Integer tongSucChuaMax, List<LoaiPhongChon> loaiPhongChons , Pageable pageable) {
@@ -335,6 +344,11 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     @Override
     public List<HinhAnh> getAnhLP(Integer idLoaiPhong) {
         return loaiPhongRepository.getAnhLP(idLoaiPhong);
+    }
+
+    @Override
+    public Optional<LoaiPhong> findById(int id) {
+        return loaiPhongRepository.findById(id);
     }
 
 

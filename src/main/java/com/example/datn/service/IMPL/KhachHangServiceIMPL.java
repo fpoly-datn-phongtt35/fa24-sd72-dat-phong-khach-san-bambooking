@@ -78,8 +78,8 @@ public class KhachHangServiceIMPL implements KhachHangService {
         return khachHangRepository.save(khachHang);
     }
 
-    public Page<KhachHang> getKhachHangsByKey(String key, Pageable pageable){
-        Page<KhachHang> khs = khachHangRepository.search(key,pageable);
+    public Page<KhachHang> getKhachHangsByKey(Boolean trangThai, String key, Pageable pageable){
+        Page<KhachHang> khs = khachHangRepository.search(trangThai,key,pageable);
         return khs;
     }
 
@@ -102,6 +102,10 @@ public class KhachHangServiceIMPL implements KhachHangService {
         taiKhoanRepository.save(taiKhoan);
         log.info("Update status successfully");
     }
+
+    public KhachHang getKHByUsername(String userName){
+        return khachHangRepository.getKHByUsername(userName);
+    };
 
     @Override
     @Transactional(rollbackFor = Exception.class)

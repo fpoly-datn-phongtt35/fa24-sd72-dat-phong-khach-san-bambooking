@@ -1,0 +1,67 @@
+.homepage-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+  padding: 40px 20px;
+  font-family: Arial, sans-serif;
+}
+
+.hero-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.booking-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.booking-form {
+  width: 100%;
+}
+
+.guest-room-box {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  padding: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  height: 56px;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .booking-box {
+    padding: 15px;
+  }
+
+  .guest-room-box {
+    flex-wrap: wrap;
+    height: auto;
+    gap: 10px;
+  }
+}

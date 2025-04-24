@@ -6,14 +6,9 @@ import com.example.datn.dto.request.TTDPRequest;
 import com.example.datn.dto.request.ToHopRequest;
 import com.example.datn.dto.response.*;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
-import com.example.datn.model.HinhAnh;
-import com.example.datn.model.LoaiPhong;
-import com.example.datn.model.ThongTinDatPhong;
+import com.example.datn.model.*;
 import com.example.datn.service.*;
-import com.example.datn.service.IMPL.DatPhongServiceIMPL;
-import com.example.datn.service.IMPL.HotelWebsiteServiceImpl;
-import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
-import com.example.datn.service.IMPL.ThongTinDatPhongServiceIMPL;
+import com.example.datn.service.IMPL.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,9 +40,12 @@ public class HotelWebsiteController {
     HoaDonService hoaDonService;
     @Autowired
     ThongTinHoaDonService thongTinHoaDonService;
-
     @Autowired
     KhachHangService khachHangService;
+    @Autowired
+    KhachHangServiceIMPL khachHangServiceIMPL;
+    @Autowired
+    XepPhongServiceIMPL xepPhongServiceIMPL;
 
     @GetMapping("/loai-phong")
     public ResponseEntity<?> home(){
@@ -62,13 +60,21 @@ public class HotelWebsiteController {
     }
 
     @GetMapping("/dp/lich-su-dp")
-    public Page<ThongTinDatPhong> getDPbyTDN(@RequestParam("tenDangNhap") String tenDangNhap,  Pageable pageable) {
-        return hotelWebsiteServiceImpl.getDPbyTenDangNhap(tenDangNhap,pageable);
+    public List<DatPhong> getDPbyTDN(@RequestParam("tenDangNhap") String tenDangNhap,
+                                             @RequestParam(value = "keyword", required = false) String keyword,
+                                             @RequestParam(value = "ngayNhanPhong", required = false) LocalDate ngayNhanPhong,
+                                             @RequestParam(value = "ngayTraPhong", required = false) LocalDate ngayTraPhong) {
+        return hotelWebsiteServiceImpl.getDPbyTenDangNhap(tenDangNhap,keyword,ngayNhanPhong,ngayTraPhong);
     }
 
     @GetMapping("/dp/findByidDatPhong")
     public List<ThongTinDatPhong> getTTDPBymaDatPhong(@RequestParam(value = "idDatPhong") Integer idDatPhong) {
         return thongTinDatPhongServiceIMPL.getAllByIDDP(idDatPhong);
+    }
+
+    @GetMapping("/dp/findByidDPandidLP")
+    public List<ThongTinDatPhong> getByidDPandidLP(@RequestParam(value = "idDatPhong") Integer idDatPhong,@RequestParam(value = "idLoaiPhong") Integer idLoaiPhong) {
+        return thongTinDatPhongServiceIMPL.getByidDPandidLP(idDatPhong,idLoaiPhong);
     }
 
     @GetMapping("/hoa-don/{idHoaDon}")
@@ -92,6 +98,16 @@ public class HotelWebsiteController {
         List<DichVuSuDungResponse> dichVuSuDung = thongTinHoaDonService.getDichVuSuDung(idHoaDon);
         return ResponseEntity.ok(dichVuSuDung);
     }
+    @GetMapping("/tthd/list-vat-tu-hong-thieu/{idHoaDon}")
+    public ResponseEntity<?> getListVatTuHongOrThieu(@PathVariable("idHoaDon") Integer idHoaDon) {
+        List<KiemTraVatTuResponseList> result = thongTinHoaDonService.getListVatTuHongOrThieuByHoaDon(idHoaDon);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/ttdp/phong-da-xep")
+    public ResponseEntity<XepPhong> phongDaXep(@RequestParam("maThongTinDatPhong") String maThongTinDatPhong){
+        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.getByMaTTDP(maThongTinDatPhong));
+    }
 
     @GetMapping("/hoa-don/findidHD/{idDatPhong}")
     public ResponseEntity<?> getidHDByidDatPhong(@PathVariable("idDatPhong") Integer idDatPhong) {
@@ -102,15 +118,9 @@ public class HotelWebsiteController {
     public ResponseEntity<Page<ToHopPhongPhuHop>> toHopLoaiPhongKhaDung(
             @RequestBody ToHopRequest request,
             @PageableDefault(size = 5) Pageable pageable) {
-        LocalDateTime ngayNhanPhongLocal = request.getNgayNhanPhong() != null
-                ? ZonedDateTime.parse(request.getNgayNhanPhong()).toLocalDateTime()
-                : null;
-        LocalDateTime ngayTraPhongLocal = request.getNgayTraPhong() != null
-                ? ZonedDateTime.parse(request.getNgayTraPhong()).toLocalDateTime()
-                : null;
         Page<ToHopPhongPhuHop> p = loaiPhongServiceIMPL.getToHopPhongPhuHop(
-                ngayNhanPhongLocal,
-                ngayTraPhongLocal,
+                request.getNgayNhanPhong(),
+                request.getNgayTraPhong(),
                 request.getSoNguoi(),
                 request.getKey(),
                 request.getTongChiPhiMin(),
@@ -200,6 +210,89 @@ public class HotelWebsiteController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Đã xảy ra lỗi trong quá trình xóa khách hàng.");
         }
+    }
+
+
+    @GetMapping("/kh/get-by-username")
+    public ResponseEntity<?> getKhachHangByUsername(@RequestParam(value = "userName", required = false) String userName){
+        KhachHang kh = khachHangServiceIMPL.getKHByUsername(userName);
+        return ResponseEntity.status(HttpStatus.OK).body(kh);
+    }
+
+    @GetMapping("/loai-phong/loai-phong-kha-dung-list")
+    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong){
+        return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
+    }
+
+
+
+    // Những đường dẫn không yêu cầu xác thực/////////////////////
+    @GetMapping("/tra-cuu/search-lich-su-dp")
+    public void tracuuLichSuDP(@RequestParam("keyword") String keyword){
+         hotelWebsiteServiceImpl.tracuuLichSuDP(keyword);
+    }
+
+    @GetMapping("/tra-cuu/lich-su-dp")
+    public  ResponseEntity<List<DatPhong>> getLichsuDP(@RequestParam("email") String email){
+        return ResponseEntity.ok(hotelWebsiteServiceImpl.getLichSuDPbyEmail(email));
+    }
+
+    @GetMapping("/tra-cuu/dp/findByidDatPhong")
+    public List<ThongTinDatPhong> getTTDPBymaDatPhong2(@RequestParam(value = "idDatPhong") Integer idDatPhong) {
+        return thongTinDatPhongServiceIMPL.getAllByIDDP(idDatPhong);
+    }
+
+    @GetMapping("/tra-cuu/ttdp/phong-da-xep")
+    public ResponseEntity<XepPhong> phongDaXep2(@RequestParam("maThongTinDatPhong") String maThongTinDatPhong){
+        return ResponseEntity.status(HttpStatus.OK).body(xepPhongServiceIMPL.getByMaTTDP(maThongTinDatPhong));
+    }
+
+    @GetMapping("/tra-cuu/dp/findByidDPandidLP")
+    public List<ThongTinDatPhong> getByidDPandidLP2(@RequestParam(value = "idDatPhong") Integer idDatPhong,@RequestParam(value = "idLoaiPhong") Integer idLoaiPhong) {
+        return thongTinDatPhongServiceIMPL.getByidDPandidLP(idDatPhong,idLoaiPhong);
+    }
+
+    @GetMapping("/tra-cuu/hoa-don/{idHoaDon}")
+    public ResponseEntity<?> getHoaDonById2(@PathVariable("idHoaDon") Integer idHoaDon){
+        return ResponseEntity.ok(hoaDonService.getOneHoaDon(idHoaDon));
+    }
+
+    @GetMapping("/tra-cuu/tthd/{idHoaDon}")
+    public ResponseEntity<?> findThongTinHoaDonByHoaDonId2(@PathVariable("idHoaDon") Integer idHoaDon) {
+        return ResponseEntity.status(HttpStatus.OK).body(thongTinHoaDonService.getThongTinHoaDonByHoaDonId(idHoaDon));
+    }
+
+    @GetMapping("/tra-cuu/tthd/phu-thu/{idHoaDon}")
+    public ResponseEntity<?> getPhuThu2(@PathVariable("idHoaDon") Integer idHoaDon) {
+        List<PhuThuResponse> phuThuResponses = thongTinHoaDonService.getPhuThu(idHoaDon);
+        return ResponseEntity.ok(phuThuResponses);
+    }
+
+    @GetMapping("/tra-cuu/tthd/dich-vu-su-dung/{idHoaDon}")
+    public ResponseEntity<?> getDichVuSuDung2(@PathVariable("idHoaDon") Integer idHoaDon) {
+        List<DichVuSuDungResponse> dichVuSuDung = thongTinHoaDonService.getDichVuSuDung(idHoaDon);
+        return ResponseEntity.ok(dichVuSuDung);
+    }
+    @GetMapping("/tra-cuu/tthd/list-vat-tu-hong-thieu/{idHoaDon}")
+    public ResponseEntity<?> getListVatTuHongOrThieu2(@PathVariable("idHoaDon") Integer idHoaDon) {
+        List<KiemTraVatTuResponseList> result = thongTinHoaDonService.getListVatTuHongOrThieuByHoaDon(idHoaDon);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/tra-cuu/hoa-don/findidHD/{idDatPhong}")
+    public ResponseEntity<?> getidHDByidDatPhong2(@PathVariable("idDatPhong") Integer idDatPhong) {
+        return ResponseEntity.ok( hotelWebsiteServiceImpl.getHDByidDatPhong(idDatPhong));
+    }
+
+    @PostMapping("/dp/gui-email-xac-nhan-dp")
+    public void guiEmailXacNhandp(@RequestBody DatPhongRequest datPhongRequest){
+         hotelWebsiteServiceImpl.guiEmailXacNhandp(datPhongRequest);
+    }
+
+    @GetMapping("/dp/xac-nhan-dp")
+    public boolean xacNhanDP(@RequestParam("iddp") Integer iddp){
+        return hotelWebsiteServiceImpl.xacNhanDP(iddp);
     }
 
 }

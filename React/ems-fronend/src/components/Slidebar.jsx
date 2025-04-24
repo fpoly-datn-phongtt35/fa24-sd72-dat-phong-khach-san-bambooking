@@ -100,7 +100,7 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
         )}
 
         <List>
-          <ListItemButton component={Link} to="/TrangChu">
+          <ListItemButton component={Link} to="/trang-chu">
             <ListItemText primary="Trang chủ" />
           </ListItemButton>
           <ListItemButton component={Link} to="/dat-phong">
@@ -128,10 +128,10 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
                 sx={{ pl: 4 }}>
                 <ListItemText primary="Phòng" />
               </ListItemButton>
-              <ListItemButton component={Link} to="/LoaiPhong" sx={{ pl: 4 }}>
+              <ListItemButton component={Link} to="/loai-phong" sx={{ pl: 4 }}>
                 <ListItemText primary="Loại phòng" />
               </ListItemButton>
-              <ListItemButton component={Link} to="/VatTu" sx={{ pl: 4 }}>
+              <ListItemButton component={Link} to="/vat-tu" sx={{ pl: 4 }}>
                 <ListItemText primary="Vật tư" />
               </ListItemButton>
               <ListItemButton
@@ -144,7 +144,7 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
             </List>
           </Collapse>
           <Divider />
-          <ListItemButton component={Link} to="/DichVu">
+          <ListItemButton component={Link} to="/dich-vu">
             <ListItemText primary="Dịch vụ" />
           </ListItemButton>
           <ListItemButton component={Link} to="/hinh-anh">
@@ -173,7 +173,7 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
           </ListItemButton>
           <Collapse in={openSubmenu['nguoiDung']} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItemButton component={Link} to="/NhanVien" sx={{ pl: 4 }}>
+              <ListItemButton component={Link} to="/nhan-vien" sx={{ pl: 4 }}>
                 <ListItemText primary="Nhân viên" />
               </ListItemButton>
               <ListItemButton component={Link} to="/khach-hang" sx={{ pl: 4 }}>

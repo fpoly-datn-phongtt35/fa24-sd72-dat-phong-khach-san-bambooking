@@ -1,258 +1,392 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getTTDPByidDatPhong } from '../services/TTDP.js';
-import { getDichVuSuDung, getHoaDonById, getThongTinHoaDonByHoaDonId, getPhuThuByHoaDonId, getHDByidDatPhong } from "../services/InfoHoaDon";
-import '../styles/DetailTTDP.css'; // Import file CSS
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getTTDPbyidDPandidLP, getXPbymaTTDP } from "../services/TTDP.js";
+import {
+  getDichVuSuDung,
+  getHoaDonById,
+  getThongTinHoaDonByHoaDonId,
+  getPhuThuByHoaDonId,
+  getHDByidDatPhong,
+  getListVatTuHongThieu,
+} from "../services/InfoHoaDon";
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Collapse,
+} from "@mui/material";
 
 export default function DetailTTDP() {
-    const [bookings, setBookings] = useState([]);
-    const [hoaDon, setHoaDon] = useState(null);
-    const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
-    const [dichVuSuDung, setDichVuSuDung] = useState([]);
-    const [phuThu, setPhuThu] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [expanded, setExpanded] = useState(null);
-    const { idDatPhong } = useParams();
-    const navigate = useNavigate();
-    const statusClassMap = {
-        "Chờ xác nhận": "choxacnhan",
-        "Chưa thanh toán": "chuathanhtoan",
-        "Đã thanh toán": "dathanhtoan",
-    };
+  const [bookings, setBookings] = useState([]);
+  const [hoaDons, setHoaDons] = useState([]);
+  const [thongTinHoaDon, setThongTinHoaDon] = useState([]);
+  const [dichVuSuDung, setDichVuSuDung] = useState([]);
+  const [phuThu, setPhuThu] = useState([]);
+  const [danhSachVatTu, setDanhSachVatTu] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [expandedRow, setExpandedRow] = useState(null);
+  const { idDatPhong, idLoaiPhong } = useParams();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        fetchData();
-    }, [idDatPhong]);
+  const statusChipProps = {
+    "Chờ xác nhận": { bgcolor: "warning.main", color: "white", label: "Chờ xác nhận" },
+    "Chưa thanh toán": { bgcolor: "error.main", color: "white", label: "Chưa thanh toán" },
+    "Đã thanh toán": { bgcolor: "success.main", color: "white", label: "Đã thanh toán" },
+  };
 
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const bookingResponse = await getTTDPByidDatPhong(idDatPhong);
-            setBookings(Array.isArray(bookingResponse.data) ? bookingResponse.data : [bookingResponse.data]);
-            const hoaDonResponse = await getHDByidDatPhong(idDatPhong);
-            const hoaDonData = hoaDonResponse?.data || null;
-            setHoaDon(hoaDonData);
+  const hoaDonStatusChipProps = {
+    "Chưa thanh toán": { bgcolor: "error.main", color: "white", label: "Chưa thanh toán" },
+    "Đã thanh toán": { bgcolor: "success.main", color: "white", label: "Đã thanh toán" },
+    "Chờ xác nhận": { bgcolor: "warning.main", color: "white", label: "Chờ xác nhận" },
+  };
 
-            if (hoaDonData && hoaDonData.id) {
-                const [thongTinHoaDonResponse, dichVuSuDungResponse, phuThuResponse, hoaDonByIdResponse] = await Promise.all([
-                    getThongTinHoaDonByHoaDonId(hoaDonData.id),
-                    getDichVuSuDung(hoaDonData.id),
-                    getPhuThuByHoaDonId(hoaDonData.id),
-                    getHoaDonById(hoaDonData.id)
-                ]);
+  useEffect(() => {
+    fetchData();
+  }, [idDatPhong, idLoaiPhong]);
 
-                setThongTinHoaDon(thongTinHoaDonResponse?.data || []);
-                setDichVuSuDung(dichVuSuDungResponse?.data || []);
-                setPhuThu(phuThuResponse?.data || []);
-                setHoaDon(hoaDonByIdResponse?.data || hoaDonData);
-            }
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        } finally {
-            setLoading(false);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      // Lấy dữ liệu booking
+      const bookingResponse = await getTTDPbyidDPandidLP(idDatPhong, idLoaiPhong);
+      const bookingData = Array.isArray(bookingResponse.data)
+        ? bookingResponse.data
+        : [bookingResponse.data];
+
+      const bookingsWithMaPhong = await Promise.all(
+        bookingData.map(async (booking) => {
+          try {
+            const xepPhongResponse = await getXPbymaTTDP(booking.maThongTinDatPhong);
+            const maPhong = xepPhongResponse?.data?.phong?.maPhong || booking.loaiPhong.tenLoaiPhong;
+            const tenPhong = xepPhongResponse?.data?.phong?.tenPhong || "N/A";
+            return { ...booking, maPhong, tenPhong };
+          } catch (error) {
+            console.error(`Error fetching maPhong for maThongTinDatPhong ${booking.maThongTinDatPhong}:`, error);
+            return { ...booking, maPhong: "N/A", tenPhong: "N/A" };
+          }
+        })
+      );
+      setBookings(bookingsWithMaPhong);
+
+      // Lấy dữ liệu hóa đơn
+      const hoaDonResponse = await getHDByidDatPhong(idDatPhong);
+      let hoaDonList = Array.isArray(hoaDonResponse.data) ? hoaDonResponse.data : [hoaDonResponse.data].filter(Boolean);
+      setHoaDons(hoaDonList);
+
+      // Lấy dữ liệu liên quan cho từng hóa đơn
+      const allThongTinHoaDon = [];
+      const allDichVuSuDung = [];
+      const allPhuThu = [];
+      const allDanhSachVatTu = [];
+      const updatedHoaDons = [];
+
+      for (const hoaDonData of hoaDonList) {
+        if (hoaDonData && hoaDonData.id) {
+          const [
+            thongTinHoaDonResponse,
+            dichVuSuDungResponse,
+            phuThuResponse,
+            hoaDonByIdResponse,
+            vatTuResponse,
+          ] = await Promise.all([
+            getThongTinHoaDonByHoaDonId(hoaDonData.id),
+            getDichVuSuDung(hoaDonData.id),
+            getPhuThuByHoaDonId(hoaDonData.id),
+            getHoaDonById(hoaDonData.id),
+            getListVatTuHongThieu(hoaDonData.id),
+          ]);
+
+          allThongTinHoaDon.push(...(thongTinHoaDonResponse?.data || []));
+          allDichVuSuDung.push(...(dichVuSuDungResponse?.data || []));
+          allPhuThu.push(...(phuThuResponse?.data || []));
+          allDanhSachVatTu.push(...(vatTuResponse?.data || []));
+          updatedHoaDons.push(hoaDonByIdResponse?.data || hoaDonData);
         }
-    };
+      }
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat("vi-VN", {
-            style: "currency",
-            currency: "VND",
-        }).format(amount);
-    };
+      setThongTinHoaDon(allThongTinHoaDon);
+      setDichVuSuDung(allDichVuSuDung);
+      setPhuThu(allPhuThu);
+      setDanhSachVatTu(allDanhSachVatTu);
+      setHoaDons(updatedHoaDons);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleExpand = (maPhong) => {
-        setExpanded(expanded === maPhong ? null : maPhong);
-    };
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(amount);
 
-    const calculateDays = (startDate, endDate) => {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        const diffTime = Math.abs(end - start);
-        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    };
+  const handleRowClick = (tenPhong) => {
+    const newExpandedRow = expandedRow === tenPhong ? null : tenPhong;
+    setExpandedRow(newExpandedRow);
+  };
 
-    const getStatusClass = (trangThai) => {
-        return statusClassMap[trangThai];
-    };
+  const calculateDays = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
 
-    return (
-        <div className="container">
-            <div className="header">
-                <h2>Chi Tiết Đặt Phòng</h2>
-                <button className="back-btn" onClick={() => navigate(-1)}>
-                    <span>←</span> Quay Lại
-                </button>
-            </div>
+    if (isNaN(start) || isNaN(end)) {
+      return 1;
+    }
 
-            {loading ? (
-                <div className="loading">Đang tải dữ liệu...</div>
-            ) : (
-                <div className="content">
-                    <section className="card">
-                        <h3>Thông Tin Đặt Phòng</h3>
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Mã TTDP</th>
-                                    <th>Số Người</th>
-                                    <th>Giá Đặt</th>
-                                    <th>Ngày Nhận</th>
-                                    <th>Ngày Trả</th>
-                                    <th>Ghi Chú</th>
-                                    <th>Trạng Thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {bookings.map((booking) => (
-                                    <tr key={booking.id}>
-                                        <td>{booking.maThongTinDatPhong}</td>
-                                        <td>{booking.soNguoi}</td>
-                                        <td>{booking.giaDat.toLocaleString()} VNĐ</td>
-                                        <td>{new Date(booking.ngayNhanPhong).toLocaleDateString()}</td>
-                                        <td>{new Date(booking.ngayTraPhong).toLocaleDateString()}</td>
-                                        <td>{booking.ghiChu}</td>
-                                        <td>
-                                            <span >
-                                                {booking.trangThai}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </section>
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
 
-                    {hoaDon ? (
-                        <section className="card invoice-info">
-                            <h3>Thông Tin Hóa Đơn</h3>
-                            <div className="invoice-details">
-                                <div className="detail-item">
-                                    <span className="label">Mã Hóa Đơn:</span>
-                                    <span>{hoaDon.maHoaDon}</span>
-                                </div>
-                                <div className="detail-item">
-                                    <span className="label">Mã Đặt Phòng:</span>
-                                    <span>{hoaDon.maDatPhong}</span>
-                                </div>
-                                <div className="detail-item">
-                                    <span className="label">Tổng Tiền:</span>
-                                    <span className="total">{formatCurrency(hoaDon.tongTien)}</span>
-                                </div>
-                                <div className="detail-item">
-                                    <span className="label">Trạng Thái:</span>
-                                    <span className={`status ${getStatusClass(hoaDon.trangThai)}`}>
-                                        {hoaDon.trangThai}
-                                    </span>
-                                </div>
-                            </div>
-                        </section>
-                    ) : (
-                        <section className="card">
-                            <p className="no-invoice">Chưa có hóa đơn</p>
-                        </section>
-                    )}
-                    {thongTinHoaDon && thongTinHoaDon.length > 0 &&(
-                        <section className="card">
-                            <h3>Chi Tiết Hóa Đơn</h3>
-                            <table className="table expandable">
-                                <thead>
-                                    <tr>
-                                        <th>Tên Phòng</th>
-                                        <th>Ngày Nhận Phòng</th>
-                                        <th>Ngày Trả Phòng</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {thongTinHoaDon.map((item, index) => (
-                                        <React.Fragment key={index}>
-                                            <tr onClick={() => handleExpand(item.tenPhong)} style={{ cursor: 'pointer' }}>
-                                                <td>{item.tenPhong}</td>
-                                                <td>{item.ngayNhanPhong}</td>
-                                                <td>{item.ngayTraPhong}</td>
-                                            </tr>
-                                            {expanded === item.tenPhong && (
-                                                <tr>
-                                                    <td colSpan="3">
-                                                        <div className="expanded-details">
-                                                            <h4>Tiền Phòng</h4>
-                                                            <table className="table">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Số Ngày Ở</th>
-                                                                        <th>Giá Phòng</th>
-                                                                        <th>Tiền Phòng</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <tr>
-                                                                        <td>{calculateDays(item.ngayNhanPhong, item.ngayTraPhong)}</td>
-                                                                        <td>{formatCurrency(item.giaPhong)}</td>
-                                                                        <td>{formatCurrency(item.tienPhong)}</td>
-                                                                    </tr>
-                                                                </tbody>
-                                                            </table>
+    const diffTime = end - start;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
-                                                            {dichVuSuDung.some(dv => dv.tenPhong === item.tenPhong) && (
-                                                                <>
-                                                                    <h4>Dịch Vụ Sử Dụng</h4>
-                                                                    <table className="table">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>Tên Dịch Vụ</th>
-                                                                                <th>Giá Dịch Vụ</th>
-                                                                                <th>Số Lượng</th>
-                                                                                <th>Tổng Tiền</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            {dichVuSuDung.filter(dv => dv.tenPhong === item.tenPhong).map((dv, i) => (
-                                                                                <tr key={i}>
-                                                                                    <td>{dv.tenDichVu}</td>
-                                                                                    <td>{formatCurrency(dv.giaDichVu)}</td>
-                                                                                    <td>{dv.soLuongSuDung}</td>
-                                                                                    <td>{formatCurrency(dv.giaDichVu * dv.soLuongSuDung)}</td>
-                                                                                </tr>
-                                                                            ))}
-                                                                        </tbody>
-                                                                    </table>
-                                                                </>
-                                                            )}
+    return Math.ceil(Math.max(diffDays, 1));
+  };
 
-                                                            {phuThu.some(pt => pt.tenPhong === item.tenPhong) && (
-                                                                <>
-                                                                    <h4>Phụ Thu</h4>
-                                                                    <table className="table">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>Loại Phụ Thu</th>
-                                                                                <th>Số Lượng</th>
-                                                                                <th>Số Tiền</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            {phuThu.filter(pt => pt.tenPhong === item.tenPhong).map((pt, i) => (
-                                                                                <tr key={i}>
-                                                                                    <td>{pt.tenPhuThu}</td>
-                                                                                    <td>{pt.soLuong}</td>
-                                                                                    <td>{formatCurrency(pt.tienPhuThu)}</td>
-                                                                                </tr>
-                                                                            ))}
-                                                                        </tbody>
-                                                                    </table>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </React.Fragment>
+  return (
+    <Box sx={{ maxWidth: "1200px", mx: "auto", p: 3 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+        <Typography variant="h5" fontWeight="bold">
+          Chi Tiết Đặt Phòng
+        </Typography>
+        <Button
+          variant="contained"
+          sx={{ bgcolor: "#1976d2", "&:hover": { bgcolor: "#1565c0" } }}
+          onClick={() => navigate(-1)}
+        >
+          ← Quay Lại
+        </Button>
+      </Box>
+
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+          <Typography>Đang tải dữ liệu...</Typography>
+        </Box>
+      ) : (
+        <Box>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Phòng</TableCell>
+                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Diện tích</TableCell>
+                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Số khách tối đa</TableCell>
+                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Đơn giá</TableCell>
+                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Ngày Nhận</TableCell>
+                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Ngày Trả</TableCell>
+                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Mô tả</TableCell>
+                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Trạng Thái</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {bookings.map((booking) => (
+                    <React.Fragment key={booking.maThongTinDatPhong}>
+                      <TableRow
+                        onClick={() => handleRowClick(booking.tenPhong)}
+                        sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.100" } }}
+                      >
+                        <TableCell align="center" >{booking.maPhong}</TableCell>
+                        <TableCell align="center" >{booking.loaiPhong.dienTich}</TableCell>
+                        <TableCell align="center" >{booking.loaiPhong.soKhachToiDa}</TableCell>
+                        <TableCell align="center" >{formatCurrency(booking.loaiPhong.donGia)}</TableCell>
+                        <TableCell align="center" >{new Date(booking.ngayNhanPhong).toLocaleDateString()}</TableCell>
+                        <TableCell align="center" >{new Date(booking.ngayTraPhong).toLocaleDateString()}</TableCell>
+                        <TableCell align="center" >{booking.loaiPhong.moTa}</TableCell>
+                        <TableCell align="center" >
+                          <Box
+                            sx={{
+                              ...statusChipProps[booking.trangThai],
+                              px: 1,
+                              py: 0.5,
+                              borderRadius: 1,
+                              display: "inline-block",
+                            }}
+                          >
+                            {booking.trangThai}
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell colSpan={8} sx={{ p: 0 }}>
+                          <Collapse in={expandedRow === booking.tenPhong}>
+                            <Box sx={{ p: 2, bgcolor: "grey.50" }}>
+                              {/* Kiểm tra nếu có thongTinHoaDon khớp với booking.tenPhong */}
+                              {thongTinHoaDon.some((item) => item.tenPhong === booking.tenPhong) ? (
+                                <>
+                                  {/* Thông Tin Hóa Đơn */}
+                                  {(() => {
+                                    // Kiểm tra cấu trúc của thongTinHoaDon
+
+                                    // Lấy danh sách idHoaDon từ thongTinHoaDon có tenPhong khớp
+                                    const validIdHoaDons = thongTinHoaDon
+                                      .filter((item) => item.tenPhong === booking.tenPhong)
+                                      .map((item) => item.idHoaDon)
+                                      .filter(Boolean); // Loại bỏ undefined/null
+
+                                    // Nếu validIdHoaDons rỗng, không hiển thị hóa đơn
+                                    if (validIdHoaDons.length === 0) {
+                                      return (
+                                        <Typography>
+                                          Không có thông tin hóa đơn hợp lệ cho phòng này
+                                        </Typography>
+                                      );
+                                    }
+
+                                    return hoaDons
+                                      .filter((hoaDon) => validIdHoaDons.includes(hoaDon.id))
+                                      .map((hoaDon, index) => (
+                                        <Box key={index} sx={{ mb: 2 }}>
+                                          <Typography variant="h6" fontWeight="bold" color="primary">
+                                            Thông Tin Hóa Đơn {hoaDon.maHoaDon}
+                                          </Typography>
+                                          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
+                                            <Typography>
+                                              <strong>Mã Hóa Đơn:</strong> {hoaDon.maHoaDon}
+                                            </Typography>
+                                            <Typography>
+                                              <strong>Mã Đặt Phòng:</strong> {hoaDon.maDatPhong}
+                                            </Typography>
+                                            <Typography>
+                                              <strong>Tổng Tiền:</strong>{" "}
+                                              <Typography component="span" color="primary">
+                                                {formatCurrency(hoaDon.tongTien)}
+                                              </Typography>
+                                            </Typography>
+                                            <Typography>
+                                              <strong>Trạng Thái:</strong>{" "}
+                                              <Box
+                                                sx={{
+                                                  ...hoaDonStatusChipProps[hoaDon.trangThai],
+                                                  px: 1,
+                                                  py: 0.5,
+                                                  borderRadius: 1,
+                                                  display: "inline-block",
+                                                }}
+                                              >
+                                                {hoaDon.trangThai}
+                                              </Box>
+                                            </Typography>
+                                          </Box>
+                                        </Box>
+                                      ));
+                                  })()}
+
+                                  {/* Chi Tiết Hóa Đơn */}
+                                  {thongTinHoaDon
+                                    .filter((item) => {
+                                      return item.tenPhong === booking.tenPhong;
+                                    })
+                                    .map((item, index) => (
+                                      <Box key={index} sx={{ mb: 2 }}>
+                                        <Typography variant="h6" fontWeight="bold" color="primary">
+                                          Chi Tiết Hóa Đơn - Phòng {item.tenPhong}
+                                        </Typography>
+                                        <Box sx={{ mb: 2 }}>
+                                          <Typography variant="subtitle1" fontWeight="bold">
+                                            Tiền Phòng
+                                          </Typography>
+                                          <Typography>
+                                            Số Ngày Ở: {calculateDays(item.ngayNhanPhong, item.ngayTraPhong)}
+                                          </Typography>
+                                          <Typography>Giá Phòng: {formatCurrency(item.giaPhong)}</Typography>
+                                          <Typography>Tiền Phòng: {formatCurrency(item.tienPhong)}</Typography>
+                                        </Box>
+
+                                        {dichVuSuDung.some((dv) => dv.tenPhong === item.tenPhong) && (
+                                          <Box sx={{ mb: 2 }}>
+                                            <Typography variant="subtitle1" fontWeight="bold">
+                                              Dịch Vụ Sử Dụng
+                                            </Typography>
+                                            {dichVuSuDung
+                                              .filter((dv) => dv.tenPhong === item.tenPhong)
+                                              .map((dv, i) => (
+                                                <Typography key={i}>
+                                                  {dv.tenDichVu} - SL: {dv.soLuongSuDung} - Tổng:{" "}
+                                                  {formatCurrency(dv.giaDichVu * dv.soLuongSuDung)}
+                                                </Typography>
+                                              ))}
+                                          </Box>
+                                        )}
+
+                                        {phuThu.some((pt) => pt.tenPhong === item.tenPhong) && (
+                                          <Box sx={{ mb: 2 }}>
+                                            <Typography variant="subtitle1" fontWeight="bold">
+                                              Phụ Thu
+                                            </Typography>
+                                            {phuThu
+                                              .filter((pt) => pt.tenPhong === item.tenPhong)
+                                              .map((pt, i) => (
+                                                <Typography key={i}>
+                                                  {pt.tenPhuThu} - SL: {pt.soLuong} - Số Tiền:{" "}
+                                                  {formatCurrency(pt.tienPhuThu)}
+                                                </Typography>
+                                              ))}
+                                          </Box>
+                                        )}
+
+                                        {danhSachVatTu.some((vt) => vt.tenPhong === item.tenPhong) && (
+                                          <Box>
+                                            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                                              Danh sách vật tư hỏng/thiếu
+                                            </Typography>
+                                            <TableContainer component={Paper} sx={{ bgcolor: "white" }}>
+                                              <Table size="small">
+                                                <TableHead>
+                                                  <TableRow>
+                                                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Tên vật tư</TableCell>
+                                                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Giá vật tư</TableCell>
+                                                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Số lượng thiếu</TableCell>
+                                                  </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                  {danhSachVatTu
+                                                    .filter((vt) => vt.tenPhong === item.tenPhong)
+                                                    .map((vt, i) => (
+                                                      <TableRow key={i}>
+                                                        <TableCell align="center" >{vt.tenVatTu}</TableCell>
+                                                        <TableCell align="center" >{formatCurrency(vt.donGia)}</TableCell>
+                                                        <TableCell align="center" >{vt.soLuongThieu}</TableCell>
+                                                      </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                              </Table>
+                                            </TableContainer>
+                                          </Box>
+                                        )}
+
+                                        {item.tienKhauTru > 0 && (
+                                          <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                                            <strong>Tiền khấu trừ của phòng:</strong>{" "}
+                                            {formatCurrency(item.tienKhauTru)}
+                                          </Typography>
+                                        )}
+                                      </Box>
                                     ))}
-                                </tbody>
-                            </table>
-                        </section>
-                    )}
-                </div>
-            )}
-        </div>
-    );
+                                </>
+                              ) : (
+                                <Typography>Không có thông tin hóa đơn cho phòng này</Typography>
+                              )}
+                            </Box>
+                          </Collapse>
+                        </TableCell>
+                      </TableRow>
+                    </React.Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          
+        </Box>
+      )}
+    </Box>
+  );
 }

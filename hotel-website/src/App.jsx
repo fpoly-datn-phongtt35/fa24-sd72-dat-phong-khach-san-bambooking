@@ -4,6 +4,12 @@ import Navbar from './components/Navbar';
 import Rooms from './pages/Rooms';
 import Information from './pages/Information';
 import DetailTTDP from "./components/DetailTTDP";
+import TTDP from "./components/TTDP";
+import Lookup from "./pages/Lookup";
+import LookupHistory from "./components/LookupHistory";
+import LookupDetailTTDP from "./components/LookupDetailTTDP";
+import ConfirmBooking from "./components/ConfirmBooking";
+import LookupTTDP from "./components/LookupTTDP";
 import History from "./pages/History";
 import Profile from './components/Profile';
 import Register from './components/Register';
@@ -49,7 +55,13 @@ export default function App() {
               {/* <Route path="/" element={<Home user={user} />} />  */}
               <Route path="/information" element={<Information />} />
               <Route path="/history" element={<History />} />
-              <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />
+              <Route path="/ttdp/:idDatPhong" element={<TTDP />} />
+              <Route path="/detail-ttdp/:idDatPhong/:idLoaiPhong" element={<DetailTTDP />} />
+              <Route path="/lookup/ttdp/:idDatPhong" element={<LookupTTDP />} />
+              <Route path="/lookup/detail-ttdp/:idDatPhong/:idLoaiPhong" element={<LookupDetailTTDP />} />
+              <Route path="/confirm-booking/:iddp" element={<ConfirmBooking />} />
+              <Route path="/lich-su-dat-phong/:email" element={<LookupHistory />} />
+              <Route path="/lookup" element={<Lookup />} />
               <Route path="/rooms" element={<Rooms />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/booking" element={<HotelBookingForm />} />
@@ -63,22 +75,9 @@ export default function App() {
                 element={<Login handleLogin={handleLogin} />}
               />
 
-<<<<<<< HEAD
-              <Route
-                path="/account"
-                element={<Signup />}
-              />
-
-              <Route
-                path="/profile"
-                element={
-                  <Profile />
-                } />
-=======
               <Route path="/signup" element={<Signup />} />
 
               <Route path="/profile" element={<Profile />} />
->>>>>>> bffd7b82f89e28ae10c52e9aa7a8c9298fba6582
               <Route path="*" element={<h1>404 - Không tìm thấy trang</h1>} />
             </Routes>
             <Footer />

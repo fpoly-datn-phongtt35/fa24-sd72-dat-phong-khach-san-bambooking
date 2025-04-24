@@ -8,6 +8,7 @@ import com.example.datn.model.HinhAnh;
 import com.example.datn.model.LoaiPhong;
 import com.example.datn.service.IMPL.DichVuDiKemServiceIMPL;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
+import com.example.datn.service.LoaiPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,7 +29,8 @@ public class LoaiPhongController {
     LoaiPhongServiceIMPL phongServiceIMPL;
     @Autowired
     DichVuDiKemServiceIMPL dichVuDiKemServiceIMPL;
-
+    @Autowired
+    LoaiPhongService loaiPhongService;
     @Autowired
     LoaiPhongServiceIMPL loaiPhongServiceIMPL;
 
@@ -82,10 +85,24 @@ public class LoaiPhongController {
     }
 
     @GetMapping("/loai-phong-kha-dung-list")
-    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
-                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong){
+    public ResponseEntity<?> getLoaiPhongKhaDungResponseList (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong){
         return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
+    }
 
+    @GetMapping("/lpkdr-list")
+    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
+                                        @RequestParam("soNguoi") Integer soNguoi,
+                                        @RequestParam("soPhong") Integer soPhong,
+                                        @RequestParam(value = "idLoaiPhong", required = false) Integer idLoaiPhong){
+        return ResponseEntity.ok(loaiPhongServiceIMPL.getLoaiPhongKhaDungResponseList(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,idLoaiPhong));
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<LoaiPhong> getLoaiPhongById(@PathVariable int id) {
+        return loaiPhongService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }

@@ -37,8 +37,8 @@ const Phong = () => {
   const [errors, setErrors] = useState({});
   const [listImage, setlistImage] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { loaiPhong } = location.state;
-  const [idLoaiPhong, setIdLoaiPhong] = useState(loaiPhong.id);
+  const { loaiPhong } = location.state || { loaiPhong: { id: '' } };
+const [idLoaiPhong, setIdLoaiPhong] = useState(loaiPhong?.id || '');
 
   useEffect(() => {
     getLoaiPhong()

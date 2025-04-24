@@ -1,5 +1,6 @@
 package com.example.datn.repository;
 
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.model.XepPhong;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
@@ -17,9 +19,10 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
     XepPhong getByMaTTDP(String maTTDP);
 
     @Query("SELECT xp FROM XepPhong xp " +
+            "LEFT JOIN TraPhong tp ON tp.xepPhong.id = xp.id " +
             "WHERE xp.phong.id = :idPhong " +
-            "AND (CAST(:date AS DATE) >= CAST(xp.ngayNhanPhong AS DATE) " +
-            "AND CAST(:date AS DATE) <= CAST(xp.ngayTraPhong AS DATE))")
+            "AND :date >= xp.ngayNhanPhong " +
+            "AND :date <= COALESCE(tp.ngayTraThucTe, xp.ngayTraPhong)")
     XepPhong getByIDPhong(@Param("idPhong") int idPhong, @Param("date") LocalDateTime date);
 
     @Query("SELECT xp FROM XepPhong xp " +
@@ -45,4 +48,10 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
         WHERE p.tinhTrang = :tinhTrang AND xp.trangThai = :trangThai
         """)
     List<XepPhong> findByPhongTinhTrangAndTrangThai(String tinhTrang, String trangThai);
+
+    List<XepPhong> findByThongTinDatPhongId(Integer id);
+
+    @Query("SELECT xp FROM XepPhong xp WHERE xp.thongTinDatPhong.datPhong.id = :datPhongId")
+    List<XepPhong> findByDatPhongId(Integer datPhongId);
+    Optional<XepPhong> findByThongTinDatPhong_Id(Integer idThongTinDatPhong);
 }

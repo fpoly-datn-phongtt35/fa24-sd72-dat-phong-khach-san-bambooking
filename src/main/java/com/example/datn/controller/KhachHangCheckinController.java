@@ -49,4 +49,20 @@ public class KhachHangCheckinController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    @GetMapping("ds-luu-tru")
+    public ResponseEntity<List<Object[]>> findKhachHangCheckin(@RequestParam(value="keyword", required = false) String keyword){
+        return ResponseEntity.ok(khachHangCheckinServiceIMPL.findKhachHangCheckin(keyword));
+    }
+
+    @GetMapping("/danh-sach")
+    public ResponseEntity<List<KhachHangCheckin>> findByTrangThaiTTDP(){
+        return ResponseEntity.ok(khachHangCheckinServiceIMPL.findByTrangThaiTTDP());
+    }
+
+    @GetMapping("/thong-tin-dat-phong/{id}")
+    public ResponseEntity<List<KhachHangCheckin>> getByThongTinDatPhongId(@PathVariable int id) {
+        List<KhachHangCheckin> danhSach = khachHangCheckinServiceIMPL.findByThongTinDatPhongId(id);
+        return ResponseEntity.ok(danhSach);
+    }
 }

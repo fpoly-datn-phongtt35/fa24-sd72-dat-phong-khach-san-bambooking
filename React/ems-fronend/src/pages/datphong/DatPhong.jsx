@@ -22,7 +22,7 @@ import {
   Stack,
   Snackbar,
 } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
@@ -38,15 +38,11 @@ import {
   ThemMoiDatPhong,
 } from "../../services/DatPhong";
 import { addThongTinDatPhong } from "../../services/TTDP";
-import { getLPKDR } from "../../services/LoaiPhongService";
+import { getLoaiPhongKhaDungResponse } from "../../services/LoaiPhongService";
 
 const DatPhong = () => {
-  const [ngayNhanPhong, setNgayNhanPhong] = useState(
-    dayjs().hour(14).minute(0)
-  );
-  const [ngayTraPhong, setNgayTraPhong] = useState(
-    dayjs().add(1, "day").hour(12).minute(0)
-  );
+  const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs()); // Khởi tạo với ngày hiện tại
+  const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, "day")); // Khởi tạo với ngày mai
   const [soNguoi, setSoNguoi] = useState(1);
   const [key, setKey] = useState("");
   const [tongChiPhiMin, setTongChiPhiMin] = useState("");
@@ -67,68 +63,88 @@ const DatPhong = () => {
 
   const navigate = useNavigate();
 
-  // Handle Snackbar
+  // Xử lý thông báo Snackbar
   const handleSnackbar = (message) => {
     setSnackbarMessage(message);
     setOpenSnackbar(true);
   };
 
+  // Lấy danh sách loại phòng khả dụng
   const fetchLoaiPhong = async () => {
     try {
-      console.log(ngayNhanPhong.format(), ngayTraPhong.format());
-      const response = await getLPKDR(
-        ngayNhanPhong.format(),
-        ngayTraPhong.format()
-      );
-      setLoaiPhongList(response.data);
+      // Chỉ gọi API nếu cả hai ngày đều hợp lệ
+      if (
+        ngayNhanPhong &&
+        ngayTraPhong &&
+        ngayNhanPhong.isValid() &&
+        ngayTraPhong.isValid()
+      ) {
+        const response = await getLoaiPhongKhaDungResponse(
+          ngayNhanPhong.format("YYYY-MM-DD"),
+          ngayTraPhong.format("YYYY-MM-DD")
+        );
+        setLoaiPhongList(response.data || []);
+      }
     } catch (error) {
       console.error("Lỗi khi lấy loại phòng:", error);
       handleSnackbar("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
     }
   };
 
-  // Handle search function
+  // Xử lý tìm kiếm tổ hợp phòng
   const handleSearch = async (page = currentPage) => {
     try {
-      const response = await toHopLoaiPhong(
-        ngayNhanPhong.format(),
-        ngayTraPhong.format(),
-        soNguoi,
-        key,
-        tongChiPhiMin,
-        tongChiPhiMax,
-        tongSucChuaMin,
-        tongSucChuaMax,
-        tongSoPhongMin,
-        tongSoPhongMax,
-        loaiPhongChons,
-        { page, size: pageSize }
-      );
+      // Chỉ gọi API nếu cả hai ngày đều hợp lệ
+      if (
+        ngayNhanPhong &&
+        ngayTraPhong &&
+        ngayNhanPhong.isValid() &&
+        ngayTraPhong.isValid()
+      ) {
+        const response = await toHopLoaiPhong(
+          ngayNhanPhong.format("YYYY-MM-DD"),
+          ngayTraPhong.format("YYYY-MM-DD"),
+          soNguoi,
+          key,
+          tongChiPhiMin,
+          tongChiPhiMax,
+          tongSucChuaMin,
+          tongSucChuaMax,
+          tongSoPhongMin,
+          tongSoPhongMax,
+          loaiPhongChons,
+          { page, size: pageSize }
+        );
 
-      setLoaiPhongKhaDung(response.content);
-      setTotalPages(response.totalPages);
-      setCurrentPage(response.number);
+        setLoaiPhongKhaDung(response.content || []);
+        setTotalPages(response.totalPages || 1);
+        setCurrentPage(response.number || 0);
+      }
     } catch (error) {
       console.error("Lỗi khi lấy tổ hợp phòng:", error);
       handleSnackbar("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
     }
   };
 
+  // Gọi fetchLoaiPhong và handleSearch khi thay đổi ngày hoặc pageSize
   useEffect(() => {
-    handleSearch(0);
     fetchLoaiPhong();
-  }, [pageSize]);
+    handleSearch(0);
+  }, [ngayNhanPhong, ngayTraPhong, pageSize]);
 
+  // Xử lý nút tìm kiếm
   const handleSearchClick = () => {
     handleSearch(0);
   };
 
+  // Xử lý thay đổi trang
   const handlePageChange = (e, page) => {
     const newPage = page - 1;
     setCurrentPage(newPage);
     handleSearch(newPage);
   };
 
+  // Xử lý tạo đặt phòng
   const handleCreateBooking = async (combination) => {
     let khachHangResponse = null;
     let datPhongResponse = null;
@@ -169,8 +185,8 @@ const DatPhong = () => {
               datPhong: datPhongResponse.data,
               idLoaiPhong: phong.loaiPhong.id,
               maThongTinDatPhong: "",
-              ngayNhanPhong: ngayNhanPhong.toISOString(),
-              ngayTraPhong: ngayTraPhong.toISOString(),
+              ngayNhanPhong: ngayNhanPhong.format("YYYY-MM-DD"),
+              ngayTraPhong: ngayTraPhong.format("YYYY-MM-DD"),
               soNguoi: phong.loaiPhong.soKhachToiDa,
               giaDat: phong.loaiPhong.donGia,
               trangThai: "Đang đặt phòng",
@@ -201,7 +217,7 @@ const DatPhong = () => {
 
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Search Section */}
+      {/* Phần tìm kiếm */}
       <Paper
         elevation={3}
         sx={{
@@ -230,14 +246,24 @@ const DatPhong = () => {
           <Grid container spacing={4}>
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
+                <DatePicker
                   label="Ngày nhận phòng"
                   value={ngayNhanPhong}
-                  minDate={dayjs()}
+                  minDate={dayjs()} // Không cho chọn ngày quá khứ
                   onChange={(newValue) => {
-                    setNgayNhanPhong(newValue);
-                    if (newValue.isAfter(ngayTraPhong)) {
-                      setNgayTraPhong(newValue.add(1, "day"));
+                    // Chỉ cập nhật nếu newValue hợp lệ hoặc null
+                    if (newValue && dayjs(newValue).isValid()) {
+                      const newCheckInDate = dayjs(newValue);
+                      setNgayNhanPhong(newCheckInDate);
+                      // Nếu ngày nhận phòng bằng hoặc sau ngày trả phòng, cập nhật ngày trả phòng
+                      if (
+                        newCheckInDate.isSame(ngayTraPhong, "day") ||
+                        newCheckInDate.isAfter(ngayTraPhong)
+                      ) {
+                        setNgayTraPhong(newCheckInDate.add(1, "day"));
+                      }
+                    } else {
+                      setNgayNhanPhong(null); // Cho phép xóa ngày
                     }
                   }}
                   slotProps={{
@@ -257,11 +283,22 @@ const DatPhong = () => {
             </Grid>
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DateTimePicker
+                <DatePicker
                   label="Ngày trả phòng"
                   value={ngayTraPhong}
-                  minDate={ngayNhanPhong}
-                  onChange={(newValue) => setNgayTraPhong(newValue)}
+                  minDate={
+                    ngayNhanPhong
+                      ? ngayNhanPhong.add(1, "day")
+                      : dayjs().add(1, "day")
+                  } // Đảm bảo ngày trả phòng sau ngày nhận phòng
+                  onChange={(newValue) => {
+                    // Chỉ cập nhật nếu newValue hợp lệ hoặc null
+                    if (newValue && dayjs(newValue).isValid()) {
+                      setNgayTraPhong(dayjs(newValue));
+                    } else {
+                      setNgayTraPhong(null); // Cho phép xóa ngày
+                    }
+                  }}
                   slotProps={{
                     textField: {
                       fullWidth: true,
@@ -569,7 +606,7 @@ const DatPhong = () => {
         </Box>
       </Paper>
 
-      {/* Results Section */}
+      {/* Phần kết quả */}
       {loaiPhongKhaDung && loaiPhongKhaDung.length > 0 ? (
         loaiPhongKhaDung.map((combination, combIndex) => (
           <Box
@@ -665,7 +702,7 @@ const DatPhong = () => {
         </Typography>
       )}
 
-      {/* Pagination */}
+      {/* Phân trang */}
       <Box
         sx={{
           mt: 3,
@@ -691,7 +728,7 @@ const DatPhong = () => {
         />
       </Box>
 
-      {/* Snackbar for error/success messages */}
+      {/* Snackbar cho thông báo lỗi/thành công */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}

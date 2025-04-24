@@ -12,4 +12,11 @@ public interface KhachHangCheckinService {
     KhachHangCheckin update(KhachHangCheckinRequest request);
     List<KhachHangCheckin> findsByMaTTDP(String maThongTinDatPhong);
     Boolean xoa(Integer id);
+
+    List<Object[]> findKhachHangCheckin(String keyword);
+
+     List<KhachHangCheckin> findByTrangThaiTTDP();
+
+    List<KhachHangCheckin> findByThongTinDatPhongId(int idThongTin);
+
 }

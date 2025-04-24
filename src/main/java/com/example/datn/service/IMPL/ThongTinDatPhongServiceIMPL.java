@@ -31,6 +31,9 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Autowired
     DatPhongRepository datPhongRepository;
 
+    @Autowired
+    KhachHangServiceIMPL khachHangServiceIMPL;
+
 
     @Override
     public List<ThongTinDatPhong> getAll() {
@@ -42,16 +45,7 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ThongTinDatPhong ttdp = new ThongTinDatPhong();
         LoaiPhong lp = loaiPhongServiceIMPL.findByID(request.getIdLoaiPhong());
         UniqueDatPhongCode code = new UniqueDatPhongCode();
-        long soDem = ChronoUnit.DAYS.between(request.getNgayNhanPhong(), request.getNgayTraPhong());
-        Double tienPhong = soDem * request.getGiaDat();
-        long soNguoiToiDa = lp.getSoKhachToiDa();
-        long soNguoi = request.getSoNguoi();
-        Double tienPhuThu = 0.0;
-        if (soNguoi > soNguoiToiDa) {
-            tienPhuThu += (soNguoi - soNguoiToiDa) * lp.getDonGiaPhuThu();
-        }
         DatPhong dp = request.getDatPhong();
-        dp.setTongTien(dp.getTongTien() + tienPhong + tienPhuThu);
         ttdp.setDatPhong(dp);
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
@@ -60,7 +54,6 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setNgayTraPhong(request.getNgayTraPhong());
         ttdp.setSoNguoi(request.getSoNguoi());
         ttdp.setTrangThai(request.getTrangThai());
-        datPhongRepository.save(dp);
         return thongTinDatPhongRepository.save(ttdp);
     }
 
@@ -113,6 +106,10 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         XepPhong xp = xepPhongRepository.getByMaTTDP(maTTDP);
         DatPhong dp = datPhongRepository.findByMaDatPhong(ttdp.getDatPhong().getMaDatPhong());
 
+//        if(ttdp.getTrangThai().equalsIgnoreCase("Đang đặt phòng")){
+//            khachHangServiceIMPL.deleteKhachHangDatPhong(dp.getKhachHang().getId());
+//        }
+
         // Nếu có XepPhong liên quan, cập nhật trạng thái thành false
         if (xp != null) {
             xp.setTrangThai("Đã hủy");
@@ -144,6 +141,10 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
     @Override
     public List<ThongTinDatPhong> getAllByIDDP(Integer iddp) {
         return thongTinDatPhongRepository.getAllByidDatPhong(iddp);
+    }
+    @Override
+    public List<ThongTinDatPhong> getByidDPandidLP(Integer iddp,Integer idlp) {
+        return thongTinDatPhongRepository.getByidDPandidLP(iddp,idlp);
     }
 
     @Override

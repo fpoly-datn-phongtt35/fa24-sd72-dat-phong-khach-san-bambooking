@@ -1,6 +1,7 @@
 package com.example.datn.repository;
 
 import com.example.datn.dto.response.TTDPResponse;
+import com.example.datn.model.DatPhong;
 import com.example.datn.model.ThongTinDatPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -71,11 +72,31 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
             SELECT dp FROM  DatPhong dp 
             join KhachHang kh on dp.khachHang.id = kh.id
             join TaiKhoan tk on kh.taiKhoan.id = tk.id
+            Inner JOIN ThongTinDatPhong ttdp on dp.id= ttdp.datPhong.id
             WHERE tk.tenDangNhap = :tenDangNhap
+            AND (:keyword IS NULL OR dp.maDatPhong LIKE %:keyword%)
+            AND (:ngayNhanPhong IS NULL OR ttdp.ngayNhanPhong >= :ngayNhanPhong)
+            AND (:ngayTraPhong IS NULL OR ttdp.ngayTraPhong <= :ngayTraPhong)
+            ORDER BY dp.id DESC
             """)
-    Page<ThongTinDatPhong> getDPbyTenDangNhap(@Param("tenDangNhap") String tenDangNhap,Pageable pageable);
+    List<DatPhong> getDPbyTenDangNhap(@Param("tenDangNhap") String tenDangNhap,
+                                      @Param("keyword") String keyword,
+                                      @Param("ngayNhanPhong") LocalDate ngayNhanPhong,
+                                      @Param("ngayTraPhong") LocalDate ngayTraPhong);
 
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp ")
     List<ThongTinDatPhong> getAllByidDatPhong(@Param("iddp") Integer iddp);
+
+
+    @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp and t.loaiPhong.id= :idlp")
+    List<ThongTinDatPhong> getByidDPandidLP(@Param("iddp") Integer iddp,@Param("idlp") Integer idlp);
+
+    @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :idDatPhong AND ttdp.trangThai = :trangThai")
+    List<ThongTinDatPhong> findByIDDatPhongandTT(Integer idDatPhong,String trangThai);
+
+    @Query("SELECT CASE WHEN COUNT(ttdp) = SUM(CASE WHEN ttdp.trangThai = 'Đã trả phòng' THEN 1 ELSE 0 END) THEN true ELSE false END " +
+           "FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :datPhongId")
+    boolean areAllThongTinDatPhongCheckedOut(@Param("datPhongId") Integer datPhongId);
+
 }
 

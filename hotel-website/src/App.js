@@ -6,6 +6,12 @@ import Navbar from "./components/Navbar";
 import Rooms from "./pages/Rooms";
 import History from "./pages/History";
 import DetailTTDP from "./components/DetailTTDP";
+import TTDP from "./components/TTDP";
+import Lookup from "./pages/Lookup";
+import LookupHistory from "./components/LookupHistory";
+import LookupDetailTTDP from "./components/LookupDetailTTDP";
+import LookupTTDP from "./components/LookupTTDP";
+import ConfirmBooking from "./components/ConfirmBooking";
 import Information from "./pages/Information";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -18,6 +24,8 @@ import AccountPage from "./pages/AccountPage";
 
 import HotelBookingForm from "./pages/HotelBookingForm";
 import HotelBookingConfirmation from "./pages/HotelBookingConfirmation";
+import PendingBooking from "./pages/PendingBooking";
+import HomePage from "./pages/HomePage";
 function App() {
   const UnauthorizedRoutes = () => {
     // const accessToken = localStorage.getItem("accessToken");
@@ -81,10 +89,16 @@ function App() {
 
       <Route element={<UnauthorizedRoutes />}>
         {/* Pages không cần đăng nhập */}
-        <Route path="/" element={<Information />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />
+        <Route path="/ttdp/:idDatPhong" element={<TTDP />} />
+        <Route path="/detail-ttdp/:idDatPhong/:idLoaiPhong" element={<DetailTTDP />} />
+        <Route path="/lookup/ttdp/:idDatPhong" element={<LookupTTDP />} />
+        <Route path="/lookup/detail-ttdp/:idDatPhong/:idLoaiPhong" element={<LookupDetailTTDP />} />
+        <Route path="/lich-su-dat-phong/:email" element={<LookupHistory />} />
+        <Route path="/confirm-booking/:iddp" element={<ConfirmBooking />} />
+        <Route path="/lookup" element={<Lookup />} />
         <Route path="/history" element={<History />} />
         <Route path="/rooms" element={<Rooms />} />
         <Route path="/information" element={<Information />} />
@@ -98,6 +112,7 @@ function App() {
           path="/booking-confirmation"
           element={<HotelBookingConfirmation />}
         />
+        <Route path="/pending-booking" element={<PendingBooking />} />
       </Route>
 
       <Route element={<ProtectedRoutes />}>

@@ -16,16 +16,21 @@ import {
   TableRow,
   Checkbox,
   Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import ModalCreateKHC from "./ModalCreateKHC";
-import ModalCreateKHCU from "./ModalCreateKHCU";
 import UploadQR from "../../components/UploadQR";
 import {
   createKhachHang,
   getKhachHangByKey,
-  updateKhachHang,
 } from "../../services/KhachHangService";
-import { them } from "../../services/KhachHangCheckin";
+import { them, DanhSachKHC, getKhachHangCheckinByThongTinId } from "../../services/KhachHangCheckin";
+import { ThemPhuThu, CapNhatPhuThu, CheckPhuThuExists } from '../../services/PhuThuService';
+import { getLoaiPhongById } from '../../services/LoaiPhongService';
+import { getXepPhongByThongTinDatPhongId } from '../../services/XepPhongService.js';
 
 const ModalKhachHangCheckin = ({
   isOpen,
@@ -34,21 +39,41 @@ const ModalKhachHangCheckin = ({
   onCheckinSuccess,
 }) => {
   const [isModalKHCOpen, setModalKHCOpen] = useState(false);
-  const [isModalKHCUOpen, setModalKHCUOpen] = useState(false);
   const [isQRModalOpen, setQRModalOpen] = useState(false);
   const [qrData, setQRData] = useState("");
-  const [initialQRData, setInitialQRData] = useState(null); // Dữ liệu QR để truyền vào form tạo mới
+  const [initialQRData, setInitialQRData] = useState(null);
   const [selectedKhachHang, setSelectedKhachHang] = useState([]);
   const [khachHangList, setKhachHangList] = useState([]);
-  const [searchKeyword, setSearchKeyword] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState(null);
+  const [trangThai, setTrangThai] = useState(null);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [checkedInKhachHangIds, setCheckedInKhachHangIds] = useState([]);
   const navigate = useNavigate();
-
   const rowsPerPage = 5;
 
+  // Lấy danh sách khách hàng đã check-in
+  const fetchCheckedInKhachHang = async () => {
+    try {
+      const response = await DanhSachKHC(thongTinDatPhong.maThongTinDatPhong);
+      const ids = response.data.map((item) => item.khachHang.id);
+      setCheckedInKhachHangIds(ids);
+    } catch (error) {
+      console.log("Lỗi khi lấy danh sách khách hàng check-in:", error);
+      setCheckedInKhachHangIds([]);
+    }
+  };
+
+  // Reset selectedKhachHang và lấy danh sách check-in khi modal mở
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedKhachHang([]); // Reset danh sách khách hàng được chọn
+      fetchCheckedInKhachHang(); // Lấy danh sách khách hàng đã check-in
+    }
+  }, [isOpen, thongTinDatPhong]);
+
   const handleOpenModalKHC = () => {
-    setInitialQRData(null); // Reset dữ liệu QR khi mở form thủ công
+    setInitialQRData(null);
     setModalKHCOpen(true);
   };
 
@@ -57,12 +82,9 @@ const ModalKhachHangCheckin = ({
     setModalKHCOpen(false);
   };
 
-  const handleOpenModalKHCU = () => {
-    setModalKHCUOpen(true);
-  };
-
-  const handleCloseModalKHCU = () => {
-    setModalKHCUOpen(false);
+  const handleCloseModalKC = () => {
+    setSelectedKhachHang([]);
+    onClose();
   };
 
   const openQRScanner = () => {
@@ -94,23 +116,20 @@ const ModalKhachHangCheckin = ({
     setSearchKeyword(cmnd);
 
     try {
-      const response = await getKhachHangByKey(cmnd, {
+      const response = await getKhachHangByKey(trangThai, cmnd, {
         page: 0,
         size: rowsPerPage,
       });
 
       if (response.data.content && response.data.content.length > 0) {
-        // Nếu tìm thấy khách hàng
         setKhachHangList(response.data.content);
         setTotalPages(response.data.totalPages || 1);
       } else {
-        // Nếu không tìm thấy, mở form tạo mới với dữ liệu QR
         setInitialQRData(qrParsedData);
         setModalKHCOpen(true);
       }
     } catch (error) {
       console.log("Lỗi khi tìm khách hàng:", error);
-      // Nếu có lỗi, cũng mở form tạo mới với dữ liệu QR
       setInitialQRData(qrParsedData);
       setModalKHCOpen(true);
     }
@@ -133,11 +152,88 @@ const ModalKhachHangCheckin = ({
           khachHangToCreate.push(kh);
         }
       }
+      
+      let idXepPhong = null;
+      try {
+        const resXepPhong = await getXepPhongByThongTinDatPhongId(thongTinDatPhong.id);
+        idXepPhong = resXepPhong?.data?.id || null;
+        console.log("Lấy được idXepPhong:", idXepPhong);
+      } catch (err) {
+        console.error("Lỗi khi lấy idXepPhong từ API:", err);
+      }
+
+      // Tính tổng số khách hiện có
+      const daCheckin = await getKhachHangCheckinByThongTinId(thongTinDatPhong.id);
+      const tongSoKhach = (daCheckin.data.length || 0) + (khachHangToCreate.length || 0);
+
+      const loaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
+      const soKhachVuot = tongSoKhach - (loaiPhong.data.soKhachToiDa || 0);
+
+      if (soKhachVuot > 0) {
+        const tienPhuThu = (loaiPhong.data.donGiaPhuThu || 0) * soKhachVuot;
+
+        const phuThuRequest = {
+          xepPhong: { id: idXepPhong },
+          tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
+          tienPhuThu: tienPhuThu,
+          soLuong: soKhachVuot,
+          trangThai: false,
+        };
+
+        try {
+          let existingPhuThu = null;
+
+          try {
+            const response = await CheckPhuThuExists(idXepPhong);
+            existingPhuThu = response?.data;
+            console.log("Phụ thu đã có sẵn:", existingPhuThu);
+          } catch (err) {
+            if (err.response?.status === 404) {
+              console.log("Phụ thu không tồn tại, sẽ tạo mới.");
+            } else {
+              throw err;
+            }
+          }
+
+          if (existingPhuThu) {
+            // Kiểm tra xem có cần cập nhật hay không
+            const soKhachToiDa = loaiPhong.data.soKhachToiDa || 0;
+
+            if (soKhachVuot > soKhachToiDa) {
+              const updatedPhuThu = {
+                ...existingPhuThu,
+                soLuong: soKhachVuot,
+                tienPhuThu: tienPhuThu,
+                tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
+              };
+
+              try {
+                const updatedResponse = await CapNhatPhuThu(updatedPhuThu);
+                console.log("Cập nhật phụ thu thành công:", updatedResponse.data);
+              } catch (updateErr) {
+                console.error("Lỗi khi cập nhật phụ thu:", updateErr);
+                alert("Có lỗi khi cập nhật phụ thu.");
+              }
+            } else {
+              console.log("Số khách không vượt quá giới hạn hiện tại, không cần cập nhật.");
+            }
+          } else {
+            const createResponse = await ThemPhuThu(phuThuRequest);
+            console.log("Đã tạo phụ thu vì vượt số khách:", createResponse.data);
+          }
+
+        } catch (err) {
+          console.error("Lỗi khi xử lý phụ thu:", err);
+          alert("Có lỗi khi xử lý phụ thu. Kiểm tra log để biết thêm chi tiết.");
+        }
+      } else {
+        console.log("Số khách không vượt quá giới hạn, không cần phụ thu.");
+      }
 
       const checkinRequests = khachHangToCreate.map((kh) => ({
         khachHang: kh,
         thongTinDatPhong: thongTinDatPhong,
-        trangThai: true,
+        trangThai: false,
       }));
 
       const responses = await Promise.all(
@@ -151,14 +247,16 @@ const ModalKhachHangCheckin = ({
       if (onCheckinSuccess) {
         onCheckinSuccess();
       }
+
+      setSelectedKhachHang([]); // Reset sau khi tạo check-in thành công
     } catch (error) {
       console.log("Lỗi khi thêm nhiều khách hàng check-in:", error);
     }
   };
 
-  const fetchKhachHangList = async (keyword, pageNumber) => {
+  const fetchKhachHangList = async (trangThai, keyword, pageNumber) => {
     try {
-      const response = await getKhachHangByKey(keyword, {
+      const response = await getKhachHangByKey(trangThai, keyword, {
         page: pageNumber - 1,
         size: rowsPerPage,
       });
@@ -178,11 +276,17 @@ const ModalKhachHangCheckin = ({
   }, [qrData]);
 
   useEffect(() => {
-    fetchKhachHangList(searchKeyword, page);
-  }, [searchKeyword, page]);
+    fetchKhachHangList(trangThai, searchKeyword, page);
+  }, [searchKeyword, trangThai, page]);
 
   const handleSearchChange = (e) => {
     setSearchKeyword(e.target.value);
+    setPage(1);
+  };
+
+  const handleTrangThaiChange = (e) => {
+    const value = e.target.value === "" ? null : e.target.value;
+    setTrangThai(value);
     setPage(1);
   };
 
@@ -191,20 +295,23 @@ const ModalKhachHangCheckin = ({
   };
 
   const handleRowSelection = (kh) => {
-    setSelectedKhachHang((prev) => {
-      const isSelected = prev.some((item) => item.id === kh.id);
-      if (isSelected) {
-        return prev.filter((item) => item.id !== kh.id);
-      } else {
-        return [...prev, kh];
-      }
-    });
+    if (!checkedInKhachHangIds.includes(kh.id)) {
+      setSelectedKhachHang((prev) => {
+        const isSelected = prev.some((item) => item.id === kh.id);
+        if (isSelected) {
+          return prev.filter((item) => item.id !== kh.id);
+        } else {
+          return [...prev, kh];
+        }
+      });
+    }
   };
 
   const isSelected = (id) => selectedKhachHang.some((kh) => kh.id === id);
 
   const handleKhachHangAdded = () => {
-    fetchKhachHangList(searchKeyword, page);
+    fetchKhachHangList(trangThai, searchKeyword, page);
+    fetchCheckedInKhachHang();
   };
 
   if (!isOpen) return null;
@@ -214,7 +321,7 @@ const ModalKhachHangCheckin = ({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 1200,
+    width: { xs: "90%", sm: 1200 },
     bgcolor: "background.paper",
     boxShadow: 24,
     p: 4,
@@ -232,13 +339,27 @@ const ModalKhachHangCheckin = ({
           </Typography>
 
           <Stack spacing={2}>
-            <TextField
-              fullWidth
-              label="Tìm kiếm (Họ, Tên, SĐT, Email, CMND)"
-              variant="outlined"
-              value={searchKeyword}
-              onChange={handleSearchChange}
-            />
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+              <TextField
+                fullWidth
+                label="Tìm kiếm (Họ, Tên, SĐT, Email, CMND)"
+                variant="outlined"
+                value={searchKeyword}
+                onChange={handleSearchChange}
+              />
+              <FormControl sx={{ minWidth: { xs: "100%", sm: 200 } }}>
+                <InputLabel>Trạng thái</InputLabel>
+                <Select
+                  value={trangThai === null ? "" : trangThai}
+                  onChange={handleTrangThaiChange}
+                  label="Trạng thái"
+                >
+                  <MenuItem value="">Tất cả</MenuItem>
+                  <MenuItem value={true}>Hoạt động</MenuItem>
+                  <MenuItem value={false}>Không hoạt động</MenuItem>
+                </Select>
+              </FormControl>
+            </Stack>
             <Stack direction="row" spacing={2}>
               <Button variant="contained" onClick={handleOpenModalKHC}>
                 Tạo Mới
@@ -249,7 +370,10 @@ const ModalKhachHangCheckin = ({
             </Stack>
 
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 1000 }} aria-label="bảng khách hàng">
+              <Table
+                sx={{ minWidth: { xs: 300, sm: 1000 } }}
+                aria-label="bảng khách hàng"
+              >
                 <TableHead>
                   <TableRow>
                     <TableCell padding="checkbox"></TableCell>
@@ -276,6 +400,7 @@ const ModalKhachHangCheckin = ({
                           <Checkbox
                             checked={isSelected(kh.id)}
                             onChange={() => handleRowSelection(kh)}
+                            disabled={checkedInKhachHangIds.includes(kh.id)}
                           />
                         </TableCell>
                         <TableCell>
@@ -324,7 +449,7 @@ const ModalKhachHangCheckin = ({
                 Tạo Check-in ({selectedKhachHang.length})
               </Button>
             )}
-            <Button variant="outlined" onClick={onClose}>
+            <Button variant="outlined" onClick={handleCloseModalKC}>
               Đóng
             </Button>
           </Stack>
@@ -336,14 +461,7 @@ const ModalKhachHangCheckin = ({
         onClose={handleCloseModalKHC}
         thongTinDatPhong={thongTinDatPhong}
         onKhachHangAdded={handleKhachHangAdded}
-        initialData={initialQRData} // Truyền dữ liệu QR vào form
-      />
-
-      <ModalCreateKHCU
-        isOpen={isModalKHCUOpen}
-        onClose={handleCloseModalKHCU}
-        thongTinDatPhong={thongTinDatPhong}
-        onKhachHangAdded={handleKhachHangAdded}
+        initialData={initialQRData}
       />
 
       <Modal open={isQRModalOpen} onClose={closeQRScanner}>

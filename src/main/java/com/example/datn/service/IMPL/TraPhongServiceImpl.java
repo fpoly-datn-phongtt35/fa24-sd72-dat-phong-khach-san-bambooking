@@ -50,43 +50,70 @@ public class TraPhongServiceImpl implements TraPhongService {
         TraPhong traPhong = traPhongRepository.findById(idTraPhong)
                 .orElseThrow(() -> new EntityNotFountException("Không tìm thấy trả phòng có id: " + idTraPhong));
 
-        XepPhong xepPhong = traPhong.getXepPhong();
-        String maDatPhong = xepPhong.getThongTinDatPhong().getDatPhong().getMaDatPhong();
-
-        List<Object[]> unverifiedRooms = kiemTraPhongRepository.findUnverifiedRooms(maDatPhong);
-        if (!unverifiedRooms.isEmpty()) {
-            List<String> roomNames = unverifiedRooms.stream()
-                    .map(room -> String.valueOf(room[1])).toList();
-            throw new RoomNotCheckedException("Danh sách phòng chưa kiểm tra: "
-                                              + roomNames + ", nhân viên vui lòng kiểm tra phòng trước khi trả phòng!");
+        // Kiểm tra TraPhong đã trả chưa
+        if (traPhong.getTrangThai()) {
+            log.warn("Yêu cầu trả phòng cho TraPhong ID {} bị từ chối vì phòng đã được trả trước đó", idTraPhong);
+            throw new IllegalStateException("Phòng đã được trả trước đó cho TraPhong ID: " + idTraPhong);
         }
+
+        XepPhong xepPhong = traPhong.getXepPhong();
+        if (xepPhong == null) {
+            throw new RuntimeException("Xếp phòng đang bị null cho TraPhong có ID: " + idTraPhong);
+        }
+
+        // Kiểm tra trạng thái kiểm tra phòng
+        Optional<KiemTraPhong> kiemTraPhongOp = kiemTraPhongRepository.findByXepPhongId(xepPhong.getId());
+        if (kiemTraPhongOp.isEmpty() || !"Đã kiểm tra".equals(kiemTraPhongOp.get().getTrangThai())) {
+            Phong phong = xepPhong.getPhong();
+            if (phong == null) {
+                throw new EntityNotFountException("Phong bị null cho XepPhong ID: " + xepPhong.getId());
+            }
+            log.warn("Yêu cầu trả phòng cho XepPhong ID {} bị từ chối do chưa kiểm tra. Trạng thái KTP: {}",
+                    xepPhong.getId(),
+                    kiemTraPhongOp.isPresent() ? kiemTraPhongOp.get().getTrangThai() : "Không có KTP");
+            throw new RoomNotCheckedException(
+                    String.format("Phòng %s (XepPhong ID: %d) chưa được kiểm tra. Trạng thái hiện tại: %s",
+                            phong.getTenPhong(),
+                            xepPhong.getId(),
+                            kiemTraPhongOp.isPresent() ? kiemTraPhongOp.get().getTrangThai() : "Không có dữ liệu kiểm tra"));
+        }
+
+        // Cập nhật trạng thái XepPhong và TraPhong
+        updateXepPhongAndTraPhong(xepPhong, traPhong);
 
         ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
-        DatPhong datPhong = thongTinDatPhong.getDatPhong();
-
-        thongTinDatPhong.setTrangThai("Đã trả phòng");
-        datPhong.setTrangThai("Đã trả phòng");
-        xepPhong.setTrangThai("Đã trả phòng");
-
-        thongTinDatPhongRepository.save(thongTinDatPhong);
-        datPhongRepository.save(datPhong);
-        xepPhongRepository.save(xepPhong);
-        traPhong.setTrangThai(true);
-        TraPhong savedTraPhong = traPhongRepository.save(traPhong);
-        try {
-            sendMailCheckout(savedTraPhong.getId());
-            log.info("Đã gửi email đánh giá cho trả phòng có ID: {}", savedTraPhong.getId());
-        } catch (InvalidDataException e) {
-            log.error("Lỗi khi gửi email đánh giá cho trả phòng có ID {}: {}", savedTraPhong.getId(), e.getMessage());
-            // Quyết định xem bạn có muốn re-throw exception này hay chỉ log lỗi
-            // Nếu việc gửi email không quan trọng bằng việc trả phòng, bạn có thể chỉ log lỗi.
-            // Nếu việc gửi email là một phần quan trọng của quy trình, bạn có thể re-throw.
-            // Ví dụ: throw new RuntimeException("Lỗi trong quá trình gửi email đánh giá.", e);
+        if (thongTinDatPhong == null) {
+            throw new EntityNotFountException("ThongTinDatPhong bị null cho XepPhong ID: " + xepPhong.getId());
         }
 
-        log.info("================ End checkOutById ================");
-        return savedTraPhong;
+        // Cập nhật trạng thái ThongTinDatPhong
+        thongTinDatPhong.setTrangThai("Đã trả phòng");
+        thongTinDatPhongRepository.save(thongTinDatPhong);
+        log.info("Cập nhật trạng thái ThongTinDatPhong ID {} thành 'Đã trả phòng'", thongTinDatPhong.getId());
 
+        // Kiểm tra trạng thái tất cả ThongTinDatPhong trong DatPhong
+        DatPhong datPhong = thongTinDatPhong.getDatPhong();
+        if (datPhong == null) {
+            throw new EntityNotFountException("DatPhong bị null cho ThongTinDatPhong ID: " + thongTinDatPhong.getId());
+        }
+
+        boolean allThongTinDatPhongCheckedOut = thongTinDatPhongRepository.areAllThongTinDatPhongCheckedOut(datPhong.getId());
+        if (allThongTinDatPhongCheckedOut) {
+            datPhong.setTrangThai("Đã trả phòng");
+            datPhongRepository.save(datPhong);
+            log.info("Cập nhật trạng thái DatPhong ID {} thành 'Đã trả phòng' vì tất cả ThongTinDatPhong đã trả", datPhong.getId());
+        } else {
+            log.info("Chưa trả hết ThongTinDatPhong cho DatPhong ID {}. Trạng thái DatPhong giữ nguyên.", datPhong.getId());
+        }
+
+        return traPhong;
+    }
+
+    private void updateXepPhongAndTraPhong(XepPhong xepPhong, TraPhong traPhong) {
+        xepPhong.setTrangThai("Đã trả phòng");
+        traPhong.setTrangThai(true);
+        xepPhongRepository.save(xepPhong);
+        traPhongRepository.save(traPhong);
     }
 
     @Override
@@ -116,14 +143,12 @@ public class TraPhongServiceImpl implements TraPhongService {
 
                     KiemTraPhong kiemTraPhong = kiemTraPhongRepository.findByXepPhongId(xepPhong.getId()).orElse(null);
                     return convertToTraPhongResponse(traPhong, xepPhong, kiemTraPhong);
-                })
-                .distinct()
-                .collect(Collectors.toList());
+                }).distinct().collect(Collectors.toList());
     }
 
     @Override
     public List<TraPhong> DSTraPhong() {
-        return traPhongRepository.findAll();
+        return traPhongRepository.findBytt();
     }
 
     @Override
@@ -137,12 +162,12 @@ public class TraPhongServiceImpl implements TraPhongService {
         message.setTo(emailKhachHang);
         message.setSubject("Chúng tôi rất mong nhận được đánh giá của bạn về kỳ nghỉ tại BamBooking!");
         message.setText("Chào bạn,\n\nCảm ơn bạn đã lựa chọn BamBooking cho kỳ nghỉ vừa qua." +
-                " Chúng tôi hy vọng bạn đã có những trải nghiệm tuyệt vời.\n" +
-                "\nChúng tôi rất mong bạn dành chút thời gian để chia sẻ ý kiến đánh giá về kỳ nghỉ của mình." +
-                " Phản hồi của bạn sẽ giúp chúng tôi cải thiện dịch vụ và mang đến trải nghiệm tốt hơn cho những" +
-                " khách hàng tiếp theo.\n\nXin vui lòng nhấp vào liên kết dưới đây để đánh giá:\n" +
-                "\n[LIÊN KẾT ĐẾN TRANG ĐÁNH GIÁ]\n\nÝ kiến của bạn vô cùng quan trọng đối với chúng tôi.\n" +
-                "\nTrân trọng,\nĐội ngũ BamBooking\n");
+                        " Chúng tôi hy vọng bạn đã có những trải nghiệm tuyệt vời.\n" +
+                        "\nChúng tôi rất mong bạn dành chút thời gian để chia sẻ ý kiến đánh giá về kỳ nghỉ của mình." +
+                        " Phản hồi của bạn sẽ giúp chúng tôi cải thiện dịch vụ và mang đến trải nghiệm tốt hơn cho những" +
+                        " khách hàng tiếp theo.\n\nXin vui lòng nhấp vào liên kết dưới đây để đánh giá:\n" +
+                        "\n[LIÊN KẾT ĐẾN TRANG ĐÁNH GIÁ]\n\nÝ kiến của bạn vô cùng quan trọng đối với chúng tôi.\n" +
+                        "\nTrân trọng,\nĐội ngũ BamBooking\n");
         try {
             mailSender.send(message);
             System.out.println("Email đánh giá đã được gửi đến: " + emailKhachHang);

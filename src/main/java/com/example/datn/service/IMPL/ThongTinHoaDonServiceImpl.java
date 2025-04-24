@@ -19,7 +19,6 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -209,12 +208,12 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
     private double tinhTienPhuThu(TraPhong traPhong) {
         log.info("============= Start charging surcharges =============");
         List<PhuThu> danhSachPhuThu = phuThuRepository.findByXepPhong_Id(traPhong.getXepPhong().getId());
+
         double tienPhuThu = danhSachPhuThu.stream()
                 .mapToDouble(pt -> pt.getTienPhuThu() * pt.getSoLuong())
                 .sum();
-
-//        double tienBoiThuong = tinhTienBoiThuong(traPhong);
-        System.out.println("Tổng tiền phụ thu của phòng " + traPhong.getXepPhong().getId() + ": " + tienPhuThu);
+        log.info("id xep phong{}", traPhong.getXepPhong().getId());
+        log.info("Tổng tiền phụ thu của phòng {}: {}", traPhong.getXepPhong().getId(), tienPhuThu);
 
         return tienPhuThu ;
     }
@@ -243,67 +242,5 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         log.info("Tổng tiền dịch vụ có phí: {}", tongTienDichVu);
 
         return tongTienDichVu;
-    }
-
-    private double tinhTienBoiThuong(TraPhong traPhong) {
-        log.info("============= Start calculating compensation =============");
-        XepPhong xepPhong = xepPhongRepository.findById(traPhong.getXepPhong().getId())
-                .orElseThrow(() -> new EntityNotFountException("Không tìm thấy xếp phòng với ID: " + traPhong.getXepPhong().getId()));
-
-        ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
-        if (thongTinDatPhong == null) {
-            throw new IllegalStateException("XepPhong với ID " + xepPhong.getId() + " không có ThongTinDatPhong liên kết!");
-        }
-
-        LoaiPhong loaiPhong = thongTinDatPhong.getLoaiPhong();
-        if (loaiPhong == null) {
-            throw new IllegalStateException("ThongTinDatPhong không có LoaiPhong liên kết!");
-        }
-
-        // Lấy danh sách vật tư tiêu chuẩn của loại phòng
-        List<VatTuLoaiPhong> dsVatTuTieuChuan = vatTuLoaiPhongRepository.findByLoaiPhong_Id(loaiPhong.getId());
-        if (dsVatTuTieuChuan.isEmpty()) {
-            log.warn("Loại phòng với ID {} không có vật tư tiêu chuẩn!", loaiPhong.getId());
-        }
-
-        // Tạo map: idVatTu -> số lượng tiêu chuẩn
-        Map<Integer, Integer> soLuongVatTuTieuChuan = dsVatTuTieuChuan.stream()
-                .collect(Collectors.toMap(v -> v.getVatTu().getId(), VatTuLoaiPhong::getSoLuong));
-
-        // Lấy danh sách vật tư bị hỏng hoặc thiếu
-        List<String> tinhTrangList = List.of("Hỏng", "Thiếu");
-        List<KiemTraVatTu> danhSachKiemTra = kiemTraVatTuRepository
-                .findByKiemTraPhong_XepPhongIdAndTinhTrangIn(xepPhong.getId(), tinhTrangList);
-
-        log.info("Danh sách vật tư hỏng/thiếu của phòng {}: Số lượng = {}", xepPhong.getId(), danhSachKiemTra.size());
-
-        double tienBoiThuong = 0;
-
-        for (KiemTraVatTu kiemTra : danhSachKiemTra) {
-            VatTu vatTu = kiemTra.getVatTu();
-            int soLuongThucTe = kiemTra.getSoLuong();
-
-            // Lấy số lượng tiêu chuẩn từ map
-            Integer soLuongTieuChuan = soLuongVatTuTieuChuan.get(vatTu.getId());
-            if (soLuongTieuChuan == null) {
-                log.warn("Không tìm thấy số lượng tiêu chuẩn của vật tư {} trong loại phòng {}", vatTu.getTenVatTu(), loaiPhong.getId());
-                continue; // Bỏ qua vật tư này
-            }
-
-            int soLuongBoiThuong = soLuongTieuChuan - soLuongThucTe;
-
-            // Nếu số lượng bồi thường > 0, mới tính phí
-            if (soLuongBoiThuong > 0) {
-                double giaBoiThuong = vatTu.getGia();
-                double thanhTien = soLuongBoiThuong * giaBoiThuong;
-                tienBoiThuong += thanhTien;
-
-                log.info("Bồi thường: {} | Tiêu chuẩn: {} | Thực tế: {} | Thiếu: {} | Đơn giá: {} | Thành tiền: {}",
-                        vatTu.getTenVatTu(), soLuongTieuChuan, soLuongThucTe, soLuongBoiThuong, giaBoiThuong, thanhTien);
-            }
-        }
-
-        log.info("Tổng tiền bồi thường của phòng {}: {}", xepPhong.getId(), tienBoiThuong);
-        return tienBoiThuong;
     }
 }

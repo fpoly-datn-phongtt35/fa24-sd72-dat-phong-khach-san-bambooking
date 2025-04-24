@@ -1,5 +1,6 @@
 package com.example.datn.controller;
 
+import com.example.datn.controller.response.ResponseData;
 import com.example.datn.dto.response.TraPhongResponse;
 import com.example.datn.model.TraPhong;
 import com.example.datn.service.TraPhongService;
