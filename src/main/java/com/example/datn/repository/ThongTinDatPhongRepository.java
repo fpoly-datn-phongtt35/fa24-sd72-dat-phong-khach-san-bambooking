@@ -81,5 +81,7 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     @Query("SELECT CASE WHEN COUNT(ttdp) = SUM(CASE WHEN ttdp.trangThai = 'Đã trả phòng' THEN 1 ELSE 0 END) THEN true ELSE false END " +
            "FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :datPhongId")
     boolean areAllThongTinDatPhongCheckedOut(@Param("datPhongId") Integer datPhongId);
+
+    List<ThongTinDatPhong> findByDatPhong_Id(Integer datPhongId);
 }
 

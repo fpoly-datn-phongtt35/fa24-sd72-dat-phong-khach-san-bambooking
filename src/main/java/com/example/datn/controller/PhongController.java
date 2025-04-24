@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/phong")
@@ -82,6 +81,15 @@ public class PhongController {
     @PatchMapping("/change-condition-room/{id}")
     public ResponseData<String> changeConditionRoom(@PathVariable Integer id) {
         String result = phongServiceIMPL.changeConditionRoom(id);
+        return new ResponseData<>(
+                HttpStatus.ACCEPTED.value(),
+                result
+        );
+    }
+
+    @PatchMapping("/change-all-condition-room/{id}")
+    public ResponseData<String> changeAllConditionRoom(@PathVariable Integer id) {
+        String result = phongServiceIMPL.changeAllConditionRoom(id);
         return new ResponseData<>(
                 HttpStatus.ACCEPTED.value(),
                 result
