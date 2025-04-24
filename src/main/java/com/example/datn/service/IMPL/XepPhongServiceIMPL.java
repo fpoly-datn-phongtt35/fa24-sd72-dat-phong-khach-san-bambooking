@@ -95,6 +95,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
             throw new IllegalArgumentException("Chỉ có thể check-in trong ngày hiện tại");
         }
 
+        LocalDateTime ngayTraPhong = xepPhongRequest.getNgayTraPhong();
         try {
             XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId())
                     .orElseGet(() -> this.addXepPhong(xepPhongRequest));
@@ -115,7 +116,8 @@ public class XepPhongServiceIMPL implements XepPhongService {
             ttdp.setTrangThai("Đang ở");
             p.setTinhTrang("Đang ở");
             xp.setNgayNhanPhong(LocalDateTime.now());
-            xp.setNgayTraPhong(xepPhongRequest.getNgayTraPhong());
+            ngayTraPhong = ngayTraPhong.withHour(14).withMinute(0).withSecond(0).withNano(0);
+            xp.setNgayTraPhong(ngayTraPhong);
             xp.setTrangThai("Đang ở");
             datPhongRepository.save(dp);
             return xepPhongRepository.save(xp);

@@ -508,110 +508,112 @@ const ChiTietDatPhong = () => {
           </TableHead>
           <TableBody>
             {Array.isArray(thongTinDatPhong) && thongTinDatPhong.length > 0 ? (
-              thongTinDatPhong.map((ttdp) => (
-                <TableRow
-                  key={ttdp.id}
-                  hover
-                  sx={{
-                    "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
-                  }}
-                >
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={selectedTTDPs.includes(ttdp)}
-                      onChange={() => handleCheckboxChange(ttdp)}
-                      disabled={ttdp.trangThai === "Đang đặt phòng"}
-                    />
-                  </TableCell>
-                  <TableCell
-                    onClick={() => handleTTDPClick(ttdp.maThongTinDatPhong)}
+              thongTinDatPhong
+                .filter((ttdp) => ttdp.trangThai !== "Đã hủy") // Lọc bỏ trạng thái "Đã hủy"
+                .map((ttdp) => (
+                  <TableRow
+                    key={ttdp.id}
+                    hover
                     sx={{
-                      color: "primary.main",
-                      cursor: "pointer",
-                      fontWeight: "medium",
-                      "&:hover": { textDecoration: "underline" },
+                      "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
                     }}
                   >
-                    {ttdp.maThongTinDatPhong}
-                  </TableCell>
-                  <TableCell>{ttdp.soNguoi}</TableCell>
-                  <TableCell>
-                    {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong || (
-                      <Chip
-                        size="small"
-                        label={ttdp.loaiPhong.tenLoaiPhong}
-                        color="info"
-                        variant="outlined"
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={selectedTTDPs.includes(ttdp)}
+                        onChange={() => handleCheckboxChange(ttdp)}
+                        disabled={ttdp.trangThai === "Đang đặt phòng"}
                       />
-                    )}
-                  </TableCell>
-                  <TableCell>{formatDate(ttdp.ngayNhanPhong)}</TableCell>
-                  <TableCell>{formatDate(ttdp.ngayTraPhong)}</TableCell>
-                  <TableCell
-                    sx={{ fontWeight: "medium", color: "success.main" }}
-                  >
-                    {calculateTotalPrice(
-                      ttdp.giaDat,
-                      ttdp.ngayNhanPhong,
-                      ttdp.ngayTraPhong
-                    ).toLocaleString()}{" "}
-                    VNĐ
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={ttdp.trangThai}
-                      color={getStatusColor(ttdp.trangThai)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                      {ttdp.trangThai === "Chưa xếp" && (
-                        <Tooltip title="Xếp phòng">
-                          <IconButton
-                            variant="outlined"
-                            size="small"
-                            color="primary"
-                            onClick={() => openXepPhongModal(ttdp)}
-                            disabled={ttdp.trangThai === "Đang đặt phòng"}
-                          >
-                            <MeetingRoomIcon />
-                          </IconButton>
-                        </Tooltip>
+                    </TableCell>
+                    <TableCell
+                      onClick={() => handleTTDPClick(ttdp.maThongTinDatPhong)}
+                      sx={{
+                        color: "primary.main",
+                        cursor: "pointer",
+                        fontWeight: "medium",
+                        "&:hover": { textDecoration: "underline" },
+                      }}
+                    >
+                      {ttdp.maThongTinDatPhong}
+                    </TableCell>
+                    <TableCell>{ttdp.soNguoi}</TableCell>
+                    <TableCell>
+                      {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong || (
+                        <Chip
+                          size="small"
+                          label={ttdp.loaiPhong.tenLoaiPhong}
+                          color="info"
+                          variant="outlined"
+                        />
                       )}
-                      {ttdp.trangThai === "Đã xếp" && (
-                        <Tooltip title="Check-in">
-                          <IconButton
-                            color="success"
-                            onClick={() => handleCheckin(ttdp)}
-                            size="small"
-                            disabled={
-                              !phongData[ttdp.maThongTinDatPhong]?.phong
-                                ?.tenPhong ||
-                              ttdp.trangThai === "Đang đặt phòng"
-                            }
-                          >
-                            <CheckCircleIcon />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                      {(ttdp.trangThai === "Đang đặt phòng" ||
-                        ttdp.trangThai === "Chưa xếp" ||
-                        ttdp.trangThai === "Đã xếp") && (
-                        <Tooltip title="Hủy thông tin đặt phòng">
-                          <IconButton
-                            color="error"
-                            onClick={() => handleHuyTTDP(ttdp)}
-                            size="small"
-                          >
-                            <RemoveCircleOutlineIcon />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              ))
+                    </TableCell>
+                    <TableCell>{formatDate(ttdp.ngayNhanPhong)}</TableCell>
+                    <TableCell>{formatDate(ttdp.ngayTraPhong)}</TableCell>
+                    <TableCell
+                      sx={{ fontWeight: "medium", color: "success.main" }}
+                    >
+                      {calculateTotalPrice(
+                        ttdp.giaDat,
+                        ttdp.ngayNhanPhong,
+                        ttdp.ngayTraPhong
+                      ).toLocaleString()}{" "}
+                      VNĐ
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={ttdp.trangThai}
+                        color={getStatusColor(ttdp.trangThai)}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        {ttdp.trangThai === "Chưa xếp" && (
+                          <Tooltip title="Xếp phòng">
+                            <IconButton
+                              variant="outlined"
+                              size="small"
+                              color="primary"
+                              onClick={() => openXepPhongModal(ttdp)}
+                              disabled={ttdp.trangThai === "Đang đặt phòng"}
+                            >
+                              <MeetingRoomIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        {ttdp.trangThai === "Đã xếp" && (
+                          <Tooltip title="Check-in">
+                            <IconButton
+                              color="success"
+                              onClick={() => handleCheckin(ttdp)}
+                              size="small"
+                              disabled={
+                                !phongData[ttdp.maThongTinDatPhong]?.phong
+                                  ?.tenPhong ||
+                                ttdp.trangThai === "Đang đặt phòng"
+                              }
+                            >
+                              <CheckCircleIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                        {(ttdp.trangThai === "Đang đặt phòng" ||
+                          ttdp.trangThai === "Chưa xếp" ||
+                          ttdp.trangThai === "Đã xếp") && (
+                          <Tooltip title="Hủy thông tin đặt phòng">
+                            <IconButton
+                              color="error"
+                              onClick={() => handleHuyTTDP(ttdp)}
+                              size="small"
+                            >
+                              <RemoveCircleOutlineIcon />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))
             ) : (
               <TableRow>
                 <TableCell colSpan={10} align="center" sx={{ py: 3 }}>
