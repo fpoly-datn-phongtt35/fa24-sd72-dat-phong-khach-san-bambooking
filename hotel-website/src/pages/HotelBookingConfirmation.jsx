@@ -188,7 +188,8 @@ const HotelBookingConfirmation = () => {
 
 
       clearTimeout(timeoutRef.current);
-      alert("Xác nhận đặt phòng thành công!");
+      alert("Đặt phòng thành công!");
+      alert("Có thể xác nhận đặt phòng qua email của bạn!");
       navigate("/thong-tin-dat-phong-search");
     } catch (error) {
       if (datPhongResponse?.data) await XoaDatPhong(datPhongResponse.data.id);

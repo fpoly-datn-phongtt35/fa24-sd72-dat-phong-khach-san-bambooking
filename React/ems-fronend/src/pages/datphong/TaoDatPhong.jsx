@@ -379,7 +379,7 @@ const TaoDatPhong = () => {
       if (!currentDatPhong) {
           throw new Error("Không tồn tại đặt phòng");
       }
-
+      console.log(room);
       const addedRooms = [];
       for (let i = 0; i < searchForm.soPhong; i++) {
         const newRoom = {
@@ -388,7 +388,7 @@ const TaoDatPhong = () => {
           maThongTinDatPhong: `TDP-${Date.now()}-${room.id}-${i}`,
           ngayNhanPhong: searchForm.ngayNhanPhong,
           ngayTraPhong: searchForm.ngayTraPhong,
-          soNguoi: searchForm.soNguoi,
+          soNguoi: room.soKhachToiDa,
           giaDat: room.donGia,
           trangThai: "Đang đặt phòng",
         };
@@ -470,7 +470,7 @@ const TaoDatPhong = () => {
   const groupAndNumberRooms = (rooms) => {
     const grouped = {};
     rooms.forEach((room) => {
-      const key = `${room.loaiPhong.id}-${room.ngayNhanPhong}-${room.ngayTraPhong}-${room.soNguoi}`;
+      const key = `${room.loaiPhong.id}-${room.ngayNhanPhong}-${room.ngayTraPhong}`;
       if (!grouped[key]) {
         grouped[key] = [];
       }
@@ -578,7 +578,6 @@ const TaoDatPhong = () => {
                       <TableCell>Ngày trả phòng</TableCell>
                       <TableCell>Giá mỗi đêm</TableCell>
                       <TableCell>Số đêm</TableCell>
-                      <TableCell>Số người</TableCell>
                       <TableCell>Số phòng</TableCell>
                       <TableCell>Thành tiền</TableCell>
                       <TableCell>Hành động</TableCell>
@@ -603,7 +602,6 @@ const TaoDatPhong = () => {
                             room.ngayTraPhong
                           )}
                         </TableCell>
-                        <TableCell>{room.soNguoi}</TableCell>
                         <TableCell>{room.soPhong}</TableCell>
                         <TableCell>
                           {(
@@ -740,14 +738,11 @@ const TaoDatPhong = () => {
                 <Select
                   value={searchForm.idLoaiPhong || ""}
                   onChange={(e) =>
-                    handleSearchInputChange(
-                      "idLoaiPhong",
-                      e.target.value
-                    )
+                    handleSearchInputChange("idLoaiPhong", e.target.value)
                   }
                   label="Loại Phòng"
                 >
-                  <MenuItem value=''>Tất cả</MenuItem>
+                  <MenuItem value="">Tất cả</MenuItem>
                   {loaiPhongs.map((lp) => (
                     <MenuItem key={lp.id} value={lp.id}>
                       {lp.tenLoaiPhong}
