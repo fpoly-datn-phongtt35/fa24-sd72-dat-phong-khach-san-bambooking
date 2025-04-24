@@ -20,7 +20,7 @@ const apiToHopLoaiPhong =
 
   const apiGuiEmailXacNhan= "http://localhost:8080/api/dp/gui-email-xac-nhan-dp"
   const apiXacNhanDP= "http://localhost:8080/api/dp/xac-nhan-dp"
-
+  const apiTBDatPhongThanhCong = "http://localhost:8080/api/dp/email-dp-thanh-cong";
 
 export const getDatPhongbyTDN = (tenDangNhap,keyword,ngayNhanPhong,ngayTraPhong) => {
     return authorizedAxiosInstance.get(apiGetDP, {
@@ -161,6 +161,14 @@ export const GuiEmailXacNhanDP = (datPhong) => {
 
 export const XacNhanDP = (iddp) => {
   return authorizedAxiosInstance.get(apiXacNhanDP, {
+      params: {
+        iddp: iddp
+      }
+  });
+};
+
+export const EmailXacNhanDPThanhCong = (iddp) => {
+  return authorizedAxiosInstance.get(apiTBDatPhongThanhCong, {
       params: {
         iddp: iddp
       }

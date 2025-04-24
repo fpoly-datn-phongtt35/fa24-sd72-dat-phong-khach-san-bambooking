@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { XacNhanDP } from "../services/DatPhong.js";
+import { XacNhanDP ,EmailXacNhanDPThanhCong} from "../services/DatPhong.js";
 import {
   Box,
   Typography,
@@ -25,9 +25,11 @@ export default function ConfirmBooking() {
       try {
         setLoading(true);
         const response = await XacNhanDP(parseInt(iddp)); // Gọi API XacNhanDP
+        console.log(response)
         if (response.data != false) {
           setSuccess(true);
           console.log(response)
+          EmailXacNhanDPThanhCong(iddp)
         }else{
           setSuccess(false);
         }

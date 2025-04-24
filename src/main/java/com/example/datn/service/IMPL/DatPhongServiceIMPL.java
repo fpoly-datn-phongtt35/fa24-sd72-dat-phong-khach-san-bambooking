@@ -2,26 +2,32 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.response.DatPhongResponse;
+import com.example.datn.exception.InvalidDataException;
 import com.example.datn.model.DatPhong;
-import com.example.datn.model.NhanVien;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.model.XepPhong;
 import com.example.datn.repository.*;
 import com.example.datn.service.DatPhongService;
 import com.example.datn.utilities.UniqueDatPhongCode;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
 public class DatPhongServiceIMPL implements DatPhongService {
+    private final JavaMailSender mailSender;
     @Autowired
     DatPhongRepository datPhongRepository;
 
@@ -30,6 +36,10 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
     @Autowired
     XepPhongRepository xepPhongRepository;
+
+    public DatPhongServiceIMPL(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Override
     public Page<DatPhongResponse> getByTrangThai(String tt, Pageable pageable) {

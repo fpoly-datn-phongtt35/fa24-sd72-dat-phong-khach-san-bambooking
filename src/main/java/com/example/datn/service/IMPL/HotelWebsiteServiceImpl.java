@@ -191,6 +191,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
             List<String> emailList = khachHangList.stream()
                     .map(KhachHang::getEmail)
                     .filter(email -> email != null && !email.isEmpty())
+                    .distinct()
                     .collect(Collectors.toList());
 
             // Kiểm tra nếu không có email hợp lệ
@@ -221,7 +222,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
 
                 // Gửi email
                 mailSender.send(message);
-                System.out.println("Email đánh giá đã được gửi đến: " + String.join(", ", emailList));
+                System.out.println("Email tra cứu lịch sử đặt phòng đã được gửi đến: " + String.join(", ", emailList));
             }
 
         } catch (MessagingException e) {
@@ -340,6 +341,102 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
         }
 
         return false;
+    }
+
+
+    @Override
+    public void emailDatPhongThanhCong(Integer iddp) {
+        try {
+            System.out.println(iddp);
+            List<ThongTinDatPhong> ListTTDP = thongTinDatPhongRepository.findByIDDatPhong(iddp);
+            ThongTinDatPhong firstThongTin = ListTTDP.get(0);
+            DatPhongResponse datPhong = datPhongRepository.findByIdDatPhong(iddp);
+            // Tạo MimeMessage để hỗ trợ HTML
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            String hoTen = datPhong.getKhachHang().getHo() + " " + datPhong.getKhachHang().getTen();
+            String sdt = datPhong.getKhachHang().getSdt();
+            String email = datPhong.getKhachHang().getEmail();
+            Integer soNguoi = datPhong.getSoNguoi();
+            Double tongTien = datPhong.getTongTien();
+            LocalDate ngayNhanPhong = firstThongTin.getNgayNhanPhong();
+            LocalDate ngayTraPhong = firstThongTin.getNgayTraPhong();
+
+            Map<String, Long> loaiPhongCount = ListTTDP.stream()
+                    .collect(Collectors.groupingBy(
+                            thongTin -> thongTin.getLoaiPhong().getTenLoaiPhong(),
+                            Collectors.counting()
+                    ));
+
+            String loaiPhong = loaiPhongCount.entrySet().stream()
+                    .map(entry -> entry.getValue() + " " + entry.getKey())
+                    .collect(Collectors.joining(", "));
+
+            helper.setTo(email);
+            helper.setSubject("Thông báo đơn Đặt Phòng đã được xác nhận- BamBooking");
+
+            // Nội dung HTML với CSS inline để định dạng
+            String htmlContent = """
+                    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333;">
+                        <h2 style="color: #2c3e50;">Đặt Phòng Đã Được Xác Nhận Thành Công</h2>
+                        <p>Chào <strong>%s</strong>,</p>
+                        <p>Chúng tôi rất vui thông báo rằng đơn đặt phòng của bạn tại <strong>BamBooking</strong> đã được xác nhận thành công. Dưới đây là chi tiết đặt phòng của bạn:</p>
+                        <table style="width: 100%%; border-collapse: collapse; margin: 20px 0;">
+                            <tr style="background-color: #f8f8f8;">
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Họ và tên</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">%s</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số điện thoại</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">%s</td>
+                            </tr>
+                            <tr style="background-color: #f8f8f8;">
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Email</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">%s</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số người</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
+                            </tr>
+                            <tr style="background-color: #f8f8f8;">
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Tổng tiền</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">%s VND</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Loại phòng</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">%s</td>
+                            </tr>
+                            <tr style="background-color: #f8f8f8;">
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Ngày nhận phòng</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">%s</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;"><strong>Ngày trả phòng</strong></td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">%s</td>
+                            </tr>
+                        </table>
+                        <p style="text-align: center;">
+                            <a href="http://localhost:3001/lich-su-dat-phong/%s" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #fff; text-decoration: none; border-radius: 5px;">Xem lịch sử đặt phòng</a>
+                        </p>
+                        <p>Chúng tôi rất mong nhận được ý kiến đánh giá từ bạn để cải thiện chất lượng dịch vụ. Vui lòng gửi phản hồi tại đây:</p>
+                        <p style="text-align: center;">
+                            <a href="[Link]" style="display: inline-block; padding: 10px 20px; background-color: #2ecc71; color: #fff; text-decoration: none; border-radius: 5px;">Gửi Phản Hồi</a>
+                        </p>
+                        <p>Nếu cần hỗ trợ, vui lòng liên hệ qua email <a href="mailto:support@bambooking.com">support@bambooking.com</a> hoặc hotline <strong>0123-456-789</strong>.</p>
+                        <p style="margin-top: 20px;">Trân trọng,<br><strong>Đội ngũ BamBooking</strong></p>
+                    </div>
+                    """.formatted(hoTen, hoTen, sdt, email, soNguoi, String.format("%,.0f", tongTien), loaiPhong, ngayNhanPhong, ngayTraPhong, email);
+
+            helper.setText(htmlContent, true); // true để cho phép HTML
+
+            // Gửi email
+            mailSender.send(message);
+            System.out.println("Email thông báo đã được gửi đến: " + email);
+
+        } catch (MessagingException e) {
+            throw new InvalidDataException("Không thể gửi email xác nhận đặt phòng: " + e.getMessage());
+        }
     }
 
 

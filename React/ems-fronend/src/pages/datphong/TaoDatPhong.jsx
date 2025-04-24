@@ -36,6 +36,7 @@ import {
   XoaKhachHangDatPhong,
   CapNhatDatPhong,
   SuaKhachHangDatPhong,
+  EmailXacNhanDPThanhCong,
 } from "../../services/DatPhong";
 import {
   huyTTDP,
@@ -292,6 +293,8 @@ const TaoDatPhong = () => {
           );
         }
       }
+      alert("iddp"+ datPhongRequest.id);
+      EmailXacNhanDPThanhCong(datPhongRequest.id)
       alert("Đặt phòng thành công!");
       navigate("/thong-tin-dat-phong-search");
     } catch (error) {
