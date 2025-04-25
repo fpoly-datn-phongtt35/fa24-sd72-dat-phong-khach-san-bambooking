@@ -106,6 +106,13 @@ public class TraPhongServiceImpl implements TraPhongService {
             log.info("Chưa trả hết ThongTinDatPhong cho DatPhong ID {}. Trạng thái DatPhong giữ nguyên.", datPhong.getId());
         }
 
+        try {
+            sendMailCheckout(traPhong.getId());
+            log.info("Đã gửi email đánh giá cho trả phòng có ID: {}", traPhong.getId());
+        } catch (InvalidDataException e) {
+            log.error("Lỗi khi gửi email đánh giá cho trả phòng có ID {}: {}", traPhong.getId(), e.getMessage());
+        }
+        log.info("================ End checkOutById ================");
         return traPhong;
     }
 
@@ -166,7 +173,7 @@ public class TraPhongServiceImpl implements TraPhongService {
                         "\nChúng tôi rất mong bạn dành chút thời gian để chia sẻ ý kiến đánh giá về kỳ nghỉ của mình." +
                         " Phản hồi của bạn sẽ giúp chúng tôi cải thiện dịch vụ và mang đến trải nghiệm tốt hơn cho những" +
                         " khách hàng tiếp theo.\n\nXin vui lòng nhấp vào liên kết dưới đây để đánh giá:\n" +
-                        "\n[LIÊN KẾT ĐẾN TRANG ĐÁNH GIÁ]\n\nÝ kiến của bạn vô cùng quan trọng đối với chúng tôi.\n" +
+                        "\nÝ kiến của bạn vô cùng quan trọng đối với chúng tôi.\n" +
                         "\nTrân trọng,\nĐội ngũ BamBooking\n");
         try {
             mailSender.send(message);
