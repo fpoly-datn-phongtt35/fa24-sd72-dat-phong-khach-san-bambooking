@@ -20,9 +20,11 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
 
     @Query("SELECT xp FROM XepPhong xp " +
             "LEFT JOIN TraPhong tp ON tp.xepPhong.id = xp.id " +
-            "WHERE xp.phong.id = :idPhong and tp.trangThai = true " +
+            "WHERE xp.phong.id = :idPhong " +
             "AND :date >= xp.ngayNhanPhong " +
-            "AND :date <= COALESCE(tp.ngayTraThucTe, xp.ngayTraPhong)")
+            "AND :date <= CASE WHEN tp.id IS NOT NULL AND tp.trangThai = true " +
+            "                 THEN COALESCE(tp.ngayTraThucTe, xp.ngayTraPhong) " +
+            "                 ELSE xp.ngayTraPhong END " )
     XepPhong getByIDPhong(@Param("idPhong") int idPhong, @Param("date") LocalDateTime date);
 
     @Query("SELECT xp FROM XepPhong xp " +
