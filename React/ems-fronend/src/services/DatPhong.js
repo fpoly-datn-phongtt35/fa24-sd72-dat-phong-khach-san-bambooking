@@ -18,6 +18,7 @@ const apiFindDatPhongToCheckin =
 const apiFindDatPhong = "http://localhost:8080/dat-phong/danh-sach-dat-phong";
 const apiHuyDatPhong = "http://localhost:8080/dat-phong/huy-dp";
 
+const apiTBDatPhongThanhCong = "http://localhost:8080/api/dp/email-dp-thanh-cong";
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
   return authorizedAxiosInstance.get(apiDP, {
@@ -201,5 +202,13 @@ export const huyDatPhong = (maDatPhong) => {
     params: {
       maDatPhong: maDatPhong,
     },
+  });
+};
+
+export const EmailXacNhanDPThanhCong = (iddp) => {
+  return authorizedAxiosInstance.get(apiTBDatPhongThanhCong, {
+      params: {
+        iddp: iddp
+      }
   });
 };

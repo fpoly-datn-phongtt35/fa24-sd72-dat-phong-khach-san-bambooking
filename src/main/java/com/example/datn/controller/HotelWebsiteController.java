@@ -322,5 +322,11 @@ public class HotelWebsiteController {
         }
     }
 
+
+    @GetMapping("/dp/email-dp-thanh-cong")
+    public void emailDatPhongThanhCong(@RequestParam("iddp") Integer iddp){
+        hotelWebsiteServiceImpl.emailDatPhongThanhCong(iddp);
+    }
+
 }
 

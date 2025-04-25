@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { XacNhanDP } from "../services/DatPhong.js";
+import { XacNhanDP, EmailXacNhanDPThanhCong } from "../services/DatPhong.js";
 import {
   Box,
   Typography,
@@ -27,10 +27,11 @@ export default function ConfirmBooking() {
       console.log("Gọi API XacNhanDP với iddp:", parseInt(iddp));
       const response = await XacNhanDP(parseInt(iddp));
       console.log("Phản hồi API:", response);
-
       if (response.status === 200 && response.data.success === true) {
         setSuccess(true);
         console.log("Xác nhận thành công:", response.data);
+
+        EmailXacNhanDPThanhCong(iddp);
       } else {
         setSuccess(false);
         setErrorMessage(
