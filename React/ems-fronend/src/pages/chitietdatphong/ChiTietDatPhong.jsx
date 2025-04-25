@@ -24,7 +24,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
-import { findTTDPByMaDatPhong } from "../../services/TTDP";
+import { findTTDPByMaDatPhong, changeAllConditionRoom } from "../../services/TTDP";
 import {
   findDatPhongByMaDatPhong,
   CapNhatDatPhong,
@@ -41,9 +41,11 @@ import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import NotesIcon from "@mui/icons-material/Notes";
 import HotelIcon from "@mui/icons-material/Hotel";
+import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
 import { ThemPhuThu } from "../../services/PhuThuService";
 import { huyTTDP } from "../../services/TTDP";
 import { hienThi } from "../../services/KhachHangCheckin";
+import { PublishedWithChanges } from "@mui/icons-material";
 
 const ChiTietDatPhong = () => {
   const [datPhong, setDatPhong] = useState(null);
@@ -57,6 +59,7 @@ const ChiTietDatPhong = () => {
     message: "",
     severity: "success",
   });
+  const [isChangeButtonDisabled, setIsChangeButtonDisabled] = useState(false); // State mới để quản lý trạng thái disabled của nút
   const location = useLocation();
   const { maDatPhong } = location.state || {};
   const navigate = useNavigate();
@@ -179,6 +182,44 @@ const ChiTietDatPhong = () => {
     }
   };
 
+  const handleChangeAllConditionRoom = async () => {
+    console.log("Nút 'Đổi tất cả phòng' được nhấn");
+    console.log("datPhong:", datPhong);
+
+    if (!datPhong?.id) {
+      console.log("Không tìm thấy datPhong.id");
+      showSnackbar("Không tìm thấy đơn đặt phòng.", "error");
+      return;
+    }
+
+    console.log("datPhong.id:", datPhong.id);
+    const confirm = window.confirm(
+      "Bạn có chắc chắn muốn đổi tình trạng tất cả phòng sang 'Cần kiểm tra' không?"
+    );
+    console.log("Người dùng xác nhận:", confirm);
+
+    if (!confirm) return;
+
+    try {
+      console.log("Gọi API changeAllConditionRoom với id:", datPhong.id);
+      const response = await changeAllConditionRoom(datPhong.id);
+      console.log("Response từ API:", response);
+      showSnackbar("Đổi tình trạng cho toàn bộ phòng thành công!", "success");
+      getDetailDatPhong(maDatPhong);
+      thongTinDatPhong.forEach((ttdp) =>
+        fetchPhongDaXep(ttdp.maThongTinDatPhong)
+      );
+    } catch (error) {
+      console.error("Lỗi khi thay đổi tình trạng tất cả phòng:", error);
+      showSnackbar(
+        error.response?.data?.data || "Có lỗi xảy ra khi cập nhật tình trạng phòng!",
+        "error"
+      );
+    } finally {
+      setIsChangeButtonDisabled(true);
+    }
+  };
+
   useEffect(() => {
     if (Array.isArray(thongTinDatPhong) && thongTinDatPhong.length > 0) {
       thongTinDatPhong.forEach((ttdp) =>
@@ -296,10 +337,10 @@ const ChiTietDatPhong = () => {
           status === 400
             ? data.message || "Dữ liệu không hợp lệ."
             : status === 404
-            ? "Không tìm thấy thông tin cần thiết."
-            : status === 500
-            ? "Lỗi server."
-            : data.message || `Lỗi không xác định (status: ${status}).`;
+              ? "Không tìm thấy thông tin cần thiết."
+              : status === 500
+                ? "Lỗi server."
+                : data.message || `Lỗi không xác định (status: ${status}).`;
       } else if (error.request) {
         errorMessage = "Không thể kết nối đến server.";
       }
@@ -330,6 +371,10 @@ const ChiTietDatPhong = () => {
 
   const isDangDatPhong = Array.isArray(thongTinDatPhong)
     ? thongTinDatPhong.some((ttdp) => ttdp.trangThai === "Đang đặt phòng")
+    : false;
+
+  const hasDangO = Array.isArray(thongTinDatPhong)
+    ? thongTinDatPhong.some((ttdp) => ttdp.trangThai === "Đang ở")
     : false;
 
   return (
@@ -529,6 +574,13 @@ const ChiTietDatPhong = () => {
                 <Typography
                   sx={{ fontWeight: "bold", color: "primary.contrastText" }}
                 >
+                  Trạng thái
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography
+                  sx={{ fontWeight: "bold", color: "primary.contrastText" }}
+                >
                   Hành động
                 </Typography>
               </TableCell>
@@ -577,35 +629,6 @@ const ChiTietDatPhong = () => {
                         ttdp.ngayNhanPhong,
                         ttdp.ngayTraPhong,
                         ttdp.quantity
-                      ).toLocaleString()}{" "}
-                      VNĐ
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: "flex", gap: 1 }}>
-                        {ttdp.trangThai === "Chưa xếp" && (
-                          <Tooltip title="Xếp phòng">
-                            <IconButton
-                              variant="outlined"
-                              size="small"
-                              color="primary"
-                              onClick={() => openXepPhongModal(ttdp)}
-                              disabled={ttdp.trangThai === "Đang đặt phòng"}
-                            >
-                              <MeetingRoomIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </Box>
-                    </TableCell>
-                    <TableCell>{formatDate(ttdp.ngayNhanPhong)}</TableCell>
-                    <TableCell>{formatDate(ttdp.ngayTraPhong)}</TableCell>
-                    <TableCell
-                      sx={{ fontWeight: "medium", color: "success.main" }}
-                    >
-                      {calculateTotalPrice(
-                        ttdp.giaDat,
-                        ttdp.ngayNhanPhong,
-                        ttdp.ngayTraPhong
                       ).toLocaleString()}{" "}
                       VNĐ
                     </TableCell>
@@ -722,6 +745,17 @@ const ChiTietDatPhong = () => {
         >
           Xếp phòng{" "}
           {selectedTTDPs.length > 0 ? `(${selectedTTDPs.length})` : ""}
+        </Button>
+        <Button
+          variant="contained"
+          color="warning"
+          startIcon={<PublishedWithChanges />}
+          onClick={handleChangeAllConditionRoom}
+          disabled={isChangeButtonDisabled || !datPhong || !hasDangO}
+        >
+          {isChangeButtonDisabled
+            ? "Cần kiểm tra phòng"
+            : "Kiểm tra tất cả phòng"}
         </Button>
       </Box>
       <XepPhong

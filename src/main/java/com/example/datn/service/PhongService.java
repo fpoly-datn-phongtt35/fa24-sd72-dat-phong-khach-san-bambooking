@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PhongService {
@@ -19,5 +18,6 @@ public interface PhongService {
     Page<Phong> searchPhong(String keyword, Pageable pageable);
     List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDate ngayNhanPhong, LocalDate ngayTraPhong);
     String changeConditionRoom(Integer id);
+    String changeAllConditionRoom(Integer id);
     List<Phong> DSPhong(String keyword);
 }
