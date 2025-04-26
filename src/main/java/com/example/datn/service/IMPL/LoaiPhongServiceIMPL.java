@@ -115,7 +115,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
 //        List<String> tinhTrangPhong = Arrays.asList("Trống","Cần kiểm tra");
 
-        return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
+        return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(ngayNhanPhong, ngayTraPhong,trangThaiXP,trangThaiTTDP);
     }
 
     public List<LoaiPhongKhaDungResponse> getLoaiPhongKhaDungResponseList(LocalDate ngayNhanPhong, LocalDate ngayTraPhong,

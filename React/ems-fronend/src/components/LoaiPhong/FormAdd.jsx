@@ -1,34 +1,79 @@
 import React, { useState } from 'react';
-import { addLoaiPhong} from '../../services/LoaiPhongService';
+import { addLoaiPhong } from '../../services/LoaiPhongService';
 import Swal from 'sweetalert2';
-
 
 const FormAdd = ({ show, handleClose }) => {
     const [formData, setFormData] = useState({
-        tenLoaiPhong: '', 
-        maLoaiPhong: '', 
-        dienTich: '',   
-        soKhachToiDa: '',   
-        donGia: '',   
-        moTa: '',   
-        donGiaPhuThu: '',   
+        tenLoaiPhong: '',
+        maLoaiPhong: '',
+        dienTich: '',
+        soKhachToiDa: '',
+        donGia: '',
+        moTa: '',
+        donGiaPhuThu: '',
     });
-
 
     // Hàm xử lý thay đổi giá trị input
     const handleInputChange = (e) => {
-        const { name, value, files } = e.target;
+        const { name, value } = e.target;
+        if (['donGia', 'dienTich', 'donGiaPhuThu', 'soKhachToiDa'].includes(name)) {
+            // Chỉ cho phép số không âm hoặc chuỗi rỗng
+            if (value >= 0 || value === '') {
+                setFormData({
+                    ...formData,
+                    [name]: value
+                });
+            }
+        } else {
             setFormData({
                 ...formData,
                 [name]: value
             });
-        
+        }
     };
 
     // Hàm xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
-    
+
+        // Kiểm tra các trường không được nhỏ hơn 0 hoặc rỗng
+        if (formData.donGia === '' || formData.donGia < 0) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Đơn giá phải là số không âm!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        if (formData.dienTich === '' || formData.dienTich < 0) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Diện tích phải là số không âm!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        if (formData.donGiaPhuThu === '' || formData.donGiaPhuThu < 0) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Đơn giá phụ thu phải là số không âm!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        if (formData.soKhachToiDa === '' || formData.soKhachToiDa < 0) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Số khách tối đa phải là số không âm!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
         Swal.fire({
             title: 'Xác nhận thêm mới',
             text: 'Bạn có chắc chắn muốn thêm loại phòng mới?',
@@ -38,7 +83,6 @@ const FormAdd = ({ show, handleClose }) => {
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Gọi API thêm mới tiện ích với formData
                 addLoaiPhong(formData)
                     .then(response => {
                         console.log("Thêm mới thành công:", response.data);
@@ -48,7 +92,7 @@ const FormAdd = ({ show, handleClose }) => {
                             icon: 'success',
                             confirmButtonText: 'OK'
                         });
-                        handleClose(); // Đóng modal sau khi thêm thành công
+                        handleClose();
                     })
                     .catch(error => {
                         console.error("Lỗi khi thêm mới:", error);
@@ -62,7 +106,6 @@ const FormAdd = ({ show, handleClose }) => {
             }
         });
     };
-    
 
     return (
         <div className={`modal fade ${show ? 'show d-block' : ''}`} tabIndex={-1} role="dialog" style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
@@ -74,40 +117,99 @@ const FormAdd = ({ show, handleClose }) => {
                     </div>
                     <div className="modal-body">
                         <form onSubmit={handleSubmit}>
-                            {/* Tên tiện ích */}
                             <div className="mb-3">
                                 <label htmlFor="tenLoaiPhong" className="form-label">Tên Loại Phòng</label>
-                                <input type="text" className="form-control" id="tenLoaiPhong" name="tenLoaiPhong" value={formData.tenLoaiPhong} onChange={handleInputChange} required />
+                                <input 
+                                    type="text" 
+                                    className="form-control" 
+                                    id="tenLoaiPhong" 
+                                    name="tenLoaiPhong" 
+                                    value={formData.tenLoaiPhong} 
+                                    onChange={handleInputChange} 
+                                    required 
+                                />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="maLoaiPhong" className="form-label">Mã Loại Phòng</label>
-                                <input type="text" className="form-control" id="maLoaiPhong" name="maLoaiPhong" value={formData.maLoaiPhong} onChange={handleInputChange} required />
+                                <input 
+                                    type="text" 
+                                    className="form-control" 
+                                    id="maLoaiPhong" 
+                                    name="maLoaiPhong" 
+                                    value={formData.maLoaiPhong} 
+                                    onChange={handleInputChange} 
+                                    required 
+                                />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="dienTich" className="form-label">Diện tích</label>
-                                <input type="text" className="form-control" id="dienTich" name="dienTich" value={formData.dienTich} onChange={handleInputChange} required />
+                                <input 
+                                    type="number" 
+                                    className="form-control" 
+                                    id="dienTich" 
+                                    name="dienTich" 
+                                    value={formData.dienTich} 
+                                    onChange={handleInputChange} 
+                                    required 
+                                    min="0"
+                                />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="soKhachToiDa" className="form-label">Số khách tối đa</label>
-                                <input type="text" className="form-control" id="soKhachToiDa" name="soKhachToiDa" value={formData.soKhachToiDa} onChange={handleInputChange} required />
+                                <input 
+                                    type="number" 
+                                    className="form-control" 
+                                    id="soKhachToiDa" 
+                                    name="soKhachToiDa" 
+                                    value={formData.soKhachToiDa} 
+                                    onChange={handleInputChange} 
+                                    required 
+                                    min="0"
+                                />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="donGia" className="form-label">Đơn giá</label>
-                                <input type="text" className="form-control" id="donGia" name="donGia" value={formData.donGia} onChange={handleInputChange} required />
+                                <input 
+                                    type="number" 
+                                    className="form-control" 
+                                    id="donGia" 
+                                    name="donGia" 
+                                    value={formData.donGia} 
+                                    onChange={handleInputChange} 
+                                    required 
+                                    min="0"
+                                />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="donGiaPhuThu" className="form-label">Đơn giá phụ thu</label>
-                                <input type="text" className="form-control" id="donGiaPhuThu" name="donGiaPhuThu" value={formData.donGiaPhuThu} onChange={handleInputChange} required />
+                                <input 
+                                    type="number" 
+                                    className="form-control" 
+                                    id="donGiaPhuThu" 
+                                    name="donGiaPhuThu" 
+                                    value={formData.donGiaPhuThu} 
+                                    onChange={handleInputChange} 
+                                    required 
+                                    min="0"
+                                />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="moTa" className="form-label">Mô tả</label>
-                                <input type="text" className="form-control" id="moTa" name="moTa" value={formData.moTa} onChange={handleInputChange} required />
+                                <input 
+                                    type="text" 
+                                    className="form-control" 
+                                    id="moTa" 
+                                    name="moTa" 
+                                    value={formData.moTa} 
+                                    onChange={handleInputChange} 
+                                    required 
+                                />
                             </div>
 
                             <div className="modal-footer">

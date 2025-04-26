@@ -64,7 +64,7 @@ const ViewPhong = () => {
         const traPhongData = responseTraPhong.data;
         const newStatus = {};
         const traPhongMap = new Map(traPhongData.map(tp => [tp.xepPhong.id, tp]));
-
+  
         // Nhóm các bản ghi XepPhong theo phòng
         const roomXepPhongMap = new Map();
         statusData.forEach((item) => {
@@ -74,20 +74,20 @@ const ViewPhong = () => {
           }
           roomXepPhongMap.get(roomId).push(item);
         });
-
+  
         // Xử lý từng phòng
         roomXepPhongMap.forEach((xepPhongList, roomId) => {
           const allIntervalsByDate = new Map();
-
+  
           // Xử lý từng bản ghi XepPhong của phòng
           xepPhongList.forEach((item) => {
             const { ngayNhanPhong, ngayTraPhong, phong, trangThai } = item;
             const startTime = dayjs(ngayNhanPhong).tz('Asia/Ho_Chi_Minh');
             const traPhongRecord = traPhongMap.get(item.id);
-
+  
             let endTime;
             let isReturned = false;
-
+  
             if (traPhongRecord && traPhongRecord.ngayTraThucTe) {
               const parsedEndTime = dayjs(traPhongRecord.ngayTraThucTe).tz('Asia/Ho_Chi_Minh');
               if (parsedEndTime.isValid()) {
@@ -99,24 +99,26 @@ const ViewPhong = () => {
             } else {
               endTime = dayjs(ngayTraPhong).tz('Asia/Ho_Chi_Minh');
             }
-
+  
             let currentDate = startTime.startOf('day');
             const endDate = endTime.endOf('day');
-
+  
             while (currentDate.isBefore(endDate) || currentDate.isSame(endDate)) {
               const dateKey = currentDate.format('YYYY-MM-DD');
               if (!allIntervalsByDate.has(dateKey)) {
                 allIntervalsByDate.set(dateKey, []);
               }
-
+  
               let roomStatus = 'Empty';
               if (startTime.isBefore(currentDate.endOf('day')) && endTime.isAfter(currentDate.startOf('day'))) {
                 const intervalStart = startTime.isSame(currentDate, 'day') ? startTime : currentDate.startOf('day');
                 const intervalEnd = endTime.isSame(currentDate, 'day') ? endTime : currentDate.endOf('day');
-
-                if (isReturned && currentDate.isSame(endTime, 'day')) {
+  
+                if (isReturned) {
+                  // Nếu phòng đã trả, toàn bộ khoảng thời gian từ ngayNhanPhong đến ngayTraThucTe là CheckedOut
                   roomStatus = 'CheckedOut';
                 } else {
+                  // Nếu chưa trả, sử dụng trạng thái từ XepPhong
                   if (trangThai === 'Đã kiểm tra') {
                     roomStatus = 'Checked';
                   } else if (trangThai === 'Đang ở') {
@@ -125,38 +127,36 @@ const ViewPhong = () => {
                     roomStatus = 'Booked';
                   }
                 }
-
+  
                 allIntervalsByDate.get(dateKey).push({
                   start: intervalStart.format('HH:mm'),
                   end: intervalEnd.format('HH:mm'),
                   status: roomStatus,
                 });
               }
-
+  
               currentDate = currentDate.add(1, 'day');
             }
           });
-
+  
           // Gộp và sắp xếp các intervals cho mỗi ngày
           allIntervalsByDate.forEach((intervals, dateKey) => {
             // Sắp xếp intervals theo thời gian bắt đầu
             intervals.sort((a, b) => {
               return dayjs(`2000-01-01 ${a.start}`) - dayjs(`2000-01-01 ${b.start}`);
             });
-
+  
             // Lấp đầy khoảng trống
             const filledIntervals = fillEmptyIntervals(intervals);
-
+  
             const key = `${roomId}_${dateKey}`;
             newStatus[key] = {
               status: filledIntervals[0].status, // Trạng thái chính là trạng thái của interval đầu tiên
               intervals: filledIntervals,
             };
-
-          
           });
         });
-
+  
         setStatus(newStatus);
       } catch (error) {
         console.error("Lỗi khi lấy trạng thái phòng:", error);

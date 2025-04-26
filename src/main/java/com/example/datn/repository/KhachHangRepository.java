@@ -42,4 +42,7 @@ public interface KhachHangRepository extends JpaRepository<KhachHang,Integer> {
 
     @Query("SELECT kh FROM KhachHang kh WHERE kh.sdt = :keyword or kh.email = :keyword")
     List<KhachHang> getKHbySDTorEmail(String keyword);
+
+    @Query("SELECT kh FROM KhachHang kh WHERE kh.id = :id")
+    KhachHang getKHbyID(Integer id);
 }

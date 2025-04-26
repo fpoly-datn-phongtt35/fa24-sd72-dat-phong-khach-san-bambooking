@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import authorizedAxiosInstance from "../utils/authorizedAxios";
+import { getAllDanhGia } from '../services/DanhGia';
 import '../styles/Information.css';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
@@ -9,8 +9,25 @@ import "slick-carousel/slick/slick-theme.css";
 export default function Information() {
   const navigate = useNavigate();
   const sliderRef = useRef(null);
-  const amenitiesSliderRef = useRef(null); // Thêm ref cho slider tiện ích
+  const amenitiesSliderRef = useRef(null);
+  const reviewsSliderRef = useRef(null); // Thêm ref cho slider đánh giá
   
+  const [reviews, setReviews] = useState([]); // State để lưu danh sách đánh giá
+
+  // Gọi API để lấy danh sách đánh giá khi component mount
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await getAllDanhGia();
+        console.log(response)
+        setReviews(response.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách đánh giá:", error);
+      }
+    };
+    fetchReviews();
+  }, []);
+
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -26,18 +43,32 @@ export default function Information() {
     adaptiveHeight: false,
   };
 
-  // Cấu hình cho slider
   const amenitiesSliderSettings = {
     dots: true,
     infinite: true,
-    speed: 700, 
+    speed: 700,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 3000, 
-    arrows: true, 
-    fade: true, // Hiệu ứng fade
-    cssEase: 'linear', // Hiệu ứng chuyển động mượt mà
+    autoplaySpeed: 3000,
+    arrows: true,
+    fade: true,
+    cssEase: 'linear',
+    adaptiveHeight: true,
+  };
+
+  // Cấu hình cho slider đánh giá
+  const reviewsSliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 5000,
+    arrows: true,
+    fade: true,
+    cssEase: 'linear',
     adaptiveHeight: true,
   };
 
@@ -48,7 +79,6 @@ export default function Information() {
     'http://khachsanbamboo.com/uploads/plugin/introduce/28/1584364392-1976447380-nha-hang-h-i-s-n-bi-n.jpg',
   ];
 
-  // Dữ liệu cho tiện ích nổi bật
   const amenities = [
     {
       image: 'http://khachsanbamboo.com/uploads/plugin/introduce/30/1591120273-199453929-b-b-i-vo-c-c.jpg',
@@ -193,6 +223,42 @@ export default function Information() {
           <button className="amenities-next" onClick={goToAmenitiesNext}>
             ❯
           </button>
+        </div>
+      </section>
+
+      <section className="reviews">
+        <h2>Đánh giá từ khách hàng</h2>
+        <div className="reviews-slider">
+          <Slider ref={reviewsSliderRef} {...reviewsSliderSettings}>
+            {reviews.length > 0 ? (
+              reviews.map((review, index) => (
+                <div key={index} className="review-slide">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex gap-1">
+                        {[...Array(review.stars)].map((_, i) => (
+                          <span key={i} className="review-stars">★</span>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="review-comment">
+                      {review.nhanXet}
+                    </p>
+                    <p className="reviewer-name">
+                      {review.khachHang.ho + " " + review.khachHang.ten || "Khách hàng"}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="review-slide">
+                <p className="review-comment">
+                  Chưa có đánh giá nào cho khách sạn này.
+                </p>
+              </div>
+            )}
+          </Slider>
+          
         </div>
       </section>
     </div>
