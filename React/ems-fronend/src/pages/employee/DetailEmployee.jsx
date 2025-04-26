@@ -299,7 +299,7 @@ export const DetailEmployee = () => {
                             </Grid>
 
                             <Box sx={{ marginTop: 2 }}>
-                                <Button loading={isLoading} color="danger" sx={{ marginRight: 2 }} type="button" onClick={() => navigate('/NhanVien')}>Hủy</Button>
+                                <Button loading={isLoading} color="danger" sx={{ marginRight: 2 }} type="button" onClick={() => navigate('/nhan-vien')}>Hủy</Button>
                                 <Button loading={isLoading} type="submit">Lưu thông tin</Button>
                             </Box>
                         </Grid>

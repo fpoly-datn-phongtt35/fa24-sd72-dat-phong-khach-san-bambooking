@@ -291,7 +291,7 @@ export const DetailCustomer = () => {
                                             maxRows={10}
                                             placeholder="Nhập địa chỉ..."
                                             sx={{ width: '820px' }}
-                                            {...register("address", { required: "Vui lòng nhập số điện thoại" })}
+                                            {...register("address", { required: "Vui lòng nhập địa chỉ" })}
                                         ></Textarea>
                                         {errors.address && (
                                             <FormHelperText>{errors.address.message}</FormHelperText>
