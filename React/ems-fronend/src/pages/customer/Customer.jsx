@@ -25,7 +25,7 @@ export const Customer = () => {
         const param = { pageNo, pageSize, keyword }
         await fetchAllCustomer(param).then(res => {
             setData(res?.data);
-
+            console.log(res?.data);
         })
     }
 

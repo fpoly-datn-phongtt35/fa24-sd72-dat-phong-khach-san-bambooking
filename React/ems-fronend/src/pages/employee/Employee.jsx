@@ -25,7 +25,6 @@ export const Employee = () => {
         const param = { pageNo, pageSize, keyword }
         await fetchAllEmployee(param).then(res => {
             setData(res?.data);
-
         })
     }
 

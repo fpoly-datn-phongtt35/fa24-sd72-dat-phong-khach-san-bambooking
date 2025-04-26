@@ -31,11 +31,12 @@ public class CustomerRepository {
         if (request.getPageNo() < 1) {
             request.setPageNo(1);
         }
-        StringBuilder sql = new StringBuilder("SELECT c FROM KhachHang c");
+        
+        StringBuilder sql = new StringBuilder("SELECT c FROM KhachHang c LEFT JOIN c.taiKhoan tk");
         if (StringUtils.hasLength(request.getKeyword())) {
-            sql.append(" WHERE( c.taiKhoan.tenDangNhap LIKE :keyword) or (c.sdt LIKE :keyword)");
+            sql.append(" WHERE (tk.tenDangNhap LIKE :keyword OR c.sdt LIKE :keyword)");
         }
-        sql.append(" ORDER BY ID DESC");
+        sql.append(" ORDER BY c.id DESC");
 
         TypedQuery<KhachHang> query = entityManager.createQuery(sql.toString(), KhachHang.class);
         if (StringUtils.hasLength(request.getKeyword())) {
@@ -50,22 +51,24 @@ public class CustomerRepository {
                 CustomerResponses.CustomerData.builder()
                         .id(s.getId())
                         .fullName(String.format("%s %s", s.getHo(), s.getTen()))
-                        .username(s.getTaiKhoan().getUsername())
+                        .username(s.getTaiKhoan() != null ? s.getTaiKhoan().getUsername() : null)
                         .gender(s.getGioiTinh())
                         .phoneNumber(s.getSdt())
-                        .isLocked(s.getTaiKhoan().getTrangThai())
+                        .isLocked(s.getTaiKhoan() != null ? s.getTaiKhoan().getTrangThai() : false) // Giá trị mặc định nếu không có tài khoản
                         .avatar(s.getAvatar())
                         .build()
         ).toList();
-        StringBuilder sqlCountPage = new StringBuilder("SELECT count(c) FROM KhachHang c");
+
+        StringBuilder sqlCountPage = new StringBuilder("SELECT count(c) FROM KhachHang c LEFT JOIN c.taiKhoan tk");
         if (StringUtils.hasLength(request.getKeyword())) {
-            sqlCountPage.append(" WHERE( c.taiKhoan.tenDangNhap LIKE :keyword) or (c.sdt LIKE :keyword)");
+            sqlCountPage.append(" WHERE (tk.tenDangNhap LIKE :keyword OR c.sdt LIKE :keyword)");
         }
         TypedQuery<Long> countQuery = entityManager.createQuery(sqlCountPage.toString(), Long.class);
         if (StringUtils.hasLength(request.getKeyword())) {
             countQuery.setParameter("keyword", String.format(LIKE_FORMAT, request.getKeyword()));
         }
         Long totalElements = countQuery.getSingleResult();
+
         Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize());
         Page<?> page = new PageImpl<>(data, pageable, totalElements);
         return CustomerResponses.CustomerTemplate.builder()
