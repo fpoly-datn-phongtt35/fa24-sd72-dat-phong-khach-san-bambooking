@@ -130,6 +130,8 @@ export default function Login() {
         }
 
         localStorage.setItem("user", res.data.username);
+        navigate("/TrangChu");
+        
       }
     } catch (err) {
       setServerError(
