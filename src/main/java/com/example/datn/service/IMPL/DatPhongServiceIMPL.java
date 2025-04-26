@@ -2,26 +2,32 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.response.DatPhongResponse;
+import com.example.datn.exception.InvalidDataException;
 import com.example.datn.model.DatPhong;
-import com.example.datn.model.NhanVien;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.model.XepPhong;
 import com.example.datn.repository.*;
 import com.example.datn.service.DatPhongService;
 import com.example.datn.utilities.UniqueDatPhongCode;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
 public class DatPhongServiceIMPL implements DatPhongService {
+    private final JavaMailSender mailSender;
     @Autowired
     DatPhongRepository datPhongRepository;
 
@@ -30,6 +36,10 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
     @Autowired
     XepPhongRepository xepPhongRepository;
+
+    public DatPhongServiceIMPL(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Override
     public Page<DatPhongResponse> getByTrangThai(String tt, Pageable pageable) {
@@ -156,10 +166,10 @@ public class DatPhongServiceIMPL implements DatPhongService {
     }
 
     public Page<DatPhongResponse> findDatPhong(String key, LocalDate ngayNhanPhong, LocalDate ngayTraPhong, Pageable pageable) {
-        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Đang ở","Chưa xếp", "Đã xếp", "Đã trả phòng", "Đã kiểm tra phòng");
-        List<String> trangThai = Arrays.asList("Đang đặt phòng","Chưa xác nhận", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
-        String searchKey = (key == null || key.trim().isEmpty()) ? null : "%" + key.trim() + "%";
-        return datPhongRepository.findDatPhong(trangThai, trangThaiTTDP, searchKey, ngayNhanPhong, ngayTraPhong, pageable);
+        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng", "Đang ở", "Chưa xếp", "Đã xếp", "Đã trả phòng", "Đã kiểm tra phòng");
+        List<String> trangThai = Arrays.asList("Đang đặt phòng", "Chưa xác nhận", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
+        System.out.println(key);
+        return datPhongRepository.findDatPhong(trangThai, trangThaiTTDP, key, ngayNhanPhong, ngayTraPhong, pageable);
     }
 
 //    public void updateTrangThaiDatPhong() {

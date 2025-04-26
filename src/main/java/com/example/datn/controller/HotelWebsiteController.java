@@ -7,6 +7,7 @@ import com.example.datn.dto.request.ToHopRequest;
 import com.example.datn.dto.response.*;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.*;
+import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.service.*;
 import com.example.datn.service.IMPL.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -46,6 +47,9 @@ public class HotelWebsiteController {
     KhachHangServiceIMPL khachHangServiceIMPL;
     @Autowired
     XepPhongServiceIMPL xepPhongServiceIMPL;
+
+    @Autowired
+    DatPhongRepository datPhongRepository;
 
     @GetMapping("/loai-phong")
     public ResponseEntity<?> home(){
@@ -291,8 +295,37 @@ public class HotelWebsiteController {
     }
 
     @GetMapping("/dp/xac-nhan-dp")
-    public boolean xacNhanDP(@RequestParam("iddp") Integer iddp){
-        return hotelWebsiteServiceImpl.xacNhanDP(iddp);
+    public ResponseEntity<ResponseDTO> xacNhanDP(@RequestParam("iddp") Integer iddp) {
+        try {
+            DatPhong datPhong = datPhongRepository.findById(iddp)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy đặt phòng với ID: " + iddp));
+
+            if (datPhong.getTrangThai().equals("Đã xác nhận")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new ResponseDTO(false, "Đặt phòng đã được xác nhận trước đó", null));
+            }
+
+            if (!datPhong.getTrangThai().equals("Chưa xác nhận")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ResponseDTO(false, "Đặt phòng không ở trạng thái có thể xác nhận", null));
+            }
+
+            datPhong.setTrangThai("Đã xác nhận");
+            datPhongRepository.save(datPhong);
+            return ResponseEntity.ok(new ResponseDTO(true, "Xác nhận đặt phòng thành công", null));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDTO(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDTO(false, "Lỗi server: " + e.getMessage(), null));
+        }
+    }
+
+
+    @GetMapping("/dp/email-dp-thanh-cong")
+    public void emailDatPhongThanhCong(@RequestParam("iddp") Integer iddp){
+        hotelWebsiteServiceImpl.emailDatPhongThanhCong(iddp);
     }
 
 }

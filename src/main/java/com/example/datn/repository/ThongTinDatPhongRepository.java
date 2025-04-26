@@ -98,5 +98,6 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
            "FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :datPhongId")
     boolean areAllThongTinDatPhongCheckedOut(@Param("datPhongId") Integer datPhongId);
 
+    List<ThongTinDatPhong> findByDatPhong_Id(Integer datPhongId);
 }
 

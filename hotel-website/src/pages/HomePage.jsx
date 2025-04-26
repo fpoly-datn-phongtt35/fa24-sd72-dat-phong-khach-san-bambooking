@@ -26,6 +26,21 @@ import { getLPKDR } from "../services/DatPhong";
 const HomePage = () => {
   const navigate = useNavigate();
 
+  // State for background slideshow
+  const [bgIndex, setBgIndex] = useState(0);
+  const backgrounds = [
+    "/images/sanhkhachsan.jpg",
+    "/images/beboi.jpg",
+    "/images/phongdon.jpg",
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBgIndex((prev) => (prev + 1) % backgrounds.length);
+    }, 5000); // Đổi ảnh mỗi 5 giây
+    return () => clearInterval(interval);
+  }, []);
+
   // State for the main form
   const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs());
   const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, "day"));
@@ -89,7 +104,6 @@ const HomePage = () => {
       return;
     }
 
-    // Redirect to booking page with search parameters
     navigate("/booking", {
       state: {
         ngayNhanPhong: dayjs(ngayNhanPhong).format("YYYY-MM-DD"),
@@ -110,7 +124,10 @@ const HomePage = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div className="homepage-container">
+      <div
+        className="homepage-container"
+        style={{ backgroundImage: `url(${backgrounds[bgIndex]})` }}
+      >
         <div className="hero-section">
           <Typography variant="h2" className="hero-title">
             Chào mừng đến với BamBooking
@@ -192,13 +209,12 @@ const HomePage = () => {
                     value={soNguoi}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Ensure the value is a positive number and at least 1
                       setSoNguoi(
                         value && Number(value) >= 1 ? Number(value) : 1
                       );
                     }}
                     fullWidth
-                    inputProps={{ min: 1 }} // Prevent negative numbers in the input
+                    inputProps={{ min: 1 }}
                     sx={{
                       "& .MuiInputBase-root": {
                         borderRadius: 1,
@@ -401,7 +417,24 @@ const HomePage = () => {
                                 <MenuItem value="">Chọn loại phòng</MenuItem>
                                 {loaiPhongList.map((lp) => (
                                   <MenuItem key={lp.id} value={lp.tenLoaiPhong}>
-                                    {lp.tenLoaiPhong}
+                                    <Box display="flex" alignItems="center">
+                                      <img
+                                        src="/images/phongdon.jpg"
+                                        alt={lp.tenLoaiPhong}
+                                        style={{
+                                          width: 30,
+                                          height: 30,
+                                          marginRight: 8,
+                                          borderRadius: 4,
+                                          objectFit: "cover",
+                                        }}
+                                        onError={(e) =>
+                                          (e.target.src =
+                                            "/images/fallback.jpg")
+                                        }
+                                      />
+                                      {lp.tenLoaiPhong}
+                                    </Box>
                                   </MenuItem>
                                 ))}
                               </Select>
@@ -411,7 +444,7 @@ const HomePage = () => {
                             <TextField
                               label="Số lượng"
                               type="number"
-                              value={lpc.soLuongChon || 1} // Default to 1 if null or undefined
+                              value={lpc.soLuongChon || 1}
                               onChange={(e) => {
                                 const newList = [...loaiPhongChons];
                                 const value = e.target.value;
@@ -420,12 +453,12 @@ const HomePage = () => {
                                   soLuongChon:
                                     value && Number(value) >= 1
                                       ? Number(value)
-                                      : 1, // Enforce minimum of 1
+                                      : 1,
                                 };
                                 setLoaiPhongChons(newList);
                               }}
                               fullWidth
-                              inputProps={{ min: 1 }} // Prevent negative numbers in the input
+                              inputProps={{ min: 1 }}
                               sx={{
                                 "& .MuiInputBase-root": {
                                   borderRadius: 1,

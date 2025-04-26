@@ -36,6 +36,7 @@ import {
   XoaKhachHangDatPhong,
   CapNhatDatPhong,
   SuaKhachHangDatPhong,
+  EmailXacNhanDPThanhCong,
 } from "../../services/DatPhong";
 import {
   huyTTDP,
@@ -108,9 +109,7 @@ const TaoDatPhong = () => {
   const fetchThongTinDatPhongById = async (datPhongId) => {
     try {
       const response = await getThongTinDatPhong(datPhongId);
-      console.log("response fetchThongTinDatPhongById", response.data);
       const numberedRooms = groupAndNumberRooms(response.data);
-      console.log("numberedRooms", numberedRooms);
       setTtdpData(numberedRooms);
       setTTDP(response.data);
     } catch (error) {
@@ -270,7 +269,6 @@ const TaoDatPhong = () => {
       console.log("datPhongResponse", datPhongResponse.data);
       for (const thongTinDatPhong of TTDP) {
         console.log("id thongTinDatPhong", thongTinDatPhong.id);
-        alert(thongTinDatPhong.id);
         const updatedThongTinDatPhong = {
           id: thongTinDatPhong.id,
           datPhong: thongTinDatPhong.datPhong,
@@ -292,6 +290,7 @@ const TaoDatPhong = () => {
           );
         }
       }
+      EmailXacNhanDPThanhCong(datPhongRequest.id)
       alert("Đặt phòng thành công!");
       navigate("/thong-tin-dat-phong-search");
     } catch (error) {
@@ -372,65 +371,28 @@ const TaoDatPhong = () => {
       let currentDatPhong = datPhong;
       let currentKhachHang = khachHang;
 
-      // Kiểm tra và tạo khachHang nếu chưa có
       if (!currentKhachHang) {
-        if (!validateForm()) {
-          alert(
-            "Vui lòng nhập đầy đủ thông tin khách hàng trước khi thêm phòng."
-          );
-          setShowError(true);
-          return;
-        }
-        const khachHangRequest = {
-          ho: formData.ho,
-          ten: formData.ten,
-          email: formData.email,
-          sdt: formData.sdt,
-          trangThai: false,
-        };
-        const khachHangResponse = await SuaKhachHangDatPhong(khachHangRequest);
-        if (!khachHangResponse || !khachHangResponse.data) {
-          throw new Error("Không thể tạo khách hàng.");
-        }
-        currentKhachHang = khachHangResponse.data;
+        throw new Error("Không tồn tại khách hàng");
       }
 
       if (!currentDatPhong) {
-        const datPhongRequest = {
-          id : datPhong.id,
-          khachHang: currentKhachHang,
-          maDatPhong: `DP-${Date.now()}`,
-          soNguoi: searchForm.soNguoi * searchForm.soPhong,
-          soPhong: searchForm.soPhong,
-          ngayDat: new Date().toISOString(),
-          tongTien: 0,
-          ghiChu: "Đặt phòng tạm thời",
-          trangThai: "Đã xác nhận",
-        };
-        const datPhongResponse = await CapNhatDatPhong(datPhongRequest);
-        console.log(datPhongRequest)
-        if (!datPhongResponse || !datPhongResponse.data) {
-          throw new Error("Không thể tạo đặt phòng.");
-        }
-        currentDatPhong = datPhongResponse.data;
+          throw new Error("Không tồn tại đặt phòng");
       }
-
+      console.log(room);
       const addedRooms = [];
       for (let i = 0; i < searchForm.soPhong; i++) {
         const newRoom = {
-          datPhong: {
-            id: currentDatPhong.id,
-            maDatPhong: currentDatPhong.maDatPhong,
-          },
+          datPhong: datPhong,
           idLoaiPhong: room.id,
           maThongTinDatPhong: `TDP-${Date.now()}-${room.id}-${i}`,
           ngayNhanPhong: searchForm.ngayNhanPhong,
           ngayTraPhong: searchForm.ngayTraPhong,
-          soNguoi: searchForm.soNguoi,
+          soNguoi: room.soKhachToiDa,
           giaDat: room.donGia,
-          trangThai: "Chưa xếp",
+          trangThai: "Đang đặt phòng",
         };
         const response = await addThongTinDatPhong(newRoom);
+        console.log("Added room response:", response.data);
         if (!response || !response.data) {
           throw new Error(
             `Không thể thêm thông tin đặt phòng: ${newRoom.maThongTinDatPhong}`
@@ -440,6 +402,7 @@ const TaoDatPhong = () => {
       }
 
       const updatedResponse = await getThongTinDatPhong(currentDatPhong.id);
+      console.log("Updated response:", updatedResponse.data);
       const numberedRooms = groupAndNumberRooms(updatedResponse.data);
       setTtdpData(numberedRooms);
       setTTDP(updatedResponse.data);
@@ -506,7 +469,7 @@ const TaoDatPhong = () => {
   const groupAndNumberRooms = (rooms) => {
     const grouped = {};
     rooms.forEach((room) => {
-      const key = `${room.loaiPhong.id}-${room.ngayNhanPhong}-${room.ngayTraPhong}-${room.soNguoi}`;
+      const key = `${room.loaiPhong.id}-${room.ngayNhanPhong}-${room.ngayTraPhong}`;
       if (!grouped[key]) {
         grouped[key] = [];
       }
@@ -614,7 +577,6 @@ const TaoDatPhong = () => {
                       <TableCell>Ngày trả phòng</TableCell>
                       <TableCell>Giá mỗi đêm</TableCell>
                       <TableCell>Số đêm</TableCell>
-                      <TableCell>Số người</TableCell>
                       <TableCell>Số phòng</TableCell>
                       <TableCell>Thành tiền</TableCell>
                       <TableCell>Hành động</TableCell>
@@ -639,7 +601,6 @@ const TaoDatPhong = () => {
                             room.ngayTraPhong
                           )}
                         </TableCell>
-                        <TableCell>{room.soNguoi}</TableCell>
                         <TableCell>{room.soPhong}</TableCell>
                         <TableCell>
                           {(
@@ -776,14 +737,11 @@ const TaoDatPhong = () => {
                 <Select
                   value={searchForm.idLoaiPhong || ""}
                   onChange={(e) =>
-                    handleSearchInputChange(
-                      "idLoaiPhong",
-                      e.target.value
-                    )
+                    handleSearchInputChange("idLoaiPhong", e.target.value)
                   }
                   label="Loại Phòng"
                 >
-                  <MenuItem value=''>Tất cả</MenuItem>
+                  <MenuItem value="">Tất cả</MenuItem>
                   {loaiPhongs.map((lp) => (
                     <MenuItem key={lp.id} value={lp.id}>
                       {lp.tenLoaiPhong}

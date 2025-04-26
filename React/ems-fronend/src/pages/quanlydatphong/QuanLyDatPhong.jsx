@@ -68,19 +68,15 @@ const QuanLyDatPhong = () => {
             ? dayjs(searchNgayTra).format("YYYY-MM-DD")
             : null;
 
-          const params = {
-            key: searchKey,
-            ngayNhanPhong: formattedNgayNhan,
-            ngayTraPhong: formattedNgayTra,
-            pageable: {
-              page: currentPage,
-              size: size,
-            },
-          };
+          const res = await findDatPhong(searchKey,formattedNgayNhan, formattedNgayTra, {
+            page: currentPage,
+            size: size,
+          });
+          console.log("res", res);
+          const data = res.data;
+          setDatPhong(data.content || []);
+          setTotalPages(data.totalPages || 0);
 
-          const res = await findDatPhong(params);
-          setDatPhong(res.content || []);
-          setTotalPages(res.totalPages || 0);
         } catch (err) {
           console.error("Error fetching data:", err);
           setDatPhong([]);
