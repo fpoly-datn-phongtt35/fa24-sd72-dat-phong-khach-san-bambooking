@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { newEmployee } from "../../apis/employeeApi";
 import { useState } from "react";
+import Alert from '@mui/material/Alert';
 
 const VisuallyHiddenInput = styled('input')`
   clip: rect(0 0 0 0);
@@ -23,6 +24,7 @@ export const NewEmployee = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const [imageObject, setImageObject] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
     const {
         register,
         handleSubmit,
@@ -47,15 +49,41 @@ export const NewEmployee = () => {
         formData.append('gender', data.gender)
         formData.append('password', data.password)
         formData.append('email', data.email)
-        formData.append('avatar', imageObject)
+        if (imageObject) {
+            formData.append('avatar', imageObject);
+        }
         setIsLoading(true);
 
-        await newEmployee(formData).then(() => {
-            navigate('/NhanVien')
-        }).finally(() => { setIsLoading(false) })
+        await newEmployee(formData)
+            .then(() => {
+                setShowSuccess(true);
+                setTimeout(() => {
+                    navigate('/nhan-vien');
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Lỗi khi thêm nhân viên:', error);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     };
     return (
         <Container>
+            {showSuccess && (
+                <Alert
+                    color="success"
+                    sx={{
+                        position: 'fixed',
+                        top: 20,
+                        right: 20,
+                        zIndex: 1000,
+                        width: '300px'
+                    }}
+                >
+                    Thêm nhân viên thành công!
+                </Alert>
+            )}
             <Box marginTop={3} component='form' onSubmit={handleSubmit(onSubmit)}>
                 <Grid container spacing={3}>
                     <Grid xs={3} sx={{ border: '0.5px solid #d9d9d9' }}>
@@ -141,15 +169,27 @@ export const NewEmployee = () => {
                             </Grid>
 
                             <Grid container spacing={2}>
-                                <Grid xs={6}>
+                            <Grid xs={6}>
                                     <FormControl sx={{ width: '100%' }} error={!!errors?.idCard}>
                                         <FormLabel required>Chứng minh nhân dân</FormLabel>
-                                        <Input placeholder="Nhập số chứng minh nhân dân..." sx={{ width: '400px' }} {...register("idCard", { required: "Vui lòng nhập số CMND" })} />
+                                        <Input 
+                                            placeholder="Nhập số chứng minh nhân dân..." 
+                                            sx={{ width: '400px' }} 
+                                            {...register("idCard", { 
+                                                required: "Vui lòng nhập số CMND",
+                                                pattern: {
+                                                    value: /^\d{12}$/,
+                                                    message: "CCCD phải là 12 số"
+                                                }
+                                            })} 
+                                        />
                                         {errors.idCard && (
                                             <FormHelperText>{errors.idCard.message}</FormHelperText>
                                         )}
                                     </FormControl>
                                 </Grid>
+
+
                                 <Grid xs={6}>
                                     <FormControl sx={{ width: '100%' }} error={!!errors?.gender}>
                                         <FormLabel required>Giới tính</FormLabel>
@@ -192,15 +232,26 @@ export const NewEmployee = () => {
                             </Grid>
 
                             <Grid container spacing={2}>
-                                <Grid xs={6}>
+                            <Grid xs={6}>
                                     <FormControl sx={{ width: '100%' }} error={!!errors?.phoneNumber}>
                                         <FormLabel required>Số điện thoại</FormLabel>
-                                        <Input placeholder="Nhập số điện thoại..." sx={{ width: '400px' }} {...register("phoneNumber", { required: "Vui lòng nhập số điện thoại" })} />
+                                        <Input 
+                                            placeholder="Nhập số điện thoại..." 
+                                            sx={{ width: '400px' }} 
+                                            {...register("phoneNumber", { 
+                                                required: "Vui lòng nhập số điện thoại",
+                                                pattern: {
+                                                    value: /^\d{10}$/,
+                                                    message: "Số điện thoại phải là 10 chữ số"
+                                                }
+                                            })} 
+                                        />
                                         {errors.phoneNumber && (
                                             <FormHelperText>{errors.phoneNumber.message}</FormHelperText>
                                         )}
                                     </FormControl>
                                 </Grid>
+
                                 <Grid xs={6}>
                                     <FormControl sx={{ width: '100%' }} error={!!errors?.email}>
                                         <FormLabel>Email</FormLabel>
