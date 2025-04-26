@@ -56,13 +56,19 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
             "   FROM ThongTinDatPhong ttdp " +
             "   WHERE ttdp.datPhong = dp " +
             "   AND ttdp.trangThai IN (:trangThaiTTDP) " +
-            "   AND (:ngayNhanPhong IS NULL OR ttdp.ngayNhanPhong >= :ngayNhanPhong) " +
-            "   AND (:ngayTraPhong IS NULL OR ttdp.ngayTraPhong <= :ngayTraPhong) " +
-            "   AND (:key IS NULL OR ttdp.maThongTinDatPhong LIKE :key)" +
+            "   OR (:ngayNhanPhong IS NULL OR ttdp.ngayNhanPhong >= :ngayNhanPhong) " +
+            "   OR (:ngayTraPhong IS NULL OR ttdp.ngayTraPhong <= :ngayTraPhong) " +
+            "   OR (:key IS NULL OR LOWER(ttdp.maThongTinDatPhong) LIKE LOWER(CONCAT('%', :key, '%')))" +
             ") " +
             "AND dp.trangThai IN (:trangThai) " +
-            "AND (:key IS NULL OR dp.maDatPhong LIKE :key OR dp.khachHang.ho LIKE :key OR dp.khachHang.ten LIKE :key OR dp.khachHang.sdt LIKE :key " +
-            "OR CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten) LIKE :key) " +
+            "AND (" +
+            "   :key IS NULL OR " +
+            "   LOWER(dp.maDatPhong) LIKE LOWER(CONCAT('%', :key, '%')) OR " +
+            "   LOWER(dp.khachHang.ho) LIKE LOWER(CONCAT('%', :key, '%')) OR " +
+            "   LOWER(dp.khachHang.ten) LIKE LOWER(CONCAT('%', :key, '%')) OR " +
+            "   LOWER(dp.khachHang.sdt) LIKE LOWER(CONCAT('%', :key, '%')) OR " +
+            "   LOWER(CONCAT(dp.khachHang.ho, ' ', dp.khachHang.ten)) LIKE LOWER(CONCAT('%', :key, '%'))" +
+            ") " +
             "ORDER BY dp.id DESC")
     Page<DatPhongResponse> findDatPhong(
             @Param("trangThai") List<String> trangThai,
@@ -71,6 +77,7 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
             @Param("ngayNhanPhong") LocalDate ngayNhanPhong,
             @Param("ngayTraPhong") LocalDate ngayTraPhong,
             Pageable pageable);
+
     @Query("SELECT dp FROM DatPhong dp " +
             "WHERE dp.trangThai IN :trangThai " +
             "AND (dp.khachHang.sdt LIKE :key " +

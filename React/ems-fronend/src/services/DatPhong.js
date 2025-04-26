@@ -18,7 +18,8 @@ const apiFindDatPhongToCheckin =
 const apiFindDatPhong = "http://localhost:8080/dat-phong/danh-sach-dat-phong";
 const apiHuyDatPhong = "http://localhost:8080/dat-phong/huy-dp";
 
-const apiTBDatPhongThanhCong = "http://localhost:8080/api/dp/email-dp-thanh-cong";
+const apiTBDatPhongThanhCong =
+  "http://localhost:8080/api/dp/email-dp-thanh-cong";
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
   return authorizedAxiosInstance.get(apiDP, {
@@ -156,45 +157,16 @@ export const findDatPhongToCheckin = (
   });
 };
 
-export const findDatPhong = async ({
-  key = "",
-  ngayNhanPhong = null,
-  ngayTraPhong = null,
-  pageable = { page: 0, size: 10 },
-} = {}) => {
-  try {
-    const params = {
-      key: key.trim(),
+export const findDatPhong = (key, ngayNhanPhong, ngayTraPhong, pageable) => {
+  return authorizedAxiosInstance.get(apiFindDatPhong, {
+    params: {
+      key: key,
       ngayNhanPhong: ngayNhanPhong,
       ngayTraPhong: ngayTraPhong,
-      page: pageable.page,
-      size: pageable.size,
-    };
-
-    const response = await authorizedAxiosInstance.get(apiFindDatPhong, {
-      params,
-      paramsSerializer: (params) => {
-        const searchParams = new URLSearchParams();
-        for (const [key, value] of Object.entries(params)) {
-          if (value !== null && value !== undefined) {
-            searchParams.append(key, value);
-          }
-        }
-        return searchParams.toString();
-      },
-    });
-
-    return response.data;
-  } catch (error) {
-    const errorDetails = {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data,
-      endpoint: "/danh-sach",
-    };
-    console.error("Error in findDatPhong:", errorDetails);
-    throw Object.assign(error, { details: errorDetails });
-  }
+        page: pageable.page,
+        size: pageable.size,
+    },
+  });
 };
 
 export const huyDatPhong = (maDatPhong) => {
@@ -207,8 +179,8 @@ export const huyDatPhong = (maDatPhong) => {
 
 export const EmailXacNhanDPThanhCong = (iddp) => {
   return authorizedAxiosInstance.get(apiTBDatPhongThanhCong, {
-      params: {
-        iddp: iddp
-      }
+    params: {
+      iddp: iddp,
+    },
   });
 };

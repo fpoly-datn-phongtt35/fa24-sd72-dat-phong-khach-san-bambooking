@@ -109,9 +109,7 @@ const TaoDatPhong = () => {
   const fetchThongTinDatPhongById = async (datPhongId) => {
     try {
       const response = await getThongTinDatPhong(datPhongId);
-      console.log("response fetchThongTinDatPhongById", response.data);
       const numberedRooms = groupAndNumberRooms(response.data);
-      console.log("numberedRooms", numberedRooms);
       setTtdpData(numberedRooms);
       setTTDP(response.data);
     } catch (error) {
@@ -271,7 +269,6 @@ const TaoDatPhong = () => {
       console.log("datPhongResponse", datPhongResponse.data);
       for (const thongTinDatPhong of TTDP) {
         console.log("id thongTinDatPhong", thongTinDatPhong.id);
-        alert(thongTinDatPhong.id);
         const updatedThongTinDatPhong = {
           id: thongTinDatPhong.id,
           datPhong: thongTinDatPhong.datPhong,
@@ -293,7 +290,6 @@ const TaoDatPhong = () => {
           );
         }
       }
-      alert("iddp"+ datPhongRequest.id);
       EmailXacNhanDPThanhCong(datPhongRequest.id)
       alert("Đặt phòng thành công!");
       navigate("/thong-tin-dat-phong-search");

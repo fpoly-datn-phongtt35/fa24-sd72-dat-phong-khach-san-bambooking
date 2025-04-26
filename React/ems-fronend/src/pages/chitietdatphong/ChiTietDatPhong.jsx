@@ -59,11 +59,10 @@ const ChiTietDatPhong = () => {
     message: "",
     severity: "success",
   });
-  const [isChangeButtonDisabled, setIsChangeButtonDisabled] = useState(false); // State mới để quản lý trạng thái disabled của nút
+  const [isChangeButtonDisabled, setIsChangeButtonDisabled] = useState(false);
   const location = useLocation();
   const { maDatPhong } = location.state || {};
   const navigate = useNavigate();
-  const [khachHangCheckin, setKhachHangCheckin] = useState([]);
 
   const getDetailDatPhong = (maDatPhong) => {
     findDatPhongByMaDatPhong(maDatPhong)
@@ -125,17 +124,6 @@ const ChiTietDatPhong = () => {
         }));
       })
       .catch((error) => console.error(error));
-  };
-
-  const fetchKhachHangCheckin = (maThongTinDatPhong) => {
-    hienThi(maThongTinDatPhong)
-      .then((response) => {
-        console.log("Khách hàng check-in:", response.data);
-        setKhachHangCheckin(response.data);
-      })
-      .catch((error) =>
-        console.error("Lỗi khi lấy thông tin khách hàng:", error)
-      );
   };
 
   const openXepPhongModal = (ttdp) => {
@@ -303,8 +291,6 @@ const ChiTietDatPhong = () => {
 
         await checkIn(xepPhongRequest);
         showSnackbar("Check-in thành công!");
-
-        xepPhong = (await phongDaXep(item.maThongTinDatPhong)).data;
         const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
         const gio14Chieu = new Date(ngayNhanPhongXepPhong).setHours(
           14,
