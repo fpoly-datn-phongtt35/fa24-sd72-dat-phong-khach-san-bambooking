@@ -31,10 +31,15 @@ const AddUtilityModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
             Swal.fire({ title: 'Lỗi!', text: 'Vui lòng chọn vật tư và nhập số lượng.', icon: 'error' });
             return;
         }
+        const soLuong = parseInt(soLuongVatTu);
+        if (soLuong < 1) {
+            Swal.fire({ title: 'Lỗi!', text: 'Số lượng phải lớn hơn hoặc bằng 1.', icon: 'error' });
+            return;
+        }
         const vatTuPhongRequest = {
             loaiPhong: { id: loaiPhongId },
             vatTu: { id: selectedVatTu },
-            soLuong: parseInt(soLuongVatTu),
+            soLuong: soLuong,
         };
         addVatTuLoaiPhong(vatTuPhongRequest)
             .then(() => {
@@ -45,6 +50,14 @@ const AddUtilityModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
                 handleClose();
             })
             .catch(() => Swal.fire({ title: 'Lỗi!', text: 'Không thể thêm vật tư.', icon: 'error' }));
+    };
+
+    const handleSoLuongVatTuChange = (e) => {
+        const value = e.target.value;
+        // Chỉ cho phép cập nhật nếu giá trị là chuỗi rỗng hoặc số >= 1
+        if (value === '' || (parseInt(value) >= 1 && !isNaN(value))) {
+            setSoLuongVatTu(value);
+        }
     };
 
     return (
@@ -72,7 +85,7 @@ const AddUtilityModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
                     label="Số lượng"
                     type="number"
                     value={soLuongVatTu}
-                    onChange={(e) => setSoLuongVatTu(e.target.value)}
+                    onChange={handleSoLuongVatTuChange}
                     margin="normal"
                     inputProps={{ min: 1 }}
                     placeholder="Nhập số lượng"

@@ -596,7 +596,7 @@ const ChiTietDatPhong = () => {
                     </TableCell>
                     <TableCell>
                       {phongData[ttdp.maThongTinDatPhong]?.phong
-                        ?.tenLoaiPhong || (
+                        ?.tenPhong || (
                         <Chip
                           size="small"
                           label={ttdp.loaiPhong.tenLoaiPhong}

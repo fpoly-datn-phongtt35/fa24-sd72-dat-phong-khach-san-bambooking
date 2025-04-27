@@ -32,10 +32,15 @@ const AddServiceModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
             Swal.fire({ title: 'Lỗi!', text: 'Vui lòng chọn dịch vụ và nhập số lượng.', icon: 'error' });
             return;
         }
+        const soLuong = parseInt(soLuongDichVu);
+        if (soLuong < 1) {
+            Swal.fire({ title: 'Lỗi!', text: 'Số lượng phải lớn hơn hoặc bằng 1.', icon: 'error' });
+            return;
+        }
         const dichVuDiKemRequest = {
             loaiPhong: { id: loaiPhongId },
             dichVu: { id: selectedDichVu },
-            soLuong: parseInt(soLuongDichVu),
+            soLuong: soLuong,
             trangThai: true,
         };
         ThemDichVuDiKem(dichVuDiKemRequest)
@@ -47,6 +52,14 @@ const AddServiceModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
                 handleClose();
             })
             .catch(() => Swal.fire({ title: 'Lỗi!', text: 'Không thể thêm dịch vụ.', icon: 'error' }));
+    };
+
+    const handleSoLuongChange = (e) => {
+        const value = e.target.value;
+        // Chỉ cho phép cập nhật nếu giá trị là chuỗi rỗng hoặc số >= 1
+        if (value === '' || (parseInt(value) >= 1 && !isNaN(value))) {
+            setSoLuongDichVu(value);
+        }
     };
 
     return (
@@ -74,7 +87,7 @@ const AddServiceModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
                     label="Số lượng"
                     type="number"
                     value={soLuongDichVu}
-                    onChange={(e) => setSoLuongDichVu(e.target.value)}
+                    onChange={handleSoLuongChange}
                     margin="normal"
                     inputProps={{ min: 1 }}
                     placeholder="Nhập số lượng"

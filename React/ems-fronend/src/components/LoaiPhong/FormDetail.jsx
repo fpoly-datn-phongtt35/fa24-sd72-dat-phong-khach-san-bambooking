@@ -14,9 +14,9 @@ import {
     Divider,
     Chip,
     Box,
-    IconButton, // Thêm IconButton
+    IconButton,
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close'; // Thêm CloseIcon
+import CloseIcon from '@mui/icons-material/Close';
 import { updateLoaiPhong, deleteLoaiPhong, DanhSachVatTuLoaiPhong } from '../../services/LoaiPhongService';
 import { deleteVatTuLoaiPhong, listVatTuLoaiPhong, addVatTuLoaiPhong } from '../../services/VatTuLoaiPhong';
 import { DanhSachDichVu, XoaDichVuDiKem } from '../../services/DichVuDiKemService';
@@ -66,11 +66,57 @@ const FormDetail = ({ show, handleClose, data }) => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        if (name === 'id') return; // Không cho phép thay đổi id
+        if (['donGia', 'dienTich', 'donGiaPhuThu', 'soKhachToiDa'].includes(name)) {
+            // Chỉ cho phép số không âm hoặc chuỗi rỗng
+            if (value >= 0 || value === '') {
+                setFormData({ ...formData, [name]: value });
+            }
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        // Kiểm tra các trường không được nhỏ hơn 0 hoặc rỗng
+        if (formData.donGia === '' || formData.donGia < 0) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Đơn giá phải là số không âm!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        if (formData.dienTich === '' || formData.dienTich < 0) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Diện tích phải là số không âm!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        if (formData.donGiaPhuThu === '' || formData.donGiaPhuThu < 0) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Đơn giá phụ thu phải là số không âm!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+        if (formData.soKhachToiDa === '' || formData.soKhachToiDa < 0) {
+            Swal.fire({
+                title: 'Lỗi!',
+                text: 'Số khách tối đa phải là số không âm!',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
         Swal.fire({
             title: 'Bạn có chắc chắn?',
             text: 'Thông tin loại phòng sẽ được cập nhật!',
@@ -142,16 +188,87 @@ const FormDetail = ({ show, handleClose, data }) => {
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={6}>
-                            <TextField fullWidth label="ID" name="id" value={formData.id} onChange={handleInputChange} required margin="normal" />
-                            <TextField fullWidth label="Tên Loại Phòng" name="tenLoaiPhong" value={formData.tenLoaiPhong} onChange={handleInputChange} required margin="normal" />
-                            <TextField fullWidth label="Diện tích" name="dienTich" value={formData.dienTich} onChange={handleInputChange} required margin="normal" />
-                            <TextField fullWidth label="Số khách tối đa" name="soKhachToiDa" value={formData.soKhachToiDa} onChange={handleInputChange} required margin="normal" />
+                            <TextField 
+                                fullWidth 
+                                label="ID" 
+                                name="id" 
+                                value={formData.id} 
+                                disabled 
+                                margin="normal" 
+                            />
+                            <TextField 
+                                fullWidth 
+                                label="Tên Loại Phòng" 
+                                name="tenLoaiPhong" 
+                                value={formData.tenLoaiPhong} 
+                                onChange={handleInputChange} 
+                                required 
+                                margin="normal" 
+                            />
+                            <TextField 
+                                fullWidth 
+                                label="Diện tích" 
+                                name="dienTich" 
+                                value={formData.dienTich} 
+                                onChange={handleInputChange} 
+                                required 
+                                margin="normal" 
+                                type="number" 
+                                inputProps={{ min: 0 }}
+                            />
+                            <TextField 
+                                fullWidth 
+                                label="Số khách tối đa" 
+                                name="soKhachToiDa" 
+                                value={formData.soKhachToiDa} 
+                                onChange={handleInputChange} 
+                                required 
+                                margin="normal" 
+                                type="number" 
+                                inputProps={{ min: 0 }}
+                            />
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <TextField fullWidth label="Mã Loại Phòng" name="maLoaiPhong" value={formData.maLoaiPhong} onChange={handleInputChange} required margin="normal" />
-                            <TextField fullWidth label="Đơn giá" name="donGia" value={formData.donGia} onChange={handleInputChange} required margin="normal" />
-                            <TextField fullWidth label="Đơn giá phụ thu" name="donGiaPhuThu" value={formData.donGiaPhuThu} onChange={handleInputChange} required margin="normal" />
-                            <TextField fullWidth label="Mô tả" name="moTa" value={formData.moTa} onChange={handleInputChange} required margin="normal" />
+                            <TextField 
+                                fullWidth 
+                                label="Mã Loại Phòng" 
+                                name="maLoaiPhong" 
+                                value={formData.maLoaiPhong} 
+                                onChange={handleInputChange} 
+                                required 
+                                margin="normal" 
+                            />
+                            <TextField 
+                                fullWidth 
+                                label="Đơn giá" 
+                                name="donGia" 
+                                value={formData.donGia} 
+                                onChange={handleInputChange} 
+                                required 
+                                margin="normal" 
+                                type="number" 
+                                inputProps={{ min: 0 }}
+                            />
+                            <TextField 
+                                fullWidth 
+                                label="Đơn giá phụ thu" 
+                                name="donGiaPhuThu" 
+                                value={formData.donGiaPhuThu} 
+                                onChange={handleInputChange} 
+                                required 
+                                margin="normal" 
+                                type="number" 
+                                inputProps={{ min: 0 }}
+                            />
+                            <TextField 
+                                fullWidth 
+                                label="Mô tả" 
+                                name="moTa" 
+                                value={formData.moTa} 
+                                onChange={handleInputChange} 
+                                required 
+                                margin="normal" 
+                            />
                             <Box display="flex" justifyContent="flex-end" mt={2}>
                                 <Button variant="contained" color="primary" type="submit">Lưu thay đổi</Button>
                             </Box>

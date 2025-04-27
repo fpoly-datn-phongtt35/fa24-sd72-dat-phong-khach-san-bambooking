@@ -1,61 +1,65 @@
 import React, { useState } from 'react';
-import { ThemDichVu } from '../../services/DichVuService'; // Import API service
-import Swal from 'sweetalert2'; // down npm install sweetalert2
+import { ThemDichVu } from '../../services/DichVuService';
+import Swal from 'sweetalert2';
 
 const FormAdd = ({ show, handleClose, refreshData }) => {
-    // State để lưu trữ dữ liệu form
     const [formData, setFormData] = useState({
         tenDichVu: '',
         donGia: '',
         moTa: '',
-        hinhAnh: null, // Chứa file hình ảnh
-        trangThai: true, // Dùng boolean, mặc định là true (Hoạt động)
+        hinhAnh: null,
+        trangThai: true,
     });
 
-    const [errors, setErrors] = useState({}); // State lưu lỗi
+    const [errors, setErrors] = useState({});
 
-    // Hàm xử lý thay đổi giá trị input
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: name === "trangThai" ? value === 'true' : value,
-        });
+        if (name === 'donGia') {
+            // Chỉ cho phép số không âm hoặc chuỗi rỗng
+            if (value >= 0 || value === '') {
+                setFormData({
+                    ...formData,
+                    [name]: value,
+                });
+            }
+        } else {
+            setFormData({
+                ...formData,
+                [name]: name === "trangThai" ? value === 'true' : value,
+            });
+        }
 
         // Xóa lỗi khi người dùng nhập lại
         setErrors((prevErrors) => ({ ...prevErrors, [name]: '' }));
     };
 
-    // Hàm xử lý khi chọn file hình ảnh
     const handleFileChange = (e) => {
-        const file = e.target.files[0]; // Lấy file đầu tiên
+        const file = e.target.files[0];
         setFormData({
             ...formData,
-            hinhAnh: file, // Lưu file hình ảnh vào state
+            hinhAnh: file,
         });
 
-        // Xóa lỗi khi người dùng chọn file
         setErrors((prevErrors) => ({ ...prevErrors, hinhAnh: '' }));
     };
 
-    // Hàm xử lý khi nhấn nút lưu
     const handleSubmit = (e) => {
         e.preventDefault();
         let newErrors = {};
 
-        // Kiểm tra nếu các trường bị bỏ trống
+        // Kiểm tra các trường bắt buộc
         if (!formData.tenDichVu.trim()) newErrors.tenDichVu = 'Vui lòng nhập tên dịch vụ!';
-        if (!formData.donGia.trim()) newErrors.donGia = 'Vui lòng nhập giá!';
+        if (formData.donGia === '') newErrors.donGia = 'Vui lòng nhập giá!';
+        else if (formData.donGia < 0) newErrors.donGia = 'Giá phải là số không âm!';
         if (!formData.moTa.trim()) newErrors.moTa = 'Vui lòng nhập mô tả!';
         if (!formData.hinhAnh) newErrors.hinhAnh = 'Vui lòng chọn hình ảnh!';
 
-        // Nếu có lỗi, cập nhật state và không gửi dữ liệu
         if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
         }
 
-        // Tạo FormData để gửi file hình ảnh cùng với các dữ liệu khác
         const data = new FormData();
         data.append('tenDichVu', formData.tenDichVu);
         data.append('donGia', formData.donGia);
@@ -63,35 +67,39 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
         data.append('hinhAnh', formData.hinhAnh);
         data.append('trangThai', formData.trangThai);
 
-        // Gọi API ThemDichVu để thêm dịch vụ
         ThemDichVu(data)
             .then(response => {
-                // Hiển thị thông báo thành công khi thêm dịch vụ
                 Swal.fire({
                     icon: 'success',
                     title: 'Thành công',
                     text: 'Thêm thành công',
                     confirmButtonText: 'OK',
-                    confirmButtonColor: '#6a5acd' // Màu nút "OK"
+                    confirmButtonColor: '#6a5acd'
                 });
 
                 setFormData({
                     tenDichVu: '',
                     donGia: '',
                     moTa: '',
-                    hinhAnh: null, // Reset về null
-                    trangThai: true, // Reset về trạng thái hoạt động
+                    hinhAnh: null,
+                    trangThai: true,
                 });
 
-                refreshData(); // Gọi callback để load lại dữ liệu bảng
-                handleClose(); // Đóng modal sau khi lưu
+                refreshData();
+                handleClose();
             })
             .catch(error => {
                 console.error("Lỗi khi thêm dịch vụ:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không thể thêm dịch vụ. Vui lòng thử lại!',
+                    confirmButtonText: 'OK'
+                });
             });
     };
 
-    if (!show) return null; // Không hiển thị modal nếu không mở
+    if (!show) return null;
 
     return (
         <div className={`modal fade ${show ? 'show d-block' : ''}`} tabIndex={-1} role="dialog" style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
@@ -103,38 +111,65 @@ const FormAdd = ({ show, handleClose, refreshData }) => {
                     </div>
                     <div className="modal-body">
                         <form onSubmit={handleSubmit}>
-                            {/* Tên dịch vụ */}
                             <div className="mb-3">
                                 <label htmlFor="tenDichVu" className="form-label">Tên Dịch Vụ</label>
-                                <input type="text" className={`form-control ${errors.tenDichVu ? 'is-invalid' : ''}`} id="tenDichVu" name="tenDichVu" value={formData.tenDichVu} onChange={handleInputChange} />
+                                <input 
+                                    type="text" 
+                                    className={`form-control ${errors.tenDichVu ? 'is-invalid' : ''}`} 
+                                    id="tenDichVu" 
+                                    name="tenDichVu" 
+                                    value={formData.tenDichVu} 
+                                    onChange={handleInputChange} 
+                                />
                                 {errors.tenDichVu && <div className="invalid-feedback">{errors.tenDichVu}</div>}                            
                             </div>
 
-                            {/* Giá dịch vụ */}
                             <div className="mb-3">
                                 <label htmlFor="donGia" className="form-label">Giá</label>
-                                <input type="number" className={`form-control ${errors.donGia ? 'is-invalid' : ''}`} id="donGia" name="donGia" value={formData.donGia} onChange={handleInputChange} />
+                                <input 
+                                    type="number" 
+                                    className={`form-control ${errors.donGia ? 'is-invalid' : ''}`} 
+                                    id="donGia" 
+                                    name="donGia" 
+                                    value={formData.donGia} 
+                                    onChange={handleInputChange} 
+                                    min="0"
+                                />
                                 {errors.donGia && <div className="invalid-feedback">{errors.donGia}</div>}
                             </div>
 
-                            {/* Mô tả */}
                             <div className="mb-3">
                                 <label htmlFor="moTa" className="form-label">Mô Tả</label>
-                                <textarea className={`form-control ${errors.moTa ? 'is-invalid' : ''}`} id="moTa" name="moTa" value={formData.moTa} onChange={handleInputChange}></textarea>
+                                <textarea 
+                                    className={`form-control ${errors.moTa ? 'is-invalid' : ''}`} 
+                                    id="moTa" 
+                                    name="moTa" 
+                                    value={formData.moTa} 
+                                    onChange={handleInputChange}
+                                ></textarea>
                                 {errors.moTa && <div className="invalid-feedback">{errors.moTa}</div>}
                             </div>
 
-                            {/* Hình ảnh */}
                             <div className="mb-3">
                                 <label className="form-label">Chọn Hình Ảnh</label>
-                                <input type="file" className={`form-control-file ${errors.hinhAnh ? 'is-invalid' : ''}`} id="file" onChange={handleFileChange} />
+                                <input 
+                                    type="file" 
+                                    className={`form-control-file ${errors.hinhAnh ? 'is-invalid' : ''}`} 
+                                    id="file" 
+                                    onChange={handleFileChange} 
+                                />
                                 {errors.hinhAnh && <div className="text-danger">{errors.hinhAnh}</div>}
                             </div>
 
-                            {/* Trạng thái */}
                             <div className="mb-3">
                                 <label htmlFor="trangThai" className="form-label">Trạng Thái</label>
-                                <select className="form-control" id="trangThai" name="trangThai" value={formData.trangThai} onChange={handleInputChange}>
+                                <select 
+                                    className="form-control" 
+                                    id="trangThai" 
+                                    name="trangThai" 
+                                    value={formData.trangThai} 
+                                    onChange={handleInputChange}
+                                >
                                     <option value={true}>Hoạt động</option>
                                     <option value={false}>Ngừng hoạt động</option>
                                 </select>
