@@ -18,101 +18,111 @@ import {
 import { addXepPhong } from "../../services/XepPhongService";
 
 function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
-  const [listPhong, setListPhong] = useState({});
-  const [selectedPhong, setSelectedPhong] = useState({});
+  const [availableRooms, setAvailableRooms] = useState([]);
+  const [selectedRooms, setSelectedRooms] = useState([]);
   const navigate = useNavigate();
 
-  const formatToLocalDateTime = (dateString, type) => {
+  const formatToLocalDateTime = (dateString) => {
     const date = new Date(dateString);
     return date.toISOString().slice(0, 19);
   };
 
-  const phongKhaDung = (
-    idLoaiPhong,
-    ngayNhanPhong,
-    ngayTraPhong,
-    ttdpId,
-    ttdp
-  ) => {
-    getPhongKhaDung(idLoaiPhong, ngayNhanPhong, ngayTraPhong)
-      .then((response) => {
-        let rooms = response.data;
-        if (ttdp.phong && !rooms.some((p) => p.id === ttdp.phong.id)) {
-          rooms = [ttdp.phong, ...rooms];
-        }
-        setListPhong((prevList) => ({
-          ...prevList,
-          [ttdpId]: rooms,
-        }));
-      })
-      .catch((error) => {
-        console.error("Lỗi khi lấy phòng khả dụng:", error);
-      });
-  };
-
-  const reloadPhongKhaDung = () => {
-    selectedTTDPs.forEach((ttdp) => {
-      phongKhaDung(
-        ttdp.loaiPhong.id,
-        ttdp.ngayNhanPhong,
-        ttdp.ngayTraPhong,
-        ttdp.id,
-        ttdp
+  const fetchAvailableRooms = async () => {
+    try {
+      // Get date range that covers all TTDPs
+      const minDate = new Date(
+        Math.min(...selectedTTDPs.map((ttdp) => new Date(ttdp.ngayNhanPhong)))
       );
-    });
+      const maxDate = new Date(
+        Math.max(...selectedTTDPs.map((ttdp) => new Date(ttdp.ngayTraPhong)))
+      );
+
+      // Format dates to YYYY-MM-DD
+      const formatDate = (date) => date.toISOString().split("T")[0]; // Lấy chỉ phần ngày
+      const ngayNhanPhong = formatDate(minDate);
+      const ngayTraPhong = formatDate(maxDate);
+
+      // Get unique room types
+      const roomTypeIds = [
+        ...new Set(selectedTTDPs.map((ttdp) => ttdp.loaiPhong.id)),
+      ];
+
+      // Fetch available rooms for all room types
+      const roomPromises = roomTypeIds.map((id) =>
+        getPhongKhaDung(id, ngayNhanPhong, ngayTraPhong)
+      );
+
+      const responses = await Promise.all(roomPromises);
+      const allRooms = responses
+        .flatMap((response) => response.data)
+        .filter(
+          (room, index, self) =>
+            index === self.findIndex((r) => r.id === room.id)
+        );
+
+      // Include any pre-assigned rooms
+      const preAssignedRooms = selectedTTDPs
+        .filter((ttdp) => ttdp.phong)
+        .map((ttdp) => ttdp.phong);
+
+      const uniqueRooms = [
+        ...preAssignedRooms,
+        ...allRooms.filter(
+          (room) => !preAssignedRooms.some((pr) => pr.id === room.id)
+        ),
+      ];
+
+      setAvailableRooms(uniqueRooms);
+    } catch (error) {
+      console.error("Lỗi khi lấy phòng khả dụng:", error);
+    }
   };
 
   useEffect(() => {
     if (show && selectedTTDPs.length > 0) {
-      const initialSelected = {};
-      selectedTTDPs.forEach((ttdp) => {
-        if (ttdp.phong) {
-          initialSelected[ttdp.id] = ttdp.phong.id;
-        }
-      });
-      setSelectedPhong(initialSelected);
-      reloadPhongKhaDung();
+      fetchAvailableRooms();
+      // Initialize selected rooms with pre-assigned rooms
+      const initialSelected = selectedTTDPs
+        .filter((ttdp) => ttdp.phong)
+        .map((ttdp) => ttdp.phong.id);
+      setSelectedRooms(initialSelected);
     }
   }, [show, selectedTTDPs]);
 
-  const handlePhongChange = async (ttdpId, phongId) => {
-    const previousPhongId = selectedPhong[ttdpId];
-
-    setSelectedPhong((prevSelected) => ({
-      ...prevSelected,
-      [ttdpId]: phongId,
-    }));
-
+  const handleRoomToggle = async (roomId) => {
     try {
-      if (previousPhongId) {
-        await huyPhongDangDat(previousPhongId);
+      if (selectedRooms.includes(roomId)) {
+        // Deselect room
+        await huyPhongDangDat(roomId);
+        setSelectedRooms(selectedRooms.filter((id) => id !== roomId));
+      } else if (selectedRooms.length < selectedTTDPs.length) {
+        // Select room if under limit
+        await setPhongDangDat(roomId);
+        setSelectedRooms([...selectedRooms, roomId]);
       }
-      await setPhongDangDat(phongId);
-      reloadPhongKhaDung();
+      fetchAvailableRooms();
     } catch (error) {
       console.error("Lỗi khi thay đổi phòng:", error);
-      setSelectedPhong((prevSelected) => ({
-        ...prevSelected,
-        [ttdpId]: previousPhongId,
-      }));
     }
   };
 
   const handleSaveAll = async () => {
-    const requests = selectedTTDPs.map(async (ttdp) => {
-      const xepPhongRequest = {
-        phong: { id: selectedPhong[ttdp.id] },
-        thongTinDatPhong: { id: ttdp.id },
-        ngayNhanPhong: formatToLocalDateTime(ttdp.ngayNhanPhong),
-        ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong),
-        trangThai: "Đã xếp",
-      };
-
-      await huyPhongDangDat(selectedPhong[ttdp.id]);
-      return addXepPhong(xepPhongRequest);
-    });
-
     try {
+      const requests = selectedTTDPs.map(async (ttdp, index) => {
+        if (!selectedRooms[index]) return;
+
+        const xepPhongRequest = {
+          phong: { id: selectedRooms[index] },
+          thongTinDatPhong: { id: ttdp.id },
+          ngayNhanPhong: formatToLocalDateTime(ttdp.ngayNhanPhong),
+          ngayTraPhong: formatToLocalDateTime(ttdp.ngayTraPhong),
+          trangThai: "Đã xếp",
+        };
+
+        await huyPhongDangDat(selectedRooms[index]);
+        return addXepPhong(xepPhongRequest);
+      });
+
       await Promise.all(requests);
       alert("Xếp phòng thành công cho tất cả các đặt phòng đã chọn!");
       if (onSuccess) onSuccess();
@@ -125,22 +135,21 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
 
   const handleCancel = async () => {
     try {
-      const cancelRequests = Object.values(selectedPhong).map((phongId) =>
-        huyPhongDangDat(phongId)
+      const cancelRequests = selectedRooms.map((roomId) =>
+        huyPhongDangDat(roomId)
       );
       await Promise.all(cancelRequests);
     } catch (error) {
       console.error("Lỗi khi hủy trạng thái phòng:", error);
     }
-    setSelectedPhong({});
+    setSelectedRooms([]);
     handleClose();
   };
 
-  // Hàm phân loại phòng theo tầng dựa trên maPhong
   const groupPhongByFloor = (phongList) => {
     const floors = {};
     phongList.forEach((phong) => {
-      const floor = parseInt(phong.maPhong.charAt(1), 10); // Lấy số tầng từ ký tự thứ 2 (P101 -> 1)
+      const floor = parseInt(phong.maPhong.charAt(1), 10);
       if (!floors[floor]) {
         floors[floor] = [];
       }
@@ -149,97 +158,85 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
     return floors;
   };
 
-  // Hàm kiểm tra phòng có thể chọn được không
-  const isPhongSelectable = (phong, ttdpId) => {
-    return phong.tinhTrang !== "Đang đặt" || selectedPhong[ttdpId] === phong.id;
+  const isRoomSelectable = (room) => {
+    return (
+      room.tinhTrang !== "Đang đặt" ||
+      selectedRooms.includes(room.id) ||
+      selectedRooms.length < selectedTTDPs.length
+    );
   };
 
   return (
     <Dialog open={show} onClose={handleCancel} fullWidth maxWidth="md">
       <DialogTitle>Xếp phòng</DialogTitle>
       <DialogContent dividers>
-        {selectedTTDPs.map((ttdp) => {
-          const floors = groupPhongByFloor(listPhong[ttdp.id] || []);
-          return (
-            <Box key={ttdp.id} mb={4}>
-              <Typography variant="h6" gutterBottom>
-                Đặt phòng: {ttdp.maThongTinDatPhong}
+        <Typography variant="subtitle1" gutterBottom>
+          Chọn {selectedTTDPs.length} phòng cho {selectedTTDPs.length} đặt phòng
+        </Typography>
+        <Typography variant="caption" gutterBottom>
+          Đã chọn: {selectedRooms.length}/{selectedTTDPs.length}
+        </Typography>
+        {Object.entries(groupPhongByFloor(availableRooms)).map(
+          ([floor, rooms]) => (
+            <Box key={floor} mb={2}>
+              <Typography variant="subtitle1" gutterBottom>
+                Tầng {floor}
               </Typography>
-              {Object.keys(floors).length > 0 ? (
-                Object.entries(floors).map(([floor, rooms]) => (
-                  <Box key={floor} mb={2}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      Tầng {floor}
-                    </Typography>
-                    <Grid container spacing={2}>
-                      {rooms.map((phong) => {
-                        const isSelectable = isPhongSelectable(phong, ttdp.id);
-                        return (
-                          <Grid item xs={3} key={phong.id}>
-                            <Box
-                              sx={{
-                                width: "100%",
-                                height: 80,
-                                border: "1px solid #ccc",
-                                borderRadius: 2,
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                cursor: isSelectable
-                                  ? "pointer"
-                                  : "not-allowed",
-                                backgroundColor:
-                                  selectedPhong[ttdp.id] === phong.id
-                                    ? "#1976d2"
-                                    : phong.tinhTrang === "Đang đặt"
-                                    ? "#e0e0e0"
-                                    : "#fff",
-                                color:
-                                  selectedPhong[ttdp.id] === phong.id
-                                    ? "#fff"
-                                    : phong.tinhTrang === "Đang đặt"
-                                    ? "#757575"
-                                    : "#000",
-                                "&:hover": {
-                                  backgroundColor: isSelectable
-                                    ? selectedPhong[ttdp.id] === phong.id
-                                      ? "#1565c0"
-                                      : "#f5f5f5"
-                                    : phong.tinhTrang === "Đang đặt"
-                                    ? "#e0e0e0"
-                                    : "#fff",
-                                },
-                              }}
-                              onClick={() =>
-                                isSelectable &&
-                                handlePhongChange(ttdp.id, phong.id)
-                              }
-                            >
-                              <Typography variant="body2">
-                                {phong.maPhong}
-                              </Typography>
-                              <Typography variant="caption">
-                                {phong.tenPhong}
-                              </Typography>
-                              <Typography variant="caption">
-                                {phong.tinhTrang}
-                              </Typography>
-                            </Box>
-                          </Grid>
-                        );
-                      })}
+              <Grid container spacing={2}>
+                {rooms.map((room) => {
+                  const isSelectable = isRoomSelectable(room);
+                  return (
+                    <Grid item xs={3} key={room.id}>
+                      <Box
+                        sx={{
+                          width: "100%",
+                          height: 80,
+                          border: "1px solid #ccc",
+                          borderRadius: 2,
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "center",
+                          alignItems: "center",
+                          cursor: isSelectable ? "pointer" : "not-allowed",
+                          backgroundColor: selectedRooms.includes(room.id)
+                            ? "#1976d2"
+                            : room.tinhTrang === "Đang đặt"
+                            ? "#e0e0e0"
+                            : "#fff",
+                          color: selectedRooms.includes(room.id)
+                            ? "#fff"
+                            : room.tinhTrang === "Đang đặt"
+                            ? "#757575"
+                            : "#000",
+                          "&:hover": {
+                            backgroundColor: isSelectable
+                              ? selectedRooms.includes(room.id)
+                                ? "#1565c0"
+                                : "#f5f5f5"
+                              : room.tinhTrang === "Đang đặt"
+                              ? "#e0e0e0"
+                              : "#fff",
+                          },
+                        }}
+                        onClick={() =>
+                          isSelectable && handleRoomToggle(room.id)
+                        }
+                      >
+                        <Typography variant="body2">{room.maPhong}</Typography>
+                        <Typography variant="caption">
+                          {room.tenPhong}
+                        </Typography>
+                        <Typography variant="caption">
+                          {room.tinhTrang}
+                        </Typography>
+                      </Box>
                     </Grid>
-                  </Box>
-                ))
-              ) : (
-                <Typography variant="body2" color="textSecondary">
-                  Không có phòng khả dụng
-                </Typography>
-              )}
+                  );
+                })}
+              </Grid>
             </Box>
-          );
-        })}
+          )
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleCancel} color="secondary">
@@ -249,7 +246,7 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
           onClick={handleSaveAll}
           color="primary"
           variant="contained"
-          disabled={selectedTTDPs.some((ttdp) => !selectedPhong[ttdp.id])}
+          disabled={selectedRooms.length !== selectedTTDPs.length}
         >
           Lưu tất cả
         </Button>

@@ -128,6 +128,7 @@ const ChiTietDatPhong = () => {
 
   const openXepPhongModal = (ttdp) => {
     setSelectedTTDPs(ttdp.originalTTDPs);
+    console.log("Selected TTDPS:", ttdp);
     setShowXepPhongModal(true);
   };
 
