@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { getEmployeeById, updateEmployee } from "../../apis/employeeApi";
 import { useEffect, useState } from "react";
+import Alert from '@mui/material/Alert';
 
 const VisuallyHiddenInput = styled('input')`
   clip: rect(0 0 0 0);
@@ -21,6 +22,7 @@ export const DetailEmployee = () => {
     const [imagePreview, setImagePreview] = useState(null);
     const [imageObject, setImageObject] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
 
     const [employee, setEmployee] = useState(null);
 
@@ -89,11 +91,31 @@ export const DetailEmployee = () => {
         }
         setIsLoading(true);
         await updateEmployee(formData, id).then(() => {
-            navigate('/NhanVien')
-        }).finally(() => { setIsLoading(false) })
+            setShowSuccess(true);
+            setTimeout(() => {
+                navigate('/nhan-vien');
+            }, 2000);
+        })
+            .catch(error => {
+                console.error('Lỗi khi cập nhật nhân viên:', error);
+            }).finally(() => { setIsLoading(false) })
     };
     return (
         <Container>
+            {showSuccess && (
+                <Alert
+                    color="success"
+                    sx={{
+                        position: 'fixed',
+                        top: 20,
+                        right: 20,
+                        zIndex: 1000,
+                        width: '300px'
+                    }}
+                >
+                    Cập nhật nhân viên thành công!
+                </Alert>
+            )}
             <Box marginTop={3} component='form' onSubmit={handleSubmit(onSubmit)}>
                 <Grid container spacing={3}>
                     <Grid xs={3} sx={{ border: '0.5px solid #d9d9d9' }}>
@@ -133,7 +155,7 @@ export const DetailEmployee = () => {
                         </Box>
                     </Grid>
                     <Grid xs={9} sx={{ border: '0.1px solid #d9d9d9', padding: 2 }}>
-                        <Typography level="h4" sx={{ marginBottom: 2 }}>Chi tiết nhân viênviên</Typography>
+                        <Typography level="h4" sx={{ marginBottom: 2 }}>Chi tiết nhân viên</Typography>
                         <Grid container spacing={2}>
 
                             <Grid container spacing={2} sx={{ width: '100%' }}>
@@ -220,12 +242,25 @@ export const DetailEmployee = () => {
                                 <Grid xs={6}>
                                     <FormControl sx={{ width: '100%' }} error={!!errors?.phoneNumber}>
                                         <FormLabel required>Số điện thoại</FormLabel>
-                                        <Input placeholder="Nhập số điện thoại..." sx={{ width: '400px' }} {...register("phoneNumber", { required: "Vui lòng nhập số điện thoại" })} />
+                                        <Input
+                                            type="tel"
+                                            inputMode="numeric"
+                                            placeholder="Nhập số điện thoại..."
+                                            sx={{ width: '400px' }}
+                                            {...register("phoneNumber", {
+                                                required: "Vui lòng nhập số điện thoại",
+                                                pattern: {
+                                                    value: /^\d{10}$/,
+                                                    message: "Số điện thoại phải là 10 chữ số"
+                                                }
+                                            })}
+                                        />
                                         {errors.phoneNumber && (
                                             <FormHelperText>{errors.phoneNumber.message}</FormHelperText>
                                         )}
                                     </FormControl>
                                 </Grid>
+
                                 <Grid xs={6}>
                                     <FormControl sx={{ width: '100%' }} error={!!errors?.email}>
                                         <FormLabel>Email</FormLabel>
@@ -254,7 +289,7 @@ export const DetailEmployee = () => {
                                             maxRows={10}
                                             placeholder="Nhập địa chỉ..."
                                             sx={{ width: '820px' }}
-                                            {...register("address", { required: "Vui lòng nhập số điện thoại" })}
+                                            {...register("address", { required: "Vui lòng nhập địa chỉ" })}
                                         ></Textarea>
                                         {errors.address && (
                                             <FormHelperText>{errors.address.message}</FormHelperText>
@@ -264,7 +299,7 @@ export const DetailEmployee = () => {
                             </Grid>
 
                             <Box sx={{ marginTop: 2 }}>
-                                <Button loading={isLoading} color="danger" sx={{ marginRight: 2 }} type="button" onClick={() => navigate('/NhanVien')}>Hủy</Button>
+                                <Button loading={isLoading} color="danger" sx={{ marginRight: 2 }} type="button" onClick={() => navigate('/nhan-vien')}>Hủy</Button>
                                 <Button loading={isLoading} type="submit">Lưu thông tin</Button>
                             </Box>
                         </Grid>
