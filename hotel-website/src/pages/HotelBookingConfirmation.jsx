@@ -142,7 +142,7 @@ const HotelBookingConfirmation = () => {
     setShowError(false);
     let khachHangResponse = null;
     let datPhongResponse = null;
-
+    console.log("KhachHang", khachHang);
     try {
       khachHangResponse = await SuaKhachHangDatPhong({
         id: khachHang ? khachHang.id : null,
