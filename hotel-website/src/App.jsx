@@ -9,6 +9,7 @@ import Lookup from "./pages/Lookup";
 import LookupHistory from "./components/LookupHistory";
 import LookupDetailTTDP from "./components/LookupDetailTTDP";
 import ConfirmBooking from "./components/ConfirmBooking";
+import CreateReview from "./components/CreateReview";
 import LookupTTDP from "./components/LookupTTDP";
 import History from "./pages/History";
 import Profile from './components/Profile';
@@ -60,6 +61,7 @@ export default function App() {
               <Route path="/lookup/ttdp/:idDatPhong" element={<LookupTTDP />} />
               <Route path="/lookup/detail-ttdp/:idDatPhong/:idLoaiPhong" element={<LookupDetailTTDP />} />
               <Route path="/confirm-booking/:iddp" element={<ConfirmBooking />} />
+              <Route path="/create-review/:idKhachHang/:idTTDP" element={<CreateReview />} />
               <Route path="/lich-su-dat-phong/:email" element={<LookupHistory />} />
               <Route path="/lookup" element={<Lookup />} />
               <Route path="/rooms" element={<Rooms />} />

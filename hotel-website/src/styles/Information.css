@@ -1,6 +1,5 @@
 /* Information.css */
 
-
 .information {
   font-family: Arial, sans-serif;
   max-width: 100%;
@@ -90,7 +89,6 @@
 }
 
 /* Amenities Section */
-/* Amenities Section */
 .amenities {
   max-width: 100%;
   margin: 40px auto;
@@ -160,11 +158,57 @@
   right: 10px;
 }
 
-/* Định dạng dots cho slider tiện ích */
-.amenities .slick-dots {
-  bottom: -30px; /* Đặt dots bên dưới slider */
+/* Reviews Section */
+.reviews {
+  max-width: 1200px;
+  margin: 60px auto;
+  padding: 100px 10px;
+  text-align: center;
 }
 
+.reviews h2 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.reviews-slider {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.review-slide {
+  background: linear-gradient(135deg, #f0f4f8 0%, #e6ecf2 100%);
+  border: 1px solid #e0e6ec;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-stars {
+  font-size: 30px; 
+  color: #facc15; 
+}
+
+.review-comment {
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.reviewer-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+}
 
 /* Responsive cho màn hình nhỏ */
 @media (max-width: 768px) {
@@ -268,7 +312,6 @@
   padding: 10px 10px 40px 40px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  
 }
 
 .description-right-tittle{

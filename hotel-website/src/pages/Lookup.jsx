@@ -25,12 +25,8 @@ export default function Lookup() {
                 return;
             }
 
-            alert(response.data);
-            console.log(response);
-            alert('Đã gửi email xác nhận về email của bạn!');
             setShowNotification(true); 
         } catch (error) {
-            alert('Không tìm thấy email hoặc số điện thoại của bạn!');
             console.error('Error fetching bookings:', error);
             setShowNotificationFalse(true)
         } finally {

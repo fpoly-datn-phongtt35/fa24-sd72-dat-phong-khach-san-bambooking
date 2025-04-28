@@ -8,7 +8,7 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
     const [moTa, setMoTa] = useState('');
     const [hinhAnh, setHinhAnh] = useState(null);
     const [trangThai, setTrangThai] = useState(true);
-    const [errors, setErrors] = useState({}); // State để lưu lỗi
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         if (dichVu) {
@@ -20,16 +20,22 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
         }
     }, [dichVu]);
 
-    // Kiểm tra dữ liệu trước khi gửi
     const validateForm = () => {
         let errors = {};
         if (!tenDichVu.trim()) errors.tenDichVu = "Tên dịch vụ không được để trống!";
-        if (!donGia || donGia.toString().trim() === '') {
-            errors.donGia = "Đơn giá không được để trống!";
-        }
+        if (donGia === '' || donGia === null) errors.donGia = "Đơn giá không được để trống!";
+        else if (donGia < 0) errors.donGia = "Đơn giá phải là số không âm!";
         if (!moTa.trim()) errors.moTa = "Mô tả không được để trống!";
         setErrors(errors);
         return Object.keys(errors).length === 0;
+    };
+
+    const handleDonGiaChange = (e) => {
+        const value = e.target.value;
+        if (value >= 0 || value === '') {
+            setDonGia(value);
+            setErrors((prevErrors) => ({ ...prevErrors, donGia: '' }));
+        }
     };
 
     const handleUpdate = (e) => {
@@ -63,6 +69,12 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
             })
             .catch(error => {
                 console.error("Lỗi khi cập nhật dịch vụ:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: 'Không thể cập nhật dịch vụ. Vui lòng thử lại!',
+                    confirmButtonText: 'OK'
+                });
             });
     };
 
@@ -76,7 +88,6 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
                     </div>
                     <div className="modal-body">
                         <form onSubmit={handleUpdate}>
-                            {/* Tên dịch vụ */}
                             <div className="mb-3">
                                 <label className="form-label">Tên Dịch Vụ</label>
                                 <input
@@ -88,19 +99,18 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
                                 {errors.tenDichVu && <div className="invalid-feedback">{errors.tenDichVu}</div>}
                             </div>
 
-                            {/* Giá dịch vụ */}
                             <div className="mb-3">
                                 <label className="form-label">Giá</label>
                                 <input
                                     type="number"
                                     className={`form-control ${errors.donGia ? 'is-invalid' : ''}`}
                                     value={donGia}
-                                    onChange={(e) => setDonGia(e.target.value)}
+                                    onChange={handleDonGiaChange}
+                                    min="0"
                                 />
                                 {errors.donGia && <div className="invalid-feedback">{errors.donGia}</div>}
                             </div>
 
-                            {/* Mô tả */}
                             <div className="mb-3">
                                 <label className="form-label">Mô Tả</label>
                                 <textarea
@@ -111,7 +121,6 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
                                 {errors.moTa && <div className="invalid-feedback">{errors.moTa}</div>}
                             </div>
 
-                            {/* Hình ảnh */}
                             <div className="mb-3">
                                 <label className="form-label">Chọn Hình Ảnh</label>
                                 <input
@@ -120,8 +129,7 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
                                     accept="image/*"
                                     onChange={(e) => setHinhAnh(e.target.files[0])}
                                 />
-
-                                {dichVu?.hinhAnh && ( // Sử dụng ?. để tránh lỗi nếu dichVu là null
+                                {dichVu?.hinhAnh && (
                                     <img
                                         src={dichVu.hinhAnh}
                                         alt="Hình ảnh dịch vụ"
@@ -131,7 +139,6 @@ const FormUpdate = ({ show, handleClose, refreshData, dichVu }) => {
                                 )}
                             </div>
 
-                            {/* Trạng thái */}
                             <div className="mb-3">
                                 <label className="form-label">Trạng Thái</label>
                                 <select className="form-control" value={trangThai} onChange={(e) => setTrangThai(e.target.value === 'true')}>

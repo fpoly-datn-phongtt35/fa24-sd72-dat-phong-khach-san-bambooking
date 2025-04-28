@@ -213,9 +213,8 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                         "Chúng tôi hy vọng bạn có những trải nghiệm tuyệt vời.</p>" +
                         "<p>Theo yêu cầu tra cứu lịch sử đặt phòng của bạn, bạn có thể xem chi tiết các thông tin đặt phòng bằng cách nhấp vào liên kết dưới đây:</p>" +
                         "<p><a href=\"http://localhost:3001/lich-su-dat-phong/" + email + "\">Xem chi tiết lịch sử đặt phòng</a></p>" +
-                        "<p>Ngoài ra, chúng tôi rất mong nhận được ý kiến đánh giá từ bạn về trải nghiệm tại BamBooking. " +
-                        "Phản hồi của bạn sẽ giúp chúng tôi cải thiện chất lượng dịch vụ và mang đến những trải nghiệm tốt hơn cho bạn cũng như các khách hàng khác trong tương lai.</p>" +
-                        "<p><a href=\"[Link]\">Gửi phản hồi</a></p>" + // Thay [Link] bằng URL thật nếu có
+                        "<p>Nếu cần hỗ trợ, vui lòng liên hệ qua email <a href=\"mailto:support@bambooking.com\">support@bambooking.com</a> hoặc hotline <strong>0123-456-789</strong>.</p>\n" +
+                        "<p style=\"margin-top: 20px;\">Trân trọng,<br><strong>Đội ngũ BamBooking</strong></p>"+
                         "<p>Trân trọng,<br>Đội ngũ BamBooking</p>";
 
                 helper.setText(htmlContent, true); // true để cho phép HTML
@@ -310,10 +309,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                         <p style="text-align: center;">
                             <a href="http://localhost:3001/confirm-booking/%s" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #fff; text-decoration: none; border-radius: 5px;">Xác nhận Đặt Phòng</a>
                         </p>
-                        <p>Chúng tôi rất mong nhận được ý kiến đánh giá từ bạn để cải thiện chất lượng dịch vụ. Vui lòng gửi phản hồi tại đây:</p>
-                        <p style="text-align: center;">
-                            <a href="[Link]" style="display: inline-block; padding: 10px 20px; background-color: #2ecc71; color: #fff; text-decoration: none; border-radius: 5px;">Gửi Phản Hồi</a>
-                        </p>
+                        
                         <p>Nếu cần hỗ trợ, vui lòng liên hệ qua email <a href="mailto:support@bambooking.com">support@bambooking.com</a> hoặc hotline <strong>0123-456-789</strong>.</p>
                         <p style="margin-top: 20px;">Trân trọng,<br><strong>Đội ngũ BamBooking</strong></p>
                     </div>
@@ -374,12 +370,12 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                     .collect(Collectors.joining(", "));
 
             helper.setTo(email);
-            helper.setSubject("Thông báo đơn Đặt Phòng đã được xác nhận- BamBooking");
+            helper.setSubject("Đặt phòng thành công - BamBooking");
 
             // Nội dung HTML với CSS inline để định dạng
             String htmlContent = """
                     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; color: #333;">
-                        <h2 style="color: #2c3e50;">Đặt Phòng Đã Được Xác Nhận Thành Công</h2>
+                        <h2 style="color: #2c3e50;">Đặt Phòng Thành Công</h2>
                         <p>Chào <strong>%s</strong>,</p>
                         <p>Chúng tôi rất vui thông báo rằng đơn đặt phòng của bạn tại <strong>BamBooking</strong> đã được xác nhận thành công. Dưới đây là chi tiết đặt phòng của bạn:</p>
                         <table style="width: 100%%; border-collapse: collapse; margin: 20px 0;">
@@ -419,10 +415,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                         <p style="text-align: center;">
                             <a href="http://localhost:3001/lich-su-dat-phong/%s" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #fff; text-decoration: none; border-radius: 5px;">Xem lịch sử đặt phòng</a>
                         </p>
-                        <p>Chúng tôi rất mong nhận được ý kiến đánh giá từ bạn để cải thiện chất lượng dịch vụ. Vui lòng gửi phản hồi tại đây:</p>
-                        <p style="text-align: center;">
-                            <a href="[Link]" style="display: inline-block; padding: 10px 20px; background-color: #2ecc71; color: #fff; text-decoration: none; border-radius: 5px;">Gửi Phản Hồi</a>
-                        </p>
+                      
                         <p>Nếu cần hỗ trợ, vui lòng liên hệ qua email <a href="mailto:support@bambooking.com">support@bambooking.com</a> hoặc hotline <strong>0123-456-789</strong>.</p>
                         <p style="margin-top: 20px;">Trân trọng,<br><strong>Đội ngũ BamBooking</strong></p>
                     </div>
