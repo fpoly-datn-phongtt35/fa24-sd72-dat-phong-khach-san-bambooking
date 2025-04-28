@@ -560,7 +560,7 @@ const ChiTietDatPhong = () => {
                 <Typography
                   sx={{ fontWeight: "bold", color: "primary.contrastText" }}
                 >
-                  Loại phòng
+                  Phòng
                 </Typography>
               </TableCell>
               <TableCell>
@@ -630,9 +630,9 @@ const ChiTietDatPhong = () => {
                     </TableCell>
                     <TableCell>
                       {ttdp.trangThai === "Đã xếp" &&
-                      phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong ? (
+                      phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong ? (
                         <Typography>
-                          {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong}
+                          {phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong}
                         </Typography>
                       ) : (
                         <Chip

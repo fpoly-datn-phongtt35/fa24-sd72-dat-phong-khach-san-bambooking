@@ -40,17 +40,26 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
       const ngayNhanPhong = formatDate(minDate);
       const ngayTraPhong = formatDate(maxDate);
 
-      const roomTypeIds = [
-        ...new Set(selectedTTDPs.map((ttdp) => ttdp.loaiPhong.id)),
-      ];
+      // Đếm số lượng phòng cần cho từng loại phòng
+      const roomTypeCounts = selectedTTDPs.reduce((acc, ttdp) => {
+        const roomTypeId = ttdp.loaiPhong.id;
+        acc[roomTypeId] = (acc[roomTypeId] || 0) + 1;
+        return acc;
+      }, {});
 
-      const roomPromises = roomTypeIds.map((id) =>
-        getPhongKhaDung(id, ngayNhanPhong, ngayTraPhong)
+      const roomPromises = Object.keys(roomTypeCounts).map((roomTypeId) =>
+        getPhongKhaDung(roomTypeId, ngayNhanPhong, ngayTraPhong)
       );
 
       const responses = await Promise.all(roomPromises);
       const allRooms = responses
-        .flatMap((response) => response.data)
+        .flatMap((response, index) => {
+          const roomTypeId = Object.keys(roomTypeCounts)[index];
+          return response.data.map((room) => ({
+            ...room,
+            roomTypeId,
+          }));
+        })
         .filter(
           (room, index, self) =>
             index === self.findIndex((r) => r.id === room.id)
@@ -58,7 +67,10 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
 
       const preAssignedRooms = selectedTTDPs
         .filter((ttdp) => ttdp.phong)
-        .map((ttdp) => ttdp.phong);
+        .map((ttdp) => ({
+          ...ttdp.phong,
+          roomTypeId: ttdp.loaiPhong.id,
+        }));
 
       const uniqueRooms = [
         ...preAssignedRooms,
@@ -86,12 +98,37 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
 
   const handleRoomToggle = async (roomId) => {
     try {
+      const room = availableRooms.find((r) => r.id === roomId);
+      if (!room) return;
+
+      const selectedRoomTypeCounts = selectedRooms.reduce((acc, id) => {
+        const selectedRoom = availableRooms.find((r) => r.id === id);
+        if (selectedRoom) {
+          const roomTypeId = selectedRoom.roomTypeId;
+          acc[roomTypeId] = (acc[roomTypeId] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      const requiredRoomTypeCounts = selectedTTDPs.reduce((acc, ttdp) => {
+        const roomTypeId = ttdp.loaiPhong.id;
+        acc[roomTypeId] = (acc[roomTypeId] || 0) + 1;
+        return acc;
+      }, {});
+
       if (selectedRooms.includes(roomId)) {
         await huyPhongDangDat(roomId);
         setSelectedRooms(selectedRooms.filter((id) => id !== roomId));
-      } else if (selectedRooms.length < selectedTTDPs.length) {
-        await setPhongDangDat(roomId);
-        setSelectedRooms([...selectedRooms, roomId]);
+      } else {
+        const currentCount = selectedRoomTypeCounts[room.roomTypeId] || 0;
+        const requiredCount = requiredRoomTypeCounts[room.roomTypeId] || 0;
+
+        if (currentCount < requiredCount && selectedRooms.length < selectedTTDPs.length) {
+          await setPhongDangDat(roomId);
+          setSelectedRooms([...selectedRooms, roomId]);
+        } else {
+          alert("Không thể chọn thêm phòng này vì đã đủ số phòng cho loại phòng này!");
+        }
       }
       fetchAvailableRooms();
     } catch (error) {
@@ -153,10 +190,17 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
   };
 
   const isRoomSelectable = (room) => {
+    const selectedCount = selectedRooms.filter((id) => {
+      const r = availableRooms.find((ar) => ar.id === id);
+      return r && r.roomTypeId === room.roomTypeId;
+    }).length;
+    const requiredCount = selectedTTDPs.filter(
+      (ttdp) => ttdp.loaiPhong.id === room.roomTypeId
+    ).length;
     return (
       room.tinhTrang !== "Đang đặt" ||
       selectedRooms.includes(room.id) ||
-      selectedRooms.length < selectedTTDPs.length
+      (selectedCount < requiredCount && selectedRooms.length < selectedTTDPs.length)
     );
   };
 
@@ -165,8 +209,14 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
       <DialogTitle>Xếp phòng</DialogTitle>
       <DialogContent dividers>
         <Typography variant="subtitle1" gutterBottom>
-          Chọn tối đa {selectedTTDPs.length} phòng cho {selectedTTDPs.length}{" "}
-          đặt phòng
+          Yêu cầu:{" "}
+          {Object.entries(
+            selectedTTDPs.reduce((acc, ttdp) => {
+              const roomTypeName = ttdp.loaiPhong.tenLoaiPhong;
+              acc[roomTypeName] = (acc[roomTypeName] || 0) + 1;
+              return acc;
+            }, {})
+          ).map(([name, count]) => `${name}: ${count} phòng. `)}
         </Typography>
         {Object.entries(groupPhongByFloor(availableRooms)).map(
           ([floor, rooms]) => (
