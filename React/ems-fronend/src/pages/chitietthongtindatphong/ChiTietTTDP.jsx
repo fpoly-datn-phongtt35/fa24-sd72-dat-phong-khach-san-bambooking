@@ -490,7 +490,7 @@ const ChiTietTTDP = () => {
                   </Grid>
                 )}
               </Grid>
-              {(xepPhong?.trangThai == 'Đang ở' || xepPhong?.trangThai == 'Đã xếp') && (
+              {(xepPhong?.trangThai == 'Đang ở') && (
                 <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
 
                   <Button

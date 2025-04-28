@@ -517,7 +517,6 @@ const ChiTietDatPhong = () => {
           trangThai: "Đang ở",
         };
 
-        await check生日, setHours(14, 0, 0, 0);
         await checkIn(xepPhongRequest);
         showSnackbar("Check-in thành công!", "success");
 
@@ -691,9 +690,7 @@ const ChiTietDatPhong = () => {
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <Checkbox
                   checked={isUpdateAllNotesChecked}
-                  onChange={(e) =>
-                    setIsUpdateAllNotesChecked(e.target.checked)
-                  }
+                  onChange={(e) => setIsUpdateAllNotesChecked(e.target.checked)}
                   disabled={!datPhong}
                 />
                 <Typography variant="body2">
@@ -905,7 +902,12 @@ const ChiTietDatPhong = () => {
                             </IconButton>
                           </Tooltip>
                         )}
-                        {ttdp.trangThai === "Đã xếp" && (
+                        {[
+                          "Đã xếp",
+                          "Đang ở",
+                          "Đã kiểm tra phòng",
+                          "Đã trả phòng",
+                        ].includes(ttdp.trangThai) && (
                           <Tooltip title="Chi tiết thông tin đặt phòng">
                             <IconButton
                               color="success"
@@ -913,11 +915,6 @@ const ChiTietDatPhong = () => {
                                 handleTTDPClick(ttdp.maThongTinDatPhong)
                               }
                               size="small"
-                              disabled={
-                                !phongData[ttdp.maThongTinDatPhong]?.phong
-                                  ?.tenPhong ||
-                                ttdp.trangThai === "Đang đặt phòng"
-                              }
                             >
                               <InfoIcon />
                             </IconButton>
@@ -977,7 +974,7 @@ const ChiTietDatPhong = () => {
         )}
         {selectedTTDPs.length > 0 &&
           !isDangDatPhong &&
-          !selectedTTDPs.some((ttdp) => ttdp.trangThai === "Đang ở") && (
+          selectedTTDPs.some((ttdp) => ["Đã xếp"].includes(ttdp.trangThai)) && (
             <Button
               variant="contained"
               color="success"
@@ -993,8 +990,8 @@ const ChiTietDatPhong = () => {
           )}
         {selectedTTDPs.length > 0 &&
           !isDangDatPhong &&
-          !selectedTTDPs.some((ttdp) =>
-            ["Đã xếp", "Đang ở"].includes(ttdp.trangThai)
+          selectedTTDPs.some((ttdp) =>
+            ["Chưa xếp"].includes(ttdp.trangThai)
           ) && (
             <Button
               variant="contained"
