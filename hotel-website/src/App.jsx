@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Rooms from './pages/Rooms';
+import Services from './pages/Services';
+import Offers from './pages/Offers';
 import Information from './pages/Information';
 import DetailTTDP from "./components/DetailTTDP";
 import TTDP from "./components/TTDP";
@@ -67,6 +69,8 @@ export default function App() {
               <Route path="/lich-su-dat-phong/:email" element={<LookupHistory />} />
               <Route path="/lookup" element={<Lookup />} />
               <Route path="/rooms" element={<Rooms />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/offers" element={<Offers />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/booking" element={<HotelBookingForm />} />
               <Route path="/booking-confirmation" element={<HotelBookingConfirmation />} />

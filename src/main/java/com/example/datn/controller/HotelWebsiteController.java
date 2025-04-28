@@ -8,6 +8,11 @@ import com.example.datn.dto.response.*;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.*;
 import com.example.datn.repository.DatPhongRepository;
+import com.example.datn.model.DichVu;
+import com.example.datn.model.HinhAnh;
+import com.example.datn.model.KhachHang;
+import com.example.datn.model.LoaiPhong;
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.*;
 import com.example.datn.service.IMPL.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -47,9 +52,10 @@ public class HotelWebsiteController {
     KhachHangServiceIMPL khachHangServiceIMPL;
     @Autowired
     XepPhongServiceIMPL xepPhongServiceIMPL;
-
     @Autowired
     DatPhongRepository datPhongRepository;
+    @Autowired
+    DichVuServiceIMPL dichVuServiceIMPL;
 
     @GetMapping("/loai-phong")
     public ResponseEntity<?> home(){
@@ -234,8 +240,6 @@ public class HotelWebsiteController {
         return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
     }
 
-
-
     // Những đường dẫn không yêu cầu xác thực/////////////////////
     @GetMapping("/tra-cuu/search-lich-su-dp")
     public void tracuuLichSuDP(@RequestParam("keyword") String keyword){
@@ -338,5 +342,9 @@ public class HotelWebsiteController {
         hotelWebsiteServiceImpl.emailDatPhongThanhCong(iddp);
     }
 
+    @GetMapping("/dich_vu")
+    public List<DichVu> dichVuHome() {
+        return dichVuServiceIMPL.getAll();
+    }
 }
 
