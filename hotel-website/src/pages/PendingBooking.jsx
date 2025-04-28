@@ -141,7 +141,7 @@ const PendingBooking = () => {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className="booking-container">
         <div className="results-section">
-          <h2>Danh sách tổ hợp phòng</h2>
+          <h2>Danh sách tổ hợp phòng 1</h2>
           {pendingData ? (
             <div className="room-option">
               <div className="room-header">

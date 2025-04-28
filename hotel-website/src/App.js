@@ -20,6 +20,9 @@ import HotelBookingForm from "./pages/HotelBookingForm";
 import HotelBookingConfirmation from "./pages/HotelBookingConfirmation";
 import PendingBooking from "./pages/PendingBooking";
 import HomePage from "./pages/HomePage";
+import Services from "./pages/Services";
+import Offers from "./pages/Offers";
+
 function App() {
   const UnauthorizedRoutes = () => {
     // const accessToken = localStorage.getItem("accessToken");
@@ -89,6 +92,8 @@ function App() {
         <Route path="/detail-ttdp/:idDatPhong" element={<DetailTTDP />} />
         <Route path="/history" element={<History />} />
         <Route path="/rooms" element={<Rooms />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/offers" element={<Offers />} />
         <Route path="/information" element={<Information />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />

@@ -6,6 +6,7 @@ import com.example.datn.dto.request.TTDPRequest;
 import com.example.datn.dto.request.ToHopRequest;
 import com.example.datn.dto.response.*;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
+import com.example.datn.model.DichVu;
 import com.example.datn.model.HinhAnh;
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.LoaiPhong;
@@ -47,6 +48,8 @@ public class HotelWebsiteController {
     KhachHangService khachHangService;
     @Autowired
     KhachHangServiceIMPL khachHangServiceIMPL;
+    @Autowired
+    DichVuServiceIMPL dichVuServiceIMPL;
 
     @GetMapping("/loai-phong")
     public ResponseEntity<?> home(){
@@ -208,5 +211,9 @@ public class HotelWebsiteController {
         return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
     }
 
+    @GetMapping("/dich_vu")
+    public List<DichVu> dichVuHome() {
+        return dichVuServiceIMPL.getAll();
+    }
 }
 
