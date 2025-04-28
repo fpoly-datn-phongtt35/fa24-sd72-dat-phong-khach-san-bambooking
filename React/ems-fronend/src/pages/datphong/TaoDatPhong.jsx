@@ -71,12 +71,12 @@ const TaoDatPhong = () => {
   const [searchForm, setSearchForm] = useState({
     ngayNhanPhong: dayjs().format("YYYY-MM-DD"),
     ngayTraPhong: dayjs().add(1, "day").format("YYYY-MM-DD"),
-    soNguoi: 1,
-    soPhong: 1,
+    soNguoi: "",
+    soPhong: "",
     idLoaiPhong: null,
   });
   const [availableRooms, setAvailableRooms] = useState([]);
-  const [loaiPhongs, setLoaiPhongs] = useState([]); // Thêm state cho dropdown
+  const [loaiPhongs, setLoaiPhongs] = useState([]);
   const [searchErrors, setSearchErrors] = useState({});
 
   // Lấy danh sách loại phòng khả dụng cho dropdown khi mở dialog
@@ -86,10 +86,7 @@ const TaoDatPhong = () => {
         try {
           const n = dayjs(searchForm.ngayNhanPhong).format("YYYY-MM-DD");
           const t = dayjs(searchForm.ngayTraPhong).format("YYYY-MM-DD");
-          const response = await getLoaiPhongKhaDungResponse(
-            n,
-            t
-          );
+          const response = await getLoaiPhongKhaDungResponse(n, t);
           setLoaiPhongs(response.data);
           console.log("LoaiPhongs response:", response.data);
         } catch (error) {
@@ -98,13 +95,7 @@ const TaoDatPhong = () => {
       };
       fetchLoaiPhongs();
     }
-  }, [
-    openSearchDialog,
-    searchForm.ngayNhanPhong,
-    searchForm.ngayTraPhong,
-    searchForm.soNguoi,
-    searchForm.soPhong,
-  ]);
+  }, [openSearchDialog, searchForm.ngayNhanPhong, searchForm.ngayTraPhong]);
 
   const fetchThongTinDatPhongById = async (datPhongId) => {
     try {
@@ -249,7 +240,7 @@ const TaoDatPhong = () => {
       if (!khachHangResponse || !khachHangResponse.data) {
         throw new Error("Không thể tạo khách hàng.");
       }
-      console.log(datPhong)
+      console.log(datPhong);
       const datPhongRequest = {
         id: datPhong.id,
         khachHang: khachHangResponse.data,
@@ -290,11 +281,11 @@ const TaoDatPhong = () => {
           );
         }
       }
-      EmailXacNhanDPThanhCong(datPhongRequest.id)
+      EmailXacNhanDPThanhCong(datPhongRequest.id);
       alert("Đặt phòng thành công!");
       navigate("/thong-tin-dat-phong-search");
     } catch (error) {
-       alert("Lỗi khi đặt phòng:", error);
+      alert("Lỗi khi đặt phòng:", error);
       console.error("Lỗi khi đặt phòng:", error);
       if (datPhongResponse && datPhongResponse.data) {
         try {
@@ -316,17 +307,32 @@ const TaoDatPhong = () => {
 
   const handleSearchRooms = async () => {
     const errors = {};
+    const today = dayjs().format("YYYY-MM-DD");
     if (!searchForm.ngayNhanPhong)
       errors.ngayNhanPhong = "Vui lòng chọn ngày nhận phòng";
+    else if (searchForm.ngayNhanPhong < today)
+      errors.ngayNhanPhong = "Ngày nhận phòng không được trước ngày hiện tại";
     if (!searchForm.ngayTraPhong)
       errors.ngayTraPhong = "Vui lòng chọn ngày trả phòng";
-    if (
-      dayjs(searchForm.ngayTraPhong).isBefore(dayjs(searchForm.ngayNhanPhong))
-    ) {
+    else if (
+      dayjs(searchForm.ngayTraPhong).isBefore(
+        dayjs(searchForm.ngayNhanPhong)
+      ) ||
+      dayjs(searchForm.ngayTraPhong).isSame(dayjs(searchForm.ngayNhanPhong))
+    )
       errors.ngayTraPhong = "Ngày trả phòng phải sau ngày nhận phòng";
-    }
-    if (searchForm.soNguoi < 1) errors.soNguoi = "Số người phải lớn hơn 0";
-    if (searchForm.soPhong < 1) errors.soPhong = "Số phòng phải lớn hơn 0";
+    if (
+      !searchForm.soNguoi ||
+      searchForm.soNguoi <= 0 ||
+      !Number.isInteger(Number(searchForm.soNguoi))
+    )
+      errors.soNguoi = "Số người phải là số nguyên lớn hơn 0";
+    if (
+      !searchForm.soPhong ||
+      searchForm.soPhong <= 0 ||
+      !Number.isInteger(Number(searchForm.soPhong))
+    )
+      errors.soPhong = "Số phòng phải là số nguyên lớn hơn 0";
 
     setSearchErrors(errors);
     if (Object.keys(errors).length > 0) return;
@@ -337,15 +343,15 @@ const TaoDatPhong = () => {
       const response = await getLPKDRL(
         n,
         t,
-        searchForm.soNguoi,
-        searchForm.soPhong,
+        Number(searchForm.soNguoi),
+        Number(searchForm.soPhong),
         searchForm.idLoaiPhong
       );
       console.log("Search rooms request:", {
         n,
         t,
-        soNguoi: searchForm.soNguoi,
-        soPhong: searchForm.soPhong,
+        soNguoi: Number(searchForm.soNguoi),
+        soPhong: Number(searchForm.soPhong),
         idLoaiPhong: searchForm.idLoaiPhong,
       });
       console.log("Search rooms response:", response.data);
@@ -362,7 +368,7 @@ const TaoDatPhong = () => {
   };
 
   const handleAddRoom = async (room) => {
-    if (room.soPhongKhaDung < searchForm.soPhong) {
+    if (room.soPhongKhaDung < Number(searchForm.soPhong)) {
       alert("Số phòng khả dụng không đủ!");
       return;
     }
@@ -376,11 +382,11 @@ const TaoDatPhong = () => {
       }
 
       if (!currentDatPhong) {
-          throw new Error("Không tồn tại đặt phòng");
+        throw new Error("Không tồn tại đặt phòng");
       }
       console.log(room);
       const addedRooms = [];
-      for (let i = 0; i < searchForm.soPhong; i++) {
+      for (let i = 0; i < Number(searchForm.soPhong); i++) {
         const newRoom = {
           datPhong: datPhong,
           idLoaiPhong: room.id,
@@ -412,8 +418,8 @@ const TaoDatPhong = () => {
       setSearchForm({
         ngayNhanPhong: dayjs().format("YYYY-MM-DD"),
         ngayTraPhong: dayjs().add(1, "day").format("YYYY-MM-DD"),
-        soNguoi: 1,
-        soPhong: 1,
+        soNguoi: "",
+        soPhong: "",
         idLoaiPhong: null,
       });
     } catch (error) {
@@ -451,7 +457,13 @@ const TaoDatPhong = () => {
   };
 
   const handleSearchInputChange = (field, value) => {
-    setSearchForm({ ...searchForm, [field]: value });
+    if (field === "soNguoi" || field === "soPhong") {
+      // Chỉ cho phép số nguyên dương, bỏ qua các ký tự không phải số
+      const numericValue = value.replace(/[^0-9]/g, "");
+      setSearchForm({ ...searchForm, [field]: numericValue });
+    } else {
+      setSearchForm({ ...searchForm, [field]: value });
+    }
     setSearchErrors({});
   };
 
@@ -673,6 +685,7 @@ const TaoDatPhong = () => {
                 error={!!searchErrors.ngayNhanPhong}
                 helperText={searchErrors.ngayNhanPhong}
                 InputLabelProps={{ shrink: true }}
+                inputProps={{ min: dayjs().format("YYYY-MM-DD") }}
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -687,49 +700,40 @@ const TaoDatPhong = () => {
                 error={!!searchErrors.ngayTraPhong}
                 helperText={searchErrors.ngayTraPhong}
                 InputLabelProps={{ shrink: true }}
+                inputProps={{
+                  min: dayjs(searchForm.ngayNhanPhong)
+                    .add(1, "day")
+                    .format("YYYY-MM-DD"),
+                }}
               />
             </Grid>
             <Grid item xs={12} md={6}>
-              <FormControl fullWidth error={!!searchErrors.soNguoi}>
-                <InputLabel>Số Người</InputLabel>
-                <Select
-                  value={searchForm.soNguoi}
-                  onChange={(e) =>
-                    handleSearchInputChange("soNguoi", e.target.value)
-                  }
-                  label="Số Người"
-                >
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <MenuItem key={num} value={num}>
-                      {num}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {searchErrors.soNguoi && (
-                  <Typography color="error">{searchErrors.soNguoi}</Typography>
-                )}
-              </FormControl>
+              <TextField
+                fullWidth
+                label="Số Người"
+                type="number"
+                value={searchForm.soNguoi}
+                onChange={(e) =>
+                  handleSearchInputChange("soNguoi", e.target.value)
+                }
+                error={!!searchErrors.soNguoi}
+                helperText={searchErrors.soNguoi}
+                InputProps={{ inputProps: { min: 1 } }}
+              />
             </Grid>
             <Grid item xs={12} md={6}>
-              <FormControl fullWidth error={!!searchErrors.soPhong}>
-                <InputLabel>Số Phòng</InputLabel>
-                <Select
-                  value={searchForm.soPhong}
-                  onChange={(e) =>
-                    handleSearchInputChange("soPhong", e.target.value)
-                  }
-                  label="Số Phòng"
-                >
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <MenuItem key={num} value={num}>
-                      {num}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {searchErrors.soPhong && (
-                  <Typography color="error">{searchErrors.soPhong}</Typography>
-                )}
-              </FormControl>
+              <TextField
+                fullWidth
+                label="Số Phòng"
+                type="number"
+                value={searchForm.soPhong}
+                onChange={(e) =>
+                  handleSearchInputChange("soPhong", e.target.value)
+                }
+                error={!!searchErrors.soPhong}
+                helperText={searchErrors.soPhong}
+                InputProps={{ inputProps: { min: 1 } }}
+              />
             </Grid>
             <Grid item xs={12} md={6}>
               <FormControl fullWidth>
@@ -784,7 +788,9 @@ const TaoDatPhong = () => {
                           variant="outlined"
                           color="primary"
                           onClick={() => handleAddRoom(room)}
-                          disabled={room.soPhongKhaDung < searchForm.soPhong}
+                          disabled={
+                            room.soPhongKhaDung < Number(searchForm.soPhong)
+                          }
                         >
                           Thêm
                         </Button>
