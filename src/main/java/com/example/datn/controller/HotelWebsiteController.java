@@ -164,6 +164,11 @@ public class HotelWebsiteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(khachHangService.updateKhachHangDatPhong(request));
     }
 
+    @PutMapping("/kh/update-kh")
+    public ResponseEntity<?> updateKhachHang(@RequestBody KhachHangDatPhongRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(hotelWebsiteServiceImpl.updateKhachHang(request));
+    }
+
     @PutMapping("/dp/cap-nhat")
     public ResponseEntity<?> updateDatPhong(@RequestBody DatPhongRequest datPhongRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(datPhongServiceIMPL.updateDatPhong(datPhongRequest));
@@ -292,6 +297,11 @@ public class HotelWebsiteController {
     @PostMapping("/dp/gui-email-xac-nhan-dp")
     public void guiEmailXacNhandp(@RequestBody DatPhongRequest datPhongRequest){
          hotelWebsiteServiceImpl.guiEmailXacNhandp(datPhongRequest);
+    }
+
+    @GetMapping("/dp/gui-email-xac-nhan-dp-sau-UD-KH")
+    public void guiEmailXacNhandpsauUDKH(@RequestParam("idDatPhong") Integer idDatPhong){
+        hotelWebsiteServiceImpl.guiEmailXacNhandpsauUDKhachHang(idDatPhong);
     }
 
     @GetMapping("/dp/xac-nhan-dp")

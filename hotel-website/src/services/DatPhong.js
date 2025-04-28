@@ -19,8 +19,10 @@ const apiToHopLoaiPhong =
   const apigetLSDPbyEmail = "http://localhost:8080/api/tra-cuu/lich-su-dp"
 
   const apiGuiEmailXacNhan= "http://localhost:8080/api/dp/gui-email-xac-nhan-dp"
+  const apiGuiEmailXacNhanSauUDKH= "http://localhost:8080/api/dp/gui-email-xac-nhan-dp-sau-UD-KH"
   const apiXacNhanDP= "http://localhost:8080/api/dp/xac-nhan-dp"
   const apiTBDatPhongThanhCong = "http://localhost:8080/api/dp/email-dp-thanh-cong";
+  const apiUpdateKH = "http://localhost:8080/api/kh/update-kh";
 
 export const getDatPhongbyTDN = (tenDangNhap,keyword,ngayNhanPhong,ngayTraPhong) => {
     return authorizedAxiosInstance.get(apiGetDP, {
@@ -87,6 +89,11 @@ export const addThongTinDatPhong = (TTDPRequest) => {
 export const SuaKhachHangDatPhong = (khachHangRequest) => {
   return authorizedAxiosInstance.put(apiUpdateKHDP, khachHangRequest);
 };
+
+export const UpdateKH = (khachHangRequest) => {
+  return authorizedAxiosInstance.put(apiUpdateKH, khachHangRequest);
+};
+
 
 export const CapNhatDatPhong = (DatPhongRequest) => {
   return authorizedAxiosInstance.put(apiDPUpdate, DatPhongRequest);
@@ -171,6 +178,14 @@ export const EmailXacNhanDPThanhCong = (iddp) => {
   return authorizedAxiosInstance.get(apiTBDatPhongThanhCong, {
       params: {
         iddp: iddp
+      }
+  });
+};
+
+export const GuiEmailXacNhanDPSauUDKH = (idDP) => {
+  return authorizedAxiosInstance.get(apiGuiEmailXacNhanSauUDKH, {
+      params: {
+          idDatPhong: idDP
       }
   });
 };

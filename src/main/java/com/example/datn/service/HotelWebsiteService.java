@@ -34,4 +34,9 @@ public interface HotelWebsiteService {
     boolean xacNhanDP(Integer iddp);
 
      void emailDatPhongThanhCong(Integer iddp);
+
+    void guiEmailXacNhandpsauUDKhachHang(Integer iddp);
+
+
+    KhachHang updateKhachHang(KhachHangDatPhongRequest request);
 }
