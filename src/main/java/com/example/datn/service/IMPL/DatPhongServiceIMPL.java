@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -222,5 +223,10 @@ public class DatPhongServiceIMPL implements DatPhongService {
             thongTinDatPhongRepository.save(ttdp);
         }
         return datPhongRepository.findByMaDatPhong(maDatPhong);
+    }
+
+    public void checkDatPhongConfirmed(){
+        List<String> trangThai = Arrays.asList("Chưa xác nhận");    
+        List<DatPhong> listDP = datPhongRepository.findDatPhongByTrangThais(trangThai,null);
     }
 }

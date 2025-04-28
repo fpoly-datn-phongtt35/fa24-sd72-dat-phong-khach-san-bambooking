@@ -38,6 +38,7 @@ import {
   changeAllConditionRoom,
   huyTTDP,
   addThongTinDatPhong,
+  updateThongTinDatPhong,
 } from "../../services/TTDP";
 import {
   findDatPhongByMaDatPhong,
@@ -90,6 +91,7 @@ const ChiTietDatPhong = () => {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [loaiPhongs, setLoaiPhongs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isUpdateAllNotesChecked, setIsUpdateAllNotesChecked] = useState(false);
 
   const location = useLocation();
   const { maDatPhong } = location.state || {};
@@ -187,14 +189,55 @@ const ChiTietDatPhong = () => {
     );
   };
 
-  const updateDatPhong = () => {
+  const updateDatPhong = async () => {
     if (!datPhong) return;
-    CapNhatDatPhong(datPhong)
-      .then(() => showSnackbar("Lưu thành công", "success"))
-      .catch((error) => {
-        console.error(error);
-        showSnackbar("Không thể cập nhật đặt phòng", "error");
-      });
+
+    try {
+      await CapNhatDatPhong(datPhong);
+
+      if (isUpdateAllNotesChecked) {
+        const confirm = window.confirm(
+          "Bạn có chắc chắn muốn cập nhật ghi chú này cho tất cả thông tin đặt phòng không?"
+        );
+        if (confirm) {
+          const ttdpsToUpdate = thongTinDatPhong.filter(
+            (ttdp) => ttdp.trangThai !== "Đã hủy"
+          );
+          console.log("ttdpsToUpdate", ttdpsToUpdate);
+
+          await Promise.all(
+            ttdpsToUpdate.map((ttdp) => {
+              if (!ttdp.id || !ttdp.datPhong || !ttdp.loaiPhong) {
+                console.log("Skipping update for invalid TTDP:", ttdp);
+                return Promise.resolve();
+              }
+              return updateThongTinDatPhong({
+                id: ttdp.id,
+                datPhong: ttdp.datPhong,
+                idLoaiPhong: ttdp.loaiPhong.id,
+                maThongTinDatPhong: ttdp.maThongTinDatPhong,
+                ngayNhanPhong: ttdp.ngayNhanPhong,
+                ngayTraPhong: ttdp.ngayTraPhong,
+                soNguoi: ttdp.soNguoi,
+                giaDat: ttdp.giaDat,
+                ghiChu: datPhong.ghiChu || "",
+                trangThai: ttdp.trangThai,
+              });
+            })
+          );
+          showSnackbar(
+            "Cập nhật ghi chú cho tất cả thông tin đặt phòng thành công",
+            "success"
+          );
+        }
+      }
+
+      showSnackbar("Lưu thông tin thành công", "success");
+      getDetailDatPhong(maDatPhong);
+    } catch (error) {
+      console.error(error);
+      showSnackbar("Không thể cập nhật thông tin", "error");
+    }
   };
 
   const handleHuyTTDP = (ttdp) => {
@@ -219,7 +262,7 @@ const ChiTietDatPhong = () => {
 
   const handleChangeAllConditionRoom = async () => {
     if (!datPhong?.id) {
-      showSnackbar("Không tìm thấy đơn đặt phòng.", "error");
+      showSnackbar("Không tìm thấy társadal đặt phòng.", "error");
       return;
     }
     const confirm = window.confirm(
@@ -474,6 +517,7 @@ const ChiTietDatPhong = () => {
           trangThai: "Đang ở",
         };
 
+        await check生日, setHours(14, 0, 0, 0);
         await checkIn(xepPhongRequest);
         showSnackbar("Check-in thành công!", "success");
 
@@ -644,6 +688,18 @@ const ChiTietDatPhong = () => {
                 </Typography>
               </Box>
               <Divider sx={{ mb: 2 }} />
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Checkbox
+                  checked={isUpdateAllNotesChecked}
+                  onChange={(e) =>
+                    setIsUpdateAllNotesChecked(e.target.checked)
+                  }
+                  disabled={!datPhong}
+                />
+                <Typography variant="body2">
+                  Cập nhật ghi chú cho tất cả thông tin đặt phòng
+                </Typography>
+              </Box>
               <TextField
                 fullWidth
                 multiline
