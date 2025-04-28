@@ -226,7 +226,11 @@ public class DatPhongServiceIMPL implements DatPhongService {
     }
 
     public void checkDatPhongConfirmed(){
-        List<String> trangThai = Arrays.asList("Chưa xác nhận");    
+        List<String> trangThai = Arrays.asList("Chưa xác nhận");
         List<DatPhong> listDP = datPhongRepository.findDatPhongByTrangThais(trangThai,null);
+        for(DatPhong dp: listDP){
+            dp.setTrangThai("Đã hủy do không xác nhận");
+            datPhongRepository.save(dp);
+        }
     }
 }
