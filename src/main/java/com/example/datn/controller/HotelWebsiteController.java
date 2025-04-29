@@ -298,9 +298,9 @@ public class HotelWebsiteController {
         return ResponseEntity.ok( hotelWebsiteServiceImpl.getHDByidDatPhong(idDatPhong));
     }
 
-    @PostMapping("/dp/gui-email-xac-nhan-dp")
-    public void guiEmailXacNhandp(@RequestBody DatPhongRequest datPhongRequest){
-         hotelWebsiteServiceImpl.guiEmailXacNhandp(datPhongRequest);
+    @GetMapping("/dp/gui-email-xac-nhan-dp")
+    public void guiEmailXacNhandp(@RequestParam("idDatPhong") Integer idDatPhong){
+         hotelWebsiteServiceImpl.guiEmailXacNhandp(idDatPhong);
     }
 
     @GetMapping("/dp/gui-email-xac-nhan-dp-sau-UD-KH")
@@ -345,6 +345,26 @@ public class HotelWebsiteController {
     @GetMapping("/dich_vu")
     public List<DichVu> dichVuHome() {
         return dichVuServiceIMPL.getAll();
+    }
+
+    @GetMapping("/ttdp/TTDP-Co-The-Huy")
+    public ResponseEntity<?> dsTTDPCoTheHuy(@RequestParam("idDatPhong") Integer iddp) {
+        return ResponseEntity.ok( hotelWebsiteServiceImpl.dsTTDPcothehuy(iddp));
+    }
+
+    @GetMapping("/dp/huy-dat-phong")
+    public void huyDP(@RequestParam("idDatPhong") Integer iddp) {
+        hotelWebsiteServiceImpl.huyDPandTTDP(iddp);
+    }
+
+    @GetMapping("/ttdp/huy-ttdp2")
+    public void huyTTDP2(@RequestParam("idTTDP") Integer idTTDP) {
+        hotelWebsiteServiceImpl.huyTTDP(idTTDP);
+    }
+
+    @GetMapping("/dp/email-xac-nhan-huy-dp")
+    public void emailXacNhanHuydp(@RequestParam("idDatPhong") Integer idDatPhong){
+        hotelWebsiteServiceImpl.guiEmailXacNhanHuyDP(idDatPhong);
     }
 }
 

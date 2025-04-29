@@ -10,12 +10,25 @@ cloudinary:
   api_key: ${API_KEY:734735925733542}
   api_secret: ${API_SECRET:0rS6gHAGgFhyINfAYJyo9vAu644}
 
+#spring:
+#  mail:
+#    host: smtp.gmail.com
+#    port: 587
+#    username: ${MAIL_USERNAME:DUMMY-EMAIL}
+#    password: ${MAIL_PASSWORD:DUMMY-PASSWORD-EMAIL}
+#    properties:
+#      mail:
+#        smtp:
+#          auth: true
+#          starttls:
+#            enable: true
+
 spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${MAIL_USERNAME:DUMMY-EMAIL}
-    password: ${MAIL_PASSWORD:DUMMY-PASSWORD-EMAIL}
+    username: builong1710@gmail.com
+    password: szhr dbap ybbx tnmq
     properties:
       mail:
         smtp:

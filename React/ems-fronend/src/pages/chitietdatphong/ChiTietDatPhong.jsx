@@ -22,6 +22,11 @@ import {
   Alert,
   Snackbar,
   Tooltip,
+  Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -46,8 +51,10 @@ import NotesIcon from "@mui/icons-material/Notes";
 import HotelIcon from "@mui/icons-material/Hotel";
 import InfoIcon from "@mui/icons-material/Info";
 import PublishedWithChangesIcon from "@mui/icons-material/PublishedWithChanges";
+import EditIcon from "@mui/icons-material/Edit";
 import { ThemPhuThu } from "../../services/PhuThuService";
 import { huyTTDP } from "../../services/TTDP";
+import { SuaTTKH } from "../../services/KhachHangService";
 import { hienThi } from "../../services/KhachHangCheckin";
 import { PublishedWithChanges } from "@mui/icons-material";
 
@@ -64,6 +71,19 @@ const ChiTietDatPhong = () => {
     severity: "success",
   });
   const [isChangeButtonDisabled, setIsChangeButtonDisabled] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({
+    ho: "",
+    ten: "",
+    sdt: "",
+    email: "",
+  });
+  const [errors, setErrors] = useState({
+    ho: "",
+    ten: "",
+    sdt: "",
+    email: "",
+  });
   const location = useLocation();
   const { maDatPhong } = location.state || {};
   const navigate = useNavigate();
@@ -97,9 +117,8 @@ const ChiTietDatPhong = () => {
 
   const grTTDPs = (ttdps) => {
     const grouped = ttdps.reduce((acc, ttdp) => {
-      // Nếu trạng thái là "Đã xếp", tạo một nhóm riêng cho mỗi TTDP
       if (ttdp.trangThai === "Đã xếp") {
-        const key = `da_xep_${ttdp.id}`; // Tạo key duy nhất cho mỗi TTDP "Đã xếp"
+        const key = `da_xep_${ttdp.id}`;
         acc[key] = {
           loaiPhong: ttdp.loaiPhong,
           soNguoi: ttdp.soNguoi,
@@ -109,11 +128,10 @@ const ChiTietDatPhong = () => {
           trangThai: ttdp.trangThai,
           maThongTinDatPhong: ttdp.maThongTinDatPhong,
           id: ttdp.id,
-          quantity: 1, // Số lượng luôn là 1 vì không gộp
-          originalTTDPs: [ttdp], // Chỉ chứa chính TTDP này
+          quantity: 1,
+          originalTTDPs: [ttdp],
         };
       } else {
-        // Các trạng thái khác thì gộp như trước
         const key = `${ttdp.loaiPhong.id}_${ttdp.ngayNhanPhong}_${ttdp.ngayTraPhong}`;
         if (!acc[key]) {
           acc[key] = {
@@ -232,6 +250,85 @@ const ChiTietDatPhong = () => {
     }
   };
 
+  const handleOpenEditModal = () => {
+    setEditForm({
+      ho: datPhong?.khachHang?.ho || "",
+      ten: datPhong?.khachHang?.ten || "",
+      sdt: datPhong?.khachHang?.sdt || "",
+      email: datPhong?.khachHang?.email || "",
+    });
+    setErrors({ ho: "", ten: "", sdt: "", email: "" });
+    setOpenEditModal(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setOpenEditModal(false);
+    setErrors({ ho: "", ten: "", sdt: "", email: "" });
+  };
+
+  const handleEditFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditForm((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { ho: "", ten: "", sdt: "", email: "" };
+
+    if (!editForm.ho.trim()) {
+      newErrors.ho = "Họ không được để trống";
+      isValid = false;
+    }
+    if (!editForm.ten.trim()) {
+      newErrors.ten = "Tên không được để trống";
+      isValid = false;
+    }
+    if (!editForm.sdt.trim()) {
+      newErrors.sdt = "Số điện thoại không được để trống";
+      isValid = false;
+    } else if (!/^\d{10}$/.test(editForm.sdt.trim())) {
+      newErrors.sdt = "Số điện thoại phải gồm 10 chữ số";
+      isValid = false;
+    }
+    if (!editForm.email.trim()) {
+      newErrors.email = "Email không được để trống";
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editForm.email.trim())) {
+      newErrors.email = "Email không đúng định dạng";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmitEdit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      const khachHangData = {
+        id: datPhong.khachHang.id,
+        ho: editForm.ho,
+        ten: editForm.ten,
+        sdt: editForm.sdt,
+        email: editForm.email,
+      };
+      await SuaTTKH(khachHangData);
+      setDatPhong((prev) => ({
+        ...prev,
+        khachHang: { ...prev.khachHang, ...khachHangData },
+      }));
+      showSnackbar("Cập nhật thông tin khách hàng thành công", "success");
+      handleCloseEditModal();
+    } catch (error) {
+      console.error(error);
+      showSnackbar("Không thể cập nhật thông tin khách hàng", "error");
+    }
+  };
+
   useEffect(() => {
     if (Array.isArray(thongTinDatPhong) && thongTinDatPhong.length > 0) {
       thongTinDatPhong.forEach((ttdp) => {
@@ -274,6 +371,7 @@ const ChiTietDatPhong = () => {
       }
     });
   };
+
   const handleTTDPClick = (maThongTinDatPhong) => {
     navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
   };
@@ -403,11 +501,18 @@ const ChiTietDatPhong = () => {
         <Grid item xs={12} md={4}>
           <Card elevation={3} sx={{ height: "100%" }}>
             <CardContent>
-              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <PersonIcon color="primary" sx={{ mr: 1 }} />
-                <Typography variant="h6" color="primary">
-                  Thông tin khách hàng
-                </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2, justifyContent: "space-between" }}>
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <PersonIcon color="primary" sx={{ mr: 1 }} />
+                  <Typography variant="h6" color="primary">
+                    Thông tin khách hàng
+                  </Typography>
+                </Box>
+                <Tooltip title="Sửa thông tin khách hàng">
+                  <IconButton color="primary" onClick={handleOpenEditModal}>
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
@@ -507,6 +612,69 @@ const ChiTietDatPhong = () => {
           </Card>
         </Grid>
       </Grid>
+
+      {/* Modal chỉnh sửa thông tin khách hàng */}
+      <Dialog open={openEditModal} onClose={handleCloseEditModal}>
+        <DialogTitle>Sửa thông tin khách hàng</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Họ"
+            name="ho"
+            value={editForm.ho}
+            onChange={handleEditFormChange}
+            margin="normal"
+            variant="outlined"
+            error={!!errors.ho}
+            helperText={errors.ho}
+            required
+          />
+          <TextField
+            fullWidth
+            label="Tên"
+            name="ten"
+            value={editForm.ten}
+            onChange={handleEditFormChange}
+            margin="normal"
+            variant="outlined"
+            error={!!errors.ten}
+            helperText={errors.ten}
+            required
+          />
+          <TextField
+            fullWidth
+            label="Số điện thoại"
+            name="sdt"
+            value={editForm.sdt}
+            onChange={handleEditFormChange}
+            margin="normal"
+            variant="outlined"
+            error={!!errors.sdt}
+            helperText={errors.sdt}
+            required
+          />
+          <TextField
+            fullWidth
+            label="Email"
+            name="email"
+            value={editForm.email}
+            onChange={handleEditFormChange}
+            margin="normal"
+            variant="outlined"
+            error={!!errors.email}
+            helper helps={errors.email}
+            required
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEditModal} color="secondary">
+            Hủy
+          </Button>
+          <Button onClick={handleSubmitEdit} color="primary" variant="contained">
+            Lưu
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Box sx={{ mb: 2 }}>
         <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
@@ -695,10 +863,8 @@ const ChiTietDatPhong = () => {
                             </IconButton>
                           </Tooltip>
                         )}
-
                         {ttdp.trangThai === "Đã xếp" && (
                           <Tooltip title="Chi tiết thông tin đặt phòng">
-                            {" "}
                             <IconButton
                               color="success"
                               onClick={() =>
@@ -711,9 +877,8 @@ const ChiTietDatPhong = () => {
                                 ttdp.trangThai === "Đang đặt phòng"
                               }
                             >
-                              {" "}
-                              <InfoIcon />{" "}
-                            </IconButton>{" "}
+                              <InfoIcon />
+                            </IconButton>
                           </Tooltip>
                         )}
                         {(ttdp.trangThai === "Đang đặt phòng" ||
