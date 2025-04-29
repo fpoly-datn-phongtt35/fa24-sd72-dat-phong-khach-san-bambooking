@@ -1,6 +1,7 @@
 package com.example.datn.repository;
 
 import com.example.datn.dto.response.TTDPResponse;
+import com.example.datn.model.DatPhong;
 import com.example.datn.model.ThongTinDatPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,6 +61,12 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.id = :id")
     ThongTinDatPhong getTTDPById(@Param("id") Integer id);
 
+    @Query("SELECT ttdp FROM ThongTinDatPhong ttdp " +
+           "JOIN XepPhong xp ON ttdp.id = xp.thongTinDatPhong.id " +
+           "JOIN Phong p ON xp.phong.id = p.id " +
+           "WHERE xp.id = :idXepPhong AND ttdp.loaiPhong.id = p.loaiPhong.id")
+    ThongTinDatPhong getTTDPByIdAndLoaiPhong(@Param("idXepPhong") Integer idXepPhong);
+
     @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.maThongTinDatPhong = :maTTDP")
     ThongTinDatPhong getTTDPByMa(@Param("maTTDP") String maTTDP);
 
@@ -78,10 +85,8 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp ")
     List<ThongTinDatPhong> getAllByidDatPhong(@Param("iddp") Integer iddp);
 
-    @Query("SELECT CASE WHEN COUNT(ttdp) = SUM(CASE WHEN ttdp.trangThai = 'Đã trả phòng' THEN 1 ELSE 0 END) THEN true ELSE false END " +
-           "FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :datPhongId")
-    boolean areAllThongTinDatPhongCheckedOut(@Param("datPhongId") Integer datPhongId);
-
     List<ThongTinDatPhong> findByDatPhong_Id(Integer datPhongId);
+
+    List<ThongTinDatPhong> findByDatPhong(DatPhong datPhong);
 }
 

@@ -31,7 +31,6 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
     DichVuSuDungRepository dichVuSuDungRepository;
     ThongTinHoaDonMapper thongTinHoaDonMapper;
     KiemTraVatTuRepository kiemTraVatTuRepository;
-    VatTuLoaiPhongRepository vatTuLoaiPhongRepository;
     PhuThuRepository phuThuRepository;
     ThongTinDatPhongRepository thongTinDatPhongRepository;
     private final XepPhongRepository xepPhongRepository;
@@ -172,7 +171,7 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         XepPhong xepPhong = xepPhongRepository.findById(traPhong.getXepPhong().getId())
                 .orElseThrow(()-> new EntityNotFountException("Không tìm thấy idXepPhong: " + traPhong.getXepPhong()));
 
-        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById(xepPhong.getId());
+        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByIdAndLoaiPhong(xepPhong.getId());
         if (ttdp == null) {
             log.error("ThongTinDatPhong là null cho XepPhong ID: {}", xepPhong.getId());
             throw new IllegalArgumentException("ThongTinDatPhong không được null.");
