@@ -59,7 +59,6 @@ const QuanLyDatPhong = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [showXepPhongModal, setShowXepPhongModal] = useState(false);
-  // Trạng thái cho dialog nhập ghi chú
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [cancelNote, setCancelNote] = useState("");
   const [selectedDatPhong, setSelectedDatPhong] = useState(null);
@@ -124,7 +123,7 @@ const QuanLyDatPhong = () => {
 
   const handleOpenCancelDialog = (dp) => {
     setSelectedDatPhong(dp);
-    setCancelNote(""); // Reset ghi chú
+    setCancelNote("");
     setOpenCancelDialog(true);
   };
 
@@ -147,7 +146,6 @@ const QuanLyDatPhong = () => {
     ) {
       setActionLoading(true);
       try {
-        // Cập nhật ghi chú và trạng thái
         const datPhongRequest = {
           id: dp.id,
           maDatPhong: dp.maDatPhong,
@@ -161,10 +159,8 @@ const QuanLyDatPhong = () => {
         };
         await CapNhatDatPhong(datPhongRequest);
 
-        // Gọi API hủy đặt phòng
         await huyDatPhong(dp.maDatPhong);
 
-        // Làm mới danh sách
         searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
         alert("Hủy đặt phòng thành công!");
         handleCloseCancelDialog();

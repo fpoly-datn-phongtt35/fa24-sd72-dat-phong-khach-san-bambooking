@@ -126,8 +126,9 @@ const ChiTietDatPhong = () => {
 
   const grTTDPs = (ttdps) => {
     const grouped = ttdps.reduce((acc, ttdp) => {
-      if (ttdp.trangThai === "Đã xếp") {
-        const key = `da_xep_${ttdp.id}`;
+      // Tạo key gộp dựa trên loaiPhong.id, ngayNhanPhong, ngayTraPhong và trangThai
+      const key = `${ttdp.loaiPhong.id}_${ttdp.ngayNhanPhong}_${ttdp.ngayTraPhong}_${ttdp.trangThai}`;
+      if (!acc[key]) {
         acc[key] = {
           loaiPhong: ttdp.loaiPhong,
           soNguoi: ttdp.soNguoi,
@@ -137,28 +138,12 @@ const ChiTietDatPhong = () => {
           trangThai: ttdp.trangThai,
           maThongTinDatPhong: ttdp.maThongTinDatPhong,
           id: ttdp.id,
-          quantity: 1,
-          originalTTDPs: [ttdp],
+          quantity: 0,
+          originalTTDPs: [],
         };
-      } else {
-        const key = `${ttdp.loaiPhong.id}_${ttdp.ngayNhanPhong}_${ttdp.ngayTraPhong}`;
-        if (!acc[key]) {
-          acc[key] = {
-            loaiPhong: ttdp.loaiPhong,
-            soNguoi: ttdp.soNguoi,
-            ngayNhanPhong: ttdp.ngayNhanPhong,
-            ngayTraPhong: ttdp.ngayTraPhong,
-            giaDat: ttdp.giaDat,
-            trangThai: ttdp.trangThai,
-            maThongTinDatPhong: ttdp.maThongTinDatPhong,
-            id: ttdp.id,
-            quantity: 0,
-            originalTTDPs: [],
-          };
-        }
-        acc[key].quantity += 1;
-        acc[key].originalTTDPs.push(ttdp);
       }
+      acc[key].quantity += 1;
+      acc[key].originalTTDPs.push(ttdp);
       return acc;
     }, {});
     setGrTTDP(Object.values(grouped));
@@ -248,9 +233,27 @@ const ChiTietDatPhong = () => {
       Promise.all(
         ttdp.originalTTDPs.map((item) => huyTTDP(item.maThongTinDatPhong))
       )
-        .then(() => {
+        .then(async () => {
           showSnackbar("Hủy thành công", "success");
-          getDetailDatPhong(maDatPhong);
+          // Lấy lại danh sách TTDP mới
+          const updatedResponse = await findTTDPByMaDatPhong(maDatPhong);
+          const updatedTTDPs = updatedResponse.data || [];
+          setThongTinDatPhong(updatedTTDPs);
+          grTTDPs(updatedTTDPs);
+
+          // Tính lại tổng giá
+          const newTotalPrice = calculateTotalPrice(updatedTTDPs);
+
+          // Cập nhật datPhong
+          const updatedDatPhong = {
+            ...datPhong,
+            tongTien: newTotalPrice,
+            soPhong: updatedTTDPs.filter((ttdp) => ttdp.trangThai !== "Đã hủy")
+              .length,
+          };
+          await CapNhatDatPhong(updatedDatPhong);
+          setDatPhong(updatedDatPhong);
+
           setSelectedTTDPs([]);
         })
         .catch((error) => {
@@ -262,7 +265,7 @@ const ChiTietDatPhong = () => {
 
   const handleChangeAllConditionRoom = async () => {
     if (!datPhong?.id) {
-      showSnackbar("Không tìm thấy társadal đặt phòng.", "error");
+      showSnackbar("Không tìm thấy thông tin đặt phòng.", "error");
       return;
     }
     const confirm = window.confirm(
@@ -372,20 +375,24 @@ const ChiTietDatPhong = () => {
         addedRooms.push(response.data);
       }
 
-      const allTTDPs = [...(thongTinDatPhong || []), ...addedRooms];
-      const newTotalPrice = calculateTotalPrice(allTTDPs);
+      // Lấy lại danh sách TTDP mới
+      const updatedResponse = await findTTDPByMaDatPhong(maDatPhong);
+      const updatedTTDPs = updatedResponse.data || [];
+      setThongTinDatPhong(updatedTTDPs);
+      grTTDPs(updatedTTDPs);
 
+      // Tính lại tổng giá
+      const newTotalPrice = calculateTotalPrice(updatedTTDPs);
+
+      // Cập nhật datPhong
       const updatedDatPhong = {
         ...datPhong,
-        soPhong: (datPhong.soPhong || 0) + searchForm.soPhong,
+        soPhong: updatedTTDPs.filter((ttdp) => ttdp.trangThai !== "Đã hủy")
+          .length,
         tongTien: newTotalPrice,
       };
       await CapNhatDatPhong(updatedDatPhong);
       setDatPhong(updatedDatPhong);
-
-      const updatedResponse = await findTTDPByMaDatPhong(maDatPhong);
-      setThongTinDatPhong(updatedResponse.data || []);
-      grTTDPs(updatedResponse.data || []);
 
       setOpenSearchDialog(false);
       setAvailableRooms([]);
@@ -443,16 +450,18 @@ const ChiTietDatPhong = () => {
 
   const calculateTotalPrice = (ttdps) => {
     if (!Array.isArray(ttdps)) return 0;
-    return ttdps.reduce((total, ttdp) => {
-      const days = Math.max(
-        Math.ceil(
-          (new Date(ttdp.ngayTraPhong) - new Date(ttdp.ngayNhanPhong)) /
-            (1000 * 60 * 60 * 24)
-        ),
-        1
-      );
-      return total + ttdp.giaDat * days;
-    }, 0);
+    return ttdps
+      .filter((ttdp) => ttdp.trangThai !== "Đã hủy")
+      .reduce((total, ttdp) => {
+        const days = Math.max(
+          Math.ceil(
+            (new Date(ttdp.ngayTraPhong) - new Date(ttdp.ngayNhanPhong)) /
+              (1000 * 60 * 60 * 24)
+          ),
+          1
+        );
+        return total + ttdp.giaDat * days;
+      }, 0);
   };
 
   const calculateSingleRoomPrice = (donGia, start, end, quantity) => {
@@ -656,7 +665,9 @@ const ChiTietDatPhong = () => {
                 </Typography>
                 <Typography>
                   {Array.isArray(thongTinDatPhong)
-                    ? thongTinDatPhong.length
+                    ? thongTinDatPhong.filter(
+                        (ttdp) => ttdp.trangThai !== "Đã hủy"
+                      ).length
                     : 0}
                 </Typography>
               </Box>
@@ -820,7 +831,7 @@ const ChiTietDatPhong = () => {
                 .filter((ttdp) => ttdp.trangThai !== "Đã hủy")
                 .map((ttdp) => (
                   <TableRow
-                    key={ttdp.loaiPhong.id}
+                    key={`${ttdp.loaiPhong.id}_${ttdp.ngayNhanPhong}_${ttdp.ngayTraPhong}_${ttdp.trangThai}`}
                     hover
                     sx={{
                       "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
