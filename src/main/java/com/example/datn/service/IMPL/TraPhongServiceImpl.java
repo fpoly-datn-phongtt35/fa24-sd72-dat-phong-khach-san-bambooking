@@ -14,7 +14,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -109,13 +108,13 @@ public class TraPhongServiceImpl implements TraPhongService {
             log.info("Chưa trả hết ThongTinDatPhong cho DatPhong ID {}. Trạng thái DatPhong giữ nguyên.", datPhong.getId());
         }
 
-        try {
-            sendMailCheckout(traPhong.getId());
-            log.info("Đã gửi email đánh giá cho trả phòng có ID: {}", traPhong.getId());
-        } catch (InvalidDataException e) {
-            log.error("Lỗi khi gửi email đánh giá cho trả phòng có ID {}: {}", traPhong.getId(), e.getMessage());
-        }
-        log.info("================ End checkOutById ================");
+//        try {
+//            sendMailCheckout(traPhong.getId());
+//            log.info("Đã gửi email đánh giá cho trả phòng có ID: {}", traPhong.getId());
+//        } catch (InvalidDataException e) {
+//            log.error("Lỗi khi gửi email đánh giá cho trả phòng có ID {}: {}", traPhong.getId(), e.getMessage());
+//        }
+//        log.info("================ End checkOutById ================");
         return traPhong;
     }
 
