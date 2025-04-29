@@ -26,7 +26,7 @@ import InfoHoaDon from '../components/HoaDon/InfoHoaDon';
 import DemoTaoHoaDon from '../components/HoaDon/DemoTaoHoaDon';
 import Demo from '../components/HoaDon/Demo';
 import UploadQR from '../components/UploadQR';
-import QRScannerManual from '../components/QRScannerManual';
+import ScanQRByCamera from '../components/ScanQRByCamera';
 import QuanLyPhong from '../components/QuanLyPhong/ViewPhong';
 import RoomDetail from '../components/QuanLyPhong/RoomDetail';
 import KiemTraPhong from '../components/kiemTraPhong/KiemTraPhong';
@@ -104,7 +104,7 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/add-khach-hang" element={<NewCustomer />} />
         <Route path="/khach-hang" element={<Customer />} />
         <Route path="/" element={<ViewPhong />} />
-        <Route path="/test" element={<QRScannerManual />} />
+        <Route path="/test" element={<ScanQRByCamera />} />
         <Route path="/upload" element={<UploadQR />} />
         <Route path="/quan-ly-phong" element={<QuanLyPhong />} />
         <Route path="thanh-toan/:idHoaDon" element={<ThanhToanComponent />} />
