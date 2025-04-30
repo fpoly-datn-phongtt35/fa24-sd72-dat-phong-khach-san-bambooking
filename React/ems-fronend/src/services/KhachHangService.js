@@ -1,6 +1,8 @@
 import authorizedAxiosInstance from "../utils/authorizedAxios";
 const apiKhachHang = "http://localhost:8080/khach-hang";
 const apiGetKHByKey = "http://localhost:8080/khach-hang/get-by-key";
+const apiSuaTTKH = "http://localhost:8080/khach-hang/sua-tt-kh";
+
 export const listKhachHang = (pageable, searchQuery = "") => {
   return authorizedAxiosInstance.get(apiKhachHang + "/search", {
     params: {
@@ -31,3 +33,6 @@ export const updateKhachHang = (khachHang) =>
 
 export const deleteKhachHang = (khachHangId) =>
   authorizedAxiosInstance.delete(`${apiKhachHang}/${khachHangId}`);
+
+export const SuaTTKH = (khachHang) =>
+  authorizedAxiosInstance.put(apiSuaTTKH, khachHang);

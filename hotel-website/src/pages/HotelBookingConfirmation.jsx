@@ -183,9 +183,8 @@ const HotelBookingConfirmation = () => {
           trangThai: "Chưa xếp",
         });
       }
-
-      GuiEmailXacNhanDP(datPhong);
-
+      
+      await GuiEmailXacNhanDP(datPhong.id);
 
       clearTimeout(timeoutRef.current);
       alert("Đặt phòng thành công!");

@@ -23,6 +23,10 @@ const apiToHopLoaiPhong =
   const apiXacNhanDP= "http://localhost:8080/api/dp/xac-nhan-dp"
   const apiTBDatPhongThanhCong = "http://localhost:8080/api/dp/email-dp-thanh-cong";
   const apiUpdateKH = "http://localhost:8080/api/kh/update-kh";
+  const apiHuyDP = "http://localhost:8080/api/dp/huy-dat-phong"
+  const apiGuiEmailXacNhanHuyDP = "http://localhost:8080/api/dp/email-xac-nhan-huy-dp"
+
+
 
 export const getDatPhongbyTDN = (tenDangNhap,keyword,ngayNhanPhong,ngayTraPhong) => {
     return authorizedAxiosInstance.get(apiGetDP, {
@@ -162,8 +166,12 @@ export const getLSDPbyEmail = (email) => {
   });
 };
 
-export const GuiEmailXacNhanDP = (datPhong) => {
-  return authorizedAxiosInstance.post(apiGuiEmailXacNhan, datPhong);
+export const GuiEmailXacNhanDP = (idDatPhong) => {
+  return authorizedAxiosInstance.get(apiGuiEmailXacNhan, {
+    params:{
+      idDatPhong: idDatPhong
+    }
+  });
 };
 
 export const XacNhanDP = (iddp) => {
@@ -184,6 +192,22 @@ export const EmailXacNhanDPThanhCong = (iddp) => {
 
 export const GuiEmailXacNhanDPSauUDKH = (idDP) => {
   return authorizedAxiosInstance.get(apiGuiEmailXacNhanSauUDKH, {
+      params: {
+          idDatPhong: idDP
+      }
+  });
+};
+
+export const HuyDP = (idDatPhong) => {
+  return authorizedAxiosInstance.get(apiHuyDP, {
+      params: {
+          idDatPhong: idDatPhong,
+      }
+  });
+};
+
+export const GuiEmailXacNhanHuyDP = (idDP) => {
+  return authorizedAxiosInstance.get(apiGuiEmailXacNhanHuyDP, {
       params: {
           idDatPhong: idDP
       }

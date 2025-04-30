@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDatPhongbyTDN } from '../services/DatPhong.js';
+import { getDatPhongbyTDN,GuiEmailXacNhanHuyDP } from '../services/DatPhong.js';
+import { TTDPcothehuy } from '../services/TTDP.js';
 import { debounce } from 'lodash';
 import {
   Box,
@@ -17,8 +18,11 @@ import {
   Pagination,
   CircularProgress,
   Alert,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
-
+import CancelIcon from '@mui/icons-material/Cancel';
+import InfoIcon from "@mui/icons-material/Info";
 export default function History() {
   const [allBookings, setAllBookings] = useState([]);
   const [displayedBookings, setDisplayedBookings] = useState([]);
@@ -32,6 +36,7 @@ export default function History() {
   const [keyword, setKeyword] = useState('');
   const [ngayNhanPhong, setNgayNhanPhong] = useState('');
   const [ngayTraPhong, setNgayTraPhong] = useState('');
+  const [canCancel, setCanCancel] = useState({});
   const navigate = useNavigate();
   const tenDangNhap = localStorage.getItem('user');
 
@@ -49,6 +54,24 @@ export default function History() {
     }));
   };
 
+  // Kiểm tra khả năng hủy đặt phòng
+  const checkCancelEligibility = async (bookingId) => {
+    try {
+      const canCancelResult = await TTDPcothehuy(bookingId);
+      console.log(canCancelResult.data)
+      setCanCancel((prev) => ({
+        ...prev,
+        [bookingId]: canCancelResult.data,
+      }));
+    } catch (error) {
+      console.error('Error checking cancel eligibility:', error);
+      setCanCancel((prev) => ({
+        ...prev,
+        [bookingId]: false,
+      }));
+    }
+  };
+
   const debouncedFetchBookings = useCallback(
     debounce(async (keyword, ngayNhan, ngayTra) => {
       try {
@@ -62,8 +85,13 @@ export default function History() {
           pageable.size
         );
         const bookings = Array.isArray(response.data) ? response.data : [];
+        console.log(bookings)
         setAllBookings(bookings);
         updateDisplayedBookings(bookings, pageable.page, pageable.size);
+        // Kiểm tra khả năng hủy cho từng booking
+        bookings.forEach((booking) => {
+          checkCancelEligibility(booking.id);
+        });
       } catch (error) {
         console.error('Error fetching bookings:', error);
         setError('Không thể tải danh sách đặt phòng. Vui lòng thử lại.');
@@ -102,6 +130,18 @@ export default function History() {
 
   const handleViewDetail = (idDatPhong) => {
     navigate(`/ttdp/${idDatPhong}`);
+  };
+
+  const handleCancelBooking = async (bookingId) => {
+    try {
+      alert("Email xác nhận hủy đặt phòng đã được gửi đến email của bạn")
+      await GuiEmailXacNhanHuyDP(bookingId);
+      // Cập nhật lại danh sách sau khi hủy
+      debouncedFetchBookings(keyword, ngayNhanPhong, ngayTraPhong);
+    } catch (error) {
+      console.error('Error cancelling booking:', error);
+      setError('Không thể hủy đặt phòng. Vui lòng thử lại.');
+    }
   };
 
   return (
@@ -177,22 +217,35 @@ export default function History() {
               <TableBody>
                 {displayedBookings.map((booking) => (
                   <TableRow key={booking.id}>
-                    <TableCell align="center" >{booking.maDatPhong}</TableCell>
-                    <TableCell align="center" >{booking.soPhong}</TableCell>
-                    <TableCell align="center" >{booking.soNguoi}</TableCell>
-                    <TableCell align="center" >{booking.tongTien.toLocaleString()} VNĐ</TableCell>
-                    <TableCell align="center" >{new Date(booking.ngayDat).toLocaleDateString()}</TableCell>
-                    <TableCell align="center" >{booking.ghiChu}</TableCell>
-                    <TableCell align="center" >{booking.trangThai}</TableCell>
-                    <TableCell align="center" >
-                      <Button
-                        variant="contained"
-                        size="small"
-                        sx={{ backgroundColor: '#1976d2' }}
-                        onClick={() => handleViewDetail(booking.id)}
-                      >
-                        Xem chi tiết
-                      </Button>
+                    <TableCell align="center">{booking.maDatPhong}</TableCell>
+                    <TableCell align="center">{booking.soPhong}</TableCell>
+                    <TableCell align="center">{booking.soNguoi}</TableCell>
+                    <TableCell align="center">{booking.tongTien.toLocaleString()} VNĐ</TableCell>
+                    <TableCell align="center">{new Date(booking.ngayDat).toLocaleDateString()}</TableCell>
+                    <TableCell align="center">{booking.ghiChu}</TableCell>
+                    <TableCell align="center">{booking.trangThai}</TableCell>
+                    <TableCell align="center">
+                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                      <Tooltip title="Xem thông tin đặt phòng">
+                        <InfoIcon
+                          variant="contained"
+                          color="primary"
+                          sx = {{marginTop: 0.7}}
+                          onClick={() => handleViewDetail(booking.id)}
+                        >
+                          
+                        </InfoIcon></Tooltip>
+                        {canCancel[booking.id] && (
+                          <IconButton
+                          size="small"
+                          sx={{ color: '#d32f2f' }}
+                          onClick={() => handleCancelBooking(booking.id)}
+                          title="Hủy đặt phòng"
+                        >
+                          <CancelIcon />
+                        </IconButton>
+                        )}
+                      </Box>
                     </TableCell>
                   </TableRow>
                 ))}
