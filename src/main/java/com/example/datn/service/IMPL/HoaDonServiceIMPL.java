@@ -6,9 +6,11 @@ import com.example.datn.mapper.HoaDonMapper;
 import com.example.datn.model.DatPhong;
 import com.example.datn.model.HoaDon;
 import com.example.datn.model.NhanVien;
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.repository.DatPhongRepository;
 import com.example.datn.repository.HoaDonRepository;
 import com.example.datn.repository.NhanVienRepository;
+import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.service.HoaDonService;
 import com.example.datn.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Locale;
 
 import static com.example.datn.common.TokenType.ACCESS_TOKEN;
@@ -38,6 +41,7 @@ public class HoaDonServiceIMPL implements HoaDonService {
     HoaDonMapper hoaDonMapper;
     DatPhongRepository datPhongRepository;
     NhanVienRepository nhanVienRepository;
+    ThongTinDatPhongRepository thongTinDatPhongRepository;
 
     JwtService jwtService;
 
@@ -123,8 +127,17 @@ public class HoaDonServiceIMPL implements HoaDonService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn có ID: " + id));
 
         if ("Chờ xác nhận".equals(hoaDon.getTrangThai())) {
+            DatPhong datPhong = hoaDon.getDatPhong();
             hoaDon.setTrangThai("Đã thanh toán");
             hoaDonRepository.save(hoaDon);
+
+            List<ThongTinDatPhong> thongTinDatPhongs = thongTinDatPhongRepository.findByDatPhong(datPhong);
+            boolean allRoomCheckOut = thongTinDatPhongs.stream()
+                            .allMatch(ttdp -> "Đã trả phòng".equals(ttdp.getTrangThai()));
+            if (allRoomCheckOut) {
+                datPhong.setTrangThai("Đã thanh toán");
+                datPhongRepository.save(datPhong);
+            }
             return true;
         } else {
             throw new RuntimeException("Hóa đơn không ở trạng thái 'Chờ xác nhận', không thể thay đổi.");

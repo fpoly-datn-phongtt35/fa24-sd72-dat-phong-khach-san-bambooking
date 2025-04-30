@@ -186,7 +186,7 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
                     onClick={handleUpdateTienThanhToan}
                     disabled={tienThanhToan <= 0}
                 >
-                    Xác nhận Thanh Toán
+                    Thanh Toán
                 </Button>
                 <Button variant="outlined" color="error" onClick={onClose}>
                     Hủy

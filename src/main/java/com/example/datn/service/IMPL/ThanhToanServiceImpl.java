@@ -34,7 +34,6 @@ public class ThanhToanServiceImpl implements ThanhToanService {
     NhanVienRepository nhanVienRepository;
     HoaDonRepository hoaDonRepository;
     JwtService jwtService;
-    DatPhongRepository datPhongRepository;
 
     @Override
     public ThanhToan createThanhToan(ThanhToanRequest thanhToanRequest, HttpServletRequest request) {
@@ -47,7 +46,7 @@ public class ThanhToanServiceImpl implements ThanhToanService {
                 .orElseThrow(() -> new EntityNotFountException("Hóa đơn không tồn tại"));
 
         NhanVien nhanVien = nhanVienRepository.findById(idNhanVien)
-                .orElseThrow(() -> new EntityNotFountException("Hóa đơn không tồn tại"));
+                .orElseThrow(() -> new EntityNotFountException("Nhân viên không tồn tại"));
 
         return thanhToanRepository.save(thanhToanMapper.toThanhToan(nhanVien, hoaDon));
     }
@@ -72,17 +71,13 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         if (thanhToanRequest.getTienThanhToan() < hoaDon.getTongTien()) {
             throw new RuntimeException("Tiền thanh toán phải lớn hơn hoặc bằng tổng tiền của hóa đơn");
         } else {
-            DatPhong datPhong = hoaDon.getDatPhong();
             thanhToan.setNhanVien(nhanVien);
             thanhToan.setTienThanhToan(thanhToanRequest.getTienThanhToan());
             thanhToan.setTienThua(thanhToanRequest.getTienThanhToan() - hoaDon.getTongTien());
             thanhToan.setPhuongThucThanhToan(thanhToanRequest.getPhuongThucThanhToan());
             thanhToan.setTrangThai(true);
-
             hoaDon.setTrangThai("Chờ xác nhận");
-            datPhong.setTrangThai("Đã thanh toán");
             hoaDonRepository.save(hoaDon);
-            datPhongRepository.save(datPhong);
             thanhToanRepository.save(thanhToan);
             return thanhToanMapper.toThanhToanResponse(thanhToan);
         }

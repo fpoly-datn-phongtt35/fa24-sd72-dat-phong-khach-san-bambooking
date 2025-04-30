@@ -61,6 +61,12 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.id = :id")
     ThongTinDatPhong getTTDPById(@Param("id") Integer id);
 
+    @Query("SELECT ttdp FROM ThongTinDatPhong ttdp " +
+           "JOIN XepPhong xp ON ttdp.id = xp.thongTinDatPhong.id " +
+           "JOIN Phong p ON xp.phong.id = p.id " +
+           "WHERE xp.id = :idXepPhong AND ttdp.loaiPhong.id = p.loaiPhong.id")
+    ThongTinDatPhong getTTDPByIdAndLoaiPhong(@Param("idXepPhong") Integer idXepPhong);
+
     @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.maThongTinDatPhong = :maTTDP")
     ThongTinDatPhong getTTDPByMa(@Param("maTTDP") String maTTDP);
 
@@ -99,5 +105,7 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     boolean areAllThongTinDatPhongCheckedOut(@Param("datPhongId") Integer datPhongId);
 
     List<ThongTinDatPhong> findByDatPhong_Id(Integer datPhongId);
+
+    List<ThongTinDatPhong> findByDatPhong(DatPhong datPhong);
 }
 

@@ -100,7 +100,14 @@ public class TraPhongServiceImpl implements TraPhongService {
             throw new EntityNotFountException("DatPhong bị null cho ThongTinDatPhong ID: " + thongTinDatPhong.getId());
         }
 
-        boolean allThongTinDatPhongCheckedOut = thongTinDatPhongRepository.areAllThongTinDatPhongCheckedOut(datPhong.getId());
+        // Lấy danh sách ThongTinDatPhong và kiểm tra trạng thái
+        List<ThongTinDatPhong> thongTinDatPhongs = thongTinDatPhongRepository.findByDatPhong_Id(datPhong.getId());
+        log.info("Danh sách ThongTinDatPhong cho DatPhong ID {}: {}", datPhong.getId(), thongTinDatPhongs);
+        boolean allThongTinDatPhongCheckedOut = thongTinDatPhongs.stream()
+                .allMatch(ttdp -> "Đã trả phòng".equals(ttdp.getTrangThai()));
+        log.info("Kết quả kiểm tra allThongTinDatPhongCheckedOut cho DatPhong ID {}: {}", datPhong.getId(), allThongTinDatPhongCheckedOut);
+
+        //Nếu tất cả thông tin đặt phòng có trạng thái = Đã trả phòng -> set trạng thái Đặt phòng = Đã trả phòng
         if (allThongTinDatPhongCheckedOut) {
             datPhong.setTrangThai("Đã trả phòng");
             datPhongRepository.save(datPhong);
@@ -108,12 +115,12 @@ public class TraPhongServiceImpl implements TraPhongService {
         } else {
             log.info("Chưa trả hết ThongTinDatPhong cho DatPhong ID {}. Trạng thái DatPhong giữ nguyên.", datPhong.getId());
         }
-
         return traPhong;
     }
 
     private void updateXepPhongAndTraPhong(XepPhong xepPhong, TraPhong traPhong) {
         xepPhong.setTrangThai("Đã trả phòng");
+        traPhong.setNgayTraThucTe(LocalDateTime.now());
         traPhong.setTrangThai(true);
         xepPhongRepository.save(xepPhong);
         traPhongRepository.save(traPhong);
@@ -222,7 +229,6 @@ public class TraPhongServiceImpl implements TraPhongService {
             }
         }
     }
-
 
     // Gộp logic convert thành một phương thức duy nhất
     private TraPhongResponse convertToTraPhongResponse(TraPhong traPhong) {

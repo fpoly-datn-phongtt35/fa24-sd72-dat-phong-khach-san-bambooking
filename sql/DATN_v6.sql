@@ -1,6 +1,5 @@
 ﻿create database DATN_v6
 go
-
 use DATN_v6
 go
 
