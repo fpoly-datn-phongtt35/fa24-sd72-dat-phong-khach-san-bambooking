@@ -38,15 +38,15 @@ const Services = () => {
         },
         {
             id: 6,
-            tenDichVu: 'Dịch vụ đưa đón sân bay',
-            hinhAnh: 'https://th.bing.com/th/id/OIP.qeQBCXe1QjLO8sXQJAAgVgHaFu?rs=1&pid=ImgDetMain',
-            moTa: 'Đưa đón khách chuyên nghiệp bằng xe sang, đảm bảo đúng giờ và thoải mái trong suốt hành trình.'
+            tenDichVu: 'Dịch vụ ăn uống tại phòng',
+            hinhAnh: 'https://th.bing.com/th/id/OIP.ttbXGoN7D-H-4V8Lz0Fb_QHaE8?w=2560&h=1710&rs=1&pid=ImgDetMain',
+            moTa: 'Thưởng thức các món ăn ngon ngay tại phòng với thực đơn đa dạng và phục vụ tận nơi, nhanh chóng và tiện lợi.'
         },
         {
             id: 7,
-            tenDichVu: 'Dịch vụ tổ chức sự kiện',
-            hinhAnh: 'https://th.bing.com/th/id/OIP.iRhhxfB-B13i5NlA7swV0wHaE8?rs=1&pid=ImgDetMain',
-            moTa: 'Tổ chức hội nghị, tiệc cưới và sự kiện chuyên nghiệp với không gian sang trọng và dịch vụ hỗ trợ tận tâm.'
+            tenDichVu: 'Dịch vụ giặt ủi',
+            hinhAnh: 'https://img.freepik.com/premium-photo/row-washing-machine-laundry-business-public-store-generative-ai_1001448-464.jpg',
+            moTa: 'Đảm bảo quần áo của bạn luôn sạch sẽ và thơm mát với dịch vụ giặt ủi chuyên nghiệp và nhanh chóng.'
         },
         {
             id: 8,

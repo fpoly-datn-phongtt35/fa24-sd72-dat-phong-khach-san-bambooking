@@ -20,15 +20,15 @@ const Offers = () => {
         },
         {
             id: 3,
-            tenDichVu: 'Voucher nhà hàng ẩm thực',
-            hinhAnh: 'https://th.bing.com/th/id/OIP.1UeCBgR-9ZNr-1-NfkzmbAHaE7?rs=1&pid=ImgDetMain',
-            moTa: 'Nhận ngay voucher giảm 20% khi dùng bữa tại nhà hàng cao cấp của chúng tôi.'
+            tenDichVu: 'Bữa tối miễn phí ngày đầu',
+            hinhAnh: 'https://th.bing.com/th/id/OIP.WJLMO13n11uMQuHzoLOrqAHaEK?rs=1&pid=ImgDetMain',
+            moTa: 'Tặng ngay 1 bữa tối miễn phí tại nhà hàng cho khách đặt phòng trong ngày đầu tiên.'
         },
         {
             id: 4,
-            tenDichVu: 'Ưu đãi phòng gym tháng',
+            tenDichVu: 'Miễn phí sử dụng phòng gym',
             hinhAnh: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b',
-            moTa: 'Tháng tập miễn phí khi đăng ký gói 6 tháng tại phòng gym cao cấp.'
+            moTa: 'Khách lưu trú được sử dụng phòng gym với đầy đủ thiết bị miễn phí.'
         },
         {
             id: 5,
@@ -38,21 +38,21 @@ const Offers = () => {
         },
         {
             id: 6,
-            tenDichVu: 'Giảm giá dịch vụ đưa đón',
-            hinhAnh: 'https://th.bing.com/th/id/OIP.qeQBCXe1QjLO8sXQJAAgVgHaFu?rs=1&pid=ImgDetMain',
-            moTa: 'Giảm ngay 15% khi sử dụng dịch vụ đưa đón sân bay trong tháng này.'
+            tenDichVu: 'Tặng nước suối mỗi ngày',
+            hinhAnh: 'https://res.cloudinary.com/dy9md2des/image/upload/v1745592072/mko3aeymhdxpvzfdrktx.png',
+            moTa: 'Mỗi ngày, mỗi phòng đều được cung cấp 2 chai nước suối miễn phí.'
         },
         {
             id: 7,
-            tenDichVu: "Giảm giá 10% cho lần đặt tiếp theo",
-            hinhAnh: "https://victory.com.vn/wp-content/uploads/2023/02/111.png",
-            moTa: "Dành cho khách hàng thân thiết của chúng tôi."
+            tenDichVu: 'Tour tham quan miễn phí',
+            hinhAnh: 'https://th.bing.com/th/id/R.c4c8d4620e80088dcd4b4cbd251ef9a8?rik=KXXCwom%2bwsWBrA&pid=ImgRaw&r=0',
+            moTa: 'Tặng tour tham quan thành phố ngắn trong ngày cho khách lưu trú từ 2 đêm trở lên.'
         },
         {
             id: 8,
-            tenDichVu: "Giảm giá đặc biệt",
-            hinhAnh: "https://img.freepik.com/premium-psd/20-percentage-off-3d-render-isolated-premium-psd_629525-233.jpg?w=2000",
-            moTa: "Giảm giá 20% cho tất cả các dịch vụ phòng."
+            tenDichVu: 'Phục vụ thức ăn tại phòng',
+            hinhAnh: 'https://th.bing.com/th/id/OIP.ttbXGoN7D-H-4V8Lz0Fb_QHaE8?w=2560&h=1710&rs=1&pid=ImgDetMain',
+            moTa: 'Thưởng thức bữa ăn ngay tại phòng với dịch vụ tận nơi nhanh chóng.'
         }
     ];
 
