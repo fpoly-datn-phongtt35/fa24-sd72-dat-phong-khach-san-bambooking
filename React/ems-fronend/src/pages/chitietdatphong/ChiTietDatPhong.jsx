@@ -68,7 +68,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import { SuaTTKH } from "../../services/KhachHangService";
 import dayjs from "dayjs";
 
-// Component xác nhận hành động
 const ConfirmDialog = ({ open, onClose, onConfirm, title, message }) => (
   <Dialog open={open} onClose={onClose}>
     <DialogTitle>{title}</DialogTitle>
@@ -86,7 +85,6 @@ const ConfirmDialog = ({ open, onClose, onConfirm, title, message }) => (
   </Dialog>
 );
 
-// Sub-component hiển thị thông tin khách hàng
 const CustomerInfo = ({ datPhong, onEdit, disabled }) => (
   <Card elevation={3} sx={{ height: "100%" }}>
     <CardContent>
@@ -131,7 +129,6 @@ const CustomerInfo = ({ datPhong, onEdit, disabled }) => (
   </Card>
 );
 
-// Sub-component hiển thị thông tin đặt phòng
 const BookingInfo = ({ datPhong, thongTinDatPhong, formatDate }) => (
   <Card elevation={3} sx={{ height: "100%" }}>
     <CardContent>
@@ -171,7 +168,6 @@ const BookingInfo = ({ datPhong, thongTinDatPhong, formatDate }) => (
   </Card>
 );
 
-// Sub-component quản lý ghi chú
 const NoteSection = ({
   datPhong,
   setDatPhong,
@@ -215,8 +211,9 @@ const NoteSection = ({
 const ChiTietDatPhong = () => {
   const [datPhong, setDatPhong] = useState(null);
   const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
-  const [selectedTTDPs, setSelectedTTDPs] = useState([]); // Lưu maThongTinDatPhong
+  const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [phongData, setPhongData] = useState({});
+  const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -261,7 +258,6 @@ const ChiTietDatPhong = () => {
   const { maDatPhong } = location.state || {};
   const navigate = useNavigate();
 
-  // Tính toán grTTDP bằng useMemo
   const grTTDP = useMemo(() => {
     if (!Array.isArray(thongTinDatPhong)) return [];
     return Object.values(
@@ -289,7 +285,6 @@ const ChiTietDatPhong = () => {
     );
   }, [thongTinDatPhong]);
 
-  // Tính tổng giá bằng useMemo
   const totalPrice = useMemo(() => {
     if (!Array.isArray(thongTinDatPhong)) return 0;
     return thongTinDatPhong
