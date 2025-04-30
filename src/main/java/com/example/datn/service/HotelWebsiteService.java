@@ -46,4 +46,6 @@ public interface HotelWebsiteService {
 
     void huyTTDP(Integer idTTDP);
     void guiEmailXacNhanHuyDP(Integer iddp);
+
+    void guiEmailXacNhanHuyTTDP(Integer idTTDP);
 }

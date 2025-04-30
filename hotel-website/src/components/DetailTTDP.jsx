@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getTTDPbyidDPandidLP, getXPbymaTTDP, HuyTTDP } from "../services/TTDP.js";
+import { getTTDPbyidDPandidLP, getXPbymaTTDP, GuiEmailXacNhanHuyTTDP } from "../services/TTDP.js";
 import {
   getDichVuSuDung,
   getHoaDonById,
@@ -156,8 +156,8 @@ export default function DetailTTDP() {
 
   const handleCancelBooking = async (bookingId) => {
     try {
-      await HuyTTDP(bookingId);
-      alert("Hủy đặt phòng thành công!");
+      await GuiEmailXacNhanHuyTTDP(bookingId);
+      alert("Email xác nhận hủy đặt phòng đã được gửi đến email của bạn")
       fetchData(); // Tải lại dữ liệu để cập nhật trạng thái
     } catch (error) {
       console.error("Error cancelling booking:", error);

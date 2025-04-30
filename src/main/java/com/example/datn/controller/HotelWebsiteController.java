@@ -366,5 +366,10 @@ public class HotelWebsiteController {
     public void emailXacNhanHuydp(@RequestParam("idDatPhong") Integer idDatPhong){
         hotelWebsiteServiceImpl.guiEmailXacNhanHuyDP(idDatPhong);
     }
+
+    @GetMapping("/ttdp/email-xac-nhan-huy-ttdp")
+    public void emailXacNhanHuyTTDP(@RequestParam("idTTDP") Integer idTTDP){
+        hotelWebsiteServiceImpl.guiEmailXacNhanHuyTTDP(idTTDP);
+    }
 }
 

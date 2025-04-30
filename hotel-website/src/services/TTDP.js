@@ -12,6 +12,7 @@ const apigetXPbymaTTDPTC = "http://localhost:8080/api/tra-cuu/ttdp/phong-da-xep"
 const apidsTTDPcothehuy = "http://localhost:8080/api/ttdp/TTDP-Co-The-Huy"
 
 const apiHuyTTDP = "http://localhost:8080/api/ttdp/huy-ttdp2"
+const apiGuiEmailXacNhanHuyTTDP = "http://localhost:8080/api/ttdp/email-xac-nhan-huy-ttdp"
 
 
 
@@ -81,3 +82,12 @@ export const HuyTTDP = (idTTDP) => {
         }
     });
 };
+
+export const GuiEmailXacNhanHuyTTDP = (idTTDP) => {
+    return authorizedAxiosInstance.get(apiGuiEmailXacNhanHuyTTDP, {
+        params: {
+            idTTDP: idTTDP,
+        }
+    });
+};
+

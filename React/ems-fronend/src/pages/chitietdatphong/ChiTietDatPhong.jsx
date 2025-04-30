@@ -242,7 +242,7 @@ const ChiTietDatPhong = () => {
       console.error("Lỗi khi thay đổi tình trạng tất cả phòng:", error);
       showSnackbar(
         error.response?.data?.data ||
-          "Có lỗi xảy ra khi cập nhật tình trạng phòng!",
+        "Có lỗi xảy ra khi cập nhật tình trạng phòng!",
         "error"
       );
     } finally {
@@ -446,10 +446,10 @@ const ChiTietDatPhong = () => {
           status === 400
             ? data.message || "Dữ liệu không hợp lệ."
             : status === 404
-            ? "Không tìm thấy thông tin cần thiết."
-            : status === 500
-            ? "Lỗi server."
-            : data.message || `Lỗi không xác định (status: ${status}).`;
+              ? "Không tìm thấy thông tin cần thiết."
+              : status === 500
+                ? "Lỗi server."
+                : data.message || `Lỗi không xác định (status: ${status}).`;
       } else if (error.request) {
         errorMessage = "Không thể kết nối đến server.";
       }
@@ -508,11 +508,16 @@ const ChiTietDatPhong = () => {
                     Thông tin khách hàng
                   </Typography>
                 </Box>
+                {Array.isArray(grTTDP) && grTTDP.some(ttdp => ttdp.trangThai === "Đang ở" || ttdp.trangThai === "Đã trả phòng" 
+                || ttdp.trangThai === "Đã kiểm tra phòng" || ttdp.trangThai === "Đã hủy" ) ? (
+                  null
+                ) : 
                 <Tooltip title="Sửa thông tin khách hàng">
-                  <IconButton color="primary" onClick={handleOpenEditModal}>
-                    <EditIcon />
-                  </IconButton>
-                </Tooltip>
+                    <IconButton color="primary" onClick={handleOpenEditModal}>
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                }
               </Box>
               <Divider sx={{ mb: 2 }} />
               <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
@@ -694,16 +699,16 @@ const ChiTietDatPhong = () => {
                   indeterminate={
                     selectedTTDPs.length > 0 &&
                     selectedTTDPs.length <
-                      thongTinDatPhong.filter(
-                        (ttdp) => ttdp.trangThai !== "Đã hủy"
-                      ).length
+                    thongTinDatPhong.filter(
+                      (ttdp) => ttdp.trangThai !== "Đã hủy"
+                    ).length
                   }
                   checked={
                     thongTinDatPhong.length > 0 &&
                     selectedTTDPs.length ===
-                      thongTinDatPhong.filter(
-                        (ttdp) => ttdp.trangThai !== "Đã hủy"
-                      ).length
+                    thongTinDatPhong.filter(
+                      (ttdp) => ttdp.trangThai !== "Đã hủy"
+                    ).length
                   }
                   onChange={() => {
                     if (
@@ -798,7 +803,7 @@ const ChiTietDatPhong = () => {
                     </TableCell>
                     <TableCell>
                       {ttdp.trangThai === "Đã xếp" &&
-                      phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong ? (
+                        phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong ? (
                         <Typography>
                           {phongData[ttdp.maThongTinDatPhong]?.phong?.tenPhong}
                         </Typography>
@@ -884,16 +889,16 @@ const ChiTietDatPhong = () => {
                         {(ttdp.trangThai === "Đang đặt phòng" ||
                           ttdp.trangThai === "Chưa xếp" ||
                           ttdp.trangThai === "Đã xếp") && (
-                          <Tooltip title="Hủy thông tin đặt phòng">
-                            <IconButton
-                              color="error"
-                              onClick={() => handleHuyTTDP(ttdp)}
-                              size="small"
-                            >
-                              <RemoveCircleOutlineIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
+                            <Tooltip title="Hủy thông tin đặt phòng">
+                              <IconButton
+                                color="error"
+                                onClick={() => handleHuyTTDP(ttdp)}
+                                size="small"
+                              >
+                                <RemoveCircleOutlineIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
                       </Box>
                     </TableCell>
                   </TableRow>

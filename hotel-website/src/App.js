@@ -13,6 +13,7 @@ import LookupDetailTTDP from "./components/LookupDetailTTDP";
 import LookupTTDP from "./components/LookupTTDP";
 import ConfirmBooking from "./components/ConfirmBooking";
 import CancelDatPhong from "./components/CancelDatPhong";
+import CancelTTDP from "./components/CancelTTDP";
 import CreateReview from "./components/CreateReview";
 import UpdateKhachHang from "./components/UpdateKhachHang";
 import Information from "./pages/Information";
@@ -106,6 +107,7 @@ function App() {
         <Route path="/confirm-booking/:iddp" element={<ConfirmBooking />} />
         <Route path="/create-review/:idKhachHang/:idTTDP" element={<CreateReview />} />
         <Route path="/cancel-dat-phong/:idDatPhong" element={<CancelDatPhong />} />
+        <Route path="/cancel-ttdp/:idTTDP" element={<CancelTTDP/>} />
         <Route path="/update-kh/:id/:iddp" element={<UpdateKhachHang />} />
         <Route path="/lookup" element={<Lookup />} />
         <Route path="/history" element={<History />} />
