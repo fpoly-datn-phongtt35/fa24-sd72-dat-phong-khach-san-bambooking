@@ -442,7 +442,7 @@ const ViewPhong = () => {
                     style={{
                       margin: "15px 0px 12px 0px",
                       cursor: "pointer",
-                      height: "10px",
+                      height: "1px",
                     }}
                   >
                     {roomStatus && roomStatus.intervals
@@ -464,7 +464,6 @@ const ViewPhong = () => {
             </React.Fragment>
           ))}
         </div>
-
         <div style={{ marginTop: "20px", display: "flex", justifyContent: "center", gap: "20px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <div style={{ width: "20px", height: "20px", backgroundColor: "#00FF33", border: "1px solid #000" }}></div>
