@@ -156,8 +156,8 @@ export default function DetailTTDP() {
 
   const handleCancelBooking = async (bookingId) => {
     try {
-      await GuiEmailXacNhanHuyTTDP(bookingId);
       alert("Email xác nhận hủy đặt phòng đã được gửi đến email của bạn")
+      await GuiEmailXacNhanHuyTTDP(bookingId);
       fetchData(); // Tải lại dữ liệu để cập nhật trạng thái
     } catch (error) {
       console.error("Error cancelling booking:", error);

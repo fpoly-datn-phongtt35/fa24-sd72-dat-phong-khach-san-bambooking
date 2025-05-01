@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Modal,
@@ -15,19 +15,16 @@ import {
   TableHead,
   TableRow,
   Checkbox,
-  Paper,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Paper,FormControl,InputLabel,Select,MenuItem ,
 } from "@mui/material";
+import jsQR from "jsqr";
+import Swal from 'sweetalert2';
 import ModalCreateKHC from "./ModalCreateKHC";
-import UploadQR from "../../components/UploadQR";
 import {
   createKhachHang,
   getKhachHangByKey,
 } from "../../services/KhachHangService";
-import { them, DanhSachKHC, getKhachHangCheckinByThongTinId } from "../../services/KhachHangCheckin";
+import { them, DanhSachKHC, getKhachHangCheckinByThongTinId,qrCheckIn } from "../../services/KhachHangCheckin";
 import { ThemPhuThu, CapNhatPhuThu, CheckPhuThuExists } from '../../services/PhuThuService';
 import { getLoaiPhongById } from '../../services/LoaiPhongService';
 import { getXepPhongByThongTinDatPhongId } from '../../services/XepPhongService.js';
@@ -49,8 +46,12 @@ const ModalKhachHangCheckin = ({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [checkedInKhachHangIds, setCheckedInKhachHangIds] = useState([]);
+  const [cameraError, setCameraError] = useState(null);
   const navigate = useNavigate();
   const rowsPerPage = 5;
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const animationFrameId = useRef(null);
 
   // Lấy danh sách khách hàng đã check-in
   const fetchCheckedInKhachHang = async () => {
@@ -71,6 +72,137 @@ const ModalKhachHangCheckin = ({
       fetchCheckedInKhachHang(); // Lấy danh sách khách hàng đã check-in
     }
   }, [isOpen, thongTinDatPhong]);
+
+  // Khởi tạo và quét QR
+  useEffect(() => {
+    if (isQRModalOpen) {
+      setCameraError(null);
+      navigator.mediaDevices
+        .enumerateDevices()
+        .then((devices) => {
+          const videoDevices = devices.filter(device => device.kind === "videoinput");
+          console.log("Danh sách camera khả dụng:", videoDevices);
+          if (videoDevices.length === 0) {
+            setCameraError("Không tìm thấy camera trên thiết bị. Vui lòng kiểm tra thiết bị hoặc kết nối camera.");
+            return;
+          }
+          // Chọn USB2.0 HD UVC WebCam hoặc camera đầu tiên
+          const preferredCamera = videoDevices.find(device => device.label.includes('USB2.0 HD UVC WebCam')) || videoDevices[0];
+          console.log("Sử dụng camera:", preferredCamera.label, "với deviceId:", preferredCamera.deviceId);
+
+          // Khởi tạo luồng video
+          const constraints = {
+            video: {
+              deviceId: preferredCamera.deviceId ? { exact: preferredCamera.deviceId } : undefined,
+              facingMode: "environment",
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+          };
+          navigator.mediaDevices
+            .getUserMedia(constraints)
+            .then((stream) => {
+              videoRef.current.srcObject = stream;
+              videoRef.current.play();
+              // Chờ video tải metadata trước khi quét
+              videoRef.current.onloadedmetadata = () => {
+                scanQR();
+              };
+            })
+            .catch((err) => {
+              console.error("Lỗi truy cập camera:", { name: err.name, message: err.message, stack: err.stack });
+              if (err.name === "NotAllowedError") {
+                setCameraError("Quyền truy cập camera bị từ chối. Vui lòng cấp quyền trong trình duyệt.");
+              } else if (err.name === "NotFoundError") {
+                setCameraError("Không tìm thấy camera USB2.0 HD UVC WebCam. Vui lòng kiểm tra thiết bị.");
+              } else {
+                setCameraError(`Lỗi truy cập camera: ${err.name || "Lỗi không xác định"} - ${err.message || "Không có thông tin chi tiết"}`);
+              }
+            });
+        })
+        .catch((err) => {
+          console.error("Lỗi liệt kê camera:", { name: err.name, message: err.message, stack: err.stack });
+          setCameraError("Không thể liệt kê camera: " + (err.message || "Lỗi không xác định"));
+        });
+    }
+
+    // Dọn dẹp
+    return () => {
+      if (videoRef.current && videoRef.current.srcObject) {
+        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      }
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+      }
+    };
+  }, [isQRModalOpen]);
+
+  // Hàm quét QR
+  const scanQR = () => {
+    if (!videoRef.current || !canvasRef.current) {
+      console.log("Video hoặc canvas không sẵn sàng");
+      return;
+    }
+
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+
+    const scan = () => {
+      if (!isQRModalOpen) return; // Dừng nếu modal đóng
+
+      if (videoRef.current.readyState === videoRef.current.HAVE_ENOUGH_DATA) {
+        // Đặt kích thước canvas
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
+
+        // Kiểm tra kích thước canvas
+        if (canvas.width === 0 || canvas.height === 0) {
+          console.log("Kích thước canvas không hợp lệ, bỏ qua quét");
+          animationFrameId.current = requestAnimationFrame(scan);
+          return;
+        }
+
+        console.log("Đang quét khung hình...");
+        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        try {
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height, {
+            inversionAttempts: "dontInvert",
+          });
+          if (code) {
+            console.log("Dữ liệu QR đã quét:", code.data);
+            setQRData(code.data);
+            stopStream();
+            // Dừng quét
+            if (animationFrameId.current) {
+              cancelAnimationFrame(animationFrameId.current);
+            }
+            return;
+          }
+        } catch (err) {
+          console.error("Lỗi khi lấy dữ liệu hình ảnh:", err);
+        }
+      } else {
+        console.log("Video chưa sẵn sàng, readyState:", videoRef.current.readyState);
+      }
+      animationFrameId.current = requestAnimationFrame(scan);
+    };
+
+    // Bắt đầu quét sau timeout ngắn để đảm bảo video sẵn sàng
+    setTimeout(scan, 500);
+  };
+
+  const stopStream = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+      console.log("Đã dừng luồng video từ stopStream");
+    }
+    if (animationFrameId.current) {
+      cancelAnimationFrame(animationFrameId.current);
+      console.log("Đã hủy animation frame từ stopStream");
+    }
+  };
 
   const handleOpenModalKHC = () => {
     setInitialQRData(null);
@@ -95,6 +227,16 @@ const ModalKhachHangCheckin = ({
   const closeQRScanner = () => {
     setQRData("");
     setQRModalOpen(false);
+    // Đảm bảo dừng luồng video khi đóng modal
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+      console.log("Đã dừng luồng video khi đóng modal");
+    }
+    if (animationFrameId.current) {
+      cancelAnimationFrame(animationFrameId.current);
+      console.log("Đã hủy animation frame khi đóng modal");
+    }
   };
 
   const parseQRData = (rawData) => {
@@ -112,29 +254,33 @@ const ModalKhachHangCheckin = ({
     if (e && e.preventDefault) e.preventDefault();
     const rawData = data;
     const qrParsedData = parseQRData(rawData);
-    const cmnd = qrParsedData.cmnd;
-    setSearchKeyword(cmnd);
-
-    try {
-      const response = await getKhachHangByKey(trangThai, cmnd, {
-        page: 0,
-        size: rowsPerPage,
-      });
-
-      if (response.data.content && response.data.content.length > 0) {
-        setKhachHangList(response.data.content);
-        setTotalPages(response.data.totalPages || 1);
-      } else {
-        setInitialQRData(qrParsedData);
-        setModalKHCOpen(true);
-      }
-    } catch (error) {
-      console.log("Lỗi khi tìm khách hàng:", error);
-      setInitialQRData(qrParsedData);
-      setModalKHCOpen(true);
+    console.log(qrParsedData);
+   
+    const response = await qrCheckIn(qrParsedData,thongTinDatPhong.id)
+    if(response.data == true){
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: 'Checkin thành công',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#6a5acd'
+    });
+    }else{
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Khách hàng này đã Checkin',
+        confirmButtonText: 'OK'
+    });
     }
+    fetchKhachHangList(trangThai, searchKeyword, page);
+    fetchCheckedInKhachHang();
     setQRModalOpen(false);
-  };
+    handleCloseModalKC();
+    
+   };
+
+
 
   const handleCreate = async () => {
     try {
@@ -361,9 +507,9 @@ const ModalKhachHangCheckin = ({
               </FormControl>
             </Stack>
             <Stack direction="row" spacing={2}>
-              <Button variant="contained" onClick={handleOpenModalKHC}>
+              {/* <Button variant="contained" onClick={handleOpenModalKHC}>
                 Tạo Mới
-              </Button>
+              </Button> */}
               <Button variant="contained" onClick={openQRScanner}>
                 Quét QR
               </Button>
@@ -465,11 +611,35 @@ const ModalKhachHangCheckin = ({
       />
 
       <Modal open={isQRModalOpen} onClose={closeQRScanner}>
-        <Box sx={modalStyle}>
+        <Box sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: { xs: "90%", sm: 600 },
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}>
           <Typography variant="h6" component="h3" gutterBottom>
             Quét Mã QR
           </Typography>
-          <UploadQR setQRData={setQRData} />
+          {cameraError ? (
+            <Typography color="error" sx={{ mb: 2 }}>
+              {cameraError}
+            </Typography>
+          ) : (
+            <>
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                style={{ width: "100%", maxHeight: "400px", border: "1px solid #ccc" }}
+              />
+              <canvas ref={canvasRef} style={{ display: "none" }} />
+            </>
+          )}
           <Button
             variant="outlined"
             onClick={closeQRScanner}
