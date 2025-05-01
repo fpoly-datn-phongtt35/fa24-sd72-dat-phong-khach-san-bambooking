@@ -9,4 +9,6 @@ public interface PhuThuService {
     PhuThu addPhuThu(PhuThuRequest phuThuRequest);
     PhuThu updatePhuThu(PhuThuRequest phuThuRequest);
     PhuThu checkIfPhuThuExists(Integer idXepPhong);
+    void deletePhuThu(Integer id);
+
 }
