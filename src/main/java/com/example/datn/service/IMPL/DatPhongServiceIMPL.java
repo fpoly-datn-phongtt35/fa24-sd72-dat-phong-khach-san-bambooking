@@ -234,25 +234,29 @@ public class DatPhongServiceIMPL implements DatPhongService {
         List<String> trangThai = Arrays.asList("Đang đặt phòng");
         LocalDateTime now = LocalDateTime.now();
         List<DatPhong> listDP = datPhongRepository.findDatPhongByTrangThais(trangThai);
-        for (DatPhong dp : listDP) {
-            System.out.println(dp.getId());
-            LocalDate ngayDat = dp.getNgayDat();
-            if (ngayDat != null && ngayDat.atStartOfDay().isBefore(now)) {
-                dp.setGhiChu("Hủy do không xác nhận trong vòng 1 ngày");
-                dp.setTrangThai("Đã hủy");
-                datPhongRepository.save(dp);
 
-                List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByMaDatPhong(dp.getMaDatPhong());
-                for (ThongTinDatPhong ttdp : ttdps) {
-                    ttdp.setGhiChu("Hủy do không xác nhận trong vòng 1 ngày");
-                    ttdp.setTrangThai("Đã hủy");
-                    thongTinDatPhongRepository.save(ttdp);
-                }
-                logger.info("Đã hủy đặt phòng mã: {} do không xác nhận trong 24 giờ", dp.getMaDatPhong());
-                try {
-                    sendCancellationEmail(dp);
-                } catch (MessagingException e) {
-                    logger.error("Lỗi khi gửi email thông báo hủy đặt phòng mã: {}", dp.getMaDatPhong(), e);
+        for (DatPhong dp : listDP) {
+            logger.debug("Kiểm tra đặt phòng ID: {}", dp.getId());
+            LocalDate ngayDat = dp.getNgayDat();
+            if (ngayDat != null) {
+                LocalDateTime ngayDatTime = ngayDat.atTime(23, 59, 59);
+                if (ngayDatTime.plusHours(24).isBefore(now)) {
+                    dp.setGhiChu("Hủy do không xác nhận trong vòng 1 ngày");
+                    dp.setTrangThai("Đã hủy");
+                    datPhongRepository.save(dp);
+
+                    List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByMaDatPhong(dp.getMaDatPhong());
+                    for (ThongTinDatPhong ttdp : ttdps) {
+                        ttdp.setGhiChu("Hủy do không xác nhận trong vòng 1 ngày");
+                        ttdp.setTrangThai("Đã hủy");
+                        thongTinDatPhongRepository.save(ttdp);
+                    }
+                    logger.info("Đã hủy đặt phòng mã: {} do không xác nhận trong 24 giờ", dp.getMaDatPhong());
+                    try {
+                        sendCancellationEmail(dp);
+                    } catch (MessagingException e) {
+                        logger.error("Lỗi khi gửi email thông báo hủy đặt phòng mã: {}", dp.getMaDatPhong(), e);
+                    }
                 }
             }
         }
