@@ -233,8 +233,9 @@ public class DatPhongServiceIMPL implements DatPhongService {
         Logger logger = LoggerFactory.getLogger(DatPhongServiceIMPL.class);
         List<String> trangThai = Arrays.asList("Đang đặt phòng");
         LocalDateTime now = LocalDateTime.now();
-        List<DatPhong> listDP = datPhongRepository.findDatPhongByTrangThais(trangThai, null);
+        List<DatPhong> listDP = datPhongRepository.findDatPhongByTrangThais(trangThai);
         for (DatPhong dp : listDP) {
+            System.out.println(dp.getId());
             LocalDate ngayDat = dp.getNgayDat();
             if (ngayDat != null && ngayDat.atStartOfDay().isBefore(now)) {
                 dp.setGhiChu("Hủy do không xác nhận trong vòng 1 ngày");
