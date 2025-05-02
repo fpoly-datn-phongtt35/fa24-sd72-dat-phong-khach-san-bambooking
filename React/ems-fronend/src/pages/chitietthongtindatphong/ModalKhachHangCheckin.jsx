@@ -28,6 +28,7 @@ import { them, DanhSachKHC, getKhachHangCheckinByThongTinId,qrCheckIn } from "..
 import { ThemPhuThu, CapNhatPhuThu, CheckPhuThuExists } from '../../services/PhuThuService';
 import { getLoaiPhongById } from '../../services/LoaiPhongService';
 import { getXepPhongByThongTinDatPhongId } from '../../services/XepPhongService.js';
+import Swal from 'sweetalert2';
 
 const ModalKhachHangCheckin = ({
   isOpen,
@@ -298,7 +299,7 @@ const ModalKhachHangCheckin = ({
           khachHangToCreate.push(kh);
         }
       }
-      
+
       let idXepPhong = null;
       try {
         const resXepPhong = await getXepPhongByThongTinDatPhongId(thongTinDatPhong.id);
@@ -328,7 +329,7 @@ const ModalKhachHangCheckin = ({
 
         try {
           let existingPhuThu = null;
-
+        
           try {
             const response = await CheckPhuThuExists(idXepPhong);
             existingPhuThu = response?.data;
@@ -337,40 +338,40 @@ const ModalKhachHangCheckin = ({
             if (err.response?.status === 404) {
               console.log("Phụ thu không tồn tại, sẽ tạo mới.");
             } else {
-              throw err;
+              console.error("Lỗi khi kiểm tra phụ thu:", err);
             }
           }
-
+        
           if (existingPhuThu) {
-            // Kiểm tra xem có cần cập nhật hay không
-            const soKhachToiDa = loaiPhong.data.soKhachToiDa || 0;
-
-            if (soKhachVuot > soKhachToiDa) {
+            // Cập nhật nếu số lượng hoặc tiền thay đổi
+            if (
+              existingPhuThu.soLuong !== soKhachVuot ||
+              existingPhuThu.tienPhuThu !== tienPhuThu
+            ) {
               const updatedPhuThu = {
                 ...existingPhuThu,
                 soLuong: soKhachVuot,
                 tienPhuThu: tienPhuThu,
                 tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
               };
-
+        
               try {
                 const updatedResponse = await CapNhatPhuThu(updatedPhuThu);
                 console.log("Cập nhật phụ thu thành công:", updatedResponse.data);
               } catch (updateErr) {
                 console.error("Lỗi khi cập nhật phụ thu:", updateErr);
-                alert("Có lỗi khi cập nhật phụ thu.");
               }
             } else {
-              console.log("Số khách không vượt quá giới hạn hiện tại, không cần cập nhật.");
+              console.log("Số khách vượt không thay đổi, không cần cập nhật phụ thu.");
             }
           } else {
             const createResponse = await ThemPhuThu(phuThuRequest);
             console.log("Đã tạo phụ thu vì vượt số khách:", createResponse.data);
+            Swal.fire("Thành công", "Đã tạo phụ thu vượt quá số khách", "success");
           }
-
+        
         } catch (err) {
           console.error("Lỗi khi xử lý phụ thu:", err);
-          alert("Có lỗi khi xử lý phụ thu. Kiểm tra log để biết thêm chi tiết.");
         }
       } else {
         console.log("Số khách không vượt quá giới hạn, không cần phụ thu.");

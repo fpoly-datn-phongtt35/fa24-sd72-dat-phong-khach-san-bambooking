@@ -24,6 +24,12 @@ import PersonIcon from "@mui/icons-material/Person";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { updateKhachHang, } from "../../services/KhachHangService";
+import { ThemPhuThu, CapNhatPhuThu, CheckPhuThuExists, XoaPhuThu } from '../../services/PhuThuService';
+import { getLoaiPhongById } from '../../services/LoaiPhongService';
+import { getXepPhongByThongTinDatPhongId } from '../../services/XepPhongService.js';
+import { getKhachHangCheckinByThongTinId } from '../../services/KhachHangCheckin.js';
+import Swal from 'sweetalert2';
+
 const ChiTietTTDP = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -90,9 +96,92 @@ const ChiTietTTDP = () => {
   // Hàm xóa khách hàng check-in
   const handleDelete = async (id) => {
     try {
-      await xoa(id); // Gọi API xoa với ID của khachHangCheckin
+      // Xóa khách hàng
+      await xoa(id);
       console.log("Xóa khách hàng check-in thành công");
-      fetchKhachHangCheckin(maThongTinDatPhong); // Tải lại danh sách sau khi xóa
+
+      // Gọi lại danh sách khách đã check-in
+      const resDaCheckin = await getKhachHangCheckinByThongTinId(thongTinDatPhong.id);
+      const daCheckinList = resDaCheckin.data || [];
+
+      const tongSoKhach = daCheckinList.length;
+
+      // Lấy id xếp phòng
+      let idXepPhong = null;
+      try {
+        const resXepPhong = await getXepPhongByThongTinDatPhongId(thongTinDatPhong.id);
+        idXepPhong = resXepPhong?.data?.id || null;
+        console.log("Lấy được idXepPhong:", idXepPhong);
+      } catch (err) {
+        console.error("Lỗi khi lấy idXepPhong từ API:", err);
+        return;
+      }
+
+      // Lấy loại phòng để biết giới hạn khách
+      const resLoaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
+      const loaiPhong = resLoaiPhong.data;
+      const soKhachToiDa = loaiPhong.soKhachToiDa || 0;
+      const soKhachVuot = tongSoKhach - soKhachToiDa;
+
+      if (soKhachVuot > 0) {
+        const tienPhuThu = (loaiPhong.donGiaPhuThu || 0) * soKhachVuot;
+        const phuThuRequest = {
+          xepPhong: { id: idXepPhong },
+          tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
+          tienPhuThu,
+          soLuong: soKhachVuot,
+          trangThai: false,
+        };
+
+        try {
+          let existingPhuThu = null;
+          try {
+            const response = await CheckPhuThuExists(idXepPhong);
+            existingPhuThu = response?.data;
+          } catch (err) {
+            if (err.response?.status !== 404) throw err;
+          }
+
+          if (existingPhuThu) {
+            // Nếu có phụ thu -> cập nhật nếu khác
+            if (
+              existingPhuThu.soLuong !== soKhachVuot ||
+              existingPhuThu.tienPhuThu !== tienPhuThu
+            ) {
+              const updatedPhuThu = {
+                ...existingPhuThu,
+                soLuong: soKhachVuot,
+                tienPhuThu,
+                tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
+              };
+              const updatedResponse = await CapNhatPhuThu(updatedPhuThu);
+              console.log("Cập nhật phụ thu thành công", updatedResponse.data);
+            }
+          } else {
+            await ThemPhuThu(phuThuRequest);           
+          }
+        } catch (err) {
+          console.error("Lỗi khi xử lý phụ thu:", err);
+        }
+      } else {
+        // Nếu không còn vượt nữa, thì xóa phụ thu nếu tồn tại
+        try {
+          const response = await CheckPhuThuExists(idXepPhong);
+          const existingPhuThu = response?.data;
+          if (existingPhuThu) {
+            await XoaPhuThu(existingPhuThu.id);
+            Swal.fire("Thành công", "Đã xóa phụ thu vì không còn vượt quá số khách", "success");
+          }
+        } catch (err) {
+          if (err.response?.status !== 404) {
+            console.error("Lỗi khi kiểm tra hoặc xóa phụ thu:", err);
+          }
+        }
+      }
+
+      // Cuối cùng: cập nhật danh sách hiển thị
+      fetchKhachHangCheckin(maThongTinDatPhong);
+
     } catch (error) {
       console.error("Lỗi khi xóa khách hàng check-in:", error);
     }

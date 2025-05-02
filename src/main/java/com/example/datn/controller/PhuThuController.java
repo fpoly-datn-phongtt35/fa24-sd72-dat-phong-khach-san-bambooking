@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,6 +32,16 @@ public class PhuThuController {
     public ResponseEntity<?> updatePhuThu(@RequestBody PhuThuRequest phuThuRequest) {
         PhuThu updatedPhuThu = phuThuServiceIMPL.updatePhuThu(phuThuRequest);
         return ResponseEntity.ok(updatedPhuThu);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deletePhuThu(@PathVariable Integer id) {
+        try {
+            phuThuServiceIMPL.deletePhuThu(id);
+            return ResponseEntity.ok("Xóa phụ thu thành công");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Lỗi khi xóa phụ thu: " + e.getMessage());
+        }
     }
 
     @GetMapping("/check/{idXepPhong}")

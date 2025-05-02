@@ -40,4 +40,12 @@ public class PhuThuServiceIMPL implements PhuThuService {
         public PhuThu checkIfPhuThuExists(Integer idXepPhong) {
             return phuThuRepository.findTopByXepPhong_IdOrderByIdDesc(idXepPhong);
         }
+
+    @Override
+    public void deletePhuThu(Integer id) {
+        if (!phuThuRepository.existsById(id)) {
+            throw new RuntimeException("Không tìm thấy phụ thu để xóa");
+        }
+        phuThuRepository.deleteById(id);
+    }
 }
