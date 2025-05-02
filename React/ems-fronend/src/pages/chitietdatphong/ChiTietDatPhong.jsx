@@ -213,7 +213,6 @@ const ChiTietDatPhong = () => {
   const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [phongData, setPhongData] = useState({});
-  const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
