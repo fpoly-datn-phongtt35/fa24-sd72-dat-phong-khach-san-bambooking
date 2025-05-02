@@ -454,7 +454,7 @@ const ChiTietTTDP = () => {
                             </Button>
                           )}
 
-                          {xepPhong?.trangThai === 'Đang ở' && (
+                          {/* {xepPhong?.trangThai === 'Đang ở' && (
                             <>
                               <Button
                                 size="small"
@@ -472,7 +472,7 @@ const ChiTietTTDP = () => {
                                 Hủy
                               </Button>
                             </>
-                          )}
+                          )} */}
 
                         </CardActions>
                       </Card>

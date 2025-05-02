@@ -19,7 +19,7 @@ public class KhachHangCheckinController {
     KhachHangCheckinServiceIMPL khachHangCheckinServiceIMPL;
 
     @GetMapping("hien-thi")
-    public ResponseEntity<List<KhachHangCheckin>> hienThi(@RequestParam String maThongTinDatPhong){
+    public ResponseEntity<List<KhachHangCheckin>> hienThi(@RequestParam String maThongTinDatPhong) {
         return ResponseEntity.ok(khachHangCheckinServiceIMPL.findsByMaTTDP(maThongTinDatPhong));
     }
 
@@ -32,8 +32,9 @@ public class KhachHangCheckinController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
     }
+
     @PutMapping("sua")
-    public ResponseEntity<KhachHangCheckin> sua(@RequestBody KhachHangCheckinRequest request){
+    public ResponseEntity<KhachHangCheckin> sua(@RequestBody KhachHangCheckinRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(khachHangCheckinServiceIMPL.update(request));
     }
 
@@ -51,12 +52,12 @@ public class KhachHangCheckinController {
     }
 
     @GetMapping("ds-luu-tru")
-    public ResponseEntity<List<Object[]>> findKhachHangCheckin(@RequestParam(value="keyword", required = false) String keyword){
+    public ResponseEntity<List<Object[]>> findKhachHangCheckin(@RequestParam(value = "keyword", required = false) String keyword) {
         return ResponseEntity.ok(khachHangCheckinServiceIMPL.findKhachHangCheckin(keyword));
     }
 
     @GetMapping("/danh-sach")
-    public ResponseEntity<List<KhachHangCheckin>> findByTrangThaiTTDP(){
+    public ResponseEntity<List<KhachHangCheckin>> findByTrangThaiTTDP() {
         return ResponseEntity.ok(khachHangCheckinServiceIMPL.findByTrangThaiTTDP());
     }
 
@@ -64,5 +65,14 @@ public class KhachHangCheckinController {
     public ResponseEntity<List<KhachHangCheckin>> getByThongTinDatPhongId(@PathVariable int id) {
         List<KhachHangCheckin> danhSach = khachHangCheckinServiceIMPL.findByThongTinDatPhongId(id);
         return ResponseEntity.ok(danhSach);
+    }
+
+    @GetMapping("/quet-qr")
+    public boolean quetQR(@RequestParam("idTTDP") Integer idTTDP,
+                                    @RequestParam("cmnd") String cmnd,
+                                    @RequestParam("diaChi") String diaChi,
+                                    @RequestParam("gioiTinh") String gioiTinh,
+                                    @RequestParam("hoTen") String hoTen) {
+        return khachHangCheckinServiceIMPL.qrCheckIn(idTTDP, cmnd, diaChi, gioiTinh, hoTen);
     }
 }

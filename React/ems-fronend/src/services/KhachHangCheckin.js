@@ -8,6 +8,8 @@ const apiKHLuuTru = "http://localhost:8080/khach-hang-checkin/ds-luu-tru"
 const apiGetAll = "http://localhost:8080/khach-hang-checkin/danh-sach"
 const apiGetByThongTinDatPhongId = "http://localhost:8080/khach-hang-checkin/thong-tin-dat-phong";
 
+const apiqrCheckIn= "http://localhost:8080/khach-hang-checkin/quet-qr"
+
 export const hienThi = (maThongTinDatPhong) => {
     return authorizedAxiosInstance.get(apiHienThi, {
         params: {
@@ -41,4 +43,16 @@ export const DanhSachKHC = () => {
 
 export const getKhachHangCheckinByThongTinId = (id) => {
   return authorizedAxiosInstance.get(`${apiGetByThongTinDatPhongId}/${id}`);
+};
+
+export const qrCheckIn = (qrParsedData,idTTDP) => {
+  return authorizedAxiosInstance.get(apiqrCheckIn,{
+    params:{
+      idTTDP: idTTDP,
+      cmnd: qrParsedData.cmnd,
+      diaChi: qrParsedData.diaChi,
+      gioiTinh: qrParsedData.gioiTinh,
+      hoTen: qrParsedData.hoTen
+    }
+  });
 };

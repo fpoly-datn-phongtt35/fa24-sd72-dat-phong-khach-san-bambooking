@@ -229,6 +229,7 @@ const ChiTietDatPhong = () => {
     idLoaiPhong: null,
   });
   const [searchErrors, setSearchErrors] = useState({});
+  const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [loaiPhongs, setLoaiPhongs] = useState([]);
   const [loading, setLoading] = useState(false);
