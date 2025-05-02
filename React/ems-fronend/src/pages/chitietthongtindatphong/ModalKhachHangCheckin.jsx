@@ -28,7 +28,6 @@ import { them, DanhSachKHC, getKhachHangCheckinByThongTinId,qrCheckIn } from "..
 import { ThemPhuThu, CapNhatPhuThu, CheckPhuThuExists } from '../../services/PhuThuService';
 import { getLoaiPhongById } from '../../services/LoaiPhongService';
 import { getXepPhongByThongTinDatPhongId } from '../../services/XepPhongService.js';
-import Swal from 'sweetalert2';
 
 const ModalKhachHangCheckin = ({
   isOpen,
