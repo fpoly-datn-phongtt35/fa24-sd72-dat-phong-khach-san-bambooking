@@ -277,16 +277,21 @@ const ChiTietDatPhong = () => {
   const grTTDP = useMemo(() => {
     if (!Array.isArray(thongTinDatPhong)) return [];
 
-    // Tách TTDP đã xếp hoặc đang ở
-    const daXepHoacDangO = thongTinDatPhong.filter(
-      (ttdp) => ttdp.trangThai === "Đã xếp" || ttdp.trangThai === "Đang ở"
+    // Tách TTDP có trạng thái cần giữ nguyên (Đã xếp, Đang ở, Đã kiểm tra phòng, Đã trả phòng)
+    const keepIndividual = thongTinDatPhong.filter((ttdp) =>
+      ["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(
+        ttdp.trangThai
+      )
     );
     const chuaXep = thongTinDatPhong.filter(
-      (ttdp) => ttdp.trangThai !== "Đã xếp" && ttdp.trangThai !== "Đang ở"
+      (ttdp) =>
+        !["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(
+          ttdp.trangThai
+        )
     );
 
-    // Không gộp TTDP đã xếp hoặc đang ở, mỗi TTDP là một bản ghi riêng
-    const daXepHoacDangOGrouped = daXepHoacDangO.map((ttdp) => ({
+    // Không gộp TTDP trong keepIndividual, mỗi TTDP là một bản ghi riêng
+    const keepIndividualGrouped = keepIndividual.map((ttdp) => ({
       loaiPhong: ttdp.loaiPhong,
       soNguoi: ttdp.soNguoi,
       ngayNhanPhong: ttdp.ngayNhanPhong,
@@ -325,7 +330,7 @@ const ChiTietDatPhong = () => {
     );
 
     // Kết hợp cả hai danh sách
-    return [...daXepHoacDangOGrouped, ...chuaXepGrouped];
+    return [...keepIndividualGrouped, ...chuaXepGrouped];
   }, [thongTinDatPhong]);
 
   const getDetailDatPhong = async () => {
@@ -747,7 +752,7 @@ const ChiTietDatPhong = () => {
   useEffect(() => {
     if (Array.isArray(thongTinDatPhong) && thongTinDatPhong.length > 0) {
       const promises = thongTinDatPhong
-        .filter((ttdp) => ["Đã xếp", "Đang ở"].includes(ttdp.trangThai))
+        .filter((ttdp) => ["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(ttdp.trangThai))
         .map((ttdp) => fetchPhongDaXep(ttdp.maThongTinDatPhong));
       Promise.all(promises).catch((error) =>
         console.error("Lỗi khi lấy phòng đã xếp:", error)
@@ -1107,7 +1112,7 @@ const ChiTietDatPhong = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      {["Đã xếp", "Đang ở"].includes(ttdp.trangThai) &&
+                      {["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(ttdp.trangThai) &&
                       phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong ? (
                         <Typography>
                           {phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong}
@@ -1225,14 +1230,17 @@ const ChiTietDatPhong = () => {
         <Button variant="outlined" onClick={() => navigate(-1)}>
           Quay lại
         </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          startIcon={<AddIcon />}
-          onClick={() => setOpenSearchDialog(true)}
-        >
-          Thêm phòng
-        </Button>
+        {!isDangDatPhong && (
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<AddIcon />}
+            onClick={() => setOpenSearchDialog(true)}
+          >
+            Thêm phòng
+          </Button>
+        )}
+
         {datPhong && (
           <Button
             variant="contained"
