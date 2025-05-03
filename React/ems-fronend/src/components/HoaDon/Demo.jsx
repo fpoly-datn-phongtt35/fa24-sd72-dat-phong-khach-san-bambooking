@@ -223,7 +223,7 @@ const Demo = () => {
                 }
 
                 const gio12Trua = new Date(ngayTraPhong);
-                gio12Trua.setHours(9, 0, 0, 0);
+                gio12Trua.setHours(12, 0, 0, 0);
 
                 const diffMinutes = (ngayTraThucTe - gio12Trua) / (1000 * 60);
                 console.log(`Phòng ID: ${item.id}`);
