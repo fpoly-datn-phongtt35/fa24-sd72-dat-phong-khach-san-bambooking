@@ -49,7 +49,6 @@ import {
   getLPKDRL,
   getLoaiPhongKhaDungResponse,
 } from "../../services/LoaiPhongService";
-import { ThemPhuThu } from "../../services/PhuThuService";
 import XepPhong from "../xepphong/XepPhong";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -825,24 +824,7 @@ const ChiTietDatPhong = () => {
         };
 
         await checkIn(xepPhongRequest);
-        showSnackbar("Check-in thành công!", "success");
-
-        if (item.soNguoi > loaiPhong.soKhachToiDa) {
-          const soNguoiVuot = item.soNguoi - loaiPhong.soKhachToiDa;
-          const tienPhuThuThem = soNguoiVuot * loaiPhong.donGiaPhuThu;
-          const phuThuThemRequest = {
-            xepPhong: { id: xepPhong.id },
-            tenPhuThu: `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người)`,
-            tienPhuThu: tienPhuThuThem,
-            soLuong: 1,
-            trangThai: true,
-          };
-          await ThemPhuThu(phuThuThemRequest);
-          showSnackbar(
-            `Phụ thu do vượt số khách tối đa (${soNguoiVuot} người) đã được thêm.`,
-            "success"
-          );
-        }
+        showSnackbar("Check-in thành công!", "success");    
       }
     } catch (error) {
       const errorMessage =
