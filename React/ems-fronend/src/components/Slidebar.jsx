@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom'; // Thêm useLocation
+import { Link, useLocation } from 'react-router-dom';
+import HomeIcon from '@mui/icons-material/Home';
+import BookIcon from '@mui/icons-material/Book';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RoomPreferencesIcon from '@mui/icons-material/RoomPreferences';
+import RoomServiceIcon from '@mui/icons-material/RoomService';
+import ImageIcon from '@mui/icons-material/Image';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import PeopleIcon from '@mui/icons-material/People';
+
 import {
   Drawer,
   List,
@@ -8,6 +18,7 @@ import {
   Collapse,
   Divider,
   IconButton,
+  ListItemIcon,
 } from '@mui/material';
 import { ExpandLess, ExpandMore, Menu, ChevronLeft } from '@mui/icons-material';
 
@@ -101,18 +112,29 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
 
         <List>
           <ListItemButton component={Link} to="/trang-chu">
+            <ListItemIcon>
+              <HomeIcon />
+            </ListItemIcon>
             <ListItemText primary="Trang chủ" />
           </ListItemButton>
+
           <ListItemButton component={Link} to="/dat-phong">
+            <ListItemIcon><BookIcon /></ListItemIcon>
             <ListItemText primary="Đặt phòng" />
           </ListItemButton>
+
           <ListItemButton component={Link} to="/quan-ly-dat-phong">
+            <ListItemIcon><ManageAccountsIcon /></ListItemIcon>
             <ListItemText primary="Quản lý đặt phòng" />
           </ListItemButton>
+
           <ListItemButton component={Link} to="/nhan-phong">
+            <ListItemIcon><CheckCircleIcon /></ListItemIcon>
             <ListItemText primary="Nhận phòng" />
           </ListItemButton>
+
           <ListItemButton onClick={() => handleToggle("quanLyPhong")}>
+            <ListItemIcon><RoomPreferencesIcon /></ListItemIcon>
             <ListItemText primary="Quản lý phòng" />
             {openSubmenu["quanLyPhong"] ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
@@ -144,13 +166,14 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
             </List>
           </Collapse>
           <Divider />
+
           <ListItemButton component={Link} to="/dich-vu">
+            <ListItemIcon><RoomServiceIcon /></ListItemIcon>
             <ListItemText primary="Dịch vụ" />
           </ListItemButton>
-          <ListItemButton component={Link} to="/hinh-anh">
-            <ListItemText primary="Hình ảnh" />
-          </ListItemButton>
+
           <ListItemButton onClick={() => handleToggle("hoaDon")}>
+            <ListItemIcon><ReceiptIcon /></ListItemIcon>
             <ListItemText primary="Hóa đơn" />
             {openSubmenu["hoaDon"] ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
@@ -168,6 +191,7 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
 
 
           <ListItemButton onClick={() => handleToggle('nguoiDung')}>
+            <ListItemIcon><PeopleIcon /></ListItemIcon>
             <ListItemText primary="Người dùng" />
             {openSubmenu['nguoiDung'] ? <ExpandLess /> : <ExpandMore />}
           </ListItemButton>
