@@ -59,4 +59,10 @@ public class XepPhongController {
         return xepPhong.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<XepPhong> getXepPhongById(@PathVariable Integer id) {
+        XepPhong xepPhong = xepPhongServiceIMPL.getById(id);
+        return ResponseEntity.ok(xepPhong);
+    }
 }

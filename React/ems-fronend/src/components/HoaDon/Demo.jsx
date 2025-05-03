@@ -165,6 +165,8 @@ import { findCheckOut, checkOut } from '../../services/HoaDonDat';
 import { Box, Button, Container, Input, Stack, Table, Typography } from '@mui/joy';
 import SearchIcon from '@mui/icons-material/Search';
 import { ThemPhuThu } from '../../services/PhuThuService';
+import { getXepPhongById } from '../../services/XepPhongService';
+import Swal from 'sweetalert2';
 
 const Demo = () => {
     const [key, setKey] = useState('');
@@ -205,7 +207,13 @@ const Demo = () => {
             for (const item of selectedItems) {
                 await checkOut(item.id);
 
-                if (!item.xepPhong) continue;
+                if (!item.xepPhong) {
+                    const response = await getXepPhongById(item.idXepPhong);
+                    item.xepPhong = response.data;
+
+                    console.log('xepPhong data:', response.data);
+
+                }
 
                 const ngayTraPhong = new Date(item.xepPhong.ngayTraPhong);
                 const ngayTraThucTe = new Date(item.ngayTraThucTe);
@@ -215,19 +223,46 @@ const Demo = () => {
                 }
 
                 const gio12Trua = new Date(ngayTraPhong);
-                gio12Trua.setHours(12, 0, 0, 0);
+                gio12Trua.setHours(9, 0, 0, 0);
 
-                if (ngayTraThucTe > gio12Trua) {
-                    const phuThuRequest = {
-                        xepPhong: { id: item.xepPhong.id },
-                        tenPhuThu: 'Phụ thu do trả phòng muộn',
-                        tienPhuThu: 70000,
-                        soLuong: 1,
-                        trangThai: true,
-                    };
-                    await ThemPhuThu(phuThuRequest);
-                    alert(`Phụ thu đã được thêm cho phòng ${item.xepPhong.id}`);
+                const diffMinutes = (ngayTraThucTe - gio12Trua) / (1000 * 60);
+                console.log(`Phòng ID: ${item.id}`);
+                console.log(`- Ngày trả dự kiến: ${gio12Trua}`);
+                console.log(`- Ngày trả thực tế: ${ngayTraThucTe}`);
+                console.log(`- Số phút trả muộn: ${diffMinutes}`);
+
+                let tienPhuThu = 0;
+                let tenPhuThu = '';
+
+                if (diffMinutes <= 15) {
+                    console.log('- Trả muộn <= 15 phút -> Không phụ thu');
+                    continue;
+                } else if (diffMinutes <= 59) {
+                    tienPhuThu = 100000;
+                    tenPhuThu = 'Phụ thu trả phòng muộn (15-59 phút)';
+                } else if (diffMinutes <= 180) { // 1-3 giờ
+                    tienPhuThu = item.xepPhong.thongTinDatPhong.giaDat * 0.3;
+                    tenPhuThu = 'Phụ thu trả phòng muộn (1-3 giờ)';
+                } else if (diffMinutes <= 600) { // 4-10 giờ
+                    tienPhuThu = item.xepPhong.thongTinDatPhong.giaDat * 0.5;
+                    tenPhuThu = 'Phụ thu trả phòng muộn (4-10 giờ)';
+                } else {
+                    tienPhuThu = item.xepPhong.thongTinDatPhong.giaDat;
+                    tenPhuThu = 'Phụ thu trả phòng muộn (>10 giờ)';
                 }
+
+                console.log(`- Áp dụng phụ thu: ${tenPhuThu}, số tiền: ${tienPhuThu.toLocaleString('vi-VN')} VND`);
+
+                const phuThuRequest = {
+                    xepPhong: { id: item.xepPhong.id },
+                    tenPhuThu,
+                    tienPhuThu,
+                    soLuong: 1,
+                    trangThai: true,
+                };
+
+                await ThemPhuThu(phuThuRequest);
+                Swal.fire("Thành công", `Đã tạo phụ thu do trả phòng muộn`, "success");
             }
 
             localStorage.setItem('traPhong', JSON.stringify(selectedItems));

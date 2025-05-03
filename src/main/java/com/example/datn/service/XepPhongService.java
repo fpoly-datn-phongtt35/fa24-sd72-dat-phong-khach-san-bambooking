@@ -15,5 +15,5 @@ public interface XepPhongService {
 
     List<XepPhong> findByKey(String key);
     Optional<XepPhong> getXepPhongByThongTinDatPhongId(Integer idThongTinDatPhong);
-
+    XepPhong getById(Integer id);
 }

@@ -143,4 +143,10 @@ public class XepPhongServiceIMPL implements XepPhongService {
     public Optional<XepPhong> getXepPhongByThongTinDatPhongId(Integer idThongTinDatPhong) {
         return xepPhongRepository.findByThongTinDatPhong_Id(idThongTinDatPhong);
     }
+
+    @Override
+    public XepPhong getById(Integer id) {
+        return xepPhongRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy xếp phòng với id: " + id));
+    }
 }
