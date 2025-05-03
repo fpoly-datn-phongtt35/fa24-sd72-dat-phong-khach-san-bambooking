@@ -239,13 +239,13 @@ const Demo = () => {
                     continue;
                 } else if (diffMinutes <= 59) {
                     tienPhuThu = 100000;
-                    tenPhuThu = 'Phụ thu trả phòng muộn (15-59 phút)';
+                    tenPhuThu = 'Phụ thu trả phòng muộn 1 tiếng đầu tiên';
                 } else if (diffMinutes <= 180) { // 1-3 giờ
                     tienPhuThu = item.xepPhong.thongTinDatPhong.giaDat * 0.3;
-                    tenPhuThu = 'Phụ thu trả phòng muộn (1-3 giờ)';
+                    tenPhuThu = 'Phụ thu trả phòng muộn (3 giờ) 30% giá phòng';
                 } else if (diffMinutes <= 600) { // 4-10 giờ
                     tienPhuThu = item.xepPhong.thongTinDatPhong.giaDat * 0.5;
-                    tenPhuThu = 'Phụ thu trả phòng muộn (4-10 giờ)';
+                    tenPhuThu = 'Phụ thu trả phòng muộn (10 giờ) 50% giá phòng';
                 } else {
                     tienPhuThu = item.xepPhong.thongTinDatPhong.giaDat;
                     tenPhuThu = 'Phụ thu trả phòng muộn (>10 giờ)';
@@ -258,7 +258,7 @@ const Demo = () => {
                     tenPhuThu,
                     tienPhuThu,
                     soLuong: 1,
-                    trangThai: true,
+                    trangThai: false,
                 };
 
                 await ThemPhuThu(phuThuRequest);
