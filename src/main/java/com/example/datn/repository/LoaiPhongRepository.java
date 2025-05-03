@@ -115,15 +115,15 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             - (
                 SELECT COUNT(xp) FROM XepPhong xp
                 WHERE xp.phong.loaiPhong.id = lp.id
-                AND CAST(xp.ngayNhanPhong AS LocalDate) <= :ngayTraPhong
-                AND CAST(xp.ngayTraPhong AS LocalDate) >= :ngayNhanPhong
+                AND xp.ngayNhanPhong <= :ngayTraPhong
+                AND xp.ngayTraPhong >= :ngayNhanPhong
                 AND xp.trangThai IN (:trangThaiXP)
             )
             - (
                 SELECT COUNT(tp) FROM ThongTinDatPhong tp
                 WHERE tp.loaiPhong.id = lp.id
-                AND tp.ngayNhanPhong < :ngayTraPhong
-                AND tp.ngayTraPhong > :ngayNhanPhong
+                AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate)
+                AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate)
                 AND tp.trangThai IN (:trangThaiTTDP)
             )
         ) AS soPhongKhaDung
@@ -137,22 +137,22 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
         - (
             SELECT COUNT(xp) FROM XepPhong xp
             WHERE xp.phong.loaiPhong.id = lp.id
-            AND CAST(xp.ngayNhanPhong AS LocalDate) <= :ngayTraPhong
-            AND CAST(xp.ngayTraPhong AS LocalDate) >= :ngayNhanPhong
+            AND xp.ngayNhanPhong <= :ngayTraPhong
+            AND xp.ngayTraPhong >= :ngayNhanPhong
             AND xp.trangThai IN (:trangThaiXP)
         )
         - (
             SELECT COUNT(tp) FROM ThongTinDatPhong tp
             WHERE tp.loaiPhong.id = lp.id
-            AND tp.ngayNhanPhong <= :ngayTraPhong
-            AND tp.ngayTraPhong >= :ngayNhanPhong
+            AND tp.ngayNhanPhong <= CAST(:ngayTraPhong AS LocalDate)
+            AND tp.ngayTraPhong >= CAST(:ngayNhanPhong AS LocalDate)
             AND tp.trangThai IN (:trangThaiTTDP)
         )
     ) >= 1
 """)
     List<LoaiPhongKhaDungResponse> findLoaiPhongKhaDungByTinhTrangResponseList(
-            @Param("ngayNhanPhong") LocalDate ngayNhanPhong,
-            @Param("ngayTraPhong") LocalDate ngayTraPhong,
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
             @Param("trangThaiXP") List<String> trangThaiXP,
             @Param("trangThaiTTDP") List<String> trangThaiTTDP
     );

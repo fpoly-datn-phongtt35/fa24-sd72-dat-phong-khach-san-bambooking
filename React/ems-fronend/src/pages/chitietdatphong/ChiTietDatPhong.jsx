@@ -212,7 +212,6 @@ const ChiTietDatPhong = () => {
   const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [phongData, setPhongData] = useState({});
-  const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
@@ -228,6 +227,7 @@ const ChiTietDatPhong = () => {
     idLoaiPhong: null,
   });
   const [searchErrors, setSearchErrors] = useState({});
+  const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const [availableRooms, setAvailableRooms] = useState([]);
   const [loaiPhongs, setLoaiPhongs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -257,10 +257,55 @@ const ChiTietDatPhong = () => {
   const { maDatPhong } = location.state || {};
   const navigate = useNavigate();
 
+  const calculateTotalPrice = (thongTinDatPhong) => {
+    if (!Array.isArray(thongTinDatPhong)) return 0;
+    return thongTinDatPhong
+      .filter((ttdp) => ttdp.trangThai !== "Đã hủy")
+      .reduce((total, ttdp) => {
+        const days = Math.max(
+          Math.ceil(
+            (new Date(ttdp.ngayTraPhong) - new Date(ttdp.ngayNhanPhong)) /
+              (1000 * 60 * 60 * 24)
+          ),
+          1
+        );
+        return total + ttdp.giaDat * days;
+      }, 0);
+  };
+
   const grTTDP = useMemo(() => {
     if (!Array.isArray(thongTinDatPhong)) return [];
-    return Object.values(
-      thongTinDatPhong.reduce((acc, ttdp) => {
+
+    // Tách TTDP có trạng thái cần giữ nguyên (Đã xếp, Đang ở, Đã kiểm tra phòng, Đã trả phòng)
+    const keepIndividual = thongTinDatPhong.filter((ttdp) =>
+      ["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(
+        ttdp.trangThai
+      )
+    );
+    const chuaXep = thongTinDatPhong.filter(
+      (ttdp) =>
+        !["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(
+          ttdp.trangThai
+        )
+    );
+
+    // Không gộp TTDP trong keepIndividual, mỗi TTDP là một bản ghi riêng
+    const keepIndividualGrouped = keepIndividual.map((ttdp) => ({
+      loaiPhong: ttdp.loaiPhong,
+      soNguoi: ttdp.soNguoi,
+      ngayNhanPhong: ttdp.ngayNhanPhong,
+      ngayTraPhong: ttdp.ngayTraPhong,
+      giaDat: ttdp.giaDat,
+      trangThai: ttdp.trangThai,
+      maThongTinDatPhong: ttdp.maThongTinDatPhong,
+      id: ttdp.id,
+      quantity: 1,
+      originalTTDPs: [ttdp],
+    }));
+
+    // Gộp TTDP chưa xếp theo loaiPhong.id, ngayNhanPhong, ngayTraPhong, trangThai
+    const chuaXepGrouped = Object.values(
+      chuaXep.reduce((acc, ttdp) => {
         const key = `${ttdp.loaiPhong.id}_${ttdp.ngayNhanPhong}_${ttdp.ngayTraPhong}_${ttdp.trangThai}`;
         if (!acc[key]) {
           acc[key] = {
@@ -282,22 +327,9 @@ const ChiTietDatPhong = () => {
         return acc;
       }, {})
     );
-  }, [thongTinDatPhong]);
 
-  const totalPrice = useMemo(() => {
-    if (!Array.isArray(thongTinDatPhong)) return 0;
-    return thongTinDatPhong
-      .filter((ttdp) => ttdp.trangThai !== "Đã hủy")
-      .reduce((total, ttdp) => {
-        const days = Math.max(
-          Math.ceil(
-            (new Date(ttdp.ngayTraPhong) - new Date(ttdp.ngayNhanPhong)) /
-              (1000 * 60 * 60 * 24)
-          ),
-          1
-        );
-        return total + ttdp.giaDat * days;
-      }, 0);
+    // Kết hợp cả hai danh sách
+    return [...keepIndividualGrouped, ...chuaXepGrouped];
   }, [thongTinDatPhong]);
 
   const getDetailDatPhong = async () => {
@@ -422,11 +454,15 @@ const ChiTietDatPhong = () => {
           const updatedTTDPs = updatedResponse.data || [];
           setThongTinDatPhong(updatedTTDPs);
 
+          // Tính lại tổng tiền
+          const newTotalPrice = calculateTotalPrice(updatedTTDPs);
+
+          // Cập nhật datPhong
           const updatedDatPhong = {
             ...datPhong,
-            tongTien: totalPrice,
             soPhong: updatedTTDPs.filter((ttdp) => ttdp.trangThai !== "Đã hủy")
               .length,
+            tongTien: newTotalPrice,
           };
           await CapNhatDatPhong(updatedDatPhong);
           setDatPhong(updatedDatPhong);
@@ -575,11 +611,15 @@ const ChiTietDatPhong = () => {
       const updatedTTDPs = updatedResponse.data || [];
       setThongTinDatPhong(updatedTTDPs);
 
+      // Tính toán tổng tiền
+      const newTotalPrice = calculateTotalPrice(updatedTTDPs);
+
+      // Cập nhật datPhong
       const updatedDatPhong = {
         ...datPhong,
         soPhong: updatedTTDPs.filter((ttdp) => ttdp.trangThai !== "Đã hủy")
           .length,
-        tongTien: totalPrice,
+        tongTien: newTotalPrice,
       };
       await CapNhatDatPhong(updatedDatPhong);
       setDatPhong(updatedDatPhong);
@@ -711,7 +751,7 @@ const ChiTietDatPhong = () => {
   useEffect(() => {
     if (Array.isArray(thongTinDatPhong) && thongTinDatPhong.length > 0) {
       const promises = thongTinDatPhong
-        .filter((ttdp) => ttdp.trangThai === "Đã xếp")
+        .filter((ttdp) => ["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(ttdp.trangThai))
         .map((ttdp) => fetchPhongDaXep(ttdp.maThongTinDatPhong));
       Promise.all(promises).catch((error) =>
         console.error("Lỗi khi lấy phòng đã xếp:", error)
@@ -867,7 +907,6 @@ const ChiTietDatPhong = () => {
         </Grid>
       </Grid>
 
-      {/* Modal chỉnh sửa thông tin khách hàng */}
       <Dialog open={openEditModal} onClose={handleCloseEditModal}>
         <DialogTitle>Sửa thông tin khách hàng</DialogTitle>
         <DialogContent>
@@ -1039,7 +1078,7 @@ const ChiTietDatPhong = () => {
                 .filter((ttdp) => ttdp.trangThai !== "Đã hủy")
                 .map((ttdp) => (
                   <TableRow
-                    key={`${ttdp.loaiPhong.id}_${ttdp.ngayNhanPhong}_${ttdp.ngayTraPhong}_${ttdp.trangThai}`}
+                    key={`${ttdp.maThongTinDatPhong}_${ttdp.ngayNhanPhong}_${ttdp.ngayTraPhong}_${ttdp.trangThai}`}
                     hover
                     sx={{
                       "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
@@ -1055,7 +1094,7 @@ const ChiTietDatPhong = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      {ttdp.trangThai === "Đã xếp" &&
+                      {["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(ttdp.trangThai) &&
                       phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong ? (
                         <Typography>
                           {phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong}
@@ -1173,14 +1212,17 @@ const ChiTietDatPhong = () => {
         <Button variant="outlined" onClick={() => navigate(-1)}>
           Quay lại
         </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          startIcon={<AddIcon />}
-          onClick={() => setOpenSearchDialog(true)}
-        >
-          Thêm phòng
-        </Button>
+        {!isDangDatPhong && (
+          <Button
+            variant="contained"
+            color="secondary"
+            startIcon={<AddIcon />}
+            onClick={() => setOpenSearchDialog(true)}
+          >
+            Thêm phòng
+          </Button>
+        )}
+
         {datPhong && (
           <Button
             variant="contained"

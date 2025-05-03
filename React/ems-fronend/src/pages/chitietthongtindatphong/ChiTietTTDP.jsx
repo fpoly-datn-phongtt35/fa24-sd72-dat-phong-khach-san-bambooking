@@ -164,7 +164,6 @@ const ChiTietTTDP = () => {
           console.error("Lỗi khi xử lý phụ thu:", err);
         }
       } else {
-        // Nếu không còn vượt nữa, thì xóa phụ thu nếu tồn tại
         try {
           const response = await CheckPhuThuExists(idXepPhong);
           const existingPhuThu = response?.data;
@@ -543,7 +542,7 @@ const ChiTietTTDP = () => {
                             </Button>
                           )}
 
-                          {xepPhong?.trangThai === 'Đang ở' && (
+                          {/* {xepPhong?.trangThai === 'Đang ở' && (
                             <>
                               <Button
                                 size="small"
@@ -561,7 +560,7 @@ const ChiTietTTDP = () => {
                                 Hủy
                               </Button>
                             </>
-                          )}
+                          )} */}
 
                         </CardActions>
                       </Card>
