@@ -38,7 +38,7 @@ import {
 } from "../../services/DatPhong";
 import { addThongTinDatPhong } from "../../services/TTDP";
 import { getLoaiPhongKhaDungResponse } from "../../services/LoaiPhongService";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";
 
 const DatPhong = () => {
   const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs());

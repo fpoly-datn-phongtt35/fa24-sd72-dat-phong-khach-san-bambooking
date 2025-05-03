@@ -205,7 +205,7 @@ const QuanLyDatPhong = () => {
   };
 
   return (
-    <Container sx={{ maxWidth: "100%", padding: { xs: 2, sm: 3 } }}>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
       <Paper
         elevation={3}
         sx={{
@@ -256,16 +256,14 @@ const QuanLyDatPhong = () => {
               }
               disabled={loading}
               sx={{
-                width: { xs: "100%", sm: "auto" },
-                height: { xs: "48px", sm: "56px" },
-                fontSize: { xs: "0.875rem", sm: "1rem" },
-                borderRadius: 1,
+                width: { xs: "50%", sm: "auto" },
+                height: { xs: "40px", sm: "56px" },
               }}
             >
               {loading ? (
                 <CircularProgress size={24} color="inherit" />
               ) : (
-                "Tìm kiếm"
+                "Tìm"
               )}
             </Button>
           </Stack>
@@ -529,7 +527,7 @@ const QuanLyDatPhong = () => {
                             )}
                           </IconButton>
                         )}
-                        {["Đang đặt phòng", "Đã xác nhận"].includes(
+                        {["Đang đặt phòng","Chưa xác nhận", "Đã xác nhận"].includes(
                           dp.trangThai
                         ) && (
                           <IconButton

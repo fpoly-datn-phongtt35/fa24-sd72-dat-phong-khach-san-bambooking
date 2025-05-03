@@ -208,13 +208,7 @@ const Checkin = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Container
-        sx={{
-          width: "100%",
-          padding: isMobile ? 1 : 2,
-          boxSizing: "border-box",
-        }}
-      >
+      <Container maxWidth="xl" sx={{ py: 4 }}>
         <Paper
           elevation={3}
           sx={{
