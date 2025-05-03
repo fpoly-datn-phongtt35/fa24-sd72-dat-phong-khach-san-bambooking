@@ -29,9 +29,23 @@ public interface HotelWebsiteService {
 
     List<DatPhong> getLichSuDPbyEmail (String email);
 
-    void guiEmailXacNhandp(DatPhongRequest datPhongRequest);
+    void guiEmailXacNhandp( Integer idDatPhong);
 
     boolean xacNhanDP(Integer iddp);
 
      void emailDatPhongThanhCong(Integer iddp);
+
+    void guiEmailXacNhandpsauUDKhachHang(Integer iddp);
+
+
+    KhachHang updateKhachHang(KhachHangDatPhongRequest request);
+
+    boolean dsTTDPcothehuy(Integer iddp);
+
+    void huyDPandTTDP(Integer iddp);
+
+    void huyTTDP(Integer idTTDP);
+    void guiEmailXacNhanHuyDP(Integer iddp);
+
+    void guiEmailXacNhanHuyTTDP(Integer idTTDP);
 }

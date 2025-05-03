@@ -11,14 +11,18 @@ import com.example.datn.service.DatPhongService;
 import com.example.datn.utilities.UniqueDatPhongCode;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -223,4 +227,50 @@ public class DatPhongServiceIMPL implements DatPhongService {
         }
         return datPhongRepository.findByMaDatPhong(maDatPhong);
     }
+
+    @Scheduled(cron = "0 0 * * * *")
+    public void checkDatPhongConfirmed() {
+        Logger logger = LoggerFactory.getLogger(DatPhongServiceIMPL.class);
+        List<String> trangThai = Arrays.asList("Đang đặt phòng");
+        LocalDateTime now = LocalDateTime.now();
+        List<DatPhong> listDP = datPhongRepository.findDatPhongByTrangThais(trangThai);
+        for (DatPhong dp : listDP) {
+            System.out.println(dp.getId());
+            LocalDate ngayDat = dp.getNgayDat();
+            if (ngayDat != null && ngayDat.atStartOfDay().isBefore(now)) {
+                dp.setGhiChu("Hủy do không xác nhận trong vòng 1 ngày");
+                dp.setTrangThai("Đã hủy");
+                datPhongRepository.save(dp);
+
+                List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByMaDatPhong(dp.getMaDatPhong());
+                for (ThongTinDatPhong ttdp : ttdps) {
+                    ttdp.setGhiChu("Hủy do không xác nhận trong vòng 1 ngày");
+                    ttdp.setTrangThai("Đã hủy");
+                    thongTinDatPhongRepository.save(ttdp);
+                }
+                logger.info("Đã hủy đặt phòng mã: {} do không xác nhận trong 24 giờ", dp.getMaDatPhong());
+                try {
+                    sendCancellationEmail(dp);
+                } catch (MessagingException e) {
+                    logger.error("Lỗi khi gửi email thông báo hủy đặt phòng mã: {}", dp.getMaDatPhong(), e);
+                }
+            }
+        }
+    }
+    private void sendCancellationEmail(DatPhong dp) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+        helper.setTo(dp.getKhachHang().getEmail());
+        helper.setSubject("Thông báo hủy đặt phòng");
+        helper.setText(
+                "Kính gửi " + dp.getKhachHang().getTen() + ",\n\n" +
+                        "Đặt phòng của bạn với mã " + dp.getMaDatPhong() + " đã bị hủy do không được xác nhận trong vòng 24 giờ.\n" +
+                        "Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ thêm.\n\n" +
+                        "Trân trọng,\nĐội ngũ khách sạn", true
+        );
+
+        mailSender.send(mimeMessage);
+    }
+
 }

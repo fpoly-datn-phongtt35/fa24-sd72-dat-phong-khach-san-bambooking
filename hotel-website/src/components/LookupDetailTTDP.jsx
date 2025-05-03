@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getTTDPbyidDPandidLPTC, getXPbymaTTDPTC } from "../services/TTDP.js";
+import { getTTDPbyidDPandidLPTC, getXPbymaTTDPTC ,GuiEmailXacNhanHuyTTDP} from "../services/TTDP.js";
 import {
   getDichVuSuDungTC,
   getHoaDonByIdTC,
@@ -21,7 +21,9 @@ import {
   Paper,
   Button,
   Collapse,
+  IconButton,
 } from "@mui/material";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 export default function LookupDetailTTDP() {
   const [bookings, setBookings] = useState([]);
@@ -152,6 +154,21 @@ export default function LookupDetailTTDP() {
     return Math.ceil(Math.max(diffDays, 1));
   };
 
+  const handleCancelBooking = async (bookingId) => {
+    try {
+      alert("Email xác nhận hủy đặt phòng đã được gửi đến email của bạn")
+      await GuiEmailXacNhanHuyTTDP(bookingId);
+      fetchData(); // Tải lại dữ liệu để cập nhật trạng thái
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      alert("Có lỗi xảy ra khi hủy đặt phòng.");
+    }
+  };
+  const showActionColumn = bookings.some(
+    (booking) => !["Đã hủy", "Đang ở", "Đã trả phòng"].includes(booking.trangThai)
+  );
+
+
   return (
     <Box sx={{ maxWidth: "1200px", mx: "auto", p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
@@ -184,7 +201,10 @@ export default function LookupDetailTTDP() {
                     <TableCell  align="center" sx={{ fontWeight: "bold" }}>Ngày Nhận</TableCell>
                     <TableCell  align="center" sx={{ fontWeight: "bold" }}>Ngày Trả</TableCell>
                     <TableCell  align="center" sx={{ fontWeight: "bold" }}>Mô tả</TableCell>
-                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Trạng Thái</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: "bold" }}>Trạng Thái</TableCell>
+                    {showActionColumn && (
+                    <TableCell align="center" sx={{ fontWeight: "bold" }}>Hành động</TableCell>
+                  )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -214,9 +234,27 @@ export default function LookupDetailTTDP() {
                             {booking.trangThai}
                           </Box>
                         </TableCell>
+                        {showActionColumn && (
+                        <TableCell align="center">
+                          {["Đã hủy", "Đang ở", "Đã trả phòng"].includes(booking.trangThai) ? (
+                            <Typography>-</Typography>
+                          ) : (
+                            <IconButton
+                              color="error"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Ngăn sự kiện click lan ra hàng
+                                handleCancelBooking(booking.id);
+                              }}
+                              title="Hủy Đặt Phòng"
+                            >
+                              <CancelIcon />
+                            </IconButton>
+                          )}
+                        </TableCell>
+                      )}
                       </TableRow>
                       <TableRow>
-                        <TableCell colSpan={8} sx={{ p: 0 }}>
+                      <TableCell colSpan={showActionColumn ? 9 : 8} sx={{ p: 0 }}>
                           <Collapse in={expandedRow === booking.tenPhong}>
                             <Box sx={{ p: 2, bgcolor: "grey.50" }}>
                               {/* Kiểm tra nếu có thongTinHoaDon khớp với booking.tenPhong */}

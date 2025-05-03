@@ -33,5 +33,10 @@ public interface KhachHangCheckinRepository extends JpaRepository<KhachHangCheck
            "WHERE checkin.thongTinDatPhong.trangThai IN (:trangthaiTTDP)")
     List<KhachHangCheckin> findByTrangThaiTTDP(List<String> trangthaiTTDP);
 
+    @Query("SELECT checkin FROM KhachHangCheckin checkin " +
+            "WHERE checkin.khachHang.cmnd = :CMND " +
+            "AND checkin.thongTinDatPhong.trangThai IN (:trangthaiTTDP)")
+    KhachHangCheckin findByCMNDandTrangThai(String CMND,List<String> trangthaiTTDP);
+
     List<KhachHangCheckin> findByThongTinDatPhong_Id(int idThongTin);
 }

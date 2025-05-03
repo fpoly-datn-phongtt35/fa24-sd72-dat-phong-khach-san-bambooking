@@ -1,0 +1,184 @@
+.services-container {
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Banner toàn màn hình */
+.banner {
+  position: relative;
+  width: 100%;
+  height: 70%;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.banner-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 30px 40px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.banner-text h1 {
+  margin: 0;
+  font-size: 48px;
+}
+
+.banner-text p {
+  margin-top: 10px;
+  font-size: 20px;
+}
+
+/* Danh sách dịch vụ dạng lưới */
+.services-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.services-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+}
+
+.service-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+}
+
+.service-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.service-card:hover .service-image {
+  transform: scale(1.05);
+}
+
+.service-info {
+  padding: 16px;
+}
+
+.service-info h3 {
+  margin-top: 0;
+  font-size: 20px;
+  color: #222;
+}
+
+.service-description {
+  font-size: 14px;
+  color: #555;
+  margin: 10px 0;
+}
+
+.service-price {
+  font-weight: bold;
+  color: #e91e63;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.load-more-container {
+  text-align: center;
+  margin-top: 30px;
+  margin-bottom: 37px;
+}
+
+.load-more-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.load-more-button:hover {
+  background-color: #1976d2;
+}
+
+@media (max-width: 768px) {
+  .service-card {
+    width: 90%;
+  }
+}
+
+.services-list-ziczac {
+  display: flex;
+  flex-direction: column;
+  gap: 60px;
+  margin-bottom: 37px;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.service-item.reverse {
+  flex-direction: row-reverse;
+}
+
+.service-image-ziczac {
+  width: 50%;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.service-text {
+  width: 50%;
+}
+
+.service-text h3 {
+  font-size: 24px;
+  color: #0c4b8f;
+  margin-bottom: 12px;
+}
+
+.service-text p {
+  font-size: 16px;
+  color: #444;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .service-item,
+  .service-item.reverse {
+    flex-direction: column;
+  }
+
+  .service-image-ziczac,
+  .service-text {
+    width: 100%;
+  }
+
+  .service-image-ziczac {
+    height: 200px;
+  }
+}

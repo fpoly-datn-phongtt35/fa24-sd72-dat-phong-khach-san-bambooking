@@ -99,7 +99,14 @@ public class TraPhongServiceImpl implements TraPhongService {
             throw new EntityNotFountException("DatPhong bị null cho ThongTinDatPhong ID: " + thongTinDatPhong.getId());
         }
 
-        boolean allThongTinDatPhongCheckedOut = thongTinDatPhongRepository.areAllThongTinDatPhongCheckedOut(datPhong.getId());
+        // Lấy danh sách ThongTinDatPhong và kiểm tra trạng thái
+        List<ThongTinDatPhong> thongTinDatPhongs = thongTinDatPhongRepository.findByDatPhong_Id(datPhong.getId());
+        log.info("Danh sách ThongTinDatPhong cho DatPhong ID {}: {}", datPhong.getId(), thongTinDatPhongs);
+        boolean allThongTinDatPhongCheckedOut = thongTinDatPhongs.stream()
+                .allMatch(ttdp -> "Đã trả phòng".equals(ttdp.getTrangThai()));
+        log.info("Kết quả kiểm tra allThongTinDatPhongCheckedOut cho DatPhong ID {}: {}", datPhong.getId(), allThongTinDatPhongCheckedOut);
+
+        //Nếu tất cả thông tin đặt phòng có trạng thái = Đã trả phòng -> set trạng thái Đặt phòng = Đã trả phòng
         if (allThongTinDatPhongCheckedOut) {
             datPhong.setTrangThai("Đã trả phòng");
             datPhongRepository.save(datPhong);
@@ -120,6 +127,7 @@ public class TraPhongServiceImpl implements TraPhongService {
 
     private void updateXepPhongAndTraPhong(XepPhong xepPhong, TraPhong traPhong) {
         xepPhong.setTrangThai("Đã trả phòng");
+        traPhong.setNgayTraThucTe(LocalDateTime.now());
         traPhong.setTrangThai(true);
         xepPhongRepository.save(xepPhong);
         traPhongRepository.save(traPhong);
@@ -211,13 +219,13 @@ public class TraPhongServiceImpl implements TraPhongService {
                 // Nội dung HTML cho email
                 String htmlContent =
                         "<div class='container'>" +
-                        "<h2>Chào bạn,</h2>" +
-                        "<p>Cảm ơn bạn đã lựa chọn BamBooking cho kỳ nghỉ vừa qua. Chúng tôi hy vọng bạn đã có những trải nghiệm tuyệt vời.</p>" +
-                        "<p>Chúng tôi rất mong bạn dành chút thời gian để chia sẻ ý kiến đánh giá về kỳ nghỉ của mình. Phản hồi của bạn sẽ giúp chúng tôi cải thiện dịch vụ và mang đến trải nghiệm tốt hơn cho những khách hàng tiếp theo.</p>" +
-                        "<p><a href='http://localhost:3001/create-review/" + idKhachHang + "/" + idTTDP + "' class='button'>Gửi đánh giá của bạn</a></p>" +
-                        "<p>Ý kiến của bạn vô cùng quan trọng đối với chúng tôi.</p>" +
-                        "<p>Trân trọng,<br>Đội ngũ BamBooking</p>" +
-                        "</div>" ;
+                                "<h2>Chào bạn,</h2>" +
+                                "<p>Cảm ơn bạn đã lựa chọn BamBooking cho kỳ nghỉ vừa qua. Chúng tôi hy vọng bạn đã có những trải nghiệm tuyệt vời.</p>" +
+                                "<p>Chúng tôi rất mong bạn dành chút thời gian để chia sẻ ý kiến đánh giá về kỳ nghỉ của mình. Phản hồi của bạn sẽ giúp chúng tôi cải thiện dịch vụ và mang đến trải nghiệm tốt hơn cho những khách hàng tiếp theo.</p>" +
+                                "<p><a href='http://localhost:3001/create-review/" + idKhachHang + "/" + idTTDP + "' class='button'>Gửi đánh giá của bạn</a></p>" +
+                                "<p>Ý kiến của bạn vô cùng quan trọng đối với chúng tôi.</p>" +
+                                "<p>Trân trọng,<br>Đội ngũ BamBooking</p>" +
+                                "</div>" ;
 
                 helper.setText(htmlContent, true); // true để chỉ định nội dung là HTML
 
@@ -228,7 +236,6 @@ public class TraPhongServiceImpl implements TraPhongService {
             }
         }
     }
-
 
     // Gộp logic convert thành một phương thức duy nhất
     private TraPhongResponse convertToTraPhongResponse(TraPhong traPhong) {

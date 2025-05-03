@@ -111,11 +111,22 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     public List<LoaiPhongKhaDungResponse> getAllLPKDR(LocalDate ngayNhanPhong, LocalDate ngayTraPhong) {
-        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Chưa xếp");
-        List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
-//        List<String> tinhTrangPhong = Arrays.asList("Trống","Cần kiểm tra");
+        if (ngayNhanPhong == null || ngayTraPhong == null) {
+            throw new IllegalArgumentException("Ngày nhận phòng và trả phòng không được null");
+        }
 
-        return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(ngayNhanPhong, ngayTraPhong,trangThaiXP,trangThaiTTDP);
+        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng", "Chưa xếp");
+        List<String> trangThaiXP = Arrays.asList("Đã xếp", "Đang ở");
+
+        LocalDateTime ngayNhanPhongDateTime = ngayNhanPhong.atTime(14, 0);
+        LocalDateTime ngayTraPhongDateTime = ngayTraPhong.atTime(12, 0);
+
+        return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(
+                ngayNhanPhongDateTime,
+                ngayTraPhongDateTime,
+                trangThaiXP,
+                trangThaiTTDP
+        );
     }
 
     public List<LoaiPhongKhaDungResponse> getLoaiPhongKhaDungResponseList(LocalDate ngayNhanPhong, LocalDate ngayTraPhong,

@@ -6,6 +6,7 @@ import {
   ThemMoiDatPhong,
   addThongTinDatPhong,
   getKhachHangByUsername,
+  ThemKhachHangDatPhong,
   getLPKDR,
 } from "../services/DatPhong";
 import dayjs from "dayjs";
@@ -21,11 +22,16 @@ import {
   Select,
   MenuItem,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+
 const HotelBookingForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -86,6 +92,15 @@ const HotelBookingForm = () => {
   // State for Snackbar
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+
+  // State for Guest Info Dialog
+  const [openGuestDialog, setOpenGuestDialog] = useState(false);
+  const [guestInfo, setGuestInfo] = useState({
+    hoTen: "",
+    email: "",
+    soDienThoai: "",
+  });
+  const [selectedCombination, setSelectedCombination] = useState(null);
 
   // Handle Snackbar notifications
   const handleSnackbar = (message) => {
@@ -228,12 +243,14 @@ const HotelBookingForm = () => {
 
   const handleCreateBooking = async (combination) => {
     setIsLoading(true);
-    let khachHangResponse = null;
     let datPhongResponse = null;
     let thongTinDatPhongResponseList = [];
 
     try {
       let user;
+      let khachHangData;
+      let kh = null;
+
       try {
         user = localStorage.getItem("user");
         console.log("User:", user);
@@ -241,50 +258,61 @@ const HotelBookingForm = () => {
         console.error("Lỗi khi parse user từ localStorage:", error);
       }
 
-      if (!user) {
-        localStorage.setItem(
-          "pendingData",
-          JSON.stringify({
-            combination,
-            ngayNhanPhong: ngayNhanPhong.toISOString(),
-            ngayTraPhong: ngayTraPhong.toISOString(),
-            soNguoi,
-          })
-        );
-        handleSnackbar("Vui lòng đăng nhập để tiếp tục đặt phòng.");
-        setTimeout(() => {
-          navigate("/login", { state: { from: location.pathname } });
-        }, 1000);
-        return;
-      }
-
-      let khachHangData;
-      try {
-        const response = await getKhachHangByUsername(user);
-        console.log("Khách hàng:", response.data);
-        if (!response || !response.data) {
-          throw new Error("Không tìm thấy thông tin khách hàng.");
+      if (user) {
+        try {
+          const response = await getKhachHangByUsername(user);
+          console.log("Khách hàng:", response.data);
+          if (!response || !response.data) {
+            throw new Error("Không tìm thấy thông tin khách hàng.");
+          }
+          khachHangData = response.data;
+          kh = khachHangData;
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin khách hàng:", error);
+          handleSnackbar(
+            "Không thể lấy thông tin khách hàng. Vui lòng đăng nhập lại."
+          );
+          setTimeout(() => {
+            navigate("/login", { state: { from: location.pathname } });
+          }, 2000);
+          return;
         }
-        khachHangData = response.data;
-      } catch (error) {
-        console.error("Lỗi khi lấy thông tin khách hàng:", error);
-        handleSnackbar(
-          "Không thể lấy thông tin khách hàng. Vui lòng đăng nhập lại."
-        );
-        setTimeout(() => {
-          navigate("/login", { state: { from: location.pathname } });
-        }, 2000);
-        return;
+      } else {
+        if (!guestInfo.hoTen || !guestInfo.email || !guestInfo.soDienThoai) {
+          setSelectedCombination(combination);
+          setOpenGuestDialog(true);
+          setIsLoading(false);
+          return;
+        }
+
+        const [ho, ...tenParts] = guestInfo.hoTen.split(" ");
+        const ten = tenParts.join(" ").trim();
+
+        khachHangData = {
+          ho: ho.trim(),
+          ten: ten || "",
+          email: guestInfo.email,
+          sdt: guestInfo.soDienThoai,
+          trangThai: false,
+        };
+
+        kh = await ThemKhachHangDatPhong(khachHangData);
+        console.log("Khách hàng mới:", kh.data);
+        if (!kh || !kh.data) {
+          throw new Error("Không thể tạo thông tin khách hàng.");
+        }
       }
 
       const datPhongRequest = {
-        khachHang: khachHangData,
-        maDatPhong: "DP" + new Date().getTime(),
+        khachHang: kh.data || kh,
+        maDatPhong: "",
         soNguoi: soNguoi,
         soPhong: combination.tongSoPhong,
         ngayDat: new Date().toISOString(),
         tongTien: combination.tongChiPhi,
-        ghiChu: "Đặt phòng từ tổ hợp được chọn",
+        ghiChu: user
+          ? "Đặt phòng từ tài khoản đăng nhập"
+          : "Đặt phòng không đăng nhập",
         trangThai: "Đang đặt phòng",
       };
       datPhongResponse = await ThemMoiDatPhong(datPhongRequest);
@@ -315,13 +343,12 @@ const HotelBookingForm = () => {
       }
 
       localStorage.removeItem("pendingData");
-
       handleSnackbar("Đặt phòng thành công!");
       navigate("/booking-confirmation", {
         state: {
           combination: combination,
           datPhong: datPhongResponse.data,
-          khachHang: khachHangData,
+          khachHang: kh.data || kh,
           thongTinDatPhong: thongTinDatPhongResponseList,
         },
       });
@@ -331,6 +358,24 @@ const HotelBookingForm = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGuestInfoSubmit = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[0-9]{10,11}$/;
+    if (
+      !guestInfo.hoTen ||
+      !guestInfo.hoTen.includes(" ") ||
+      !emailRegex.test(guestInfo.email) ||
+      !phoneRegex.test(guestInfo.soDienThoai)
+    ) {
+      handleSnackbar(
+        "Vui lòng nhập đầy đủ và đúng định dạng thông tin (Họ tên phải có dấu cách, ví dụ: Nguyễn Tấn Phát)."
+      );
+      return;
+    }
+    setOpenGuestDialog(false);
+    await handleCreateBooking(selectedCombination);
   };
 
   return (
@@ -789,6 +834,61 @@ const HotelBookingForm = () => {
             </div>
           )}
         </div>
+
+        <Dialog
+          open={openGuestDialog}
+          onClose={() => setOpenGuestDialog(false)}
+        >
+          <DialogTitle>Nhập thông tin đặt phòng</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Họ tên (Họ Tên)"
+              value={guestInfo.hoTen}
+              onChange={(e) =>
+                setGuestInfo({ ...guestInfo, hoTen: e.target.value })
+              }
+              fullWidth
+              margin="dense"
+              required
+              placeholder="Ví dụ: Nguyễn Tấn Phát"
+            />
+            <TextField
+              label="Email"
+              type="email"
+              value={guestInfo.email}
+              onChange={(e) =>
+                setGuestInfo({ ...guestInfo, email: e.target.value })
+              }
+              fullWidth
+              margin="dense"
+              required
+            />
+            <TextField
+              label="Số điện thoại"
+              value={guestInfo.soDienThoai}
+              onChange={(e) =>
+                setGuestInfo({ ...guestInfo, soDienThoai: e.target.value })
+              }
+              fullWidth
+              margin="dense"
+              required
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenGuestDialog(false)}>Hủy</Button>
+            <Button
+              onClick={() =>
+                navigate("/login", { state: { from: location.pathname } })
+              }
+              variant="outlined"
+            >
+              Đăng nhập
+            </Button>
+            <Button onClick={handleGuestInfoSubmit} variant="contained">
+              Xác nhận
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Snackbar
           open={openSnackbar}

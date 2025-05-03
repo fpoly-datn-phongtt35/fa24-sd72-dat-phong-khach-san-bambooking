@@ -42,10 +42,16 @@ public class XepPhongServiceIMPL implements XepPhongService {
     @Override
     public XepPhong addXepPhong(XepPhongRequest xepPhongRequest) {
         XepPhong xp = new XepPhong();
-        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById((xepPhongRequest.getThongTinDatPhong().getId()));
+        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById(xepPhongRequest.getThongTinDatPhong().getId());
         xp.setPhong(xepPhongRequest.getPhong());
         xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
-        LocalDateTime nhan = xepPhongRequest.getNgayNhanPhong().withHour(14).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime nhan = xepPhongRequest.getNgayNhanPhong();
+        if (nhan.toLocalDate().isEqual(now.toLocalDate()) && now.getHour() >= 14) {
+            nhan = now;
+        } else {
+            nhan = nhan.withHour(14).withMinute(0).withSecond(0).withNano(0);
+        }
         LocalDateTime tra = xepPhongRequest.getNgayTraPhong().withHour(12).withMinute(0).withSecond(0).withNano(0);
         xp.setNgayNhanPhong(nhan);
         xp.setNgayTraPhong(tra);
@@ -97,8 +103,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
 
         LocalDateTime ngayTraPhong = xepPhongRequest.getNgayTraPhong();
         try {
-            XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId())
-                    .orElseGet(() -> this.addXepPhong(xepPhongRequest));
+            XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId()).get();
             if (xp == null) {
                 throw new RuntimeException("Không thể tạo mới XepPhong");
             }

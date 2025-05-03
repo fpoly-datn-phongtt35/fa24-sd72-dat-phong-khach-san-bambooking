@@ -20,7 +20,6 @@ import {
   MenuItem,
   Divider,
   Stack,
-  Snackbar,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -39,10 +38,11 @@ import {
 } from "../../services/DatPhong";
 import { addThongTinDatPhong } from "../../services/TTDP";
 import { getLoaiPhongKhaDungResponse } from "../../services/LoaiPhongService";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const DatPhong = () => {
-  const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs()); // Khởi tạo với ngày hiện tại
-  const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, "day")); // Khởi tạo với ngày mai
+  const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs());
+  const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, "day"));
   const [soNguoi, setSoNguoi] = useState(1);
   const [key, setKey] = useState("");
   const [tongChiPhiMin, setTongChiPhiMin] = useState("");
@@ -58,21 +58,23 @@ const DatPhong = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
 
   const navigate = useNavigate();
 
-  // Xử lý thông báo Snackbar
-  const handleSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setOpenSnackbar(true);
+  // Xử lý thông báo SweetAlert2
+  const handleSnackbar = (message, type = "error") => {
+    Swal.fire({
+      icon: type, // "success" hoặc "error"
+      title: type === "success" ? "Thành công" : "Lỗi",
+      text: message,
+      timer: 3000,
+      showConfirmButton: false,
+    });
   };
 
   // Lấy danh sách loại phòng khả dụng
   const fetchLoaiPhong = async () => {
     try {
-      // Chỉ gọi API nếu cả hai ngày đều hợp lệ
       if (
         ngayNhanPhong &&
         ngayTraPhong &&
@@ -94,7 +96,6 @@ const DatPhong = () => {
   // Xử lý tìm kiếm tổ hợp phòng
   const handleSearch = async (page = currentPage) => {
     try {
-      // Chỉ gọi API nếu cả hai ngày đều hợp lệ
       if (
         ngayNhanPhong &&
         ngayTraPhong &&
@@ -144,17 +145,22 @@ const DatPhong = () => {
     handleSearch(newPage);
   };
 
-  // Xử lý tạo đặt phòng
   const handleCreateBooking = async (combination) => {
     let khachHangResponse = null;
     let datPhongResponse = null;
     let thongTinDatPhongResponseList = [];
 
     try {
+      const soPhong = combination.phongs.reduce(
+        (total, phong) => total + (phong.soLuongChon || 0),
+        0
+      );
+
+      // Tạo khách hàng
       const khachHangRequest = {
-        ho: "",
-        ten: "",
-        email: "",
+        ho: "Khách",
+        ten: "Hàng",
+        email: "khachhang@example.com",
         sdt: "",
         trangThai: false,
       };
@@ -163,12 +169,13 @@ const DatPhong = () => {
         throw new Error("Không thể tạo khách hàng.");
       }
 
+      // Tạo đặt phòng
       const datPhongRequest = {
         khachHang: khachHangResponse.data,
         maDatPhong: "DP" + new Date().getTime(),
         soNguoi: soNguoi,
-        soPhong: combination.tongSoPhong,
-        ngayDat: new Date().toISOString(),
+        soPhong: soPhong,
+        ngayDat: dayjs().format("YYYY-MM-DD"),
         tongTien: combination.tongChiPhi,
         ghiChu: "Đặt phòng từ tổ hợp được chọn",
         trangThai: "Đang đặt phòng",
@@ -178,13 +185,14 @@ const DatPhong = () => {
         throw new Error("Không thể tạo đặt phòng.");
       }
 
+      // Tạo thông tin đặt phòng cho từng phòng
       for (const phong of combination.phongs) {
         if (phong.soLuongChon > 0) {
           for (let i = 0; i < phong.soLuongChon; i++) {
             const thongTinDatPhongRequest = {
               datPhong: datPhongResponse.data,
               idLoaiPhong: phong.loaiPhong.id,
-              maThongTinDatPhong: "",
+              maThongTinDatPhong: "TTDP" + new Date().getTime() + i,
               ngayNhanPhong: ngayNhanPhong.format("YYYY-MM-DD"),
               ngayTraPhong: ngayTraPhong.format("YYYY-MM-DD"),
               soNguoi: phong.loaiPhong.soKhachToiDa,
@@ -193,14 +201,23 @@ const DatPhong = () => {
             };
             const response = await addThongTinDatPhong(thongTinDatPhongRequest);
             if (!response || !response.data) {
-              throw new Error("Không thể tạo thông tin đặt phòng.");
+              throw new Error(
+                `Không thể tạo thông tin đặt phòng cho loại phòng ${phong.loaiPhong.tenLoaiPhong}.`
+              );
             }
             thongTinDatPhongResponseList.push(response.data);
           }
         }
       }
 
-      handleSnackbar("Đặt phòng thành công!");
+      // Kiểm tra số lượng ThongTinDatPhong có khớp với soPhong
+      if (thongTinDatPhongResponseList.length !== soPhong) {
+        throw new Error(
+          "Số lượng thông tin đặt phòng không khớp với số phòng đã chọn."
+        );
+      }
+
+      handleSnackbar("Đặt phòng thành công!", "success");
       navigate("/tao-dat-phong", {
         state: {
           combination: combination,
@@ -211,7 +228,9 @@ const DatPhong = () => {
       });
     } catch (error) {
       console.error("Lỗi khi tạo đặt phòng:", error);
-      handleSnackbar("Đã xảy ra lỗi khi tạo đặt phòng. Vui lòng thử lại.");
+      handleSnackbar(
+        error.message || "Đã xảy ra lỗi khi tạo đặt phòng. Vui lòng thử lại."
+      );
     }
   };
 
@@ -249,13 +268,11 @@ const DatPhong = () => {
                 <DatePicker
                   label="Ngày nhận phòng"
                   value={ngayNhanPhong}
-                  minDate={dayjs()} // Không cho chọn ngày quá khứ
+                  minDate={dayjs()}
                   onChange={(newValue) => {
-                    // Chỉ cập nhật nếu newValue hợp lệ hoặc null
                     if (newValue && dayjs(newValue).isValid()) {
                       const newCheckInDate = dayjs(newValue);
                       setNgayNhanPhong(newCheckInDate);
-                      // Nếu ngày nhận phòng bằng hoặc sau ngày trả phòng, cập nhật ngày trả phòng
                       if (
                         newCheckInDate.isSame(ngayTraPhong, "day") ||
                         newCheckInDate.isAfter(ngayTraPhong)
@@ -263,7 +280,7 @@ const DatPhong = () => {
                         setNgayTraPhong(newCheckInDate.add(1, "day"));
                       }
                     } else {
-                      setNgayNhanPhong(null); // Cho phép xóa ngày
+                      setNgayNhanPhong(null);
                     }
                   }}
                   slotProps={{
@@ -290,13 +307,12 @@ const DatPhong = () => {
                     ngayNhanPhong
                       ? ngayNhanPhong.add(1, "day")
                       : dayjs().add(1, "day")
-                  } // Đảm bảo ngày trả phòng sau ngày nhận phòng
+                  }
                   onChange={(newValue) => {
-                    // Chỉ cập nhật nếu newValue hợp lệ hoặc null
                     if (newValue && dayjs(newValue).isValid()) {
                       setNgayTraPhong(dayjs(newValue));
                     } else {
-                      setNgayTraPhong(null); // Cho phép xóa ngày
+                      setNgayTraPhong(null);
                     }
                   }}
                   slotProps={{
@@ -727,14 +743,6 @@ const DatPhong = () => {
           }}
         />
       </Box>
-
-      {/* Snackbar cho thông báo lỗi/thành công */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={6000}
-        onClose={() => setOpenSnackbar(false)}
-        message={snackbarMessage}
-      />
     </Container>
   );
 };

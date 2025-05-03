@@ -5,6 +5,7 @@ import com.example.datn.dto.request.KhachHangRequest;
 import com.example.datn.model.KhachHang;
 import com.example.datn.model.KhachHangRegister;
 import com.example.datn.repository.KhachHangRepository;
+import com.example.datn.service.IMPL.HotelWebsiteServiceImpl;
 import com.example.datn.service.IMPL.KhachHangServiceIMPL;
 import com.example.datn.service.KhachHangService;
 import jakarta.persistence.EntityNotFoundException;
@@ -35,6 +36,8 @@ public class KhachHangController {
     KhachHangRepository khachHangRepository;
     KhachHangService khachHangService;
     KhachHangServiceIMPL khachHangServiceIMPL;
+
+    HotelWebsiteServiceImpl hotelWebsiteServiceIMPL;
 //    @PostMapping("/login")
 //    public ResponseEntity<String> login(@RequestBody KhachHangRegister request) {
 //        boolean isAuthenticated = khachHangService.checkLogin(request.getEmail(), request.getMatKhau());
@@ -106,6 +109,11 @@ public class KhachHangController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Đã xảy ra lỗi trong quá trình xóa khách hàng.");
         }
+    }
+
+    @PutMapping("/sua-tt-kh")
+    public ResponseEntity<?> updateKhachHang(@RequestBody KhachHangDatPhongRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(hotelWebsiteServiceIMPL.updateKhachHang(request));
     }
 
 

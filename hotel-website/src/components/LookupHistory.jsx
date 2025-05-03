@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from "react-router-dom";
-import { getLSDPbyEmail } from '../services/DatPhong.js';
+import { getLSDPbyEmail, GuiEmailXacNhanHuyDP } from '../services/DatPhong.js';
+import { TTDPcothehuy } from '../services/TTDP.js';
 import {
     Table, TableBody, Box, TableCell, TableContainer, TableHead, TableRow,
-    Paper, Typography, Button, CircularProgress, Container, TablePagination, IconButton
+    Paper, Typography, Button, CircularProgress, Container, TablePagination, IconButton,
+    Tooltip,
 } from '@mui/material';
+import CancelIcon from '@mui/icons-material/Cancel';
+import InfoIcon from "@mui/icons-material/Info";
 import { styled } from '@mui/material/styles';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -36,7 +40,7 @@ const NavigationButton = styled(IconButton)(({ theme }) => ({
     width: '24px',
     height: '24px',
     '& .MuiSvgIcon-root': {
-        fontSize: '16px', 
+        fontSize: '16px',
     },
 }));
 
@@ -44,9 +48,10 @@ export default function LookupHistory() {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5); 
+    const [rowsPerPage, setRowsPerPage] = useState(5);
     const { email } = useParams();
     const navigate = useNavigate();
+    const [canCancel, setCanCancel] = useState({});
 
     useEffect(() => {
         fetchBookings();
@@ -58,12 +63,44 @@ export default function LookupHistory() {
             const response = await getLSDPbyEmail(email);
             setBookings(response.data.content || response.data);
             console.log(response);
+            const bookings = Array.isArray(response.data) ? response.data : [];
+            bookings.forEach((bookings) => {
+                checkCancelEligibility(bookings.id);
+            });
         } catch (error) {
             console.error('Error fetching bookings:', error);
         } finally {
             setLoading(false);
         }
     };
+
+    const checkCancelEligibility = async (bookingId) => {
+        try {
+            const canCancelResult = await TTDPcothehuy(bookingId);
+            console.log(canCancelResult.data)
+            setCanCancel((prev) => ({
+                ...prev,
+                [bookingId]: canCancelResult.data,
+            }));
+        } catch (error) {
+            console.error('Error checking cancel eligibility:', error);
+            setCanCancel((prev) => ({
+                ...prev,
+                [bookingId]: false,
+            }));
+        }
+    };
+
+    const handleCancelBooking = async (bookingId) => {
+        try {
+          alert("Email xác nhận hủy đặt phòng đã được gửi đến email của bạn")
+          await GuiEmailXacNhanHuyDP(bookingId);
+          // Cập nhật lại danh sách sau khi hủy
+          fetchBookings();
+        } catch (error) {
+          console.error('Error cancelling booking:', error);
+        }
+      };
 
     const handleViewDetail = (idDatPhong) => {
         navigate(`/lookup/ttdp/${idDatPhong}`);
@@ -123,6 +160,7 @@ export default function LookupHistory() {
             }
             return pages;
         };
+
 
         return (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px' }}>
@@ -187,14 +225,27 @@ export default function LookupHistory() {
                                         <TableCell align="center">{booking.ghiChu}</TableCell>
                                         <TableCell align="center">{booking.trangThai}</TableCell>
                                         <TableCell align="center">
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                size="small"
-                                                onClick={() => handleViewDetail(booking.id)}
-                                            >
-                                                Xem chi tiết
-                                            </Button>
+                                            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                                                <Tooltip title="Xem thông tin đặt phòng">
+                                                    <InfoIcon
+                                                        variant="contained"
+                                                        color="primary"
+                                                        sx={{ marginTop: 0.7 }}
+                                                        onClick={() => handleViewDetail(booking.id)}
+                                                    >
+
+                                                    </InfoIcon></Tooltip>
+                                                {canCancel[booking.id] && (
+                                                    <IconButton
+                                                        size="small"
+                                                        sx={{ color: '#d32f2f' }}
+                                                        onClick={() => handleCancelBooking(booking.id)}
+                                                        title="Hủy đặt phòng"
+                                                    >
+                                                        <CancelIcon />
+                                                    </IconButton>
+                                                )}
+                                            </Box>
                                         </TableCell>
                                     </TableRow>
                                 ))}

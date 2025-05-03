@@ -12,7 +12,10 @@ import LookupHistory from "./components/LookupHistory";
 import LookupDetailTTDP from "./components/LookupDetailTTDP";
 import LookupTTDP from "./components/LookupTTDP";
 import ConfirmBooking from "./components/ConfirmBooking";
+import CancelDatPhong from "./components/CancelDatPhong";
+import CancelTTDP from "./components/CancelTTDP";
 import CreateReview from "./components/CreateReview";
+import UpdateKhachHang from "./components/UpdateKhachHang";
 import Information from "./pages/Information";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -27,6 +30,9 @@ import HotelBookingForm from "./pages/HotelBookingForm";
 import HotelBookingConfirmation from "./pages/HotelBookingConfirmation";
 import PendingBooking from "./pages/PendingBooking";
 import HomePage from "./pages/HomePage";
+import Services from "./pages/Services";
+import Offers from "./pages/Offers";
+
 function App() {
   const UnauthorizedRoutes = () => {
     // const accessToken = localStorage.getItem("accessToken");
@@ -100,9 +106,14 @@ function App() {
         <Route path="/lich-su-dat-phong/:email" element={<LookupHistory />} />
         <Route path="/confirm-booking/:iddp" element={<ConfirmBooking />} />
         <Route path="/create-review/:idKhachHang/:idTTDP" element={<CreateReview />} />
+        <Route path="/cancel-dat-phong/:idDatPhong" element={<CancelDatPhong />} />
+        <Route path="/cancel-ttdp/:idTTDP" element={<CancelTTDP/>} />
+        <Route path="/update-kh/:id/:iddp" element={<UpdateKhachHang />} />
         <Route path="/lookup" element={<Lookup />} />
         <Route path="/history" element={<History />} />
         <Route path="/rooms" element={<Rooms />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/offers" element={<Offers />} />
         <Route path="/information" element={<Information />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />

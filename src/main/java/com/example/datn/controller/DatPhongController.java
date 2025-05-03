@@ -146,6 +146,7 @@ public class DatPhongController {
             Pageable pageable) {
         Page<DatPhongResponse> result = datPhongServiceIMPL.findDatPhong(
                 key, ngayNhanPhong, ngayTraPhong, pageable);
+        datPhongServiceIMPL.checkDatPhongConfirmed();
         return ResponseEntity.ok(result);
     }
 
