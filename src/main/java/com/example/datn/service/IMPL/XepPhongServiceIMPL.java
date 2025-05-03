@@ -149,4 +149,6 @@ public class XepPhongServiceIMPL implements XepPhongService {
         return xepPhongRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy xếp phòng với id: " + id));
     }
+
+    
 }
