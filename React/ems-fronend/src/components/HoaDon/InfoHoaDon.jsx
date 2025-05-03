@@ -49,23 +49,18 @@ const InfoHoaDon = () => {
         setExpanded(expanded === maPhong ? null : maPhong);
     };
 
-    const calculateDays = (startDate, endDate) => {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-    
-        if (isNaN(start) || isNaN(end)) {
-            return 1; // Or another fallback value
-        }
-    
-        start.setHours(0, 0, 0, 0);
-        end.setHours(0, 0, 0, 0);
-    
+    const calculateDays = (ngayNhanPhong, ngayTraPhong) => {
+        const [day, month, year, time] = ngayNhanPhong.split(/\/| /);
+        const start = new Date(`${year}-${month}-${day}`);
+
+        const [dayEnd, monthEnd, yearEnd, timeEnd] = ngayTraPhong.split(/\/| /);
+        const end = new Date(`${yearEnd}-${monthEnd}-${dayEnd}`);
+
         const diffTime = end - start;
-        const diffDays = diffTime / (1000 * 60 * 60 * 24);
-    
-        return Math.ceil(Math.max(diffDays, 1));
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(diffDays, 1);
     };
-    
+
 
     if (!hoaDon) {
         return (
