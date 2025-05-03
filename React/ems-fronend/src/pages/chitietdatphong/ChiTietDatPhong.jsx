@@ -751,7 +751,11 @@ const ChiTietDatPhong = () => {
   useEffect(() => {
     if (Array.isArray(thongTinDatPhong) && thongTinDatPhong.length > 0) {
       const promises = thongTinDatPhong
-        .filter((ttdp) => ["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(ttdp.trangThai))
+        .filter((ttdp) =>
+          ["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(
+            ttdp.trangThai
+          )
+        )
         .map((ttdp) => fetchPhongDaXep(ttdp.maThongTinDatPhong));
       Promise.all(promises).catch((error) =>
         console.error("Lỗi khi lấy phòng đã xếp:", error)
@@ -824,7 +828,7 @@ const ChiTietDatPhong = () => {
         };
 
         await checkIn(xepPhongRequest);
-        showSnackbar("Check-in thành công!", "success");    
+        showSnackbar("Check-in thành công!", "success");
       }
     } catch (error) {
       const errorMessage =
@@ -1094,7 +1098,12 @@ const ChiTietDatPhong = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      {["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(ttdp.trangThai) &&
+                      {[
+                        "Đã xếp",
+                        "Đang ở",
+                        "Đã kiểm tra phòng",
+                        "Đã trả phòng",
+                      ].includes(ttdp.trangThai) &&
                       phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong ? (
                         <Typography>
                           {phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong}
@@ -1212,7 +1221,7 @@ const ChiTietDatPhong = () => {
         <Button variant="outlined" onClick={() => navigate(-1)}>
           Quay lại
         </Button>
-        {!isDangDatPhong && (
+        {!["Đã trả phòng", "Đã thanh toán"].includes(datPhong?.trangThai) && (
           <Button
             variant="contained"
             color="secondary"
@@ -1222,7 +1231,6 @@ const ChiTietDatPhong = () => {
             Thêm phòng
           </Button>
         )}
-
         {datPhong && (
           <Button
             variant="contained"
