@@ -495,12 +495,12 @@ const ChiTietTTDP = () => {
                             </Typography>
                             <Chip
                               label={
-                                khc?.trangThai === true
+                                khc?.khachHang.trangThai === true
                                   ? "Active"
                                   : "Inactive"
                               }
                               color={
-                                khc?.trangThai === true
+                                khc?.khachHang.trangThai === true
                                   ? "success"
                                   : "error"
                               }
