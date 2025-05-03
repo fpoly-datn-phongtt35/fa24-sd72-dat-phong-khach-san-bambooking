@@ -29,8 +29,11 @@ const HotelBookingConfirmation = () => {
   const [showError, setShowError] = useState(false);
   const [ttdpData, setTtdpData] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(300);
+  const [timeLeft, setTimeLeft] = useState(300); // Giá trị mặc định: 300 giây (5 phút)
   const timeoutRef = useRef(null);
+
+  const TIMEOUT_DURATION = 300000; // 5 phút (300 giây) tính bằng mili-giây
+  const STORAGE_KEY = `booking_timeout_${datPhong?.id || "temp"}`; // Khóa duy nhất cho mỗi đặt phòng
 
   const groupAndNumberRooms = (rooms) => {
     const grouped = {};
@@ -60,6 +63,7 @@ const HotelBookingConfirmation = () => {
       for (const ttdp of thongTinDatPhong) {
         await huyTTDP(ttdp.maThongTinDatPhong);
       }
+      localStorage.removeItem(STORAGE_KEY); // Xóa dữ liệu timeout
       alert("Đã hết thời gian xác nhận. Đặt phòng đã bị hủy.");
       navigate("/information");
     } catch (error) {
@@ -68,16 +72,61 @@ const HotelBookingConfirmation = () => {
     }
   };
 
+  const initializeTimeout = () => {
+    const storedData = localStorage.getItem(STORAGE_KEY);
+    let startTime;
+    let remainingTime;
+
+    if (storedData) {
+      // Nếu đã có dữ liệu trong localStorage (trang được làm mới)
+      startTime = parseInt(storedData, 10);
+      const elapsedTime = Date.now() - startTime;
+      remainingTime = Math.max(
+        0,
+        Math.floor((TIMEOUT_DURATION - elapsedTime) / 1000)
+      );
+    } else {
+      // Lần đầu tiên mount component
+      startTime = Date.now();
+      localStorage.setItem(STORAGE_KEY, startTime.toString());
+      remainingTime = 300; // 5 phút
+    }
+
+    if (remainingTime <= 0) {
+      // Nếu thời gian đã hết, hủy đặt phòng ngay lập tức
+      cancelBooking();
+      return;
+    }
+
+    // Cập nhật thời gian còn lại
+    setTimeLeft(remainingTime);
+
+    // Thiết lập timeout để hủy đặt phòng
+    timeoutRef.current = setTimeout(() => {
+      cancelBooking();
+    }, remainingTime * 1000);
+
+    // Thiết lập interval để cập nhật bộ đếm thời gian
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer); // Dừng interval khi thời gian hết
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    // Dọn dẹp khi component unmount
+    return () => {
+      clearTimeout(timeoutRef.current);
+      clearInterval(timer);
+    };
+  };
+
   useEffect(() => {
     if (datPhong && thongTinDatPhong) {
-      timeoutRef.current = setTimeout(cancelBooking, 300000);
-      const timer = setInterval(() => {
-        setTimeLeft((prev) => (prev <= 1 ? 0 : prev - 1));
-      }, 1000);
-      return () => {
-        clearTimeout(timeoutRef.current);
-        clearInterval(timer);
-      };
+      return initializeTimeout();
     }
   }, [datPhong, thongTinDatPhong]);
 
@@ -142,7 +191,6 @@ const HotelBookingConfirmation = () => {
     setShowError(false);
     let khachHangResponse = null;
     let datPhongResponse = null;
-    console.log("KhachHang", khachHang);
     try {
       khachHangResponse = await SuaKhachHangDatPhong({
         id: khachHang ? khachHang.id : null,
@@ -183,10 +231,11 @@ const HotelBookingConfirmation = () => {
           trangThai: "Chưa xếp",
         });
       }
-      
+
       await GuiEmailXacNhanDP(datPhong.id);
 
       clearTimeout(timeoutRef.current);
+      localStorage.removeItem(STORAGE_KEY); // Xóa dữ liệu timeout khi xác nhận thành công
       alert("Đặt phòng thành công!");
       alert("Có thể xác nhận đặt phòng qua email của bạn!");
       navigate("/thong-tin-dat-phong-search");
@@ -251,7 +300,7 @@ const HotelBookingConfirmation = () => {
         </p>
         <p>
           Ngày đặt:{" "}
-          <strong>{datPhong.ngayDat.toLocaleString()}</strong>
+          <strong>{new Date(datPhong.ngayDat).toLocaleString()}</strong>
         </p>
       </div>
 

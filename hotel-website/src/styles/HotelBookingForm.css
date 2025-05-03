@@ -47,24 +47,10 @@
   color: #333;
 }
 
-.guest-group {
-  display: flex;
-  flex-direction: column;
-}
-
-.guest-counter {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.so-nguoi-input {
-  text-align: center;
-}
-
 .search-btn {
   height: 40px;
   padding: 0 20px;
+  align-self: flex-end;
 }
 
 .advanced-filters {
@@ -117,15 +103,38 @@ table {
 
 th,
 td {
-  padding: 12px;
+  padding: 10px;
   text-align: left;
   border-bottom: 1px solid #e0e0e0;
+  vertical-align: middle;
 }
 
 th {
   background: #f5f5f5;
   font-weight: 600;
   color: #333;
+}
+
+.image-column {
+  width: 80px; /* Giới hạn chiều rộng cột hình ảnh */
+  text-align: center;
+}
+
+.room-image {
+  width: 60px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  vertical-align: middle;
+}
+
+.no-image,
+.loading-image {
+  font-size: 0.9rem;
+  color: #666;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .no-results {
@@ -157,6 +166,11 @@ th {
     min-width: 100%;
   }
 
+  .search-btn {
+    width: 100%;
+    height: 40px;
+  }
+
   .room-header {
     flex-direction: column;
     align-items: flex-start;
@@ -166,5 +180,19 @@ th {
   .book-btn {
     width: 100%;
     text-align: center;
+  }
+
+  .image-column {
+    width: 70px;
+  }
+
+  .room-image {
+    width: 50px;
+    height: 38px;
+  }
+
+  .no-image,
+  .loading-image {
+    font-size: 0.8rem;
   }
 }

@@ -9,6 +9,7 @@ import {
   ThemKhachHangDatPhong,
   getLPKDR,
 } from "../services/DatPhong";
+import { getAnhLP } from "../services/Rooms";
 import dayjs from "dayjs";
 import {
   Button,
@@ -21,7 +22,6 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -39,9 +39,9 @@ const HotelBookingForm = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [roomImages, setRoomImages] = useState({});
   const pageSize = 10;
 
-  // State for the main form, initialized with location.state
   const [ngayNhanPhong, setNgayNhanPhong] = useState(
     location.state?.ngayNhanPhong
       ? dayjs(location.state.ngayNhanPhong)
@@ -54,7 +54,6 @@ const HotelBookingForm = () => {
   );
   const [soNguoi, setSoNguoi] = useState(location.state?.soNguoi || 1);
 
-  // State for advanced filters, initialized with location.state
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(
     !!location.state?.tongChiPhiMin ||
       !!location.state?.tongChiPhiMax ||
@@ -89,11 +88,9 @@ const HotelBookingForm = () => {
   const [loaiPhongList, setLoaiPhongList] = useState([]);
   const [key, setKey] = useState(location.state?.key || "");
 
-  // State for Snackbar
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  // State for Guest Info Dialog
   const [openGuestDialog, setOpenGuestDialog] = useState(false);
   const [guestInfo, setGuestInfo] = useState({
     hoTen: "",
@@ -102,18 +99,11 @@ const HotelBookingForm = () => {
   });
   const [selectedCombination, setSelectedCombination] = useState(null);
 
-  // Handle Snackbar notifications
   const handleSnackbar = (message) => {
     setSnackbarMessage(message);
     setOpenSnackbar(true);
   };
 
-  // Handle guest count change via buttons
-  const handleAdultChange = (change) => {
-    setSoNguoi((prev) => Math.max(1, prev + change));
-  };
-
-  // Handle guest count change via input
   const handleSoNguoiChange = (e) => {
     const value = e.target.value;
     if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
@@ -121,8 +111,24 @@ const HotelBookingForm = () => {
     }
   };
 
-  const CHECK_IN_TIME = { hour: 12, minute: 0, second: 0 };
-  const CHECK_OUT_TIME = { hour: 14, minute: 0, second: 0 };
+  const fetchRoomImages = async (idLoaiPhong) => {
+    try {
+      const response = await getAnhLP(idLoaiPhong);
+      const imagePaths = response.data
+        .map((item) => item.duongDan)
+        .filter(Boolean);
+      setRoomImages((prev) => ({
+        ...prev,
+        [idLoaiPhong]: imagePaths,
+      }));
+    } catch (error) {
+      console.error(`Lỗi khi lấy ảnh cho ${idLoaiPhong}:`, error);
+      setRoomImages((prev) => ({
+        ...prev,
+        [idLoaiPhong]: [],
+      }));
+    }
+  };
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -145,19 +151,12 @@ const HotelBookingForm = () => {
       return;
     }
 
-    const ngayNhanPhongFormatted = ngayNhanPhong
-      .set(CHECK_IN_TIME)
-      .toISOString();
-    const ngayTraPhongFormatted = ngayTraPhong
-      .set(CHECK_OUT_TIME)
-      .toISOString();
-
     const pageable = { page: currentPage, size: pageSize };
 
     try {
       const response = await toHopLoaiPhong(
-        ngayNhanPhongFormatted,
-        ngayTraPhongFormatted,
+        ngayNhanPhong.toISOString(),
+        ngayTraPhong.toISOString(),
         soNguoi,
         key || null,
         tongChiPhiMin || null,
@@ -170,7 +169,6 @@ const HotelBookingForm = () => {
         pageable
       );
 
-      console.log("Tổ hợp phòng khả dụng:", response.content[0]?.phongs);
       if (!response || !response.content) {
         handleSnackbar("Không tìm thấy tổ hợp phòng phù hợp.");
         setLoaiPhongKhaDung([]);
@@ -197,7 +195,6 @@ const HotelBookingForm = () => {
       const n = dayjs(ngayNhanPhong).format("YYYY-MM-DD");
       const t = dayjs(ngayNhanPhong).format("YYYY-MM-DD");
       const response = await getLPKDR(n, t);
-      console.log("Loại phòng khả dụng:", response);
       if (response && response.data) {
         setLoaiPhongList(response.data);
       } else {
@@ -208,6 +205,18 @@ const HotelBookingForm = () => {
       handleSnackbar("Đã xảy ra lỗi khi tải loại phòng.");
     }
   };
+
+  useEffect(() => {
+    if (loaiPhongKhaDung.length > 0) {
+      loaiPhongKhaDung.forEach((combination) => {
+        combination.phongs.forEach((phong) => {
+          if (!roomImages[phong.loaiPhong.id]) {
+            fetchRoomImages(phong.loaiPhong.id);
+          }
+        });
+      });
+    }
+  }, [loaiPhongKhaDung]);
 
   useEffect(() => {
     fetchLoaiPhong();
@@ -253,7 +262,6 @@ const HotelBookingForm = () => {
 
       try {
         user = localStorage.getItem("user");
-        console.log("User:", user);
       } catch (error) {
         console.error("Lỗi khi parse user từ localStorage:", error);
       }
@@ -261,7 +269,6 @@ const HotelBookingForm = () => {
       if (user) {
         try {
           const response = await getKhachHangByUsername(user);
-          console.log("Khách hàng:", response.data);
           if (!response || !response.data) {
             throw new Error("Không tìm thấy thông tin khách hàng.");
           }
@@ -297,7 +304,6 @@ const HotelBookingForm = () => {
         };
 
         kh = await ThemKhachHangDatPhong(khachHangData);
-        console.log("Khách hàng mới:", kh.data);
         if (!kh || !kh.data) {
           throw new Error("Không thể tạo thông tin khách hàng.");
         }
@@ -453,39 +459,22 @@ const HotelBookingForm = () => {
                 }}
               />
             </div>
-            <div className="form-group guest-group">
+            <div className="form-group">
               <label>Số người</label>
-              <div className="guest-counter">
-                <IconButton
-                  onClick={() => handleAdultChange(-1)}
-                  disabled={soNguoi <= 1}
-                  sx={{ border: "1px solid #e0e0e0", borderRadius: 1 }}
-                >
-                  -
-                </IconButton>
-                <TextField
-                  type="number"
-                  value={soNguoi}
-                  onChange={handleSoNguoiChange}
-                  inputProps={{ min: 1 }}
-                  size="small"
-                  className="so-nguoi-input"
-                  sx={{
-                    width: 80,
-                    mx: 1,
-                    "& .MuiInputBase-root": {
-                      borderRadius: 1,
-                      backgroundColor: "#fff",
-                    },
-                  }}
-                />
-                <IconButton
-                  onClick={() => handleAdultChange(1)}
-                  sx={{ border: "1px solid #e0e0e0", borderRadius: 1 }}
-                >
-                  +
-                </IconButton>
-              </div>
+              <TextField
+                type="number"
+                value={soNguoi}
+                onChange={handleSoNguoiChange}
+                inputProps={{ min: 1 }}
+                size="small"
+                fullWidth
+                sx={{
+                  "& .MuiInputBase-root": {
+                    borderRadius: 1,
+                    backgroundColor: "#fff",
+                  },
+                }}
+              />
             </div>
             <Button
               type="submit"
@@ -775,6 +764,7 @@ const HotelBookingForm = () => {
                   <thead>
                     <tr>
                       <th>STT</th>
+                      <th className="image-column">Hình ảnh</th>
                       <th>Loại phòng</th>
                       <th>Diện tích</th>
                       <th>Số khách</th>
@@ -787,6 +777,21 @@ const HotelBookingForm = () => {
                     {combination.phongs.map((phong, idx) => (
                       <tr key={phong.loaiPhong.id}>
                         <td>{idx + 1}</td>
+                        <td>
+                          {roomImages[phong.loaiPhong.id] ? (
+                            roomImages[phong.loaiPhong.id].length > 0 ? (
+                              <img
+                                src={roomImages[phong.loaiPhong.id][0]}
+                                alt={`${phong.loaiPhong.tenLoaiPhong} - Ảnh chính`}
+                                className="room-image"
+                              />
+                            ) : (
+                              <span className="no-image">Không có ảnh</span>
+                            )
+                          ) : (
+                            <span className="loading-image">Đang tải...</span>
+                          )}
+                        </td>
                         <td>{phong.loaiPhong.tenLoaiPhong}</td>
                         <td>{phong.loaiPhong.dienTich} m²</td>
                         <td>{phong.loaiPhong.soKhachToiDa}</td>
