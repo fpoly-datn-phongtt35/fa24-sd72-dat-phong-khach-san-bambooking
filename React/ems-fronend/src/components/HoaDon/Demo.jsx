@@ -262,7 +262,7 @@ const Demo = () => {
                 };
 
                 await ThemPhuThu(phuThuRequest);
-                Swal.fire("Thành công", `Đã tạo phụ thu do trả phòng muộn`, "success");
+                Swal.fire("Thành công",`Đã tạo phụ thu do trả phòng muộn cho phòng ${item.xepPhong.tenPhong}`, "success");
             }
 
             localStorage.setItem('traPhong', JSON.stringify(selectedItems));
