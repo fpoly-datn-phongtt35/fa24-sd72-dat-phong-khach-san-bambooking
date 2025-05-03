@@ -144,9 +144,9 @@ public class DatPhongController {
             @RequestParam(value = "ngayTraPhong", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
             Pageable pageable) {
+        datPhongServiceIMPL.checkDatPhongConfirmed();
         Page<DatPhongResponse> result = datPhongServiceIMPL.findDatPhong(
                 key, ngayNhanPhong, ngayTraPhong, pageable);
-        datPhongServiceIMPL.checkDatPhongConfirmed();
         return ResponseEntity.ok(result);
     }
 

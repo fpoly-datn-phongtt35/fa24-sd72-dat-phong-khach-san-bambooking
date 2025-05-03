@@ -19,7 +19,6 @@ export default function Information() {
     const fetchReviews = async () => {
       try {
         const response = await getAllDanhGia();
-        console.log(response)
         setReviews(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách đánh giá:", error);
@@ -133,7 +132,7 @@ export default function Information() {
           ))}
         </Slider>
         <div className="fixed-text">
-          <h1>Giới thiệu Khách sạn Bamboo</h1>
+          <h1>Giới thiệu Khách sạn</h1>
           <p>Trải nghiệm nghỉ dưỡng tuyệt vời giữa lòng thiên nhiên</p>
         </div>
         <button className="custom-prev" onClick={goToPrev}>
@@ -156,7 +155,7 @@ export default function Information() {
               đẳng cấp 5* đầu tiên tại Việt Nam và bể bơi nước mặn 5000 m2.
             </p>
             <p>
-              Bamboo Hotel gồm 21 phòng nghỉ được thiết kế thanh lịch hiện đại, nội thất tiêu chuẩn, tiện nghi hoàn hảo
+              Bamboo Hotel gồm 22 phòng nghỉ được thiết kế thanh lịch hiện đại, nội thất tiêu chuẩn, tiện nghi hoàn hảo
               và cũng là khách sạn duy nhất hiện nay tại Sầm Sơn được thiết kế bể bơi vô cực phá vỡ mọi giới hạn về tầm
               nhìn nằm ngay trên tầng thượng khách sạn, mang đến cho Quý khách cảm giác thư thái, dễ chịu. Bamboo Hotel
               chắc chắn là điểm dừng chân lý tưởng để thư giãn và khơi dậy mọi giác quan của bạn.
@@ -167,7 +166,7 @@ export default function Information() {
             <h3 className="description-right-tittle">Chứng chỉ & Đánh giá</h3>
             <ul>
               <li>Chứng nhận 5 sao từ Hiệp hội Du lịch Việt Nam (2023)</li>
-              <li>Đánh giá 4.8/5 từ khách hàng trên TripAdvisor</li>
+              <li>Đánh giá 4.8/5 từ khách hàng</li>
               <li>Giải thưởng "Khách sạn thân thiện với môi trường" (2022)</li>
               <li>Chứng nhận an toàn vệ sinh từ Bộ Y tế</li>
             </ul>
@@ -178,7 +177,7 @@ export default function Information() {
       <section className="hotel-rooms">
         <h2>Phòng Khách Sạn</h2>
         <p>
-          Khách sạn gồm 21 phòng nghỉ, được thiết kế theo tiêu chuẩn cao cấp và tiện nghi hiện đại. Đặc biệt, phòng Deluxe, Superior có ban công thoáng
+          Khách sạn gồm 22 phòng nghỉ, được thiết kế theo tiêu chuẩn cao cấp và tiện nghi hiện đại. Đặc biệt, phòng Deluxe, Superior có ban công thoáng
           mát, tầm nhìn bao quát biển Sầm Sơn trong lành, xanh bất ngần tầm mắt.
         </p>
         <div className="rooms-grid">

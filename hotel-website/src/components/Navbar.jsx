@@ -35,7 +35,6 @@ export default function Navbar() {
     }
     setIsAuthenticated(!!accessToken);
     const jsonData = JSON.parse(pendingData);
-    console.log(jsonData);
   }, [accessToken, pendingData]);
 
   const toggleProfileMenu = () => {

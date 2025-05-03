@@ -32,6 +32,7 @@ import PendingBooking from "./pages/PendingBooking";
 import HomePage from "./pages/HomePage";
 import Services from "./pages/Services";
 import Offers from "./pages/Offers";
+import TermsAndConditions from "./pages/TermsAndConditions";
 
 function App() {
   const UnauthorizedRoutes = () => {
@@ -126,6 +127,7 @@ function App() {
           element={<HotelBookingConfirmation />}
         />
         <Route path="/pending-booking" element={<PendingBooking />} />
+        <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
       </Route>
 
       <Route element={<ProtectedRoutes />}>
