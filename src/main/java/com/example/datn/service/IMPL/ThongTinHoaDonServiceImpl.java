@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -185,11 +186,14 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
             throw new IllegalArgumentException("Ngày nhận phòng và ngày trả thực tế không được null.");
         }
 
-        long soNgay = ChronoUnit.DAYS.between(ngayNhanPhong, ngayTraThucTe);
-        // Đảm bảo ít nhất 1 ngày nếu thời gian chênh lệch nhỏ hơn 1 ngày
-        soNgay = soNgay <= 0 ? 1 : soNgay;
+        LocalDate ngayNhan = ngayNhanPhong.toLocalDate();
+        LocalDate ngayTra = ngayTraThucTe.toLocalDate();
 
-        log.info("Số ngày sử dụng: {}", soNgay);
+        long soDemO = ChronoUnit.DAYS.between( ngayNhan, ngayTra);
+        // Đảm bảo ít nhất 1 ngày nếu thời gian chênh lệch nhỏ hơn 1 ngày
+        soDemO = soDemO <= 0 ? 1 : soDemO;
+
+        log.info("Số ngày sử dụng: {}", soDemO);
 
         double giaPhong = ttdp.getGiaDat();
         if (giaPhong <= 0) {
@@ -197,7 +201,7 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
             throw new IllegalArgumentException("Giá phòng phải lớn hơn 0.");
         }
 
-        double tienPhong = giaPhong * soNgay;
+        double tienPhong = giaPhong * soDemO;
         log.info("Tiền phòng cho TraPhong ID {}: {}", traPhong.getId(), tienPhong);
 
         return tienPhong;
