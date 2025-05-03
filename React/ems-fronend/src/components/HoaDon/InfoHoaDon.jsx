@@ -49,23 +49,18 @@ const InfoHoaDon = () => {
         setExpanded(expanded === maPhong ? null : maPhong);
     };
 
-    const calculateDays = (startDate, endDate) => {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-    
-        if (isNaN(start) || isNaN(end)) {
-            return 1; // Or another fallback value
-        }
-    
-        start.setHours(0, 0, 0, 0);
-        end.setHours(0, 0, 0, 0);
-    
+    const calculateDays = (ngayNhanPhong, ngayTraPhong) => {
+        const [day, month, year, time] = ngayNhanPhong.split(/\/| /);
+        const start = new Date(`${year}-${month}-${day}`);
+
+        const [dayEnd, monthEnd, yearEnd, timeEnd] = ngayTraPhong.split(/\/| /);
+        const end = new Date(`${yearEnd}-${monthEnd}-${dayEnd}`);
+
         const diffTime = end - start;
-        const diffDays = diffTime / (1000 * 60 * 60 * 24);
-    
-        return Math.ceil(Math.max(diffDays, 1));
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        return Math.max(diffDays, 1);
     };
-    
+
 
     if (!hoaDon) {
         return (
@@ -155,6 +150,8 @@ const InfoHoaDon = () => {
                                                                 <Table borderAxis="x" size="lg" stickyHeader variant="outlined">
                                                                     <thead>
                                                                         <tr>
+                                                                            {/* <th>Ngay nhan</th>
+                                                                            <th>Ngay tra</th> */}
                                                                             <th>Số ngày ở</th>
                                                                             <th>Giá phòng</th>
                                                                             <th>Tiền phòng</th>
@@ -162,6 +159,22 @@ const InfoHoaDon = () => {
                                                                     </thead>
                                                                     <tbody>
                                                                         <tr>
+                                                                            {/* <td>{item.ngayNhanPhong}</td>
+                                                                            <td>{item.ngayTraPhong}</td>
+                                                                            <td>
+                                                                                {(() => {
+                                                                                    // Tách ngày và giờ, sau đó sắp xếp lại thành YYYY-MM-DD
+                                                                                    const [day, month, year, time] = item.ngayNhanPhong.split(/\/| /); // Tách DD/MM/YYYY và HH:mm:ss
+                                                                                    const start = new Date(`${year}-${month}-${day}`);
+
+                                                                                    const [dayEnd, monthEnd, yearEnd, timeEnd] = item.ngayTraPhong.split(/\/| /);
+                                                                                    const end = new Date(`${yearEnd}-${monthEnd}-${dayEnd}`);
+
+                                                                                    const diffTime = end - start;
+                                                                                    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                                                                                    return Math.max(diffDays, 1); // Đảm bảo ít nhất 1 ngày
+                                                                                })()}
+                                                                            </td> */}
                                                                             <td>{calculateDays(item.ngayNhanPhong, item.ngayTraPhong)}</td>
                                                                             <td>{formatCurrency(item.giaPhong)}</td>
                                                                             <td>{formatCurrency(item.tienPhong)}</td>
