@@ -508,7 +508,7 @@ const HotelBookingConfirmation = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body1" className="info-text">
-                <strong>Tổng sức chứa:</strong>{" "}
+                <strong>Số người:</strong>{" "}
                 {ttdpData.reduce(
                   (total, room) => total + room.soNguoi * room.soPhong,
                   0
@@ -518,26 +518,8 @@ const HotelBookingConfirmation = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body1" className="info-text">
-                <strong>Ngày nhận phòng:</strong>{" "}
-                {new Date(
-                  thongTinDatPhong[0]?.ngayNhanPhong
-                ).toLocaleDateString()}{" "}
-                (12:00)
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body1" className="info-text">
-                <strong>Ngày trả phòng:</strong>{" "}
-                {new Date(
-                  thongTinDatPhong[0]?.ngayTraPhong
-                ).toLocaleDateString()}{" "}
-                (14:00)
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body1" className="info-text">
                 <strong>Ngày đặt:</strong>{" "}
-                {new Date(datPhong.ngayDat).toLocaleString()}
+                {datPhong.ngayDat}
               </Typography>
             </Grid>
             <Grid item xs={12}>

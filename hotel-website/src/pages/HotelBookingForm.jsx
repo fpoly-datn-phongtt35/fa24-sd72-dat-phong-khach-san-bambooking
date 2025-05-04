@@ -806,7 +806,6 @@ const HotelBookingForm = () => {
                 <table>
                   <thead>
                     <tr>
- great expectations quotes
                     <th>STT</th>
                     <th className="poon-column">Hình ảnh</th>
                     <th>Loại phòng</th>
@@ -925,14 +924,6 @@ const HotelBookingForm = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenGuestDialog(false)}>Hủy</Button>
-            <Button
-              onClick={() =>
-                navigate("/login", { state: { from: location.pathname } })
-              }
-              variant="outlined"
-            >
-              Đăng nhập
-            </Button>
             <Button onClick={handleGuestInfoSubmit} variant="contained">
               Xác nhận
             </Button>
