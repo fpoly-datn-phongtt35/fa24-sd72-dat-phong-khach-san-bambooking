@@ -127,7 +127,7 @@ export default function Information() {
         <Slider ref={sliderRef} {...sliderSettings}>
           {images.map((image, index) => (
             <div key={index} className="slide-item">
-              <img src={image} alt={`Slide ${index + 1}`} />
+              <img src={image} alt={`Slide ${index + 1}`} className="w-full h-auto " />
             </div>
           ))}
         </Slider>

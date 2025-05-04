@@ -228,7 +228,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         return datPhongRepository.findByMaDatPhong(maDatPhong);
     }
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(fixedRate = 1000) // Chạy mỗi giây
     public void checkDatPhongConfirmed() {
         Logger logger = LoggerFactory.getLogger(DatPhongServiceIMPL.class);
         List<String> trangThai = Arrays.asList("Đang đặt phòng");

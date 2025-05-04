@@ -240,6 +240,15 @@ public class HotelWebsiteController {
         return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
     }
 
+    @GetMapping("/loai-phong/lpkdr-list")
+    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
+                                        @RequestParam("soNguoi") Integer soNguoi,
+                                        @RequestParam("soPhong") Integer soPhong,
+                                        @RequestParam(value = "idLoaiPhong", required = false) Integer idLoaiPhong){
+        return ResponseEntity.ok(loaiPhongServiceIMPL.getLoaiPhongKhaDungResponseList(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,idLoaiPhong));
+    }
+
     // Những đường dẫn không yêu cầu xác thực/////////////////////
     @GetMapping("/tra-cuu/search-lich-su-dp")
     public void tracuuLichSuDP(@RequestParam("keyword") String keyword){

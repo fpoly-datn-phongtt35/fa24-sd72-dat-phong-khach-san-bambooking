@@ -188,7 +188,7 @@ export default function LookupHistory() {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Container maxWidth="lg" sx={{ py: 4, minHeight : "66vh", }}>
             <Typography variant="h5" component="h2" gutterBottom align="center" sx={{ fontWeight: "bold" }}>
                 Danh sách đặt phòng
             </Typography>
