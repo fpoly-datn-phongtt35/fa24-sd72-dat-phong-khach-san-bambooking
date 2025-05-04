@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { taoDanhGia, getKhachHang } from "../services/DanhGia.js";
 import {
@@ -23,21 +23,21 @@ export default function CreateReview() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [khachHang, setKhachHang] = useState(null); 
+  const [khachHang, setKhachHang] = useState(null);
 
- 
+
   useEffect(() => {
     const fetchKhachHang = async () => {
       try {
         const response = await getKhachHang(idKhachHang);
-        setKhachHang(response.data); 
+        setKhachHang(response.data);
       } catch (err) {
         setError("Không thể tải thông tin khách hàng!");
       }
     };
 
     fetchKhachHang();
-  }, [idKhachHang]); 
+  }, [idKhachHang]);
 
   const handleSubmit = async () => {
     if (rating === 0) {
@@ -66,7 +66,11 @@ export default function CreateReview() {
   };
 
   return (
-    <Container maxWidth="sm" className="py-8">
+    <Container maxWidth="sm" className="py-8"
+      sx={{
+        minHeight: "66vh",
+      }}
+    >
       <Box className="flex flex-col gap-6">
         <Typography variant="h4" className="text-center font-bold">
           Đánh giá khách sạn
@@ -75,7 +79,7 @@ export default function CreateReview() {
         <Box className="flex flex-col gap-4">
           <Typography variant="body1">
             <strong>Chào {" "}
-            {khachHang ? `${khachHang.ho} ${khachHang.ten}` : "Đang tải..."}</strong>
+              {khachHang ? `${khachHang.ho} ${khachHang.ten}` : "Đang tải..."}</strong>
           </Typography>
 
           <Box>

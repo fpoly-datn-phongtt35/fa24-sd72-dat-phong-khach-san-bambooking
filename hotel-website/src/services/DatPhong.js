@@ -15,6 +15,7 @@ const apiToHopLoaiPhong =
   const apiDeleteKHDP = "http://localhost:8080/api/kh/delete-kh-dp";
   const apiGetDPByUsername = "http://localhost:8080/api/kh/get-by-username";
   const apiGetLPKDL = "http://localhost:8080/api/loai-phong/loai-phong-kha-dung-list";
+  const apiGetLPKDRL = "http://localhost:8080/api/loai-phong/lpkdr-list";
   const apiTracuuLSDP = "http://localhost:8080/api/tra-cuu/search-lich-su-dp";
   const apigetLSDPbyEmail = "http://localhost:8080/api/tra-cuu/lich-su-dp"
 
@@ -141,13 +142,31 @@ export const getKhachHangByUsername = (username) => {
   });
 };
 
-export const getLPKDR = (ngayNhanPhong, ngayTraPhong) => {
+export const getLPKDR = (ngayNhanPhong, ngayTraPhong) => { 
     return authorizedAxiosInstance.get(apiGetLPKDL, {
       params: {
         ngayNhanPhong,
         ngayTraPhong,
       },
     });
+};
+
+export const getLPKDRL = (
+  ngayNhanPhong,
+  ngayTraPhong,
+  soNguoi,
+  soPhong,
+  idLoaiPhong
+) => {
+  return authorizedAxiosInstance.get(apiGetLPKDRL, {
+    params: {
+      ngayNhanPhong,
+      ngayTraPhong,
+      soNguoi,
+      soPhong,
+      idLoaiPhong,
+    },
+  });
 };
 
 export const getTracuuLSDP = (keyword) => {

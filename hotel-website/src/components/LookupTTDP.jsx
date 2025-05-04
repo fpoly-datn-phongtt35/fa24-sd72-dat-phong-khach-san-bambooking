@@ -14,6 +14,7 @@ import {
   Button,
   CircularProgress,
   Tooltip,
+  Container,
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 
@@ -71,6 +72,11 @@ export default function LookupTTDP() {
   };
 
   return (
+    <Container
+      sx={{
+        minHeight: "66vh", 
+      }}
+    >
     <Box sx={{ p: 3, maxWidth: "1200px", mx: "auto" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>Thông Tin Đặt Phòng</Typography>
@@ -123,5 +129,6 @@ export default function LookupTTDP() {
         </Box>
       )}
     </Box>
+    </Container>
   );
 }

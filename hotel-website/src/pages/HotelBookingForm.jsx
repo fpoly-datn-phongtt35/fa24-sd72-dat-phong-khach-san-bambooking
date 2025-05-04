@@ -179,7 +179,8 @@ const HotelBookingForm = () => {
         setTotalPages(response.totalPages || 1);
         setCurrentPage(response.number || 0);
       }
-    } catch (error) {
+    } catch (error){
+
       console.error("Lỗi khi lấy tổ hợp phòng:", error);
       handleSnackbar("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
       setLoaiPhongKhaDung([]);
@@ -517,7 +518,14 @@ const HotelBookingForm = () => {
                       label="Tổng chi phí tối thiểu"
                       type="number"
                       value={tongChiPhiMin}
-                      onChange={(e) => setTongChiPhiMin(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                          setTongChiPhiMin(value);
+                        } else {
+                          handleSnackbar("Tổng chi phí tối thiểu phải lớn hơn hoặc bằng 1.");
+                        }
+                      }}
                       fullWidth
                       sx={{
                         "& .MuiInputBase-root": {
@@ -539,7 +547,14 @@ const HotelBookingForm = () => {
                       label="Tổng chi phí tối đa"
                       type="number"
                       value={tongChiPhiMax}
-                      onChange={(e) => setTongChiPhiMax(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                          setTongChiPhiMax(value);
+                        } else {
+                          handleSnackbar("Tổng chi phí tối đa phải lớn hơn hoặc bằng 1.");
+                        }
+                      }}
                       fullWidth
                       sx={{
                         "& .MuiInputBase-root": {
@@ -561,7 +576,14 @@ const HotelBookingForm = () => {
                       label="Tổng sức chứa tối thiểu"
                       type="number"
                       value={tongSucChuaMin}
-                      onChange={(e) => setTongSucChuaMin(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                          setTongSucChuaMin(value);
+                        } else {
+                          handleSnackbar("Tổng sức chứa tối thiểu phải lớn hơn hoặc bằng 1.");
+                        }
+                      }}
                       fullWidth
                       sx={{
                         "& .MuiInputBase-root": {
@@ -576,7 +598,14 @@ const HotelBookingForm = () => {
                       label="Tổng sức chứa tối đa"
                       type="number"
                       value={tongSucChuaMax}
-                      onChange={(e) => setTongSucChuaMax(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                          setTongSucChuaMax(value);
+                        } else {
+                          handleSnackbar("Tổng sức chứa tối đa phải lớn hơn hoặc bằng 1.");
+                        }
+                      }}
                       fullWidth
                       sx={{
                         "& .MuiInputBase-root": {
@@ -591,7 +620,14 @@ const HotelBookingForm = () => {
                       label="Tổng số phòng tối thiểu"
                       type="number"
                       value={tongSoPhongMin}
-                      onChange={(e) => setTongSoPhongMin(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                          setTongSoPhongMin(value);
+                        } else {
+                          handleSnackbar("Tổng số phòng tối thiểu phải lớn hơn hoặc bằng 1.");
+                        }
+                      }}
                       fullWidth
                       sx={{
                         "& .MuiInputBase-root": {
@@ -606,7 +642,14 @@ const HotelBookingForm = () => {
                       label="Tổng số phòng tối đa"
                       type="number"
                       value={tongSoPhongMax}
-                      onChange={(e) => setTongSoPhongMax(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                          setTongSoPhongMax(value);
+                        } else {
+                          handleSnackbar("Tổng số phòng tối đa phải lớn hơn hoặc bằng 1.");
+                        }
+                      }}
                       fullWidth
                       sx={{
                         "& .MuiInputBase-root": {
@@ -763,15 +806,16 @@ const HotelBookingForm = () => {
                 <table>
                   <thead>
                     <tr>
-                      <th>STT</th>
-                      <th className="image-column">Hình ảnh</th>
-                      <th>Loại phòng</th>
-                      <th>Diện tích</th>
-                      <th>Số khách</th>
-                      <th>Đơn giá</th>
-                      <th>Số lượng</th>
-                      <th>Thành tiền</th>
-                    </tr>
+ great expectations quotes
+                    <th>STT</th>
+                    <th className="poon-column">Hình ảnh</th>
+                    <th>Loại phòng</th>
+                    <th>Diện tích</th>
+                    <th>Số khách</th>
+                    <th>Đơn giá</th>
+                    <th>Số lượng</th>
+                    <th>Thành tiền</th>
+                  </tr>
                   </thead>
                   <tbody>
                     {combination.phongs.map((phong, idx) => (

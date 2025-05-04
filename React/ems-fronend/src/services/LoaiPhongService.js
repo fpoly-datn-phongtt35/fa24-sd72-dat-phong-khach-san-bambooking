@@ -141,7 +141,7 @@ export const getLoaiPhongKhaDungResponse = (ngayNhanPhong, ngayTraPhong) => {
       ngayNhanPhong,
       ngayTraPhong,
     },
-  });
+  }); 
 };
 
 export const getLPKDRL = (

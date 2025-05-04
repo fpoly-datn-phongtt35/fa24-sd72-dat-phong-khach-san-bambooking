@@ -89,7 +89,7 @@ export default function ConfirmBooking() {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" }}>
+    <Container maxWidth="sm" sx={{ mt: 4, textAlign: "center" ,minHeight : "63vh"}}>
       {loading ? (
         <Box
           sx={{
