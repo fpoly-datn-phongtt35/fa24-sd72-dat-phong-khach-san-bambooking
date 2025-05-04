@@ -299,7 +299,7 @@ const RoomDetail = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        {roomDetail && roomDetail.phong.tinhTrang == "Đang ở" && (
+        {roomDetail && roomDetail.trangThai == "Đang ở" && (
           <>
             <Button
               variant="contained"
