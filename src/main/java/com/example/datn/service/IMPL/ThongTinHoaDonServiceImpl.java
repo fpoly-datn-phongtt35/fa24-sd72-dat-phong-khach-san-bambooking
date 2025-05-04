@@ -170,7 +170,7 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         }
 
         XepPhong xepPhong = xepPhongRepository.findById(traPhong.getXepPhong().getId())
-                .orElseThrow(()-> new EntityNotFountException("Không tìm thấy idXepPhong: " + traPhong.getXepPhong()));
+                .orElseThrow(() -> new EntityNotFountException("Không tìm thấy idXepPhong: " + traPhong.getXepPhong()));
 
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByIdAndLoaiPhong(xepPhong.getId());
         if (ttdp == null) {
@@ -189,7 +189,7 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         LocalDate ngayNhan = ngayNhanPhong.toLocalDate();
         LocalDate ngayTra = ngayTraThucTe.toLocalDate();
 
-        long soDemO = ChronoUnit.DAYS.between( ngayNhan, ngayTra);
+        long soDemO = ChronoUnit.DAYS.between(ngayNhan, ngayTra);
         // Đảm bảo ít nhất 1 ngày nếu thời gian chênh lệch nhỏ hơn 1 ngày
         soDemO = soDemO <= 0 ? 1 : soDemO;
 
