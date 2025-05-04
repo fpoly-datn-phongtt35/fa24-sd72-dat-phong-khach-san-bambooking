@@ -10,6 +10,7 @@ import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.PhongServiceIMPL;
+import com.example.datn.service.IMPL.XepPhongServiceIMPL;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,9 @@ public class DatPhongController {
 
     @Autowired
     LoaiPhongServiceIMPL loaiPhongServiceIMPL;
+
+    @Autowired
+    XepPhongServiceIMPL xepPhongServiceIMPL;
 
     @GetMapping("hien-thi")
     public ResponseEntity<?> HienThiDatPhong(@RequestParam() String trangThai, Pageable pageable) {
@@ -144,7 +148,6 @@ public class DatPhongController {
             @RequestParam(value = "ngayTraPhong", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
             Pageable pageable) {
-        datPhongServiceIMPL.checkDatPhongConfirmed();
         Page<DatPhongResponse> result = datPhongServiceIMPL.findDatPhong(
                 key, ngayNhanPhong, ngayTraPhong, pageable);
         return ResponseEntity.ok(result);

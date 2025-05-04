@@ -55,4 +55,13 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
     @Query("SELECT xp FROM XepPhong xp WHERE xp.thongTinDatPhong.datPhong.id = :datPhongId")
     List<XepPhong> findByDatPhongId(Integer datPhongId);
     Optional<XepPhong> findByThongTinDatPhong_Id(Integer idThongTinDatPhong);
+
+    @Query("""
+        SELECT xp
+        FROM XepPhong xp
+        JOIN xp.phong p
+        JOIN xp.thongTinDatPhong ttdp
+        WHERE p.tinhTrang IN (:tinhTrang) AND xp.trangThai IN (:trangThai)
+        """)
+    List<XepPhong> findByList(List<String> tinhTrang, List<String> trangThai);
 }

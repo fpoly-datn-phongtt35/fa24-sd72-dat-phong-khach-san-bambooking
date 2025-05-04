@@ -9,11 +9,13 @@ import com.example.datn.model.XepPhong;
 import com.example.datn.repository.*;
 import com.example.datn.service.XepPhongService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -148,6 +150,22 @@ public class XepPhongServiceIMPL implements XepPhongService {
     public XepPhong getById(Integer id) {
         return xepPhongRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy xếp phòng với id: " + id));
+    }
+
+    @Scheduled(fixedRate = 1000) // Chạy mỗi giây
+    public void updateThoiGianLuuTru() {
+        List<String> tinhTrang = Arrays.asList("Đang ở", "Cần kiểm tra");
+        List<String> trangThai = Arrays.asList("Đang ở");
+        List<XepPhong> listXP = xepPhongRepository.findByList(tinhTrang, trangThai);
+        LocalDateTime now = LocalDateTime.now();
+        for (XepPhong xp : listXP) {
+            if (xp.getNgayTraPhong() != null && xp.getNgayTraPhong().isBefore(now)) {
+                xp.setNgayTraPhong(now);
+                xepPhongRepository.save(xp);
+                System.out.println("Cập nhật ngày trả phòng cho xp: " + xp.getId());
+            }
+            System.out.println("xp: " + xp.getId());
+        }
     }
 
     
