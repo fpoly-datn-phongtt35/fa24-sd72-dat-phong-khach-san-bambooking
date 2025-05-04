@@ -96,6 +96,12 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
             transition: "width 0.3s ease",
             display: isSidebarOpen ? "block" : "none",
             boxShadow: "2px 0 8px rgba(0,0,0,0.2)",
+            overflowY: "auto",
+            "&::-webkit-scrollbar": {
+              display: "none",
+            },
+            scrollbarWidth: "none",
+            "-ms-overflow-style": "none", 
           },
         }}
       >

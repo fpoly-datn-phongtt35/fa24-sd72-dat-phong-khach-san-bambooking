@@ -297,6 +297,7 @@ const ViewPhong = () => {
 
     try {
       const response = await getRoomDetail(roomId, formattedDate);
+      console.log(roomId, formattedDate, response);
       if (!response) {
         throw new Error("Không có thông tin chi tiết phòng.");
       }

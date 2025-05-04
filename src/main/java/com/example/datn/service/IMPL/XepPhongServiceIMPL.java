@@ -164,7 +164,6 @@ public class XepPhongServiceIMPL implements XepPhongService {
                 xepPhongRepository.save(xp);
                 System.out.println("Cập nhật ngày trả phòng cho xp: " + xp.getId());
             }
-            System.out.println("xp: " + xp.getId());
         }
     }
 
