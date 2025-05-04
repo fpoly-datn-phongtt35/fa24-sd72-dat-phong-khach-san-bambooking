@@ -664,7 +664,7 @@ const TaoDatPhong = () => {
       </Paper>
 
       {/* Dialog Tìm Phòng Khả Dụng */}
-      <Dialog
+      <Dialog 
         open={openSearchDialog}
         onClose={() => setOpenSearchDialog(false)}
         fullWidth

@@ -22,6 +22,7 @@ import {
   Button,
   Collapse,
   IconButton,
+  Container,
 } from "@mui/material";
 import CancelIcon from "@mui/icons-material/Cancel";
 
@@ -137,21 +138,16 @@ export default function DetailTTDP() {
     setExpandedRow(newExpandedRow);
   };
 
-  const calculateDays = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+  const calculateDays = (ngayNhanPhong, ngayTraPhong) => {
+    const [day, month, year, time] = ngayNhanPhong.split(/\/| /);
+    const start = new Date(`${year}-${month}-${day}`);
 
-    if (isNaN(start) || isNaN(end)) {
-      return 1;
-    }
-
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
+    const [dayEnd, monthEnd, yearEnd, timeEnd] = ngayTraPhong.split(/\/| /);
+    const end = new Date(`${yearEnd}-${monthEnd}-${dayEnd}`);
 
     const diffTime = end - start;
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-    return Math.ceil(Math.max(diffDays, 1));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(diffDays, 1);
   };
 
   const handleCancelBooking = async (bookingId) => {
@@ -171,6 +167,11 @@ export default function DetailTTDP() {
   );
 
   return (
+    <Container
+      sx={{
+        minHeight: "66vh", 
+      }}
+    >
     <Box sx={{ maxWidth: "1200px", mx: "auto", p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h5" fontWeight="bold">
@@ -363,41 +364,6 @@ export default function DetailTTDP() {
                                         </Box>
                                       )}
 
-                                      {danhSachVatTu.some((vt) => vt.tenPhong === item.tenPhong) && (
-                                        <Box>
-                                          <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                                            Danh sách vật tư hỏng/thiếu
-                                          </Typography>
-                                          <TableContainer component={Paper} sx={{ bgcolor: "white" }}>
-                                            <Table size="small">
-                                              <TableHead>
-                                                <TableRow>
-                                                  <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                                                    Tên vật tư
-                                                  </TableCell>
-                                                  <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                                                    Giá vật tư
-                                                  </TableCell>
-                                                  <TableCell align="center" sx={{ fontWeight: "bold" }}>
-                                                    Số lượng thiếu
-                                                  </TableCell>
-                                                </TableRow>
-                                              </TableHead>
-                                              <TableBody>
-                                                {danhSachVatTu
-                                                  .filter((vt) => vt.tenPhong === item.tenPhong)
-                                                  .map((vt, i) => (
-                                                    <TableRow key={i}>
-                                                      <TableCell align="center">{vt.tenVatTu}</TableCell>
-                                                      <TableCell align="center">{formatCurrency(vt.donGia)}</TableCell>
-                                                      <TableCell align="center">{vt.soLuongThieu}</TableCell>
-                                                    </TableRow>
-                                                  ))}
-                                              </TableBody>
-                                            </Table>
-                                          </TableContainer>
-                                        </Box>
-                                      )}
 
                                       {item.tienKhauTru > 0 && (
                                         <Typography variant="subtitle1" sx={{ mt: 2 }}>
@@ -423,5 +389,6 @@ export default function DetailTTDP() {
         </Box>
       )}
     </Box>
+    </Container>
   );
 }

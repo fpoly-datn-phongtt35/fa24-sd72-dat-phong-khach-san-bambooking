@@ -1,133 +1,127 @@
-/* HotelBookingConfirmation.css */
-
 .confirmation-container {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 24px;
-  background-color: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  font-family: "Segoe UI", sans-serif;
-  color: #333;
+  padding: 24px 0;
+  background-color: #f5f5f5;
+  min-height: 100vh;
 }
 
-.confirmation-header {
-  text-align: center;
+.confirmation-card {
   margin-bottom: 24px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
 }
 
-.confirmation-header h1 {
-  font-size: 28px;
-  color: #004e92;
-  margin-bottom: 10px;
-}
-
-.countdown-timer {
-  font-size: 22px;
-  font-weight: bold;
-  color: #d62828;
+.confirmation-title {
+  color: #1a3c5e;
+  font-weight: 600;
   margin-bottom: 8px;
 }
 
-.room-summary {
-  background-color: #f8f9fa;
-  padding: 16px 24px;
-  border-radius: 12px;
-  margin-bottom: 24px;
-}
-
-.room-summary h2 {
-  font-size: 20px;
-  color: #2d6a4f;
-  margin-bottom: 16px;
-  border-bottom: 2px solid #cce3dc;
-  padding-bottom: 6px;
-}
-
-.room-summary p {
-  margin: 6px 0;
-  font-size: 15px;
-}
-
-.booking-info-form {
-  background-color: #f1f3f5;
-  padding: 20px 24px;
-  border-radius: 12px;
-}
-
-.booking-info-form h2 {
-  font-size: 20px;
-  color: #2b2d42;
-  margin-bottom: 16px;
-  border-bottom: 2px solid #adb5bd;
-  padding-bottom: 6px;
-}
-
-.error-message {
-  color: #e63946;
-  font-weight: bold;
+.confirmation-subtitle {
+  color: #5f6a77;
   margin-bottom: 12px;
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
+.countdown-timer {
+  color: #d32f2f;
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: 8px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
+.section-title {
+  color: #1a3c5e;
+  font-weight: 500;
+  margin-bottom: 16px;
 }
 
-.form-group label {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #495057;
+.info-text {
+  color: #374151;
+  font-size: 1rem;
 }
 
-.form-group input {
-  padding: 8px 12px;
-  font-size: 15px;
-  border: 1px solid #ced4da;
+.table-container {
   border-radius: 8px;
-  transition: border 0.3s ease;
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
 }
 
-.form-group input:focus {
-  outline: none;
-  border-color: #40916c;
-  box-shadow: 0 0 0 2px rgba(64, 145, 108, 0.2);
+.table-row:hover {
+  background-color: #f9fafb;
 }
 
-.error {
-  color: #d00000;
-  font-size: 13px;
-  margin-top: 4px;
+.MuiTableCell-head {
+  background-color: #e3e8ee;
+  color: #1a3c5e;
+  font-weight: 500;
+  padding: 12px;
 }
 
-.form-actions {
-  margin-top: 24px;
-  text-align: center;
+.MuiTableCell-body {
+  padding: 12px;
+  color: #374151;
 }
 
-.confirm-btn {
-  background-color: #52b788;
-  color: white;
-  padding: 12px 24px;
-  font-size: 16px;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.error-message {
+  color: #d32f2f;
+  font-size: 0.875rem;
+  margin-bottom: 16px;
 }
 
-.confirm-btn:hover {
-  background-color: #40916c;
+.text-field {
+  margin-bottom: 8px;
 }
 
-.confirm-btn:disabled {
-  background-color: #b7e4c7;
-  cursor: not-allowed;
+.add-room-button,
+.confirm-button,
+.search-button {
+  padding: 10px 16px;
+  border-radius: 6px;
+  text-transform: none;
+  font-weight: 500;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.add-room-button:hover,
+.confirm-button:hover,
+.search-button:hover {
+  transform: translateY(-1px);
+}
+
+.close-button {
+  text-transform: none;
+  font-weight: 500;
+}
+
+.search-dialog .MuiDialog-paper {
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 600px) {
+  .confirmation-container {
+    padding: 16px;
+  }
+
+  .confirmation-card {
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .info-text {
+    font-size: 0.875rem;
+  }
+
+  .countdown-timer {
+    font-size: 1.5rem;
+  }
+
+  .MuiTableCell-head,
+  .MuiTableCell-body {
+    padding: 8px;
+    font-size: 0.875rem;
+  }
 }
