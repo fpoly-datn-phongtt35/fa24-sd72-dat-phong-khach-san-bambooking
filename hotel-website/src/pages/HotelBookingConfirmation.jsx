@@ -673,7 +673,7 @@ const HotelBookingConfirmation = () => {
                   fullWidth
                   className="confirm-button"
                 >
-                  {isSubmitting ? "Đang xử lý..." : "Xác nhận đặt phòng"}
+                  {isSubmitting ? "Đang xử lý..." : "Đặt phòng"}
                 </Button>
               </Grid>
             </Grid>

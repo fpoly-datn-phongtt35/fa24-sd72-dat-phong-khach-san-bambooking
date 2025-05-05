@@ -276,7 +276,7 @@ const Demo = () => {
         await ThemPhuThu(phuThuRequest);
         Swal.fire(
           "Thành công",
-          `Đã tạo phụ thu do trả phòng muộn cho phòng ${item.xepPhong.tenPhong}`,
+          `Đã tạo phụ thu do trả phòng muộn cho phòng ${item.xepPhong.phong.maPhong}`,
           "success"
         );
       }

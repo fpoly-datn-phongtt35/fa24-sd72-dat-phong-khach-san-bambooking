@@ -9,11 +9,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/phong")
@@ -57,8 +59,8 @@ public class PhongController {
 
     @GetMapping("/phong-kha-dung")
     public ResponseEntity<?> searchPhongKhaDung(@RequestParam Integer idLoaiPhong,
-                                                @RequestParam LocalDate ngayNhanPhong,
-                                                @RequestParam LocalDate ngayTraPhong) {
+                                                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
+                                                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(phongServiceIMPL.searchPhongKhaDung(idLoaiPhong, ngayNhanPhong, ngayTraPhong));
     }

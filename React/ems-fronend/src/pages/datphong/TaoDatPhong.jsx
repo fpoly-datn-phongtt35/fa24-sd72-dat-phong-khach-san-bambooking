@@ -31,6 +31,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
 import {
   XoaDatPhong,
   XoaKhachHangDatPhong,
@@ -91,6 +92,12 @@ const TaoDatPhong = () => {
           console.log("LoaiPhongs response:", response.data);
         } catch (error) {
           console.error("Lỗi khi lấy danh sách loại phòng:", error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: 'Đã xảy ra lỗi khi lấy danh sách loại phòng. Vui lòng thử lại!',
+            confirmButtonText: 'Đóng'
+          });
         }
       };
       fetchLoaiPhongs();
@@ -105,7 +112,12 @@ const TaoDatPhong = () => {
       setTTDP(response.data);
     } catch (error) {
       console.error("Lỗi khi lấy thông tin đặt phòng:", error);
-      alert("Lỗi khi lấy thông tin đặt phòng");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Đã xảy ra lỗi khi lấy thông tin đặt phòng. Vui lòng thử lại!',
+        confirmButtonText: 'Đóng'
+      });
     }
   };
 
@@ -132,7 +144,12 @@ const TaoDatPhong = () => {
     const oldCount = selectedRoom.soPhong;
 
     if (isNaN(newCount) || newCount < 0 || newCount > oldCount) {
-      alert(`Số phòng mới phải từ 0 đến ${oldCount}`);
+      Swal.fire({
+        icon: 'warning',
+        title: 'Cảnh báo',
+        text: `Số phòng mới phải từ 0 đến ${oldCount}!`,
+        confirmButtonText: 'Đóng'
+      });
       return;
     }
 
@@ -163,15 +180,25 @@ const TaoDatPhong = () => {
       handleCloseDialog();
     } catch (error) {
       console.error("Lỗi khi cập nhật số phòng:", error);
-      alert("Có lỗi xảy ra khi cập nhật số phòng. Vui lòng thử lại.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Đã xảy ra lỗi khi cập nhật số phòng. Vui lòng thử lại!',
+        confirmButtonText: 'Đóng'
+      });
     }
   };
 
   const handleRemoveRoom = async (room) => {
-    const confirmDelete = window.confirm(
-      "Bạn có chắc chắn muốn xóa phòng này không?"
-    );
-    if (!confirmDelete) return;
+    const confirmDelete = await Swal.fire({
+      icon: 'question',
+      title: 'Xác nhận',
+      text: 'Bạn có chắc chắn muốn xóa phòng này không?',
+      showCancelButton: true,
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy'
+    });
+    if (!confirmDelete.isConfirmed) return;
 
     try {
       await huyTTDP(room.maThongTinDatPhong);
@@ -181,15 +208,25 @@ const TaoDatPhong = () => {
       setTTDP(updatedResponse.data);
     } catch (error) {
       console.error("Lỗi khi xóa phòng:", error);
-      alert("Có lỗi xảy ra khi xóa phòng. Vui lòng thử lại.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Đã xảy ra lỗi khi xóa phòng. Vui lòng thử lại!',
+        confirmButtonText: 'Đóng'
+      });
     }
   };
 
   const handleRemoveAllRooms = async (room) => {
-    const confirmDeleteAll = window.confirm(
-      "Bạn có chắc chắn muốn hủy tất cả các phòng giống nhau không?"
-    );
-    if (!confirmDeleteAll) return;
+    const confirmDeleteAll = await Swal.fire({
+      icon: 'question',
+      title: 'Xác nhận',
+      text: 'Bạn có chắc chắn muốn hủy tất cả các phòng giống nhau không?',
+      showCancelButton: true,
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy'
+    });
+    if (!confirmDeleteAll.isConfirmed) return;
 
     try {
       const matchingRooms = TTDP.filter(
@@ -208,14 +245,25 @@ const TaoDatPhong = () => {
       setTTDP(updatedResponse.data);
     } catch (error) {
       console.error("Lỗi khi hủy tất cả phòng:", error);
-      alert("Có lỗi xảy ra khi hủy tất cả phòng. Vui lòng thử lại.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Đã xảy ra lỗi khi hủy tất cả phòng. Vui lòng thử lại!',
+        confirmButtonText: 'Đóng'
+      });
     }
   };
 
   const handleConfirmBooking = async () => {
     if (ttdpData.length === 0) {
-      alert("Vui lòng chọn ít nhất một phòng trước khi xác nhận đặt phòng.");
-      navigate("/dat-phong");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Cảnh báo',
+        text: 'Vui lòng chọn ít nhất một phòng trước khi xác nhận đặt phòng!',
+        confirmButtonText: 'Đóng'
+      }).then(() => {
+        navigate("/dat-phong");
+      });
       return;
     }
     if (!validateForm()) {
@@ -275,17 +323,33 @@ const TaoDatPhong = () => {
         console.log(updatedThongTinDatPhong);
         const response = await updateThongTinDatPhong(updatedThongTinDatPhong);
         if (!response || !response.data) {
-          alert("Lỗi khi cập nhật thông tin đặt phòng:", error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: `Đã xảy ra lỗi khi cập nhật thông tin đặt phòng: ${thongTinDatPhong.maThongTinDatPhong}`,
+            confirmButtonText: 'Đóng'
+          });
           throw new Error(
             `Không thể cập nhật thông tin đặt phòng: ${thongTinDatPhong.maThongTinDatPhong}`
           );
         }
       }
       EmailXacNhanDPThanhCong(datPhongRequest.id);
-      alert("Đặt phòng thành công!");
-      navigate("/thong-tin-dat-phong-search");
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: 'Đặt phòng thành công!',
+        confirmButtonText: 'Đóng'
+      }).then(() => {
+        navigate("/thong-tin-dat-phong-search");
+      });
     } catch (error) {
-      alert("Lỗi khi đặt phòng:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: `Đã xảy ra lỗi khi đặt phòng: ${error.message}`,
+        confirmButtonText: 'Đóng'
+      });
       console.error("Lỗi khi đặt phòng:", error);
       if (datPhongResponse && datPhongResponse.data) {
         try {
@@ -301,7 +365,12 @@ const TaoDatPhong = () => {
           console.error("Lỗi khi rollback khachHang:", err);
         }
       }
-      alert(`Đã xảy ra lỗi trong quá trình đặt phòng: ${error.message}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: `Đã xảy ra lỗi trong quá trình đặt phòng: ${error.message}`,
+        confirmButtonText: 'Đóng'
+      });
     }
   };
 
@@ -356,20 +425,33 @@ const TaoDatPhong = () => {
       });
       console.log("Search rooms response:", response.data);
       if (response.data.length === 0) {
-        alert(
-          "Không có phòng khả dụng cho yêu cầu của bạn. Vui lòng thử lại với ngày hoặc số lượng khác."
-        );
+        Swal.fire({
+          icon: 'info',
+          title: 'Thông báo',
+          text: 'Không có phòng khả dụng cho yêu cầu của bạn. Vui lòng thử lại với ngày hoặc số lượng khác!',
+          confirmButtonText: 'Đóng'
+        });
       }
       setAvailableRooms(response.data);
     } catch (error) {
       console.error("Lỗi khi tìm phòng khả dụng:", error);
-      alert("Có lỗi xảy ra khi tìm phòng. Vui lòng thử lại.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Đã xảy ra lỗi khi tìm phòng. Vui lòng thử lại!',
+        confirmButtonText: 'Đóng'
+      });
     }
   };
 
   const handleAddRoom = async (room) => {
     if (room.soPhongKhaDung < Number(searchForm.soPhong)) {
-      alert("Số phòng khả dụng không đủ!");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Cảnh báo',
+        text: 'Số phòng khả dụng không đủ!',
+        confirmButtonText: 'Đóng'
+      });
       return;
     }
 
@@ -424,7 +506,12 @@ const TaoDatPhong = () => {
       });
     } catch (error) {
       console.error("Lỗi khi thêm phòng:", error);
-      alert(`Có lỗi xảy ra khi thêm phòng: ${error.message}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: `Đã xảy ra lỗi khi thêm phòng: ${error.message}`,
+        confirmButtonText: 'Đóng'
+      });
     }
   };
 
@@ -451,14 +538,13 @@ const TaoDatPhong = () => {
   };
 
   const handleInputChange = (field, value) => {
-    setFormData({ ...formData, [field]: value });
+    setFormData({ ...formData, resource: true, [field]: value });
     setFormErrors({});
     setShowError(false);
   };
 
   const handleSearchInputChange = (field, value) => {
     if (field === "soNguoi" || field === "soPhong") {
-      // Chỉ cho phép số nguyên dương, bỏ qua các ký tự không phải số
       const numericValue = value.replace(/[^0-9]/g, "");
       setSearchForm({ ...searchForm, [field]: numericValue });
     } else {
