@@ -115,8 +115,8 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             - (
                 SELECT COUNT(xp) FROM XepPhong xp
                 WHERE xp.phong.loaiPhong.id = lp.id
-                AND xp.ngayNhanPhong <= :ngayTraPhong
-                AND xp.ngayTraPhong >= :ngayNhanPhong
+                AND CAST(xp.ngayNhanPhong AS LocalDate) <= :ngayTraPhong
+                AND CAST(xp.ngayTraPhong AS LocalDate) >= :ngayNhanPhong
                 AND xp.trangThai IN (:trangThaiXP)
             )
             - (
@@ -137,8 +137,8 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
         - (
             SELECT COUNT(xp) FROM XepPhong xp
             WHERE xp.phong.loaiPhong.id = lp.id
-            AND xp.ngayNhanPhong <= :ngayTraPhong
-            AND xp.ngayTraPhong >= :ngayNhanPhong
+            AND CAST(xp.ngayNhanPhong AS LocalDate) <= :ngayTraPhong
+            AND CAST(xp.ngayTraPhong AS LocalDate) >= :ngayNhanPhong
             AND xp.trangThai IN (:trangThaiXP)
         )
         - (
@@ -151,8 +151,8 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
     ) >= 1
 """)
     List<LoaiPhongKhaDungResponse> findLoaiPhongKhaDungByTinhTrangResponseList(
-            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
-            @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
+            @Param("ngayNhanPhong") LocalDate ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDate ngayTraPhong,
             @Param("trangThaiXP") List<String> trangThaiXP,
             @Param("trangThaiTTDP") List<String> trangThaiTTDP
     );

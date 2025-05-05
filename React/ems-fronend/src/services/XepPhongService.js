@@ -6,7 +6,7 @@ const apiCheckIn = "http://localhost:8080/xep-phong/check-in"
 const apiGetXepPhongByTTDP = "http://localhost:8080/xep-phong/by-thong-tin";
 const apiGetXepPhongById = "http://localhost:8080/xep-phong";
 const apiGetPhongById = 'http://localhost:8080/xep-phong/get-phong';
-
+const apiUpdate = "http://localhost:8080/xep-phong/update";
 export const addXepPhong = (XepPhongRequest) => {
     return authorizedAxiosInstance.post(apiAdd, XepPhongRequest);
 };
@@ -36,4 +36,8 @@ export const getXepPhongById = (id) => {
 
 export const getPhongById = (id) => {
     return authorizedAxiosInstance.get(`${apiGetPhongById}/${id}`);
+};
+
+export const updateXepPhong = (XepPhongRequest) => {
+  return authorizedAxiosInstance.put(apiUpdate, XepPhongRequest);
 };

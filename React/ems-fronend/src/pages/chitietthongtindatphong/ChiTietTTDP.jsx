@@ -13,7 +13,11 @@ import {
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getTTDPByMaTTDP, updateThongTinDatPhong } from "../../services/TTDP";
-import { phongDaXep, checkIn } from "../../services/XepPhongService";
+import {
+  phongDaXep,
+  checkIn,
+  updateXepPhong,
+} from "../../services/XepPhongService";
 import { hienThi, sua, xoa } from "../../services/KhachHangCheckin";
 import XepPhong from "../xepphong/XepPhong";
 import ModalKhachHangCheckin from "./ModalKhachHangCheckin";
@@ -45,6 +49,7 @@ const ChiTietTTDP = () => {
   const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Fetch dữ liệu
   const getDetailTTDP = (maThongTinDatPhong) => {
@@ -201,12 +206,16 @@ const ChiTietTTDP = () => {
       await checkIn(xepPhongRequest);
 
       // Kiểm tra và xử lý phụ thu
-      const resDaCheckin = await getKhachHangCheckinByThongTinId(thongTinDatPhong.id);
+      const resDaCheckin = await getKhachHangCheckinByThongTinId(
+        thongTinDatPhong.id
+      );
       const daCheckinList = resDaCheckin.data || [];
       const tongSoKhach = daCheckinList.length;
 
       // Lấy thông tin loại phòng
-      const resLoaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
+      const resLoaiPhong = await getLoaiPhongById(
+        thongTinDatPhong.loaiPhong.id
+      );
       const loaiPhong = resLoaiPhong.data;
       const soKhachToiDa = loaiPhong.soKhachToiDa || 0;
       const soKhachVuot = tongSoKhach - soKhachToiDa;
@@ -294,7 +303,9 @@ const ChiTietTTDP = () => {
       Swal.fire({
         icon: "error",
         title: "Lỗi",
-        text: `Không thể check-in: ${error.response?.data?.message || error.message}`,
+        text: `Không thể check-in: ${
+          error.response?.data?.message || error.message
+        }`,
         confirmButtonText: "Đóng",
       });
     }
@@ -546,13 +557,15 @@ const ChiTietTTDP = () => {
     fetchKhachHangCheckin(maThongTinDatPhong);
   };
 
-  const openXepPhongModal = (thongTinDatPhong) => {
+  const openXepPhongModal = (thongTinDatPhong, editMode = false) => {
     setSelectedTTDPs([thongTinDatPhong]);
+    setIsEditMode(editMode);
     setShowXepPhongModal(true);
   };
 
   const closeXepPhongModal = () => {
     setShowXepPhongModal(false);
+    setIsEditMode(false);
     fetchPhongDaXep(maThongTinDatPhong);
   };
 
@@ -729,18 +742,32 @@ const ChiTietTTDP = () => {
                   )}
                 </Typography>
               </Box>
-              <Button
-                variant="contained"
-                color="secondary"
-                startIcon={<HotelIcon />}
-                onClick={() => openXepPhongModal(thongTinDatPhong)}
-                disabled={
-                  !!xepPhong?.phong || thongTinDatPhong?.trangThai === "Đang ở"
-                }
-                sx={{ mb: 2 }}
-              >
-                {xepPhong?.phong ? "Đã xếp phòng" : "Xếp phòng"}
-              </Button>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  startIcon={<HotelIcon />}
+                  onClick={() => openXepPhongModal(thongTinDatPhong, false)}
+                  disabled={
+                    !!xepPhong?.phong ||
+                    thongTinDatPhong?.trangThai === "Đang ở"
+                  }
+                  sx={{ mb: 2 }}
+                >
+                  {xepPhong?.phong ? "Đã xếp phòng" : "Xếp phòng"}
+                </Button>
+                {xepPhong?.phong && (
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    startIcon={<EditIcon />}
+                    onClick={() => openXepPhongModal(thongTinDatPhong, true)}
+                    sx={{ mb: 2 }}
+                  >
+                    Sửa phòng
+                  </Button>
+                )}
+              </Box>
             </CardContent>
           </Card>
         </Grid>
@@ -911,6 +938,8 @@ const ChiTietTTDP = () => {
         show={showXepPhongModal}
         handleClose={closeXepPhongModal}
         selectedTTDPs={selectedTTDPs}
+        isEditMode={isEditMode}
+        xepPhong={isEditMode ? xepPhong : null}
       />
     </Box>
   );
