@@ -57,6 +57,40 @@ public class DichVuSuDungServiceIMPL implements DichVuSuDungService {
         return null;
     }
 
+    @Override
+    public DichVuSuDung updateGSG(DichVuSuDungRequest dichVuSuDungRequest) {
+        DichVuSuDung dichVuSuDung = phieuDichVuRepository.findById(dichVuSuDungRequest.getId()).orElse(null);
+        List<DichVuSuDung> DVSDtrue = phieuDichVuRepository.getByTrangThai(dichVuSuDungRequest.getXepPhong().getId());
+        if (dichVuSuDung != null) {
+            dichVuSuDung.setDichVu(dichVuSuDungRequest.getDichVu());
+            dichVuSuDung.setXepPhong(dichVuSuDungRequest.getXepPhong());
+            dichVuSuDung.setSoLuongSuDung(dichVuSuDungRequest.getSoLuongSuDung());
+            dichVuSuDung.setTrangThai(dichVuSuDungRequest.getTrangThai());
+            if (dichVuSuDungRequest.getGiaSuDung() == null) {
+                dichVuSuDung.setGiaSuDung(0.0);
+            } else {
+                dichVuSuDung.setGiaSuDung(dichVuSuDungRequest.getGiaSuDung());
+            }
+
+
+            for (DichVuSuDung dvsdTrue : DVSDtrue) {
+                if (dvsdTrue.getDichVu().getId().equals(dichVuSuDung.getDichVu().getId())
+                        && dvsdTrue.getGiaSuDung().equals(dichVuSuDung.getGiaSuDung())
+                        && dvsdTrue.getId() != dichVuSuDung.getId()) {
+                    System.out.println("update so luong");
+                    dvsdTrue.setSoLuongSuDung(dvsdTrue.getSoLuongSuDung() + dichVuSuDung.getSoLuongSuDung());
+                    phieuDichVuRepository.save(dvsdTrue);
+                    phieuDichVuRepository.delete(dichVuSuDung);
+                    return dvsdTrue;
+                }
+            }
+
+            // Nếu không tìm thấy bản ghi nào khớp, lưu dichVuSuDung như bình thường
+            return phieuDichVuRepository.save(dichVuSuDung);
+        }
+        return null;
+    }
+
 
     @Override
     public void deletePhieuDichVu(Integer id) {
