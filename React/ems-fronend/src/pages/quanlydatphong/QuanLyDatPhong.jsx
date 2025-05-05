@@ -43,6 +43,7 @@ import {
   findDatPhong,
   huyDatPhong,
   CapNhatDatPhong,
+  EmailXacNhanDPThanhCong,
 } from "../../services/DatPhong";
 import XepPhong from "../../pages/xepphong/XepPhong";
 
@@ -224,6 +225,7 @@ const QuanLyDatPhong = () => {
         trangThai: "Đã xác nhận",
       };
       await CapNhatDatPhong(datPhongRequest);
+      EmailXacNhanDPThanhCong(datPhongRequest.id);
       Swal.fire({
         icon: "success",
         title: "Thành công",
