@@ -123,8 +123,8 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         LocalDateTime ngayTraPhongDateTime = ngayTraPhong.atTime(12, 0);
 
         return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(
-                ngayNhanPhong,
-                ngayTraPhong,
+                ngayNhanPhongDateTime,
+                ngayTraPhongDateTime,
                 trangThaiXP,
                 trangThaiTTDP
         );

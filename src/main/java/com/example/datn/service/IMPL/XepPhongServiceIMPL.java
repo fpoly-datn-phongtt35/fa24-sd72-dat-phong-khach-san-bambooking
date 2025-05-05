@@ -130,7 +130,7 @@ public class XepPhongServiceIMPL implements XepPhongService {
                     "Chỉ có thể check-in trong khoảng từ ngày nhận phòng (" +
                             checkInDate + ") đến ngày trả phòng (" + checkOutDate + ")");
         }
-        
+
         LocalDateTime checkInThreshold = checkInDate.atTime(12, 0);
         if (currentDateTime.isBefore(checkInThreshold)) {
             throw new IllegalArgumentException(
