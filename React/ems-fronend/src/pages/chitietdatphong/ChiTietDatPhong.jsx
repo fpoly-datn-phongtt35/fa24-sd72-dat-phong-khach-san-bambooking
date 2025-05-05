@@ -19,8 +19,6 @@ import {
   CardContent,
   Chip,
   Divider,
-  Alert,
-  Snackbar,
   Tooltip,
   Dialog,
   DialogTitle,
@@ -66,23 +64,7 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import { SuaTTKH } from "../../services/KhachHangService";
 import dayjs from "dayjs";
-
-const ConfirmDialog = ({ open, onClose, onConfirm, title, message }) => (
-  <Dialog open={open} onClose={onClose}>
-    <DialogTitle>{title}</DialogTitle>
-    <DialogContent>
-      <Typography>{message}</Typography>
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={onClose} color="secondary">
-        Hủy
-      </Button>
-      <Button onClick={onConfirm} color="primary" variant="contained">
-        Xác nhận
-      </Button>
-    </DialogActions>
-  </Dialog>
-);
+import Swal from "sweetalert2";
 
 const CustomerInfo = ({ datPhong, onEdit, disabled }) => (
   <Card elevation={3} sx={{ height: "100%" }}>
@@ -212,11 +194,6 @@ const ChiTietDatPhong = () => {
   const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [phongData, setPhongData] = useState({});
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  });
   const [isChangeButtonDisabled, setIsChangeButtonDisabled] = useState(false);
   const [openSearchDialog, setOpenSearchDialog] = useState(false);
   const [searchForm, setSearchForm] = useState({
@@ -246,12 +223,6 @@ const ChiTietDatPhong = () => {
     email: "",
   });
   const [isUpdating, setIsUpdating] = useState(false);
-  const [confirmDialog, setConfirmDialog] = useState({
-    open: false,
-    title: "",
-    message: "",
-    onConfirm: () => {},
-  });
 
   const location = useLocation();
   const { maDatPhong } = location.state || {};
@@ -276,7 +247,6 @@ const ChiTietDatPhong = () => {
   const grTTDP = useMemo(() => {
     if (!Array.isArray(thongTinDatPhong)) return [];
 
-    // Tách TTDP có trạng thái cần giữ nguyên (Đã xếp, Đang ở, Đã kiểm tra phòng, Đã trả phòng)
     const keepIndividual = thongTinDatPhong.filter((ttdp) =>
       ["Đã xếp", "Đang ở", "Đã kiểm tra phòng", "Đã trả phòng"].includes(
         ttdp.trangThai
@@ -289,7 +259,6 @@ const ChiTietDatPhong = () => {
         )
     );
 
-    // Không gộp TTDP trong keepIndividual, mỗi TTDP là một bản ghi riêng
     const keepIndividualGrouped = keepIndividual.map((ttdp) => ({
       loaiPhong: ttdp.loaiPhong,
       soNguoi: ttdp.soNguoi,
@@ -303,7 +272,6 @@ const ChiTietDatPhong = () => {
       originalTTDPs: [ttdp],
     }));
 
-    // Gộp TTDP chưa xếp theo loaiPhong.id, ngayNhanPhong, ngayTraPhong, trangThai
     const chuaXepGrouped = Object.values(
       chuaXep.reduce((acc, ttdp) => {
         const key = `${ttdp.loaiPhong.id}_${ttdp.ngayNhanPhong}_${ttdp.ngayTraPhong}_${ttdp.trangThai}`;
@@ -328,7 +296,6 @@ const ChiTietDatPhong = () => {
       }, {})
     );
 
-    // Kết hợp cả hai danh sách
     return [...keepIndividualGrouped, ...chuaXepGrouped];
   }, [thongTinDatPhong]);
 
@@ -352,7 +319,12 @@ const ChiTietDatPhong = () => {
       setThongTinDatPhong(ttdpRes.data);
     } catch (error) {
       console.error("Lỗi khi tải chi tiết đặt phòng:", error);
-      showSnackbar(`Lỗi: ${error.message}`, "error");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Lỗi: ${error.message}`,
+        confirmButtonText: "Đóng",
+      });
       setThongTinDatPhong([]);
     }
   };
@@ -387,141 +359,181 @@ const ChiTietDatPhong = () => {
 
   const updateDatPhong = async () => {
     if (!datPhong) return;
+
+    const confirmUpdate = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: "Bạn có chắc chắn muốn lưu thông tin đặt phòng này không?",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    });
+
+    if (!confirmUpdate.isConfirmed) return;
+
     setIsUpdating(true);
     try {
       await CapNhatDatPhong(datPhong);
 
       if (isUpdateAllNotesChecked) {
-        setConfirmDialog({
-          open: true,
-          title: "Xác nhận cập nhật ghi chú",
-          message:
-            "Bạn có chắc chắn muốn cập nhật ghi chú này cho tất cả thông tin đặt phòng không?",
-          onConfirm: async () => {
-            const ttdpsToUpdate = thongTinDatPhong.filter(
-              (ttdp) => ttdp.trangThai !== "Đã hủy"
-            );
-            await Promise.all(
-              ttdpsToUpdate.map((ttdp) => {
-                if (!ttdp.id || !ttdp.datPhong || !ttdp.loaiPhong)
-                  return Promise.resolve();
-                return updateThongTinDatPhong({
-                  id: ttdp.id,
-                  datPhong: ttdp.datPhong,
-                  idLoaiPhong: ttdp.loaiPhong.id,
-                  maThongTinDatPhong: ttdp.maThongTinDatPhong,
-                  ngayNhanPhong: ttdp.ngayNhanPhong,
-                  ngayTraPhong: ttdp.ngayTraPhong,
-                  soNguoi: ttdp.soNguoi,
-                  giaDat: ttdp.giaDat,
-                  ghiChu: datPhong.ghiChu || "",
-                  trangThai: ttdp.trangThai,
-                });
-              })
-            );
-            showSnackbar(
-              "Cập nhật ghi chú cho tất cả thông tin đặt phòng thành công",
-              "success"
-            );
-            setConfirmDialog({ ...confirmDialog, open: false });
-          },
+        const confirmUpdateNotes = await Swal.fire({
+          icon: "question",
+          title: "Xác nhận",
+          text: "Bạn có chắc chắn muốn cập nhật ghi chú này cho tất cả thông tin đặt phòng không?",
+          showCancelButton: true,
+          confirmButtonText: "Xác nhận",
+          cancelButtonText: "Hủy",
+        });
+        if (!confirmUpdateNotes.isConfirmed) {
+          setIsUpdating(false);
+          return;
+        }
+
+        const ttdpsToUpdate = thongTinDatPhong.filter(
+          (ttdp) => ttdp.trangThai !== "Đã hủy"
+        );
+        await Promise.all(
+          ttdpsToUpdate.map((ttdp) => {
+            if (!ttdp.id || !ttdp.datPhong || !ttdp.loaiPhong)
+              return Promise.resolve();
+            return updateThongTinDatPhong({
+              id: ttdp.id,
+              datPhong: ttdp.datPhong,
+              idLoaiPhong: ttdp.loaiPhong.id,
+              maThongTinDatPhong: ttdp.maThongTinDatPhong,
+              ngayNhanPhong: ttdp.ngayNhanPhong,
+              ngayTraPhong: ttdp.ngayTraPhong,
+              soNguoi: ttdp.soNguoi,
+              giaDat: ttdp.giaDat,
+              ghiChu: datPhong.ghiChu || "",
+              trangThai: ttdp.trangThai,
+            });
+          })
+        );
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Cập nhật ghi chú cho tất cả thông tin đặt phòng thành công",
+          confirmButtonText: "Đóng",
         });
       } else {
-        showSnackbar("Lưu thông tin thành công", "success");
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Lưu thông tin thành công",
+          confirmButtonText: "Đóng",
+        });
         getDetailDatPhong(maDatPhong);
       }
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Lỗi không xác định";
       console.error("Lỗi cập nhật đặt phòng:", error);
-      showSnackbar(`Không thể cập nhật thông tin: ${errorMessage}`, "error");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Không thể cập nhật thông tin: ${errorMessage}`,
+        confirmButtonText: "Đóng",
+      });
     } finally {
       setIsUpdating(false);
     }
   };
 
-  const handleHuyTTDP = (ttdp) => {
-    setConfirmDialog({
-      open: true,
-      title: "Xác nhận hủy",
-      message: `Bạn có chắc chắn muốn hủy thông tin đặt phòng không?`,
-      onConfirm: async () => {
-        try {
-          await Promise.all(
-            ttdp.originalTTDPs.map((item) => huyTTDP(item.maThongTinDatPhong))
-          );
-          const updatedResponse = await findTTDPByMaDatPhong(maDatPhong);
-          const updatedTTDPs = updatedResponse.data || [];
-          setThongTinDatPhong(updatedTTDPs);
-
-          // Tính lại tổng tiền
-          const newTotalPrice = calculateTotalPrice(updatedTTDPs);
-
-          // Cập nhật datPhong
-          const updatedDatPhong = {
-            ...datPhong,
-            soPhong: updatedTTDPs.filter((ttdp) => ttdp.trangThai !== "Đã hủy")
-              .length,
-            tongTien: newTotalPrice,
-          };
-          await CapNhatDatPhong(updatedDatPhong);
-          setDatPhong(updatedDatPhong);
-
-          setSelectedTTDPs([]);
-          showSnackbar("Hủy thành công", "success");
-          setConfirmDialog({ ...confirmDialog, open: false });
-        } catch (error) {
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "Lỗi không xác định";
-          console.error("Lỗi hủy TTDP:", error);
-          showSnackbar(
-            `Không thể hủy thông tin đặt phòng: ${errorMessage}`,
-            "error"
-          );
-          setConfirmDialog({ ...confirmDialog, open: false });
-        }
-      },
+  const handleHuyTTDP = async (ttdp) => {
+    const confirmDelete = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: `Bạn có chắc chắn muốn hủy thông tin đặt phòng không?`,
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
     });
+    if (!confirmDelete.isConfirmed) return;
+
+    try {
+      await Promise.all(
+        ttdp.originalTTDPs.map((item) => huyTTDP(item.maThongTinDatPhong))
+      );
+      const updatedResponse = await findTTDPByMaDatPhong(maDatPhong);
+      const updatedTTDPs = updatedResponse.data || [];
+      setThongTinDatPhong(updatedTTDPs);
+
+      const newTotalPrice = calculateTotalPrice(updatedTTDPs);
+
+      const updatedDatPhong = {
+        ...datPhong,
+        soPhong: updatedTTDPs.filter((ttdp) => ttdp.trangThai !== "Đã hủy")
+          .length,
+        tongTien: newTotalPrice,
+      };
+      await CapNhatDatPhong(updatedDatPhong);
+      setDatPhong(updatedDatPhong);
+
+      setSelectedTTDPs([]);
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Hủy thành công",
+        confirmButtonText: "Đóng",
+      });
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || error.message || "Lỗi không xác định";
+      console.error("Lỗi hủy TTDP:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Không thể hủy thông tin đặt phòng: ${errorMessage}`,
+        confirmButtonText: "Đóng",
+      });
+    }
   };
 
   const handleChangeAllConditionRoom = async () => {
     if (!datPhong?.id) {
-      showSnackbar("Không tìm thấy thông tin đặt phòng.", "error");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không tìm thấy thông tin đặt phòng.",
+        confirmButtonText: "Đóng",
+      });
       return;
     }
-    setConfirmDialog({
-      open: true,
-      title: "Xác nhận kiểm tra phòng",
-      message:
-        "Bạn có chắc chắn muốn đổi tình trạng tất cả phòng sang 'Cần kiểm tra' không?",
-      onConfirm: async () => {
-        try {
-          await changeAllConditionRoom(datPhong.id);
-          showSnackbar(
-            "Đổi tình trạng cho toàn bộ phòng thành công!",
-            "success"
-          );
-          getDetailDatPhong(maDatPhong);
-          thongTinDatPhong.forEach((ttdp) =>
-            fetchPhongDaXep(ttdp.maThongTinDatPhong)
-          );
-          setIsChangeButtonDisabled(true);
-          setConfirmDialog({ ...confirmDialog, open: false });
-        } catch (error) {
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "Lỗi không xác định";
-          showSnackbar(
-            `Có lỗi xảy ra khi cập nhật tình trạng phòng: ${errorMessage}`,
-            "error"
-          );
-          setConfirmDialog({ ...confirmDialog, open: false });
-        }
-      },
+
+    const confirmAction = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: "Bạn có chắc chắn muốn đổi tình trạng tất cả phòng sang 'Cần kiểm tra' không?",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
     });
+    if (!confirmAction.isConfirmed) return;
+
+    try {
+      await changeAllConditionRoom(datPhong.id);
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Đổi tình trạng cho toàn bộ phòng thành công!",
+        confirmButtonText: "Đóng",
+      });
+      getDetailDatPhong(maDatPhong);
+      thongTinDatPhong.forEach((ttdp) =>
+        fetchPhongDaXep(ttdp.maThongTinDatPhong)
+      );
+      setIsChangeButtonDisabled(true);
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || error.message || "Lỗi không xác định";
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Có lỗi xảy ra khi cập nhật tình trạng phòng: ${errorMessage}`,
+        confirmButtonText: "Đóng",
+      });
+    }
   };
 
   const handleSearchInputChange = (field, value) => {
@@ -563,17 +575,24 @@ const ChiTietDatPhong = () => {
         searchForm.idLoaiPhong
       );
       if (!response?.data?.length) {
-        showSnackbar(
-          "Không có phòng khả dụng cho yêu cầu của bạn. Vui lòng thử lại với ngày hoặc số lượng khác.",
-          "warning"
-        );
+        Swal.fire({
+          icon: "warning",
+          title: "Cảnh báo",
+          text: "Không có phòng khả dụng cho yêu cầu của bạn. Vui lòng thử lại với ngày hoặc số lượng khác.",
+          confirmButtonText: "Đóng",
+        });
       }
       setAvailableRooms(response.data || []);
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Lỗi không xác định";
       console.error("Lỗi khi tìm phòng khả dụng:", error);
-      showSnackbar(`Có lỗi xảy ra khi tìm phòng: ${errorMessage}`, "error");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Có lỗi xảy ra khi tìm phòng: ${errorMessage}`,
+        confirmButtonText: "Đóng",
+      });
     } finally {
       setLoading(false);
     }
@@ -581,7 +600,12 @@ const ChiTietDatPhong = () => {
 
   const handleAddRoom = async (room) => {
     if (room.soPhongKhaDung < searchForm.soPhong) {
-      showSnackbar("Số phòng khả dụng không đủ!", "error");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Số phòng khả dụng không đủ!",
+        confirmButtonText: "Đóng",
+      });
       return;
     }
 
@@ -611,10 +635,8 @@ const ChiTietDatPhong = () => {
       const updatedTTDPs = updatedResponse.data || [];
       setThongTinDatPhong(updatedTTDPs);
 
-      // Tính toán tổng tiền
       const newTotalPrice = calculateTotalPrice(updatedTTDPs);
 
-      // Cập nhật datPhong
       const updatedDatPhong = {
         ...datPhong,
         soPhong: updatedTTDPs.filter((ttdp) => ttdp.trangThai !== "Đã hủy")
@@ -633,12 +655,22 @@ const ChiTietDatPhong = () => {
         soPhong: 1,
         idLoaiPhong: null,
       });
-      showSnackbar("Thêm phòng thành công!", "success");
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Thêm phòng thành công!",
+        confirmButtonText: "Đóng",
+      });
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Lỗi không xác định";
       console.error("Lỗi khi thêm phòng:", error);
-      showSnackbar(`Có lỗi xảy ra khi thêm phòng: ${errorMessage}`, "error");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Có lỗi xảy ra khi thêm phòng: ${errorMessage}`,
+        confirmButtonText: "Đóng",
+      });
     }
   };
 
@@ -711,16 +743,23 @@ const ChiTietDatPhong = () => {
         ...prev,
         khachHang: { ...prev.khachHang, ...khachHangData },
       }));
-      showSnackbar("Cập nhật thông tin khách hàng thành công", "success");
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Cập nhật thông tin khách hàng thành công",
+        confirmButtonText: "Đóng",
+      });
       handleCloseEditModal();
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Lỗi không xác định";
       console.error("Lỗi cập nhật khách hàng:", error);
-      showSnackbar(
-        `Không thể cập nhật thông tin khách hàng: ${errorMessage}`,
-        "error"
-      );
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Không thể cập nhật thông tin khách hàng: ${errorMessage}`,
+        confirmButtonText: "Đóng",
+      });
     }
   };
 
@@ -738,10 +777,12 @@ const ChiTietDatPhong = () => {
             error.message ||
             "Lỗi không xác định";
           console.error("Lỗi khi lấy danh sách loại phòng:", error);
-          showSnackbar(
-            `Lỗi khi lấy danh sách loại phòng: ${errorMessage}`,
-            "error"
-          );
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: `Lỗi khi lấy danh sách loại phòng: ${errorMessage}`,
+            confirmButtonText: "Đóng",
+          });
         }
       };
       fetchLoaiPhongs();
@@ -790,14 +831,6 @@ const ChiTietDatPhong = () => {
     navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
   };
 
-  const showSnackbar = (message, severity = "success") => {
-    setSnackbar({ open: true, message, severity });
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
-  };
-
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "numeric", day: "numeric" };
     return new Date(dateString).toLocaleDateString("vi-VN", options);
@@ -808,15 +841,20 @@ const ChiTietDatPhong = () => {
       for (const item of ttdp.originalTTDPs) {
         const xepPhong = (await phongDaXep(item.maThongTinDatPhong)).data;
         if (!xepPhong) {
-          showSnackbar("Không tìm thấy phòng đã xếp.", "error");
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: "Không tìm thấy phòng đã xếp.",
+            confirmButtonText: "Đóng",
+          });
           continue;
         }
 
         const loaiPhong = xepPhong.phong.loaiPhong;
         const checkInTime = new Date(item.ngayNhanPhong);
-        checkInTime.setHours(14, 0, 0, 0); // Có thể lấy từ cấu hình
+        checkInTime.setHours(14, 0, 0, 0);
         const checkOutTime = new Date(item.ngayTraPhong);
-        checkOutTime.setHours(12, 0, 0, 0); // Có thể lấy từ cấu hình
+        checkOutTime.setHours(12, 0, 0, 0);
 
         const xepPhongRequest = {
           id: xepPhong.id,
@@ -828,15 +866,22 @@ const ChiTietDatPhong = () => {
         };
 
         await checkIn(xepPhongRequest);
-        showSnackbar("Check-in thành công!", "success");
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Check-in thành công!",
+          confirmButtonText: "Đóng",
+        });
       }
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || error.message || "Lỗi không xác định";
-      showSnackbar(
-        `Đã xảy ra lỗi khi thực hiện check-in: ${errorMessage}`,
-        "error"
-      );
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Đã xảy ra lỗi khi thực hiện check-in: ${errorMessage}`,
+        confirmButtonText: "Đóng",
+      });
     }
     getDetailDatPhong(maDatPhong);
     ttdp.originalTTDPs.forEach((item) =>
@@ -1296,30 +1341,6 @@ const ChiTietDatPhong = () => {
         selectedTTDPs={thongTinDatPhong.filter((ttdp) =>
           selectedTTDPs.includes(ttdp.maThongTinDatPhong)
         )}
-      />
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbar.severity}
-          sx={{ width: "100%" }}
-          variant="filled"
-        >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-
-      <ConfirmDialog
-        open={confirmDialog.open}
-        onClose={() => setConfirmDialog({ ...confirmDialog, open: false })}
-        onConfirm={confirmDialog.onConfirm}
-        title={confirmDialog.title}
-        message={confirmDialog.message}
       />
 
       <Dialog

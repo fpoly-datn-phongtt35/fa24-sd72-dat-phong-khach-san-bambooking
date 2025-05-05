@@ -88,7 +88,6 @@ public class XepPhongServiceIMPL implements XepPhongService {
 
     @Override
     public XepPhong checkIn(XepPhongRequest xepPhongRequest) {
-        System.out.println(xepPhongRequest.getNgayNhanPhong());
         if (xepPhongRequest == null) {
             throw new IllegalArgumentException("XepPhongRequest cannot be null");
         }
@@ -96,29 +95,39 @@ public class XepPhongServiceIMPL implements XepPhongService {
         if (ngayNhanPhong == null) {
             throw new IllegalArgumentException("Ngày nhận phòng không được null");
         }
+        LocalDateTime ngayTraPhong = xepPhongRequest.getNgayTraPhong();
+        if (ngayTraPhong == null) {
+            throw new IllegalArgumentException("Ngày trả phòng không được null");
+        }
 
         LocalDate currentDate = LocalDate.now();
         LocalDate checkInDate = ngayNhanPhong.toLocalDate();
-        if (!checkInDate.equals(currentDate)) {
-            throw new IllegalArgumentException("Chỉ có thể check-in trong ngày hiện tại");
+        LocalDate checkOutDate = ngayTraPhong.toLocalDate();
+
+        // Kiểm tra xem ngày hiện tại nằm trong khoảng từ ngày nhận phòng đến ngày trả phòng
+        if (currentDate.isBefore(checkInDate) || currentDate.isAfter(checkOutDate)) {
+            throw new IllegalArgumentException(
+                    "Chỉ có thể check-in trong khoảng từ ngày nhận phòng (" +
+                            checkInDate + ") đến ngày trả phòng (" + checkOutDate + ")");
         }
 
-        LocalDateTime ngayTraPhong = xepPhongRequest.getNgayTraPhong();
         try {
-            XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId()).get();
-            if (xp == null) {
-                throw new RuntimeException("Không thể tạo mới XepPhong");
-            }
+            XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy XepPhong với ID: " + xepPhongRequest.getId()));
+
             DatPhong dp = datPhongRepository.findByMaDatPhong(
                     xp.getThongTinDatPhong().getDatPhong().getMaDatPhong());
             if (dp == null) {
                 throw new RuntimeException("Không tìm thấy đặt phòng");
             }
+
             ThongTinDatPhong ttdp = xp.getThongTinDatPhong();
             Phong p = xp.getPhong();
             if (ttdp == null || p == null) {
                 throw new RuntimeException("Thông tin đặt phòng hoặc phòng không hợp lệ");
             }
+
+            // Cập nhật trạng thái
             dp.setTrangThai("Đã nhận phòng");
             ttdp.setTrangThai("Đang ở");
             p.setTinhTrang("Đang ở");
@@ -126,6 +135,8 @@ public class XepPhongServiceIMPL implements XepPhongService {
             ngayTraPhong = ngayTraPhong.withHour(14).withMinute(0).withSecond(0).withNano(0);
             xp.setNgayTraPhong(ngayTraPhong);
             xp.setTrangThai("Đang ở");
+
+            // Lưu thay đổi
             datPhongRepository.save(dp);
             return xepPhongRepository.save(xp);
         } catch (Exception e) {
@@ -162,7 +173,6 @@ public class XepPhongServiceIMPL implements XepPhongService {
             if (xp.getNgayTraPhong() != null && xp.getNgayTraPhong().isBefore(now)) {
                 xp.setNgayTraPhong(now);
                 xepPhongRepository.save(xp);
-                System.out.println("Cập nhật ngày trả phòng cho xp: " + xp.getId());
             }
         }
     }

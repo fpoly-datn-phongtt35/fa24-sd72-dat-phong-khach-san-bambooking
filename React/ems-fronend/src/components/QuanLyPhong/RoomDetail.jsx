@@ -319,7 +319,7 @@ const RoomDetail = () => {
               onClick={handleChangeConditionRoom}
               disabled={buttonStatus.disabled}
             >
-              {buttonStatus.text}
+              Kiểm tra phòng
             </Button>
           </>
         )}

@@ -64,7 +64,7 @@ const DatPhong = () => {
   // Xử lý thông báo SweetAlert2
   const handleSnackbar = (message, type = "error") => {
     Swal.fire({
-      icon: type, // "success" hoặc "error"
+      icon: type,
       title: type === "success" ? "Thành công" : "Lỗi",
       text: message,
       timer: 3000,
@@ -217,7 +217,7 @@ const DatPhong = () => {
         );
       }
 
-      handleSnackbar("Đặt phòng thành công!", "success");
+      handleSnackbar("Thành công!", "success");
       navigate("/tao-dat-phong", {
         state: {
           combination: combination,

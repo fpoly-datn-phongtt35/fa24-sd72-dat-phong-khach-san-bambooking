@@ -18,6 +18,7 @@ import {
   huyPhongDangDat,
 } from "../../services/PhongService";
 import { addXepPhong } from "../../services/XepPhongService";
+import Swal from "sweetalert2";
 
 function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
   const [availableRooms, setAvailableRooms] = useState([]);
@@ -49,10 +50,17 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
       const maxDate = new Date(
         Math.max(...unassignedTTDPs.map((ttdp) => new Date(ttdp.ngayTraPhong)))
       );
-      const formatDate = (date) => date.toISOString().split("T")[0];
 
-      const ngayNhanPhong = formatDate(minDate);
-      const ngayTraPhong = formatDate(maxDate);
+      const setTime = (date, hours, minutes) => {
+        const newDate = new Date(date);
+        newDate.setHours(hours, minutes, 0, 0);
+        return newDate;
+      };
+
+      const formatDateTime = (date) => date.toISOString();
+
+      const ngayNhanPhong = formatDateTime(setTime(minDate, 14, 0));
+      const ngayTraPhong = formatDateTime(setTime(maxDate, 12, 0));
 
       const roomTypeCounts = unassignedTTDPs.reduce((acc, ttdp) => {
         const roomTypeId = ttdp.loaiPhong.id;
@@ -148,9 +156,12 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
           await setPhongDangDat(roomId);
           setSelectedRooms([...selectedRooms, roomId]);
         } else {
-          alert(
-            "Không thể chọn thêm phòng này vì đã đủ số phòng cho loại phòng này!"
-          );
+          await Swal.fire({
+            icon: "warning",
+            title: "Cảnh báo",
+            text: "Không thể chọn thêm phòng này vì đã đủ số phòng cho loại phòng này!",
+            confirmButtonText: "Đóng",
+          });
         }
       }
     } catch (error) {
@@ -159,6 +170,17 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
   };
 
   const handleSaveAll = async () => {
+    const confirmSave = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: `Bạn có chắc chắn muốn lưu xếp phòng cho ${selectedRooms.length} phòng không?`,
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    });
+
+    if (!confirmSave.isConfirmed) return;
+
     setIsLoading(true);
     setError(null);
     try {
@@ -181,7 +203,12 @@ function XepPhong({ show, handleClose, selectedTTDPs, onSuccess }) {
         });
 
       await Promise.all(requests);
-      alert(`Xếp phòng thành công cho ${selectedRooms.length} đặt phòng!`);
+      await Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: `Xếp phòng thành công cho ${selectedRooms.length} đặt phòng!`,
+        confirmButtonText: "Đóng",
+      });
       if (onSuccess) onSuccess();
       handleClose();
     } catch (error) {
