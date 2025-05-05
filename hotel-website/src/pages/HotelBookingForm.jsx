@@ -14,7 +14,6 @@ import dayjs from "dayjs";
 import {
   Button,
   TextField,
-  Snackbar,
   Box,
   Grid,
   Divider,
@@ -31,6 +30,7 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import Swal from "sweetalert2";
 
 const HotelBookingForm = () => {
   const navigate = useNavigate();
@@ -88,9 +88,6 @@ const HotelBookingForm = () => {
   const [loaiPhongList, setLoaiPhongList] = useState([]);
   const [key, setKey] = useState(location.state?.key || "");
 
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-
   const [openGuestDialog, setOpenGuestDialog] = useState(false);
   const [guestInfo, setGuestInfo] = useState({
     hoTen: "",
@@ -98,11 +95,6 @@ const HotelBookingForm = () => {
     soDienThoai: "",
   });
   const [selectedCombination, setSelectedCombination] = useState(null);
-
-  const handleSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setOpenSnackbar(true);
-  };
 
   const handleSoNguoiChange = (e) => {
     const value = e.target.value;
@@ -123,6 +115,12 @@ const HotelBookingForm = () => {
       }));
     } catch (error) {
       console.error(`Lỗi khi lấy ảnh cho ${idLoaiPhong}:`, error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Không thể tải ảnh cho loại phòng ${idLoaiPhong}!`,
+        confirmButtonText: "Đóng",
+      });
       setRoomImages((prev) => ({
         ...prev,
         [idLoaiPhong]: [],
@@ -140,13 +138,23 @@ const HotelBookingForm = () => {
       !ngayNhanPhong.isValid() ||
       !ngayTraPhong.isValid()
     ) {
-      handleSnackbar("Vui lòng chọn ngày nhận và trả phòng hợp lệ.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng chọn ngày nhận và trả phòng hợp lệ.",
+        confirmButtonText: "Đóng",
+      });
       setIsLoading(false);
       return;
     }
 
     if (ngayTraPhong.diff(ngayNhanPhong, "day") <= 0) {
-      handleSnackbar("Ngày trả phòng phải sau ngày nhận phòng.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Ngày trả phòng phải sau ngày nhận phòng.",
+        confirmButtonText: "Đóng",
+      });
       setIsLoading(false);
       return;
     }
@@ -170,7 +178,12 @@ const HotelBookingForm = () => {
       );
 
       if (!response || !response.content) {
-        handleSnackbar("Không tìm thấy tổ hợp phòng phù hợp.");
+        Swal.fire({
+          icon: "info",
+          title: "Thông báo",
+          text: "Không tìm thấy tổ hợp phòng phù hợp.",
+          confirmButtonText: "Đóng",
+        });
         setLoaiPhongKhaDung([]);
         setTotalPages(1);
         setCurrentPage(0);
@@ -179,10 +192,14 @@ const HotelBookingForm = () => {
         setTotalPages(response.totalPages || 1);
         setCurrentPage(response.number || 0);
       }
-    } catch (error){
-
+    } catch (error) {
       console.error("Lỗi khi lấy tổ hợp phòng:", error);
-      handleSnackbar("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.",
+        confirmButtonText: "Đóng",
+      });
       setLoaiPhongKhaDung([]);
       setTotalPages(1);
       setCurrentPage(0);
@@ -199,11 +216,21 @@ const HotelBookingForm = () => {
       if (response && response.data) {
         setLoaiPhongList(response.data);
       } else {
-        handleSnackbar("Không tìm thấy loại phòng nào.");
+        Swal.fire({
+          icon: "info",
+          title: "Thông báo",
+          text: "Không tìm thấy loại phòng nào.",
+          confirmButtonText: "Đóng",
+        });
       }
     } catch (error) {
       console.error("Lỗi khi lấy loại phòng:", error);
-      handleSnackbar("Đã xảy ra lỗi khi tải loại phòng.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi tải loại phòng.",
+        confirmButtonText: "Đóng",
+      });
     }
   };
 
@@ -277,9 +304,12 @@ const HotelBookingForm = () => {
           kh = khachHangData;
         } catch (error) {
           console.error("Lỗi khi lấy thông tin khách hàng:", error);
-          handleSnackbar(
-            "Không thể lấy thông tin khách hàng. Vui lòng đăng nhập lại."
-          );
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: "Không thể lấy thông tin khách hàng. Vui lòng đăng nhập lại.",
+            confirmButtonText: "Đóng",
+          });
           setTimeout(() => {
             navigate("/login", { state: { from: location.pathname } });
           }, 2000);
@@ -344,24 +374,38 @@ const HotelBookingForm = () => {
             if (!response || !response.data) {
               throw new Error("Không thể tạo thông tin đặt phòng.");
             }
-            thongTinDatPhongResponseList.push(response.data);
+            thongTinDatPhongResponseList = [
+              ...thongTinDatPhongResponseList,
+              response.data,
+            ];
           }
         }
       }
 
       localStorage.removeItem("pendingData");
-      handleSnackbar("Đặt phòng thành công!");
-      navigate("/booking-confirmation", {
-        state: {
-          combination: combination,
-          datPhong: datPhongResponse.data,
-          khachHang: kh.data || kh,
-          thongTinDatPhong: thongTinDatPhongResponseList,
-        },
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Đặt phòng thành công!",
+        confirmButtonText: "Đóng",
+      }).then(() => {
+        navigate("/booking-confirmation", {
+          state: {
+            combination: combination,
+            datPhong: datPhongResponse.data,
+            khachHang: kh.data || kh,
+            thongTinDatPhong: thongTinDatPhongResponseList,
+          },
+        });
       });
     } catch (error) {
       console.error("Lỗi khi tạo đặt phòng:", error);
-      handleSnackbar("Đã xảy ra lỗi khi tạo đặt phòng. Vui lòng thử lại.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi tạo đặt phòng. Vui lòng thử lại.",
+        confirmButtonText: "Đóng",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -376,9 +420,12 @@ const HotelBookingForm = () => {
       !emailRegex.test(guestInfo.email) ||
       !phoneRegex.test(guestInfo.soDienThoai)
     ) {
-      handleSnackbar(
-        "Vui lòng nhập đầy đủ và đúng định dạng thông tin (Họ tên phải có dấu cách, ví dụ: Nguyễn Tấn Phát)."
-      );
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng nhập đầy đủ và đúng định dạng thông tin (Họ tên phải có dấu cách, ví dụ: Nguyễn Tấn Phát).",
+        confirmButtonText: "Đóng",
+      });
       return;
     }
     setOpenGuestDialog(false);
@@ -520,10 +567,18 @@ const HotelBookingForm = () => {
                       value={tongChiPhiMin}
                       onChange={(e) => {
                         const value = e.target.value;
-                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                        if (
+                          value === "" ||
+                          (!isNaN(value) && parseInt(value) >= 1)
+                        ) {
                           setTongChiPhiMin(value);
                         } else {
-                          handleSnackbar("Tổng chi phí tối thiểu phải lớn hơn hoặc bằng 1.");
+                          Swal.fire({
+                            icon: "error",
+                            title: "Lỗi",
+                            text: "Tổng chi phí tối thiểu phải lớn hơn hoặc bằng 1.",
+                            confirmButtonText: "Đóng",
+                          });
                         }
                       }}
                       fullWidth
@@ -549,10 +604,18 @@ const HotelBookingForm = () => {
                       value={tongChiPhiMax}
                       onChange={(e) => {
                         const value = e.target.value;
-                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                        if (
+                          value === "" ||
+                          (!isNaN(value) && parseInt(value) >= 1)
+                        ) {
                           setTongChiPhiMax(value);
                         } else {
-                          handleSnackbar("Tổng chi phí tối đa phải lớn hơn hoặc bằng 1.");
+                          Swal.fire({
+                            icon: "error",
+                            title: "Lỗi",
+                            text: "Tổng chi phí tối đa phải lớn hơn hoặc bằng 1.",
+                            confirmButtonText: "Đóng",
+                          });
                         }
                       }}
                       fullWidth
@@ -578,10 +641,18 @@ const HotelBookingForm = () => {
                       value={tongSucChuaMin}
                       onChange={(e) => {
                         const value = e.target.value;
-                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                        if (
+                          value === "" ||
+                          (!isNaN(value) && parseInt(value) >= 1)
+                        ) {
                           setTongSucChuaMin(value);
                         } else {
-                          handleSnackbar("Tổng sức chứa tối thiểu phải lớn hơn hoặc bằng 1.");
+                          Swal.fire({
+                            icon: "error",
+                            title: "Lỗi",
+                            text: "Tổng sức chứa tối thiểu phải lớn hơn hoặc bằng 1.",
+                            confirmButtonText: "Đóng",
+                          });
                         }
                       }}
                       fullWidth
@@ -600,10 +671,18 @@ const HotelBookingForm = () => {
                       value={tongSucChuaMax}
                       onChange={(e) => {
                         const value = e.target.value;
-                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                        if (
+                          value === "" ||
+                          (!isNaN(value) && parseInt(value) >= 1)
+                        ) {
                           setTongSucChuaMax(value);
                         } else {
-                          handleSnackbar("Tổng sức chứa tối đa phải lớn hơn hoặc bằng 1.");
+                          Swal.fire({
+                            icon: "error",
+                            title: "Lỗi",
+                            text: "Tổng sức chứa tối đa phải lớn hơn hoặc bằng 1.",
+                            confirmButtonText: "Đóng",
+                          });
                         }
                       }}
                       fullWidth
@@ -622,10 +701,18 @@ const HotelBookingForm = () => {
                       value={tongSoPhongMin}
                       onChange={(e) => {
                         const value = e.target.value;
-                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                        if (
+                          value === "" ||
+                          (!isNaN(value) && parseInt(value) >= 1)
+                        ) {
                           setTongSoPhongMin(value);
                         } else {
-                          handleSnackbar("Tổng số phòng tối thiểu phải lớn hơn hoặc bằng 1.");
+                          Swal.fire({
+                            icon: "error",
+                            title: "Lỗi",
+                            text: "Tổng số phòng tối thiểu phải lớn hơn hoặc bằng 1.",
+                            confirmButtonText: "Đóng",
+                          });
                         }
                       }}
                       fullWidth
@@ -644,10 +731,18 @@ const HotelBookingForm = () => {
                       value={tongSoPhongMax}
                       onChange={(e) => {
                         const value = e.target.value;
-                        if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
+                        if (
+                          value === "" ||
+                          (!isNaN(value) && parseInt(value) >= 1)
+                        ) {
                           setTongSoPhongMax(value);
                         } else {
-                          handleSnackbar("Tổng số phòng tối đa phải lớn hơn hoặc bằng 1.");
+                          Swal.fire({
+                            icon: "error",
+                            title: "Lỗi",
+                            text: "Tổng số phòng tối đa phải lớn hơn hoặc bằng 1.",
+                            confirmButtonText: "Đóng",
+                          });
                         }
                       }}
                       fullWidth
@@ -806,15 +901,15 @@ const HotelBookingForm = () => {
                 <table>
                   <thead>
                     <tr>
-                    <th>STT</th>
-                    <th className="poon-column">Hình ảnh</th>
-                    <th>Loại phòng</th>
-                    <th>Diện tích</th>
-                    <th>Số khách</th>
-                    <th>Đơn giá</th>
-                    <th>Số lượng</th>
-                    <th>Thành tiền</th>
-                  </tr>
+                      <th>STT</th>
+                      <th className="poon-column">Hình ảnh</th>
+                      <th>Loại phòng</th>
+                      <th>Diện tích</th>
+                      <th>Số khách</th>
+                      <th>Đơn giá</th>
+                      <th>Số lượng</th>
+                      <th>Thành tiền</th>
+                    </tr>
                   </thead>
                   <tbody>
                     {combination.phongs.map((phong, idx) => (
@@ -929,13 +1024,6 @@ const HotelBookingForm = () => {
             </Button>
           </DialogActions>
         </Dialog>
-
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={() => setOpenSnackbar(false)}
-          message={snackbarMessage}
-        />
       </div>
     </LocalizationProvider>
   );
