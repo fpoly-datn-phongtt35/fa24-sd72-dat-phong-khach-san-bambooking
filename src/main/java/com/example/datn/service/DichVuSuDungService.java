@@ -18,4 +18,6 @@ public interface DichVuSuDungService {
     DichVuSuDung addPhieuDichVu2(DichVuSuDungRequest dichVuSuDungRequest);
 
     void HuyDVSD(Integer id);
+
+    DichVuSuDung updateGSG(DichVuSuDungRequest dichVuSuDungRequest);
 }
