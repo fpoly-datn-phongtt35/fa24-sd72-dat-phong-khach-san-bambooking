@@ -42,6 +42,7 @@ import {
   findDatPhong,
   huyDatPhong,
   CapNhatDatPhong,
+  EmailXacNhanDPThanhCong,
 } from "../../services/DatPhong";
 import XepPhong from "../../pages/xepphong/XepPhong";
 
@@ -194,6 +195,7 @@ const QuanLyDatPhong = () => {
         };
         await CapNhatDatPhong(datPhongRequest);
         alert("Xác nhận đặt phòng thành công!");
+        EmailXacNhanDPThanhCong(datPhongRequest.id);
         searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
       } catch (err) {
         console.error("Lỗi khi xác nhận đặt phòng:", err);
