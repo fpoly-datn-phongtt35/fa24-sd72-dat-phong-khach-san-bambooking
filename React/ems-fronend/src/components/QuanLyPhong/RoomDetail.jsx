@@ -159,7 +159,7 @@ const RoomDetail = () => {
   const handleChangeConditionRoom = async () => {
     try {
       await changeConditionRoom(roomId);
-      const updatedRoom = await getRoomDetail(roomId,date);
+      const updatedRoom = await getRoomDetail(roomId, date);
       console.log("Dữ liệu phòng sau khi thay đổi:", updatedRoom);
       setRoomDetail(updatedRoom);
 
@@ -237,7 +237,7 @@ const RoomDetail = () => {
                 <TableCell sx={{ fontWeight: "bold" }}>
                   Tổng chi phí (VND)
                 </TableCell>
-                {roomDetail?.trangThai != "Đã trả phòng"  && roomDetail?.trangThai != "Đã kiểm tra" && (
+                {roomDetail?.trangThai != "Đã trả phòng" && roomDetail?.trangThai != "Đã kiểm tra" && (
                   <TableCell sx={{ fontWeight: "bold" }}>Hành động</TableCell>
                 )}
               </TableRow>
@@ -264,7 +264,7 @@ const RoomDetail = () => {
                     <TableCell>{dv.giaSuDung}</TableCell>
                     <TableCell>{dv.soLuongSuDung}</TableCell>
                     <TableCell>{dv.giaSuDung * dv.soLuongSuDung}</TableCell>
-                    {roomDetail?.trangThai != "Đã trả phòng" && roomDetail?.trangThai != "Đã kiểm tra" &&(
+                    {roomDetail?.trangThai != "Đã trả phòng" && roomDetail?.trangThai != "Đã kiểm tra" && (
                       <TableCell>
                         <Button
                           variant="contained"
@@ -299,29 +299,30 @@ const RoomDetail = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        {roomDetail && roomDetail.phong.tinhTrang == "Đang ở" && (
-          <>
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{ mt: 2, textTransform: "none" }}
-              onClick={() => {
-                setShowFormDetail(true);
-                setSelectedDichVu(null);
-              }}
-            >
-              Thêm dịch vụ
-            </Button>
-            <Button
-              variant="contained"
-              color="success"
-              sx={{ mt: 2, mx: 2, textTransform: "none" }}
-              onClick={handleChangeConditionRoom}
-              disabled={buttonStatus.disabled}
-            >
-              {buttonStatus.text}
-            </Button>
-          </>
+
+        {roomDetail && (roomDetail.trangThai == "Đang ở" || roomDetail.trangThai == "Đã xếp") && (
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2, textTransform: "none" }}
+            onClick={() => {
+              setShowFormDetail(true);
+              setSelectedDichVu(null);
+            }}
+          >
+            Thêm dịch vụ
+          </Button>
+        )}
+        {roomDetail && roomDetail.trangThai == "Đang ở" && (
+          <Button
+            variant="contained"
+            color="success"
+            sx={{ mt: 2, mx: 2, textTransform: "none" }}
+            onClick={handleChangeConditionRoom}
+            disabled={buttonStatus.disabled}
+          >
+            {buttonStatus.text}
+          </Button>
         )}
 
         {alert.open && (
