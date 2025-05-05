@@ -260,7 +260,7 @@ const QuanLyPhong = () => {
       <Grid item xs={12} sm={9}>
         <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Button variant="contained" color="success" onClick={handleAddRoom}>
-            Thêm phòng mới
+            Thêm phòng
           </Button>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="body2" sx={{ mr: 1 }}>
