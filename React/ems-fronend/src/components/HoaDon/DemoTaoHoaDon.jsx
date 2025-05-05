@@ -59,8 +59,8 @@ const DemoTaoHoaDon = () => {
 
         if (numericValue < 0) {
             updatedErrors[id] = "Tiền khấu trừ không được nhỏ hơn 0!";
-        } else if (numericValue > item.tienPhong) {
-            updatedErrors[id] = "Tiền khấu trừ không được lớn hơn tiền phòng!";
+        } else if (numericValue > item.tienPhuThu) {
+            updatedErrors[id] = "Tiền khấu trừ không được lớn hơn tiền phụ thu của phòng!";
         }
         else {
             delete updatedErrors[id];
@@ -69,7 +69,7 @@ const DemoTaoHoaDon = () => {
         setErrors(updatedErrors);
         setTienKhauTru((prev) => ({
             ...prev,
-            [id]: numericValue < 0 ? 0 : (numericValue > item.tienPhong ? item.tienPhong : numericValue)
+            [id]: numericValue < 0 ? 0 : (numericValue > item.tienPhuThu ? item.tienPhuThu : numericValue)
         }));
     };
 
@@ -150,8 +150,6 @@ const DemoTaoHoaDon = () => {
                         {thongTinHoaDon.length > 0 ? (
                             thongTinHoaDon.map((item, index) => (
                                 <tr key={index}>
-                                    {/* <td>{item.id}</td> */}
-                                    {/* <td>{item.traPhong?.id}</td> */}
                                     <td>{item.hoaDon?.maHoaDon}</td>
                                     <td>{item.traPhong?.xepPhong?.phong?.tenPhong}</td>
                                     <td>{formatCurrency(item.tienPhong)}</td>
