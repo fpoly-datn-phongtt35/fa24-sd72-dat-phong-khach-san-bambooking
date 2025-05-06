@@ -132,10 +132,10 @@ public class XepPhongServiceIMPL implements XepPhongService {
         }
 
         LocalDateTime checkInThreshold = checkInDate.atTime(12, 0);
-        if (currentDateTime.isBefore(checkInThreshold)) {
-            throw new IllegalArgumentException(
-                    "Chỉ có thể check-in sau 12:00 PM của ngày nhận phòng (" + checkInDate + ")");
-        }
+//        if (currentDateTime.isBefore(checkInThreshold)) {
+//            throw new IllegalArgumentException(
+//                    "Chỉ có thể check-in sau 12:00 PM của ngày nhận phòng (" + checkInDate + ")");
+//        }
 
         try {
             XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId())
