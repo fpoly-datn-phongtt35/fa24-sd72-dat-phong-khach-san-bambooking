@@ -21,6 +21,7 @@ public class ThanhToanController {
 
     @PostMapping
     public ResponseEntity<?> createThanhToan(@RequestBody @Valid ThanhToanRequest thanhToanRequest, HttpServletRequest request) {
+
         return ResponseEntity.status(HttpStatus.CREATED).body(thanhToanService.createThanhToan(thanhToanRequest, request));
     }
 
