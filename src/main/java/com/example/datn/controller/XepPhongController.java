@@ -65,4 +65,9 @@ public class XepPhongController {
         XepPhong xepPhong = xepPhongServiceIMPL.getById(id);
         return ResponseEntity.ok(xepPhong);
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<XepPhong> updateXepPhong(@RequestBody XepPhongRequest xepPhongRequest){
+        return ResponseEntity.status(HttpStatus.CREATED).body(xepPhongServiceIMPL.updateXepPhong(xepPhongRequest));
+    }
 }

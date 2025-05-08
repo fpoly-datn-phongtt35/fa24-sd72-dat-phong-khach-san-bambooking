@@ -13,8 +13,12 @@ import {
 } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getTTDPByMaTTDP, updateThongTinDatPhong } from "../../services/TTDP";
-import { phongDaXep } from "../../services/XepPhongService";
-import { hienThi, sua, xoa } from "../../services/KhachHangCheckin"; // Thêm xoa
+import {
+  phongDaXep,
+  checkIn,
+  updateXepPhong,
+} from "../../services/XepPhongService";
+import { hienThi, sua, xoa } from "../../services/KhachHangCheckin";
 import XepPhong from "../xepphong/XepPhong";
 import ModalKhachHangCheckin from "./ModalKhachHangCheckin";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -23,12 +27,17 @@ import HotelIcon from "@mui/icons-material/Hotel";
 import PersonIcon from "@mui/icons-material/Person";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import { updateKhachHang, } from "../../services/KhachHangService";
-import { ThemPhuThu, CapNhatPhuThu, CheckPhuThuExists, XoaPhuThu } from '../../services/PhuThuService';
-import { getLoaiPhongById } from '../../services/LoaiPhongService';
-import { getXepPhongByThongTinDatPhongId } from '../../services/XepPhongService.js';
-import { getKhachHangCheckinByThongTinId } from '../../services/KhachHangCheckin.js';
-import Swal from 'sweetalert2';
+import { updateKhachHang } from "../../services/KhachHangService";
+import {
+  ThemPhuThu,
+  CapNhatPhuThu,
+  CheckPhuThuExists,
+  XoaPhuThu,
+} from "../../services/PhuThuService";
+import { getLoaiPhongById } from "../../services/LoaiPhongService";
+import { getXepPhongByThongTinDatPhongId } from "../../services/XepPhongService.js";
+import { getKhachHangCheckinByThongTinId } from "../../services/KhachHangCheckin.js";
+import Swal from "sweetalert2";
 
 const ChiTietTTDP = () => {
   const navigate = useNavigate();
@@ -40,14 +49,21 @@ const ChiTietTTDP = () => {
   const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const [isModalOpen, setModalOpen] = useState(false);
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   // Fetch dữ liệu
   const getDetailTTDP = (maThongTinDatPhong) => {
     getTTDPByMaTTDP(maThongTinDatPhong)
       .then((response) => setThongTinDatPhong(response.data))
-      .catch((error) =>
-        console.error("Lỗi khi lấy thông tin đặt phòng:", error)
-      );
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin đặt phòng:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: `Không thể lấy thông tin đặt phòng: ${error.message}`,
+          confirmButtonText: "Đóng",
+        });
+      });
   };
 
   const fetchKhachHangCheckin = (maThongTinDatPhong) => {
@@ -56,24 +72,46 @@ const ChiTietTTDP = () => {
         console.log("Khách hàng check-in:", response.data);
         setKhachHangCheckin(response.data);
       })
-      .catch((error) =>
-        console.error("Lỗi khi lấy thông tin khách hàng:", error)
-      );
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin khách hàng:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: `Không thể lấy thông tin khách hàng: ${error.message}`,
+          confirmButtonText: "Đóng",
+        });
+      });
   };
 
   const fetchPhongDaXep = (maThongTinDatPhong) => {
     phongDaXep(maThongTinDatPhong)
       .then((response) => {
         setXepPhong(response.data);
-        console.log(response.data)
+        console.log(response.data);
       })
-      .catch((error) =>
-        console.error("Lỗi khi lấy thông tin phòng đã xếp:", error)
-      );
-
+      .catch((error) => {
+        console.error("Lỗi khi lấy thông tin phòng đã xếp:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: `Không thể lấy thông tin phòng đã xếp: ${error.message}`,
+          confirmButtonText: "Đóng",
+        });
+      });
   };
 
-  const capNhatTTDP = () => {
+  const capNhatTTDP = async () => {
+    const confirmUpdate = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: "Bạn có chắc chắn muốn cập nhật thông tin đặt phòng này không?",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    });
+
+    if (!confirmUpdate.isConfirmed) return;
+
     const TTDPRequest = {
       id: thongTinDatPhong.id,
       datPhong: thongTinDatPhong.datPhong,
@@ -87,21 +125,214 @@ const ChiTietTTDP = () => {
       trangThai: thongTinDatPhong.trangThai,
     };
     updateThongTinDatPhong(TTDPRequest)
-      .then(() => navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } }))
-      .catch((error) =>
-        console.error("Lỗi khi cập nhật thông tin đặt phòng:", error)
+      .then(() => {
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Cập nhật thông tin đặt phòng thành công",
+          confirmButtonText: "Đóng",
+        });
+        navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
+      })
+      .catch((error) => {
+        console.error("Lỗi khi cập nhật thông tin đặt phòng:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: `Không thể cập nhật thông tin đặt phòng: ${error.message}`,
+          confirmButtonText: "Đóng",
+        });
+      });
+  };
+
+  // Hàm xử lý check-in
+  const handleCheckin = async () => {
+    const confirmCheckin = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: "Bạn có chắc chắn muốn check-in không?",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+    });
+
+    if (!confirmCheckin.isConfirmed) return;
+
+    try {
+      // Kiểm tra xem phòng đã được xếp chưa
+      const xepPhongResponse = await phongDaXep(maThongTinDatPhong);
+      const xepPhongData = xepPhongResponse.data;
+
+      if (!xepPhongData) {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Không tìm thấy phòng đã xếp.",
+          confirmButtonText: "Đóng",
+        });
+        return;
+      }
+
+      // Kiểm tra trạng thái xepPhong
+      if (xepPhongData.trangThai === "Đang ở") {
+        Swal.fire({
+          icon: "warning",
+          title: "Cảnh báo",
+          text: "Phòng đã ở trạng thái Đang ở.",
+          confirmButtonText: "Đóng",
+        });
+        return;
+      }
+
+      // Chuẩn bị thời gian check-in và check-out
+      const checkInTime = new Date(thongTinDatPhong.ngayNhanPhong);
+      checkInTime.setHours(14, 0, 0, 0);
+      const checkOutTime = new Date(thongTinDatPhong.ngayTraPhong);
+      checkOutTime.setHours(12, 0, 0, 0);
+
+      // Chuẩn bị yêu cầu check-in
+      const xepPhongRequest = {
+        id: xepPhongData.id,
+        phong: xepPhongData.phong,
+        thongTinDatPhong: xepPhongData.thongTinDatPhong,
+        ngayNhanPhong: checkInTime,
+        ngayTraPhong: checkOutTime,
+        trangThai: "Đang ở",
+      };
+
+      // Gọi API checkIn để cập nhật trạng thái xếp phòng
+      await checkIn(xepPhongRequest);
+
+      // Kiểm tra và xử lý phụ thu
+      const resDaCheckin = await getKhachHangCheckinByThongTinId(
+        thongTinDatPhong.id
       );
+      const daCheckinList = resDaCheckin.data || [];
+      const tongSoKhach = daCheckinList.length;
+
+      // Lấy thông tin loại phòng
+      const resLoaiPhong = await getLoaiPhongById(
+        thongTinDatPhong.loaiPhong.id
+      );
+      const loaiPhong = resLoaiPhong.data;
+      const soKhachToiDa = loaiPhong.soKhachToiDa || 0;
+      const soKhachVuot = tongSoKhach - soKhachToiDa;
+
+      if (soKhachVuot > 0) {
+        const tienPhuThu = (loaiPhong.donGiaPhuThu || 0) * soKhachVuot;
+        const phuThuRequest = {
+          xepPhong: { id: xepPhongData.id },
+          tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
+          tienPhuThu,
+          soLuong: soKhachVuot,
+          trangThai: false,
+        };
+
+        try {
+          let existingPhuThu = null;
+          try {
+            const response = await CheckPhuThuExists(xepPhongData.id);
+            existingPhuThu = response?.data;
+          } catch (err) {
+            if (err.response?.status !== 404) throw err;
+          }
+
+          if (existingPhuThu) {
+            // Cập nhật phụ thu nếu cần
+            if (
+              existingPhuThu.soLuong !== soKhachVuot ||
+              existingPhuThu.tienPhuThu !== tienPhuThu
+            ) {
+              const updatedPhuThu = {
+                ...existingPhuThu,
+                soLuong: soKhachVuot,
+                tienPhuThu,
+                tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
+              };
+              await CapNhatPhuThu(updatedPhuThu);
+            }
+          } else {
+            await ThemPhuThu(phuThuRequest);
+          }
+        } catch (err) {
+          console.error("Lỗi khi xử lý phụ thu:", err);
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: `Không thể xử lý phụ thu: ${err.message}`,
+            confirmButtonText: "Đóng",
+          });
+          return;
+        }
+      } else {
+        // Xóa phụ thu nếu không còn vượt quá
+        try {
+          const response = await CheckPhuThuExists(xepPhongData.id);
+          const existingPhuThu = response?.data;
+          if (existingPhuThu) {
+            await XoaPhuThu(existingPhuThu.id);
+          }
+        } catch (err) {
+          if (err.response?.status !== 404) {
+            console.error("Lỗi khi kiểm tra hoặc xóa phụ thu:", err);
+            Swal.fire({
+              icon: "error",
+              title: "Lỗi",
+              text: `Không thể xóa phụ thu: ${err.message}`,
+              confirmButtonText: "Đóng",
+            });
+            return;
+          }
+        }
+      }
+
+      // Cập nhật giao diện
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Check-in thành công",
+        confirmButtonText: "Đóng",
+      });
+      getDetailTTDP(maThongTinDatPhong);
+      fetchPhongDaXep(maThongTinDatPhong);
+      fetchKhachHangCheckin(maThongTinDatPhong);
+    } catch (error) {
+      console.error("Lỗi khi check-in:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Không thể check-in: ${
+          error.response?.data?.message || error.message
+        }`,
+        confirmButtonText: "Đóng",
+      });
+    }
   };
 
   // Hàm xóa khách hàng check-in
   const handleDelete = async (id) => {
+    const confirmDelete = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: "Bạn có chắc chắn muốn xóa khách hàng check-in này không?",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+
+    if (!confirmDelete.isConfirmed) return;
+
     try {
       // Xóa khách hàng
       await xoa(id);
       console.log("Xóa khách hàng check-in thành công");
 
       // Gọi lại danh sách khách đã check-in
-      const resDaCheckin = await getKhachHangCheckinByThongTinId(thongTinDatPhong.id);
+      const resDaCheckin = await getKhachHangCheckinByThongTinId(
+        thongTinDatPhong.id
+      );
       const daCheckinList = resDaCheckin.data || [];
 
       const tongSoKhach = daCheckinList.length;
@@ -109,16 +340,26 @@ const ChiTietTTDP = () => {
       // Lấy id xếp phòng
       let idXepPhong = null;
       try {
-        const resXepPhong = await getXepPhongByThongTinDatPhongId(thongTinDatPhong.id);
+        const resXepPhong = await getXepPhongByThongTinDatPhongId(
+          thongTinDatPhong.id
+        );
         idXepPhong = resXepPhong?.data?.id || null;
         console.log("Lấy được idXepPhong:", idXepPhong);
       } catch (err) {
         console.error("Lỗi khi lấy idXepPhong từ API:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: `Không thể lấy thông tin xếp phòng: ${err.message}`,
+          confirmButtonText: "Đóng",
+        });
         return;
       }
 
       // Lấy loại phòng để biết giới hạn khách
-      const resLoaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
+      const resLoaiPhong = await getLoaiPhongById(
+        thongTinDatPhong.loaiPhong.id
+      );
       const loaiPhong = resLoaiPhong.data;
       const soKhachToiDa = loaiPhong.soKhachToiDa || 0;
       const soKhachVuot = tongSoKhach - soKhachToiDa;
@@ -158,10 +399,16 @@ const ChiTietTTDP = () => {
               console.log("Cập nhật phụ thu thành công", updatedResponse.data);
             }
           } else {
-            await ThemPhuThu(phuThuRequest);           
+            await ThemPhuThu(phuThuRequest);
           }
         } catch (err) {
           console.error("Lỗi khi xử lý phụ thu:", err);
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: `Không thể xử lý phụ thu: ${err.message}`,
+            confirmButtonText: "Đóng",
+          });
         }
       } else {
         try {
@@ -169,68 +416,118 @@ const ChiTietTTDP = () => {
           const existingPhuThu = response?.data;
           if (existingPhuThu) {
             await XoaPhuThu(existingPhuThu.id);
-            Swal.fire("Thành công", "Đã xóa phụ thu vì không còn vượt quá số khách", "success");
+            Swal.fire({
+              icon: "success",
+              title: "Thành công",
+              text: "Đã xóa phụ thu vì không còn vượt quá số khách",
+              confirmButtonText: "Đóng",
+            });
           }
         } catch (err) {
           if (err.response?.status !== 404) {
             console.error("Lỗi khi kiểm tra hoặc xóa phụ thu:", err);
+            Swal.fire({
+              icon: "error",
+              title: "Lỗi",
+              text: `Không thể xóa phụ thu: ${err.message}`,
+              confirmButtonText: "Đóng",
+            });
           }
         }
       }
 
       // Cuối cùng: cập nhật danh sách hiển thị
       fetchKhachHangCheckin(maThongTinDatPhong);
-
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Xóa khách hàng check-in thành công",
+        confirmButtonText: "Đóng",
+      });
     } catch (error) {
       console.error("Lỗi khi xóa khách hàng check-in:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Không thể xóa khách hàng check-in: ${error.message}`,
+        confirmButtonText: "Đóng",
+      });
     }
   };
 
   // Hàm xác nhận khách hàng check-in
   const handleXacNhan = async (khc) => {
-    // Thêm confirm dialog
-    const isConfirmed = window.confirm(
-      "Bạn có chắc chắn muốn xác nhận khách hàng này?"
-    );
+    const confirmAction = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: "Bạn có chắc chắn muốn xác nhận khách hàng này không?",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    });
 
-    if (!isConfirmed) {
-      return; // Nếu người dùng chọn Cancel, thoát khỏi function
-    }
+    if (!confirmAction.isConfirmed) return;
 
     try {
       const khachHangRequest = {
         ...khc,
         trangThai: true,
       };
-      const response = await sua(khachHangRequest); // Gọi API sửa
+      const response = await sua(khachHangRequest);
       console.log("Xác nhận khách hàng thành công:", response);
-      fetchKhachHangCheckin(maThongTinDatPhong); // Tải lại danh sách sau khi sửa
+      fetchKhachHangCheckin(maThongTinDatPhong);
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Xác nhận khách hàng thành công",
+        confirmButtonText: "Đóng",
+      });
     } catch (error) {
       console.error("Lỗi khi xác nhận khách hàng check-in:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Không thể xác nhận khách hàng: ${error.message}`,
+        confirmButtonText: "Đóng",
+      });
     }
   };
 
   // Hàm sửa trạng thái khách hàng check-in
   const handleUpdate = async (khc) => {
-    // Thêm confirm dialog
-    const isConfirmed = window.confirm(
-      "Bạn có chắc chắn muốn hủy xác nhận khách hàng này?"
-    );
+    const confirmAction = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: "Bạn có chắc chắn muốn hủy xác nhận khách hàng này không?",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    });
 
-    if (!isConfirmed) {
-      return; // Nếu người dùng chọn Cancel, thoát khỏi function
-    }
+    if (!confirmAction.isConfirmed) return;
 
     try {
       const khachHangRequest = {
         ...khc,
         trangThai: false,
       };
-      const response = await sua(khachHangRequest); // Gọi API sửa
-      console.log("Xác nhận khách hàng thành công:", response);
-      fetchKhachHangCheckin(maThongTinDatPhong); // Tải lại danh sách sau khi sửa
+      const response = await sua(khachHangRequest);
+      console.log("Hủy xác nhận khách hàng thành công:", response);
+      fetchKhachHangCheckin(maThongTinDatPhong);
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Hủy xác nhận khách hàng thành công",
+        confirmButtonText: "Đóng",
+      });
     } catch (error) {
-      console.error("Lỗi khi xác nhận khách hàng check-in:", error);
+      console.error("Lỗi khi hủy xác nhận khách hàng check-in:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Không thể hủy xác nhận khách hàng: ${error.message}`,
+        confirmButtonText: "Đóng",
+      });
     }
   };
 
@@ -258,15 +555,17 @@ const ChiTietTTDP = () => {
   const handleClose = () => {
     setModalOpen(false);
     fetchKhachHangCheckin(maThongTinDatPhong);
-  }
+  };
 
-  const openXepPhongModal = (thongTinDatPhong) => {
+  const openXepPhongModal = (thongTinDatPhong, editMode = false) => {
     setSelectedTTDPs([thongTinDatPhong]);
+    setIsEditMode(editMode);
     setShowXepPhongModal(true);
   };
 
   const closeXepPhongModal = () => {
     setShowXepPhongModal(false);
+    setIsEditMode(false);
     fetchPhongDaXep(maThongTinDatPhong);
   };
 
@@ -400,11 +699,11 @@ const ChiTietTTDP = () => {
                   <Typography variant="body1" sx={{ fontWeight: "medium" }}>
                     {xepPhong?.ngayNhanPhong
                       ? new Date(xepPhong.ngayNhanPhong).toLocaleDateString(
-                        "vi-VN"
-                      )
+                          "vi-VN"
+                        )
                       : new Date(
-                        thongTinDatPhong?.ngayNhanPhong
-                      ).toLocaleDateString("vi-VN") || "N/A"}
+                          thongTinDatPhong?.ngayNhanPhong
+                        ).toLocaleDateString("vi-VN") || "N/A"}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "center" }}>
@@ -424,11 +723,11 @@ const ChiTietTTDP = () => {
                   <Typography variant="body1" sx={{ fontWeight: "medium" }}>
                     {xepPhong?.ngayTraPhong
                       ? new Date(xepPhong.ngayTraPhong).toLocaleDateString(
-                        "vi-VN"
-                      )
+                          "vi-VN"
+                        )
                       : new Date(
-                        thongTinDatPhong?.ngayTraPhong
-                      ).toLocaleDateString("vi-VN") || "N/A"}
+                          thongTinDatPhong?.ngayTraPhong
+                        ).toLocaleDateString("vi-VN") || "N/A"}
                   </Typography>
                 </Box>
               </Box>
@@ -443,18 +742,32 @@ const ChiTietTTDP = () => {
                   )}
                 </Typography>
               </Box>
-              <Button
-                variant="contained"
-                color="secondary"
-                startIcon={<HotelIcon />}
-                onClick={() => openXepPhongModal(thongTinDatPhong)}
-                disabled={
-                  !!xepPhong?.phong || thongTinDatPhong?.trangThai === "Đang ở"
-                }
-                sx={{ mb: 2 }}
-              >
-                {xepPhong?.phong ? "Đã xếp phòng" : "Xếp phòng"}
-              </Button>
+              <Box sx={{ display: "flex", gap: 2 }}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  startIcon={<HotelIcon />}
+                  onClick={() => openXepPhongModal(thongTinDatPhong, false)}
+                  disabled={
+                    !!xepPhong?.phong ||
+                    thongTinDatPhong?.trangThai === "Đang ở"
+                  }
+                  sx={{ mb: 2 }}
+                >
+                  {xepPhong?.phong ? "Đã xếp phòng" : "Xếp phòng"}
+                </Button>
+                {xepPhong?.phong && (
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    startIcon={<EditIcon />}
+                    onClick={() => openXepPhongModal(thongTinDatPhong, true)}
+                    sx={{ mb: 2 }}
+                  >
+                    Sửa phòng
+                  </Button>
+                )}
+              </Box>
             </CardContent>
           </Card>
         </Grid>
@@ -531,37 +844,36 @@ const ChiTietTTDP = () => {
                         <CardActions
                           sx={{ justifyContent: "space-between", px: 2, pb: 2 }}
                         >
-                          {(xepPhong?.trangThai == 'Đang ở' || xepPhong?.trangThai == 'Đã xếp') && (
+                          {(xepPhong?.trangThai === "Đang ở" ||
+                            xepPhong?.trangThai === "Đã xếp") && (
                             <Button
                               size="small"
                               variant="outlined"
                               color="error"
-                              onClick={() => handleDelete(khc.id)} // Xóa với ID của khachHangCheckin
+                              onClick={() => handleDelete(khc.id)}
                             >
                               Xóa
                             </Button>
                           )}
-
-                          {/* {xepPhong?.trangThai === 'Đang ở' && (
+                          {xepPhong?.trangThai === "Đang ở" && (
                             <>
                               <Button
                                 size="small"
                                 variant="contained"
                                 color="primary"
-                                onClick={() => handleXacNhan(khc)} // Xác nhận
+                                onClick={() => handleXacNhan(khc)}
                               >
                                 Xác nhận
                               </Button>
                               <Button
                                 size="small"
                                 variant="outlined"
-                                onClick={() => handleUpdate(khc)} // Đổi trạng thái
+                                onClick={() => handleUpdate(khc)}
                               >
                                 Hủy
                               </Button>
                             </>
-                          )} */}
-
+                          )}
                         </CardActions>
                       </Card>
                     </Grid>
@@ -578,9 +890,8 @@ const ChiTietTTDP = () => {
                   </Grid>
                 )}
               </Grid>
-              {(xepPhong?.trangThai == 'Đang ở') && (
+              {xepPhong?.trangThai === "Đang ở" && (
                 <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
-
                   <Button
                     variant="contained"
                     color="primary"
@@ -588,7 +899,6 @@ const ChiTietTTDP = () => {
                   >
                     + Thêm khách
                   </Button>
-
                 </Box>
               )}
             </CardContent>
@@ -610,6 +920,8 @@ const ChiTietTTDP = () => {
           variant="contained"
           color="success"
           startIcon={<CheckCircleIcon />}
+          onClick={handleCheckin}
+          disabled={thongTinDatPhong?.trangThai !== "Đã xếp"}
         >
           Check-in
         </Button>
@@ -626,6 +938,8 @@ const ChiTietTTDP = () => {
         show={showXepPhongModal}
         handleClose={closeXepPhongModal}
         selectedTTDPs={selectedTTDPs}
+        isEditMode={isEditMode}
+        xepPhong={isEditMode ? xepPhong : null}
       />
     </Box>
   );

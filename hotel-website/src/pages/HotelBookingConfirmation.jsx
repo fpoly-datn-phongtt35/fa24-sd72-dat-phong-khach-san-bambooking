@@ -42,6 +42,7 @@ import {
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
+import Swal from "sweetalert2";
 
 const HotelBookingConfirmation = () => {
   const location = useLocation();
@@ -102,7 +103,12 @@ const HotelBookingConfirmation = () => {
       const numberedRooms = groupAndNumberRooms(response.data);
       setTtdpData(numberedRooms);
     } catch (error) {
-      alert("Lỗi khi lấy thông tin đặt phòng");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Lỗi khi lấy thông tin đặt phòng",
+        confirmButtonText: "Đóng",
+      });
     }
   };
 
@@ -114,28 +120,51 @@ const HotelBookingConfirmation = () => {
         await huyTTDP(ttdp.maThongTinDatPhong);
       }
       localStorage.removeItem(STORAGE_KEY);
-      alert("Đã hết thời gian xác nhận. Đặt phòng đã bị hủy.");
-      navigate("/information");
+      Swal.fire({
+        icon: "info",
+        title: "Thông báo",
+        text: "Đã hết thời gian xác nhận. Đặt phòng đã bị hủy.",
+        confirmButtonText: "Đóng",
+      }).then(() => {
+        navigate("/information");
+      });
     } catch (error) {
-      alert("Lỗi khi hủy đặt phòng. Vui lòng thử lại.");
-      navigate("/information");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Lỗi khi hủy đặt phòng. Vui lòng thử lại.",
+        confirmButtonText: "Đóng",
+      }).then(() => {
+        navigate("/information");
+      });
     }
   };
 
   const handleRemoveRoom = async (room) => {
-    const confirmDelete = window.confirm(
-      "Bạn có chắc chắn muốn xóa phòng này không?"
-    );
-    if (!confirmDelete) return;
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "Xác nhận",
+      text: "Bạn có chắc chắn muốn xóa phòng này không?",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
 
-    try {
-      await huyTTDP(room.maThongTinDatPhong);
-      const updatedResponse = await getThongTinDatPhong(datPhong.id);
-      const numberedRooms = groupAndNumberRooms(updatedResponse.data);
-      setTtdpData(numberedRooms);
-    } catch (error) {
-      console.error("Lỗi khi xóa phòng:", error);
-      alert("Có lỗi xảy ra khi xóa phòng. Vui lòng thử lại.");
+    if (result.isConfirmed) {
+      try {
+        await huyTTDP(room.maThongTinDatPhong);
+        const updatedResponse = await getThongTinDatPhong(datPhong.id);
+        const numberedRooms = groupAndNumberRooms(updatedResponse.data);
+        setTtdpData(numberedRooms);
+      } catch (error) {
+        console.error("Lỗi khi xóa phòng:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Có lỗi xảy ra khi xóa phòng. Vui lòng thử lại.",
+          confirmButtonText: "Đóng",
+        });
+      }
     }
   };
 
@@ -185,7 +214,16 @@ const HotelBookingConfirmation = () => {
   };
 
   useEffect(() => {
-    if (datPhong && thongTinDatPhong) {
+    if (!combination || !datPhong || !khachHang || !thongTinDatPhong) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không có thông tin đặt phòng được cung cấp.",
+        confirmButtonText: "Đóng",
+      }).then(() => {
+        navigate("/information");
+      });
+    } else if (datPhong && thongTinDatPhong) {
       return initializeTimeout();
     }
   }, [datPhong, thongTinDatPhong]);
@@ -209,7 +247,12 @@ const HotelBookingConfirmation = () => {
           setLoaiPhongs(response.data);
         } catch (error) {
           console.error("Lỗi khi lấy danh sách loại phòng:", error);
-          alert("Lỗi khi lấy danh sách loại phòng");
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: "Lỗi khi lấy danh sách loại phòng",
+            confirmButtonText: "Đóng",
+          });
         }
       };
       fetchLoaiPhongs();
@@ -290,20 +333,33 @@ const HotelBookingConfirmation = () => {
         searchForm.idLoaiPhong
       );
       if (response.data.length === 0) {
-        alert(
-          "Không có phòng khả dụng cho yêu cầu của bạn. Vui lòng thử lại với ngày hoặc số lượng khác."
-        );
+        Swal.fire({
+          icon: "info",
+          title: "Thông báo",
+          text: "Không có phòng khả dụng cho yêu cầu của bạn. Vui lòng thử lại với ngày hoặc số lượng khác.",
+          confirmButtonText: "Đóng",
+        });
       }
       setAvailableRooms(response.data);
     } catch (error) {
       console.error("Lỗi khi tìm phòng khả dụng:", error);
-      alert("Có lỗi xảy ra khi tìm phòng. Vui lòng thử lại.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Có lỗi xảy ra khi tìm phòng. Vui lòng thử lại.",
+        confirmButtonText: "Đóng",
+      });
     }
   };
 
   const handleAddRoom = async (room) => {
     if (room.soPhongKhaDung < Number(searchForm.soPhong)) {
-      alert("Số phòng khả dụng không đủ!");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Số phòng khả dụng không đủ!",
+        confirmButtonText: "Đóng",
+      });
       return;
     }
 
@@ -344,7 +400,12 @@ const HotelBookingConfirmation = () => {
       });
     } catch (error) {
       console.error("Lỗi khi thêm phòng:", error);
-      alert(`Có lỗi xảy ra khi thêm phòng: ${error.message}`);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Có lỗi xảy ra khi thêm phòng: ${error.message}`,
+        confirmButtonText: "Đóng",
+      });
     }
   };
 
@@ -353,8 +414,14 @@ const HotelBookingConfirmation = () => {
     setIsSubmitting(true);
 
     if (ttdpData.length === 0) {
-      alert("Vui lòng chọn ít nhất một phòng trước khi xác nhận đặt phòng.");
-      navigate("/dat-phong");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng chọn ít nhất một phòng trước khi xác nhận đặt phòng.",
+        confirmButtonText: "Đóng",
+      }).then(() => {
+        navigate("/dat-phong");
+      });
       setIsSubmitting(false);
       return;
     }
@@ -429,15 +496,32 @@ const HotelBookingConfirmation = () => {
 
       clearTimeout(timeoutRef.current);
       localStorage.removeItem(STORAGE_KEY);
-      alert("Đặt phòng thành công!");
-      alert("Có thể xác nhận đặt phòng qua email của bạn!");
-      navigate("/thong-tin-dat-phong-search");
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Đặt phòng thành công!",
+        confirmButtonText: "Tiếp tục",
+      }).then(() => {
+        Swal.fire({
+          icon: "info",
+          title: "Thông báo",
+          text: "Có thể xác nhận đặt phòng qua email của bạn!",
+          confirmButtonText: "Đóng",
+        }).then(() => {
+          navigate("/thong-tin-dat-phong-search");
+        });
+      });
     } catch (error) {
       console.error("Lỗi khi xác nhận đặt phòng:", error);
       if (datPhongResponse?.data) await XoaDatPhong(datPhongResponse.data.id);
       if (khachHangResponse?.data)
         await XoaKhachHangDatPhong(khachHangResponse.data);
-      alert("Đã xảy ra lỗi khi xác nhận đặt phòng, vui lòng thử lại.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi xác nhận đặt phòng, vui lòng thử lại.",
+        confirmButtonText: "Đóng",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -453,35 +537,24 @@ const HotelBookingConfirmation = () => {
     return dayjs(dateTimeValue).format("DD/MM/YYYY");
   };
 
-  if (!combination || !datPhong || !khachHang || !thongTinDatPhong) {
-    return (
-      <Container maxWidth="md" className="confirmation-container">
-        <Typography variant="h6" color="error" align="center">
-          Không có thông tin đặt phòng được cung cấp.
-        </Typography>
-      </Container>
-    );
-  }
-
   return (
     <Container maxWidth="lg" className="confirmation-container">
-      
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            textAlign="center"
-          >
-            <Typography variant="h4" className="confirmation-title">
-              Xác Nhận Đặt Phòng
-            </Typography>
-            <Typography variant="body1" className="confirmation-subtitle">
-              Vui lòng kiểm tra thông tin và cập nhật chi tiết khách hàng
-            </Typography>
-            <Typography variant="h5" className="countdown-timer">
-              ⏳ {formatTimeLeft(timeLeft)} còn lại để xác nhận
-            </Typography>
-          </Box>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        textAlign="center"
+      >
+        <Typography variant="h4" className="confirmation-title">
+          Xác Nhận Đặt Phòng
+        </Typography>
+        <Typography variant="body1" className="confirmation-subtitle">
+          Vui lòng kiểm tra thông tin và cập nhật chi tiết khách hàng
+        </Typography>
+        <Typography variant="h5" className="countdown-timer">
+          ⏳ {formatTimeLeft(timeLeft)} còn lại để xác nhận
+        </Typography>
+      </Box>
 
       <Card className="confirmation-card">
         <CardContent>
@@ -518,8 +591,7 @@ const HotelBookingConfirmation = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body1" className="info-text">
-                <strong>Ngày đặt:</strong>{" "}
-                {datPhong.ngayDat}
+                <strong>Ngày đặt:</strong> {datPhong.ngayDat}
               </Typography>
             </Grid>
             <Grid item xs={12}>
@@ -590,7 +662,7 @@ const HotelBookingConfirmation = () => {
                       >
                         <RemoveIcon />
                       </IconButton>
-                    </TableCell>
+                      </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -673,7 +745,7 @@ const HotelBookingConfirmation = () => {
                   fullWidth
                   className="confirm-button"
                 >
-                  {isSubmitting ? "Đang xử lý..." : "Xác nhận đặt phòng"}
+                  {isSubmitting ? "Đang xử lý..." : "Đặt phòng"}
                 </Button>
               </Grid>
             </Grid>

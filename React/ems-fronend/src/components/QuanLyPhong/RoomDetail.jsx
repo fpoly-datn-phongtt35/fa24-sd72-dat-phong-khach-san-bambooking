@@ -299,7 +299,6 @@ const RoomDetail = () => {
             </TableBody>
           </Table>
         </TableContainer>
-
         {roomDetail && (roomDetail.trangThai == "Đang ở" || roomDetail.trangThai == "Đã xếp") && (
           <Button
             variant="contained"
@@ -321,7 +320,7 @@ const RoomDetail = () => {
             onClick={handleChangeConditionRoom}
             disabled={buttonStatus.disabled}
           >
-            {buttonStatus.text}
+            Kiểm tra phòng
           </Button>
         )}
 

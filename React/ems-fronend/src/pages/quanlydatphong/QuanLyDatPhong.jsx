@@ -38,10 +38,12 @@ import { useNavigate } from "react-router-dom";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
 import {
   findDatPhong,
   huyDatPhong,
   CapNhatDatPhong,
+  EmailXacNhanDPThanhCong,
 } from "../../services/DatPhong";
 import XepPhong from "../../pages/xepphong/XepPhong";
 
@@ -93,6 +95,12 @@ const QuanLyDatPhong = () => {
           console.error("Error fetching data:", err);
           setDatPhong([]);
           setTotalPages(0);
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: "Đã xảy ra lỗi khi tìm kiếm đặt phòng. Vui lòng thử lại!",
+            confirmButtonText: "Đóng",
+          });
         } finally {
           setLoading(false);
         }
@@ -135,72 +143,106 @@ const QuanLyDatPhong = () => {
 
   const handleHuyDP = async (dp) => {
     if (!cancelNote.trim()) {
-      alert("Vui lòng nhập ghi chú trước khi hủy!");
+      Swal.fire({
+        icon: "warning",
+        title: "Cảnh báo",
+        text: "Vui lòng nhập ghi chú trước khi hủy!",
+        confirmButtonText: "Đóng",
+      });
       return;
     }
 
-    if (
-      window.confirm(
-        `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${dp.maDatPhong} không?`
-      )
-    ) {
-      setActionLoading(true);
-      try {
-        const datPhongRequest = {
-          id: dp.id,
-          maDatPhong: dp.maDatPhong,
-          khachHang: dp.khachHang,
-          soNguoi: dp.soNguoi,
-          soPhong: dp.soPhong,
-          ngayDat: dp.ngayDat,
-          tongTien: dp.tongTien,
-          ghiChu: cancelNote,
-          trangThai: "Đã hủy",
-        };
-        await CapNhatDatPhong(datPhongRequest);
+    const confirmDelete = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${dp.maDatPhong} không?`,
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+    if (!confirmDelete.isConfirmed) return;
 
-        await huyDatPhong(dp.maDatPhong);
+    setActionLoading(true);
+    try {
+      const datPhongRequest = {
+        id: dp.id,
+        maDatPhong: dp.maDatPhong,
+        khachHang: dp.khachHang,
+        soNguoi: dp.soNguoi,
+        soPhong: dp.soPhong,
+        ngayDat: dp.ngayDat,
+        tongTien: dp.tongTien,
+        ghiChu: cancelNote,
+        trangThai: "Đã hủy",
+      };
+      await CapNhatDatPhong(datPhongRequest);
 
-        searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
-        alert("Hủy đặt phòng thành công!");
-        handleCloseCancelDialog();
-      } catch (err) {
-        console.error("Lỗi khi hủy TTDP:", err);
-        alert(err.response?.data?.message || "Hủy đặt phòng thất bại!");
-      } finally {
-        setActionLoading(false);
-      }
+      await huyDatPhong(dp.maDatPhong);
+
+      searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Hủy đặt phòng thành công!",
+        confirmButtonText: "Đóng",
+      });
+      handleCloseCancelDialog();
+    } catch (err) {
+      console.error("Lỗi khi hủy TTDP:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: err.response?.data?.message || "Hủy đặt phòng thất bại!",
+        confirmButtonText: "Đóng",
+      });
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleConfirm = async (dp) => {
-    if (
-      window.confirm(
-        `Bạn có chắc chắn muốn xác nhận đặt phòng ${dp.maDatPhong} không?`
-      )
-    ) {
-      setActionLoading(true);
-      try {
-        const datPhongRequest = {
-          id: dp.id,
-          maDatPhong: dp.maDatPhong,
-          khachHang: dp.khachHang,
-          soNguoi: dp.soNguoi,
-          soPhong: dp.soPhong,
-          ngayDat: dp.ngayDat,
-          tongTien: dp.tongTien,
-          ghiChu: dp.ghiChu,
-          trangThai: "Đã xác nhận",
-        };
-        await CapNhatDatPhong(datPhongRequest);
-        alert("Xác nhận đặt phòng thành công!");
-        searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
-      } catch (err) {
-        console.error("Lỗi khi xác nhận đặt phòng:", err);
-        alert("Xác nhận đặt phòng thất bại!");
-      } finally {
-        setActionLoading(false);
-      }
+    const confirmAction = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: `Bạn có chắc chắn muốn xác nhận đặt phòng ${dp.maDatPhong} không?`,
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    });
+    if (!confirmAction.isConfirmed) return;
+
+    setActionLoading(true);
+    try {
+      const datPhongRequest = {
+        id: dp.id,
+        maDatPhong: dp.maDatPhong,
+        khachHang: dp.khachHang,
+        soNguoi: dp.soNguoi,
+        soPhong: dp.soPhong,
+        ngayDat: dp.ngayDat,
+        tongTien: dp.tongTien,
+        ghiChu: dp.ghiChu,
+        trangThai: "Đã xác nhận",
+      };
+      await CapNhatDatPhong(datPhongRequest);
+      EmailXacNhanDPThanhCong(datPhongRequest.id);
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Xác nhận đặt phòng thành công!",
+        confirmButtonText: "Đóng",
+      });
+      searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
+    } catch (err) {
+      console.error("Lỗi khi xác nhận đặt phòng:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Xác nhận đặt phòng thất bại!",
+        confirmButtonText: "Đóng",
+      });
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -260,11 +302,7 @@ const QuanLyDatPhong = () => {
                 height: { xs: "40px", sm: "56px" },
               }}
             >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Tìm"
-              )}
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Tìm"}
             </Button>
           </Stack>
 
@@ -527,9 +565,11 @@ const QuanLyDatPhong = () => {
                             )}
                           </IconButton>
                         )}
-                        {["Đang đặt phòng","Chưa xác nhận", "Đã xác nhận"].includes(
-                          dp.trangThai
-                        ) && (
+                        {[
+                          "Đang đặt phòng",
+                          "Chưa xác nhận",
+                          "Đã xác nhận",
+                        ].includes(dp.trangThai) && (
                           <IconButton
                             size="small"
                             color="error"
