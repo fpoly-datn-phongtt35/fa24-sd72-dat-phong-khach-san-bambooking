@@ -29,4 +29,21 @@ public class ThanhToanController {
         return ResponseEntity.status(HttpStatus.OK).body(thanhToanService.updateThanhToan(id, thanhToanRequest, request));
     }
 
+    @GetMapping("/thong-ke-dt")
+    public ResponseEntity<?> thongKeDoanhThu() {
+        return ResponseEntity.ok(thanhToanService.thongKeDoanhThu());
+    }
+
+    @GetMapping("/thong-ke-lp")
+    public ResponseEntity<?> thongKeLoaiPhong() {
+        return ResponseEntity.ok(thanhToanService.thongKeLoaiPhong());
+    }
+
+    @GetMapping("/thong-ke-dv")
+    public ResponseEntity<?> thongKeDichVu() {
+        return ResponseEntity.ok(thanhToanService.thongKeDichVu());
+    }
+
+
+
 }

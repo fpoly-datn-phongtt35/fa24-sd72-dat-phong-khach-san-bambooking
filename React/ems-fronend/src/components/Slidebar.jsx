@@ -471,6 +471,27 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
               </ListItemButton>
             </List>
           </Collapse>
+
+          <ListItemButton
+            component={Link}
+            to="/thong-ke"
+            sx={{
+              borderRadius: "8px",
+              margin: "4px 0",
+              "&:hover": {
+                backgroundColor: "rgba(255,255,255,0.1)",
+              },
+              backgroundColor:
+                location.pathname === "/thong-ke"
+                  ? "rgba(255,255,255,0.2)"
+                  : "transparent",
+            }}
+          >
+            <ListItemIcon sx={{ color: "#fff", minWidth: 40 }}>
+              <CheckCircleIcon />
+            </ListItemIcon>
+            <ListItemText primary="Thống kê" />
+          </ListItemButton>
         </List>
       </Drawer>
     </>

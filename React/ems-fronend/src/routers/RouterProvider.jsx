@@ -2,6 +2,7 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Header from '../components/Header';
 import Login from '../components/login/Login';
 import LoaiPhong from '../components/LoaiPhong/LoaiPhong';
+import ThongKe from '../components/ThongKe/ThongKe';
 import DanhSach from '../components/DichVu/DanhSach';
 import DanhSachDichVuDiKem from '../components/DichVuDikem/DanhSachDichVuDiKem';
 import DanhSachDichVuSuDung from '../components/DichVuSuDung/DanhSachDichVuSuDung';
@@ -81,6 +82,7 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/trang-chu" element={<ViewPhong />} />
         <Route path="/loai-phong" element={<LoaiPhong />} />
         <Route path="/nhan-vien" element={<Employee />} />
+        <Route path="/thong-ke" element={<ThongKe />} />
         <Route path="/add-nhan-vien" element={<NewEmployee />} />
         <Route path="/update-nhan-vien/:id" element={<DetailEmployee />} />
         <Route path="/DichVuDikem" element={<XoaDichVuDiKem />} />

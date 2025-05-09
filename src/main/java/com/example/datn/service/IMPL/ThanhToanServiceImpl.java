@@ -22,6 +22,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.example.datn.common.TokenType.ACCESS_TOKEN;
 
 @Service
@@ -81,5 +84,21 @@ public class ThanhToanServiceImpl implements ThanhToanService {
             thanhToanRepository.save(thanhToan);
             return thanhToanMapper.toThanhToanResponse(thanhToan);
         }
+    }
+    @Override
+    public List<Object[]> thongKeDoanhThu(){
+        return thanhToanRepository.thongKeDoanhThu();
+    }
+
+    @Override
+    public List<Object[]> thongKeLoaiPhong() {
+        List<String> listTT = Arrays.asList("Đang ở", "Đã kiểm tra", "Đã trả phòng");
+        return thanhToanRepository.thongKeLoaiPhong(listTT);
+    }
+
+    @Override
+    public List<Object[]> thongKeDichVu() {
+        List<String> listTT = Arrays.asList("Đang ở", "Đã kiểm tra", "Đã trả phòng");
+        return thanhToanRepository.thongKeDichVu(listTT);
     }
 }
