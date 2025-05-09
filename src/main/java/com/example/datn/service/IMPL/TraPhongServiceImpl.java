@@ -261,7 +261,7 @@ public class TraPhongServiceImpl implements TraPhongService {
 
         ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
         String tenPhong = xepPhong.getPhong().getTenPhong();
-        LocalDate ngayNhan = thongTinDatPhong.getNgayNhanPhong();
+        LocalDateTime ngayNhan = thongTinDatPhong.getNgayNhanPhong();
 
         return new TraPhongResponse(
                 traPhong.getId(),

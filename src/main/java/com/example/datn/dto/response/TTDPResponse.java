@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,8 +20,8 @@ public class TTDPResponse {
     String tenKhachHang;
     Integer soNguoi;
     LoaiPhong loaiPhong;
-    LocalDate ngayNhanPhong;
-    LocalDate ngayTraPhong;
+    LocalDateTime ngayNhanPhong;
+    LocalDateTime ngayTraPhong;
     Double giaDat;
     String ghiChu;
     String trangThai;

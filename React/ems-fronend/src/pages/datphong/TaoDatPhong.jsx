@@ -27,10 +27,14 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import DeleteIcon from "@mui/icons-material/Delete";
 import RemoveIcon from "@mui/icons-material/Remove";
 import AddIcon from "@mui/icons-material/Add";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc"; // Thêm plugin utc
 import Swal from "sweetalert2";
 import {
   XoaDatPhong,
@@ -49,6 +53,9 @@ import {
   getLPKDRL,
   getLoaiPhongKhaDungResponse,
 } from "../../services/LoaiPhongService";
+
+// Kích hoạt plugin utc
+dayjs.extend(utc);
 
 const TaoDatPhong = () => {
   const location = useLocation();
@@ -70,8 +77,8 @@ const TaoDatPhong = () => {
   const [newRoomCount, setNewRoomCount] = useState("");
   const [openSearchDialog, setOpenSearchDialog] = useState(false);
   const [searchForm, setSearchForm] = useState({
-    ngayNhanPhong: dayjs().format("YYYY-MM-DD"),
-    ngayTraPhong: dayjs().add(1, "day").format("YYYY-MM-DD"),
+    ngayNhanPhong: dayjs(), // Sử dụng đối tượng dayjs
+    ngayTraPhong: dayjs().add(1, "day"),
     soNguoi: "",
     soPhong: "",
     idLoaiPhong: null,
@@ -85,18 +92,18 @@ const TaoDatPhong = () => {
     if (openSearchDialog) {
       const fetchLoaiPhongs = async () => {
         try {
-          const n = dayjs(searchForm.ngayNhanPhong).format("YYYY-MM-DD");
-          const t = dayjs(searchForm.ngayTraPhong).format("YYYY-MM-DD");
+          const n = searchForm.ngayNhanPhong.toISOString(); // Chuyển sang ISO
+          const t = searchForm.ngayTraPhong.toISOString();
           const response = await getLoaiPhongKhaDungResponse(n, t);
           setLoaiPhongs(response.data);
           console.log("LoaiPhongs response:", response.data);
         } catch (error) {
           console.error("Lỗi khi lấy danh sách loại phòng:", error);
           Swal.fire({
-            icon: 'error',
-            title: 'Lỗi',
-            text: 'Đã xảy ra lỗi khi lấy danh sách loại phòng. Vui lòng thử lại!',
-            confirmButtonText: 'Đóng'
+            icon: "error",
+            title: "Lỗi",
+            text: "Đã xảy ra lỗi khi lấy danh sách loại phòng. Vui lòng thử lại!",
+            confirmButtonText: "Đóng",
           });
         }
       };
@@ -113,10 +120,10 @@ const TaoDatPhong = () => {
     } catch (error) {
       console.error("Lỗi khi lấy thông tin đặt phòng:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: 'Đã xảy ra lỗi khi lấy thông tin đặt phòng. Vui lòng thử lại!',
-        confirmButtonText: 'Đóng'
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi lấy thông tin đặt phòng. Vui lòng thử lại!",
+        confirmButtonText: "Đóng",
       });
     }
   };
@@ -145,10 +152,10 @@ const TaoDatPhong = () => {
 
     if (isNaN(newCount) || newCount < 0 || newCount > oldCount) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Cảnh báo',
+        icon: "warning",
+        title: "Cảnh báo",
         text: `Số phòng mới phải từ 0 đến ${oldCount}!`,
-        confirmButtonText: 'Đóng'
+        confirmButtonText: "Đóng",
       });
       return;
     }
@@ -181,22 +188,22 @@ const TaoDatPhong = () => {
     } catch (error) {
       console.error("Lỗi khi cập nhật số phòng:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: 'Đã xảy ra lỗi khi cập nhật số phòng. Vui lòng thử lại!',
-        confirmButtonText: 'Đóng'
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi cập nhật số phòng. Vui lòng thử lại!",
+        confirmButtonText: "Đóng",
       });
     }
   };
 
   const handleRemoveRoom = async (room) => {
     const confirmDelete = await Swal.fire({
-      icon: 'question',
-      title: 'Xác nhận',
-      text: 'Bạn có chắc chắn muốn xóa phòng này không?',
+      icon: "question",
+      title: "Xác nhận",
+      text: "Bạn có chắc chắn muốn xóa phòng này không?",
       showCancelButton: true,
-      confirmButtonText: 'Xóa',
-      cancelButtonText: 'Hủy'
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
     });
     if (!confirmDelete.isConfirmed) return;
 
@@ -209,22 +216,22 @@ const TaoDatPhong = () => {
     } catch (error) {
       console.error("Lỗi khi xóa phòng:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: 'Đã xảy ra lỗi khi xóa phòng. Vui lòng thử lại!',
-        confirmButtonText: 'Đóng'
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi xóa phòng. Vui lòng thử lại!",
+        confirmButtonText: "Đóng",
       });
     }
   };
 
   const handleRemoveAllRooms = async (room) => {
     const confirmDeleteAll = await Swal.fire({
-      icon: 'question',
-      title: 'Xác nhận',
-      text: 'Bạn có chắc chắn muốn hủy tất cả các phòng giống nhau không?',
+      icon: "question",
+      title: "Xác nhận",
+      text: "Bạn có chắc chắn muốn hủy tất cả các phòng giống nhau không?",
       showCancelButton: true,
-      confirmButtonText: 'Xóa',
-      cancelButtonText: 'Hủy'
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
     });
     if (!confirmDeleteAll.isConfirmed) return;
 
@@ -246,10 +253,10 @@ const TaoDatPhong = () => {
     } catch (error) {
       console.error("Lỗi khi hủy tất cả phòng:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: 'Đã xảy ra lỗi khi hủy tất cả phòng. Vui lòng thử lại!',
-        confirmButtonText: 'Đóng'
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi hủy tất cả phòng. Vui lòng thử lại!",
+        confirmButtonText: "Đóng",
       });
     }
   };
@@ -257,10 +264,10 @@ const TaoDatPhong = () => {
   const handleConfirmBooking = async () => {
     if (ttdpData.length === 0) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Cảnh báo',
-        text: 'Vui lòng chọn ít nhất một phòng trước khi xác nhận đặt phòng!',
-        confirmButtonText: 'Đóng'
+        icon: "warning",
+        title: "Cảnh báo",
+        text: "Vui lòng chọn ít nhất một phòng trước khi xác nhận đặt phòng!",
+        confirmButtonText: "Đóng",
       }).then(() => {
         navigate("/dat-phong");
       });
@@ -324,10 +331,10 @@ const TaoDatPhong = () => {
         const response = await updateThongTinDatPhong(updatedThongTinDatPhong);
         if (!response || !response.data) {
           Swal.fire({
-            icon: 'error',
-            title: 'Lỗi',
+            icon: "error",
+            title: "Lỗi",
             text: `Đã xảy ra lỗi khi cập nhật thông tin đặt phòng: ${thongTinDatPhong.maThongTinDatPhong}`,
-            confirmButtonText: 'Đóng'
+            confirmButtonText: "Đóng",
           });
           throw new Error(
             `Không thể cập nhật thông tin đặt phòng: ${thongTinDatPhong.maThongTinDatPhong}`
@@ -336,19 +343,19 @@ const TaoDatPhong = () => {
       }
       EmailXacNhanDPThanhCong(datPhongRequest.id);
       Swal.fire({
-        icon: 'success',
-        title: 'Thành công',
-        text: 'Đặt phòng thành công!',
-        confirmButtonText: 'Đóng'
+        icon: "success",
+        title: "Thành công",
+        text: "Đặt phòng thành công!",
+        confirmButtonText: "Đóng",
       }).then(() => {
         navigate("/thong-tin-dat-phong-search");
       });
     } catch (error) {
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
+        icon: "error",
+        title: "Lỗi",
         text: `Đã xảy ra lỗi khi đặt phòng: ${error.message}`,
-        confirmButtonText: 'Đóng'
+        confirmButtonText: "Đóng",
       });
       console.error("Lỗi khi đặt phòng:", error);
       if (datPhongResponse && datPhongResponse.data) {
@@ -366,30 +373,27 @@ const TaoDatPhong = () => {
         }
       }
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
+        icon: "error",
+        title: "Lỗi",
         text: `Đã xảy ra lỗi trong quá trình đặt phòng: ${error.message}`,
-        confirmButtonText: 'Đóng'
+        confirmButtonText: "Đóng",
       });
     }
   };
 
   const handleSearchRooms = async () => {
     const errors = {};
-    const today = dayjs().format("YYYY-MM-DD");
-    if (!searchForm.ngayNhanPhong)
+    const now = dayjs();
+    if (!searchForm.ngayNhanPhong || !searchForm.ngayNhanPhong.isValid())
       errors.ngayNhanPhong = "Vui lòng chọn ngày nhận phòng";
-    else if (searchForm.ngayNhanPhong < today)
-      errors.ngayNhanPhong = "Ngày nhận phòng không được trước ngày hiện tại";
-    if (!searchForm.ngayTraPhong)
+    else if (searchForm.ngayNhanPhong.isBefore(now))
+      errors.ngayNhanPhong = "Ngày nhận phòng không được trước thời điểm hiện tại";
+    if (!searchForm.ngayTraPhong || !searchForm.ngayTraPhong.isValid())
       errors.ngayTraPhong = "Vui lòng chọn ngày trả phòng";
     else if (
-      dayjs(searchForm.ngayTraPhong).isBefore(
-        dayjs(searchForm.ngayNhanPhong)
-      ) ||
-      dayjs(searchForm.ngayTraPhong).isSame(dayjs(searchForm.ngayNhanPhong))
+      searchForm.ngayTraPhong.isBefore(searchForm.ngayNhanPhong.add(1, "hour"))
     )
-      errors.ngayTraPhong = "Ngày trả phòng phải sau ngày nhận phòng";
+      errors.ngayTraPhong = "Ngày trả phòng phải sau ngày nhận phòng ít nhất 1 giờ";
     if (
       !searchForm.soNguoi ||
       searchForm.soNguoi <= 0 ||
@@ -407,8 +411,8 @@ const TaoDatPhong = () => {
     if (Object.keys(errors).length > 0) return;
 
     try {
-      const n = dayjs(searchForm.ngayNhanPhong).format("YYYY-MM-DD");
-      const t = dayjs(searchForm.ngayTraPhong).format("YYYY-MM-DD");
+      const n = searchForm.ngayNhanPhong.toISOString(); // Chuyển sang ISO
+      const t = searchForm.ngayTraPhong.toISOString();
       const response = await getLPKDRL(
         n,
         t,
@@ -426,20 +430,20 @@ const TaoDatPhong = () => {
       console.log("Search rooms response:", response.data);
       if (response.data.length === 0) {
         Swal.fire({
-          icon: 'info',
-          title: 'Thông báo',
-          text: 'Không có phòng khả dụng cho yêu cầu của bạn. Vui lòng thử lại với ngày hoặc số lượng khác!',
-          confirmButtonText: 'Đóng'
+          icon: "info",
+          title: "Thông báo",
+          text: "Không có phòng khả dụng cho yêu cầu của bạn. Vui lòng thử lại với ngày hoặc số lượng khác!",
+          confirmButtonText: "Đóng",
         });
       }
       setAvailableRooms(response.data);
     } catch (error) {
       console.error("Lỗi khi tìm phòng khả dụng:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: 'Đã xảy ra lỗi khi tìm phòng. Vui lòng thử lại!',
-        confirmButtonText: 'Đóng'
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi tìm phòng. Vui lòng thử lại!",
+        confirmButtonText: "Đóng",
       });
     }
   };
@@ -447,10 +451,10 @@ const TaoDatPhong = () => {
   const handleAddRoom = async (room) => {
     if (room.soPhongKhaDung < Number(searchForm.soPhong)) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Cảnh báo',
-        text: 'Số phòng khả dụng không đủ!',
-        confirmButtonText: 'Đóng'
+        icon: "warning",
+        title: "Cảnh báo",
+        text: "Số phòng khả dụng không đủ!",
+        confirmButtonText: "Đóng",
       });
       return;
     }
@@ -473,8 +477,8 @@ const TaoDatPhong = () => {
           datPhong: datPhong,
           idLoaiPhong: room.id,
           maThongTinDatPhong: `TDP-${Date.now()}-${room.id}-${i}`,
-          ngayNhanPhong: searchForm.ngayNhanPhong,
-          ngayTraPhong: searchForm.ngayTraPhong,
+          ngayNhanPhong: searchForm.ngayNhanPhong.toISOString(), // Chuyển sang ISO
+          ngayTraPhong: searchForm.ngayTraPhong.toISOString(),
           soNguoi: room.soKhachToiDa,
           giaDat: room.donGia,
           trangThai: "Đang đặt phòng",
@@ -498,8 +502,8 @@ const TaoDatPhong = () => {
       setOpenSearchDialog(false);
       setAvailableRooms([]);
       setSearchForm({
-        ngayNhanPhong: dayjs().format("YYYY-MM-DD"),
-        ngayTraPhong: dayjs().add(1, "day").format("YYYY-MM-DD"),
+        ngayNhanPhong: dayjs(),
+        ngayTraPhong: dayjs().add(1, "day"),
         soNguoi: "",
         soPhong: "",
         idLoaiPhong: null,
@@ -507,10 +511,10 @@ const TaoDatPhong = () => {
     } catch (error) {
       console.error("Lỗi khi thêm phòng:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
+        icon: "error",
+        title: "Lỗi",
         text: `Đã xảy ra lỗi khi thêm phòng: ${error.message}`,
-        confirmButtonText: 'Đóng'
+        confirmButtonText: "Đóng",
       });
     }
   };
@@ -538,7 +542,7 @@ const TaoDatPhong = () => {
   };
 
   const handleInputChange = (field, value) => {
-    setFormData({ ...formData, resource: true, [field]: value });
+    setFormData({ ...formData, [field]: value });
     setFormErrors({});
     setShowError(false);
   };
@@ -561,7 +565,7 @@ const TaoDatPhong = () => {
   };
 
   const formatDateTime = (dateTimeValue) => {
-    return dayjs(dateTimeValue).format("DD/MM/YYYY");
+    return dayjs(dateTimeValue).format("DD/MM/YYYY HH:mm");
   };
 
   const groupAndNumberRooms = (rooms) => {
@@ -586,314 +590,377 @@ const TaoDatPhong = () => {
 
   return (
     <Container sx={{ minWidth: "1300px", py: 4 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-        {showError && (
-          <Alert severity="error" sx={{ mb: 3, borderRadius: 1 }}>
-            <AlertTitle>Lỗi</AlertTitle>
-            Vui lòng điền đầy đủ và đúng thông tin trước khi xác nhận đặt phòng.
-          </Alert>
-        )}
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" gutterBottom>
-                Thông Tin Người Đặt
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Họ"
-                    value={formData.ho}
-                    onChange={(e) => handleInputChange("ho", e.target.value)}
-                    error={!!formErrors.ho}
-                    helperText={formErrors.ho}
-                  />
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+          {showError && (
+            <Alert severity="error" sx={{ mb: 3, borderRadius: 1 }}>
+              <AlertTitle>Lỗi</AlertTitle>
+              Vui lòng điền đầy đủ và đúng thông tin trước khi xác nhận đặt phòng.
+            </Alert>
+          )}
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+                <Typography variant="h6" gutterBottom>
+                  Thông Tin Người Đặt
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Họ"
+                      value={formData.ho}
+                      onChange={(e) => handleInputChange("ho", e.target.value)}
+                      error={!!formErrors.ho}
+                      helperText={formErrors.ho}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Tên"
+                      value={formData.ten}
+                      onChange={(e) => handleInputChange("ten", e.target.value)}
+                      error={!!formErrors.ten}
+                      helperText={formErrors.ten}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      error={!!formErrors.email}
+                      helperText={formErrors.email}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      fullWidth
+                      label="Số Điện Thoại"
+                      value={formData.sdt}
+                      onChange={(e) => handleInputChange("sdt", e.target.value)}
+                      error={!!formErrors.sdt}
+                      helperText={formErrors.sdt}
+                    />
+                  </Grid>
                 </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Tên"
-                    value={formData.ten}
-                    onChange={(e) => handleInputChange("ten", e.target.value)}
-                    error={!!formErrors.ten}
-                    helperText={formErrors.ten}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    error={!!formErrors.email}
-                    helperText={formErrors.email}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Số Điện Thoại"
-                    value={formData.sdt}
-                    onChange={(e) => handleInputChange("sdt", e.target.value)}
-                    error={!!formErrors.sdt}
-                    helperText={formErrors.sdt}
-                  />
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
-          <Grid item xs={12}>
-            <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  mb: 2,
-                }}
-              >
-                <Typography variant="h6">
-                  Chi Tiết Phòng Đã Chọn (
-                  {ttdpData.reduce((total, room) => total + room.soPhong, 0)})
+              </Paper>
+            </Grid>
+            <Grid item xs={12}>
+              <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 2,
+                  }}
+                >
+                  <Typography variant="h6">
+                    Chi Tiết Phòng Đã Chọn (
+                    {ttdpData.reduce((total, room) => total + room.soPhong, 0)})
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    startIcon={<AddIcon />}
+                    onClick={() => setOpenSearchDialog(true)}
+                  >
+                    Thêm Phòng
+                  </Button>
+                </Box>
+                <TableContainer sx={{ mb: 2, borderRadius: 2 }}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Loại phòng</TableCell>
+                        <TableCell>Ngày nhận phòng</TableCell>
+                        <TableCell>Ngày trả phòng</TableCell>
+                        <TableCell>Giá mỗi đêm</TableCell>
+                        <TableCell>Số đêm</TableCell>
+                        <TableCell>Số phòng</TableCell>
+                        <TableCell>Thành tiền</TableCell>
+                        <TableCell>Hành động</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {ttdpData.map((room, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{room.loaiPhong.tenLoaiPhong}</TableCell>
+                          <TableCell>
+                            {formatDateTime(room.ngayNhanPhong)}
+                          </TableCell>
+                          <TableCell>
+                            {formatDateTime(room.ngayTraPhong)}
+                          </TableCell>
+                          <TableCell>
+                            {room.loaiPhong.donGia.toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            {calculateBookingDays(
+                              room.ngayNhanPhong,
+                              room.ngayTraPhong
+                            )}
+                          </TableCell>
+                          <TableCell>{room.soPhong}</TableCell>
+                          <TableCell>
+                            {(
+                              calculateBookingDays(
+                                room.ngayNhanPhong,
+                                room.ngayTraPhong
+                              ) *
+                              room.loaiPhong.donGia *
+                              room.soPhong
+                            ).toLocaleString()}
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              color="warning"
+                              onClick={() => handleRemoveRoom(room)}
+                              title="Hủy phòng này"
+                            >
+                              <RemoveIcon />
+                            </IconButton>
+                            <IconButton
+                              color="error"
+                              onClick={() => handleRemoveAllRooms(room)}
+                              title="Hủy tất cả phòng giống nhau"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="h6" sx={{ textAlign: "right", mb: 3 }}>
+                  <strong>Tổng tiền:</strong>{" "}
+                  {calculateTotalAmount().toLocaleString()} VND
                 </Typography>
                 <Button
                   variant="contained"
-                  color="secondary"
-                  startIcon={<AddIcon />}
-                  onClick={() => setOpenSearchDialog(true)}
+                  color="primary"
+                  fullWidth
+                  onClick={handleConfirmBooking}
                 >
-                  Thêm Phòng
+                  Xác nhận đặt phòng
                 </Button>
-              </Box>
-              <TableContainer sx={{ mb: 2, borderRadius: 2 }}>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Paper>
+
+        {/* Dialog Tìm Phòng Khả Dụng */}
+        <Dialog
+          open={openSearchDialog}
+          onClose={() => setOpenSearchDialog(false)}
+          fullWidth
+          maxWidth="md"
+        >
+          <DialogTitle>Tìm Loại Phòng Khả Dụng</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid item xs={12} md={6}>
+                <DateTimePicker
+                  label="Ngày Nhận Phòng"
+                  value={searchForm.ngayNhanPhong}
+                  minDateTime={dayjs()}
+                  onChange={(newValue) => {
+                    if (newValue && newValue.isValid()) {
+                      handleSearchInputChange("ngayNhanPhong", newValue);
+                      if (
+                        newValue.isSame(searchForm.ngayTraPhong) ||
+                        newValue.isAfter(searchForm.ngayTraPhong)
+                      ) {
+                        handleSearchInputChange(
+                          "ngayTraPhong",
+                          newValue.add(1, "hour")
+                        );
+                      }
+                    } else {
+                      handleSearchInputChange("ngayNhanPhong", null);
+                    }
+                  }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!searchErrors.ngayNhanPhong,
+                      helperText: searchErrors.ngayNhanPhong,
+                      sx: {
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#f5f5f5",
+                        },
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <DateTimePicker
+                  label="Ngày Trả Phòng"
+                  value={searchForm.ngayTraPhong}
+                  minDateTime={
+                    searchForm.ngayNhanPhong
+                      ? searchForm.ngayNhanPhong.add(1, "hour")
+                      : dayjs().add(1, "hour")
+                  }
+                  onChange={(newValue) => {
+                    if (newValue && newValue.isValid()) {
+                      handleSearchInputChange("ngayTraPhong", newValue);
+                    } else {
+                      handleSearchInputChange("ngayTraPhong", null);
+                    }
+                  }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!searchErrors.ngayTraPhong,
+                      helperText: searchErrors.ngayTraPhong,
+                      sx: {
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#f5f5f5",
+                        },
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Số Người"
+                  type="number"
+                  value={searchForm.soNguoi}
+                  onChange={(e) =>
+                    handleSearchInputChange("soNguoi", e.target.value)
+                  }
+                  error={!!searchErrors.soNguoi}
+                  helperText={searchErrors.soNguoi}
+                  InputProps={{ inputProps: { min: 1 } }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      borderRadius: 1,
+                      backgroundColor: "#f5f5f5",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Số Phòng"
+                  type="number"
+                  value={searchForm.soPhong}
+                  onChange={(e) =>
+                    handleSearchInputChange("soPhong", e.target.value)
+                  }
+                  error={!!searchErrors.soPhong}
+                  helperText={searchErrors.soPhong}
+                  InputProps={{ inputProps: { min: 1 } }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      borderRadius: 1,
+                      backgroundColor: "#f5f5f5",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Loại Phòng</InputLabel>
+                  <Select
+                    value={searchForm.idLoaiPhong || ""}
+                    onChange={(e) =>
+                      handleSearchInputChange("idLoaiPhong", e.target.value)
+                    }
+                    label="Loại Phòng"
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        borderRadius: 1,
+                        backgroundColor: "#f5f5f5",
+                      },
+                    }}
+                  >
+                    <MenuItem value="">Tất cả</MenuItem>
+                    {loaiPhongs.map((lp) => (
+                      <MenuItem key={lp.id} value={lp.id}>
+                        {lp.tenLoaiPhong}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={handleSearchRooms}
+                  sx={{
+                    borderRadius: 1,
+                    bgcolor: "#1976d2",
+                    "&:hover": { bgcolor: "#115293" },
+                  }}
+                >
+                  Tìm Phòng
+                </Button>
+              </Grid>
+            </Grid>
+
+            {availableRooms.length > 0 && (
+              <TableContainer sx={{ mt: 3, borderRadius: 2 }}>
                 <Table>
                   <TableHead>
                     <TableRow>
-                      <TableCell>Loại phòng</TableCell>
-                      <TableCell>Ngày nhận phòng</TableCell>
-                      <TableCell>Ngày trả phòng</TableCell>
-                      <TableCell>Giá mỗi đêm</TableCell>
-                      <TableCell>Số đêm</TableCell>
-                      <TableCell>Số phòng</TableCell>
-                      <TableCell>Thành tiền</TableCell>
-                      <TableCell>Hành động</TableCell>
+                      <TableCell>Loại Phòng</TableCell>
+                      <TableCell>Giá Mỗi Đêm</TableCell>
+                      <TableCell>Số Phòng Khả Dụng</TableCell>
+                      <TableCell>Hành Động</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {ttdpData.map((room, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{room.loaiPhong.tenLoaiPhong}</TableCell>
+                    {availableRooms.map((room) => (
+                      <TableRow key={room.id}>
+                        <TableCell>{room.tenLoaiPhong}</TableCell>
+                        <TableCell>{room.donGia.toLocaleString()}</TableCell>
+                        <TableCell>{room.soPhongKhaDung}</TableCell>
                         <TableCell>
-                          {formatDateTime(room.ngayNhanPhong)}
-                        </TableCell>
-                        <TableCell>
-                          {formatDateTime(room.ngayTraPhong)}
-                        </TableCell>
-                        <TableCell>
-                          {room.loaiPhong.donGia.toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          {calculateBookingDays(
-                            room.ngayNhanPhong,
-                            room.ngayTraPhong
-                          )}
-                        </TableCell>
-                        <TableCell>{room.soPhong}</TableCell>
-                        <TableCell>
-                          {(
-                            calculateBookingDays(
-                              room.ngayNhanPhong,
-                              room.ngayTraPhong
-                            ) *
-                            room.loaiPhong.donGia *
-                            room.soPhong
-                          ).toLocaleString()}
-                        </TableCell>
-                        <TableCell>
-                          <IconButton
-                            color="warning"
-                            onClick={() => handleRemoveRoom(room)}
-                            title="Hủy phòng này"
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => handleAddRoom(room)}
+                            disabled={
+                              room.soPhongKhaDung < Number(searchForm.soPhong)
+                            }
+                            sx={{ borderRadius: 1 }}
                           >
-                            <RemoveIcon />
-                          </IconButton>
-                          <IconButton
-                            color="error"
-                            onClick={() => handleRemoveAllRooms(room)}
-                            title="Hủy tất cả phòng giống nhau"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                            Thêm
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </TableContainer>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="h6" sx={{ textAlign: "right", mb: 3 }}>
-                <strong>Tổng tiền:</strong>{" "}
-                {calculateTotalAmount().toLocaleString()} VND
-              </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                onClick={handleConfirmBooking}
-              >
-                Xác nhận đặt phòng
-              </Button>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* Dialog Tìm Phòng Khả Dụng */}
-      <Dialog 
-        open={openSearchDialog}
-        onClose={() => setOpenSearchDialog(false)}
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle>Tìm Loại Phòng Khả Dụng</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Ngày Nhận Phòng"
-                type="date"
-                value={searchForm.ngayNhanPhong}
-                onChange={(e) =>
-                  handleSearchInputChange("ngayNhanPhong", e.target.value)
-                }
-                error={!!searchErrors.ngayNhanPhong}
-                helperText={searchErrors.ngayNhanPhong}
-                InputLabelProps={{ shrink: true }}
-                inputProps={{ min: dayjs().format("YYYY-MM-DD") }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Ngày Trả Phòng"
-                type="date"
-                value={searchForm.ngayTraPhong}
-                onChange={(e) =>
-                  handleSearchInputChange("ngayTraPhong", e.target.value)
-                }
-                error={!!searchErrors.ngayTraPhong}
-                helperText={searchErrors.ngayTraPhong}
-                InputLabelProps={{ shrink: true }}
-                inputProps={{
-                  min: dayjs(searchForm.ngayNhanPhong)
-                    .add(1, "day")
-                    .format("YYYY-MM-DD"),
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Số Người"
-                type="number"
-                value={searchForm.soNguoi}
-                onChange={(e) =>
-                  handleSearchInputChange("soNguoi", e.target.value)
-                }
-                error={!!searchErrors.soNguoi}
-                helperText={searchErrors.soNguoi}
-                InputProps={{ inputProps: { min: 1 } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <TextField
-                fullWidth
-                label="Số Phòng"
-                type="number"
-                value={searchForm.soPhong}
-                onChange={(e) =>
-                  handleSearchInputChange("soPhong", e.target.value)
-                }
-                error={!!searchErrors.soPhong}
-                helperText={searchErrors.soPhong}
-                InputProps={{ inputProps: { min: 1 } }}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel>Loại Phòng</InputLabel>
-                <Select
-                  value={searchForm.idLoaiPhong || ""}
-                  onChange={(e) =>
-                    handleSearchInputChange("idLoaiPhong", e.target.value)
-                  }
-                  label="Loại Phòng"
-                >
-                  <MenuItem value="">Tất cả</MenuItem>
-                  {loaiPhongs.map((lp) => (
-                    <MenuItem key={lp.id} value={lp.id}>
-                      {lp.tenLoaiPhong}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                onClick={handleSearchRooms}
-              >
-                Tìm Phòng
-              </Button>
-            </Grid>
-          </Grid>
-
-          {availableRooms.length > 0 && (
-            <TableContainer sx={{ mt: 3 }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Loại Phòng</TableCell>
-                    <TableCell>Giá Mỗi Đêm</TableCell>
-                    <TableCell>Số Phòng Khả Dụng</TableCell>
-                    <TableCell>Hành Động</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {availableRooms.map((room) => (
-                    <TableRow key={room.id}>
-                      <TableCell>{room.tenLoaiPhong}</TableCell>
-                      <TableCell>{room.donGia.toLocaleString()}</TableCell>
-                      <TableCell>{room.soPhongKhaDung}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          onClick={() => handleAddRoom(room)}
-                          disabled={
-                            room.soPhongKhaDung < Number(searchForm.soPhong)
-                          }
-                        >
-                          Thêm
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenSearchDialog(false)} color="secondary">
-            Đóng
-          </Button>
-        </DialogActions>
-      </Dialog>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setOpenSearchDialog(false)}
+              color="secondary"
+              sx={{ borderRadius: 1 }}
+            >
+              Đóng
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </LocalizationProvider>
     </Container>
   );
 };

@@ -18,7 +18,7 @@ public class TraPhongResponse {
     LocalDateTime ngayTraThucTe;
     Boolean trangThai;
     String tenPhong;
-    LocalDate ngayNhan;
+    LocalDateTime ngayNhan;
     String trangThaiKTP;
     LocalDateTime thoiGianKTP;
 }

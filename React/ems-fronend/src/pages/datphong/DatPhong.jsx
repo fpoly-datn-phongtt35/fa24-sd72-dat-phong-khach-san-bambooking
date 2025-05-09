@@ -21,7 +21,7 @@ import {
   Divider,
   Stack,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker"; // Changed to DateTimePicker
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
@@ -82,8 +82,8 @@ const DatPhong = () => {
         ngayTraPhong.isValid()
       ) {
         const response = await getLoaiPhongKhaDungResponse(
-          ngayNhanPhong.format("YYYY-MM-DD"),
-          ngayTraPhong.format("YYYY-MM-DD")
+          ngayNhanPhong.toISOString(),
+          ngayTraPhong.toISOString()
         );
         setLoaiPhongList(response.data || []);
       }
@@ -103,8 +103,8 @@ const DatPhong = () => {
         ngayTraPhong.isValid()
       ) {
         const response = await toHopLoaiPhong(
-          ngayNhanPhong.format("YYYY-MM-DD"),
-          ngayTraPhong.format("YYYY-MM-DD"),
+          ngayNhanPhong.toISOString(), // Include time
+          ngayTraPhong.toISOString(), // Include time
           soNguoi,
           key,
           tongChiPhiMin,
@@ -140,7 +140,7 @@ const DatPhong = () => {
 
   // Xử lý thay đổi trang
   const handlePageChange = (e, page) => {
-    const newPage = page - 1;
+    const newPage = page - pursued;
     setCurrentPage(newPage);
     handleSearch(newPage);
   };
@@ -175,7 +175,7 @@ const DatPhong = () => {
         maDatPhong: "DP" + new Date().getTime(),
         soNguoi: soNguoi,
         soPhong: soPhong,
-        ngayDat: dayjs().format("YYYY-MM-DD"),
+        ngayDat: dayjs().toISOString(),
         tongTien: combination.tongChiPhi,
         ghiChu: "Đặt phòng từ tổ hợp được chọn",
         trangThai: "Đang đặt phòng",
@@ -193,8 +193,8 @@ const DatPhong = () => {
               datPhong: datPhongResponse.data,
               idLoaiPhong: phong.loaiPhong.id,
               maThongTinDatPhong: "TTDP" + new Date().getTime() + i,
-              ngayNhanPhong: ngayNhanPhong.format("YYYY-MM-DD"),
-              ngayTraPhong: ngayTraPhong.format("YYYY-MM-DD"),
+              ngayNhanPhong: ngayNhanPhong.toISOString(),
+              ngayTraPhong: ngayTraPhong.toISOString(),
               soNguoi: phong.loaiPhong.soKhachToiDa,
               giaDat: phong.loaiPhong.donGia,
               trangThai: "Đang đặt phòng",
@@ -265,19 +265,20 @@ const DatPhong = () => {
           <Grid container spacing={4}>
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
+                <DateTimePicker
                   label="Ngày nhận phòng"
                   value={ngayNhanPhong}
-                  minDate={dayjs()}
+                  minDateTime={dayjs()} // Prevent past dates
                   onChange={(newValue) => {
                     if (newValue && dayjs(newValue).isValid()) {
-                      const newCheckInDate = dayjs(newValue);
-                      setNgayNhanPhong(newCheckInDate);
+                      const newCheckInDateTime = dayjs(newValue);
+                      setNgayNhanPhong(newCheckInDateTime);
                       if (
-                        newCheckInDate.isSame(ngayTraPhong, "day") ||
-                        newCheckInDate.isAfter(ngayTraPhong)
+                        newCheckInDateTime.isSame(ngayTraPhong) ||
+                        newCheckInDateTime.isAfter(ngayTraPhong)
                       ) {
-                        setNgayTraPhong(newCheckInDate.add(1, "day"));
+                        // Set check-out to 1 hour after check-in
+                        setNgayTraPhong(newCheckInDateTime.add(1, "hour"));
                       }
                     } else {
                       setNgayNhanPhong(null);
@@ -300,13 +301,13 @@ const DatPhong = () => {
             </Grid>
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
+                <DateTimePicker
                   label="Ngày trả phòng"
                   value={ngayTraPhong}
-                  minDate={
+                  minDateTime={
                     ngayNhanPhong
-                      ? ngayNhanPhong.add(1, "day")
-                      : dayjs().add(1, "day")
+                      ? ngayNhanPhong
+                      : dayjs()
                   }
                   onChange={(newValue) => {
                     if (newValue && dayjs(newValue).isValid()) {

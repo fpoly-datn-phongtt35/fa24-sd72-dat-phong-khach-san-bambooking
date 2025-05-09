@@ -111,7 +111,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
     }
 
-    public List<LoaiPhongKhaDungResponse> getAllLPKDR(LocalDate ngayNhanPhong, LocalDate ngayTraPhong) {
+    public List<LoaiPhongKhaDungResponse> getAllLPKDR(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
         if (ngayNhanPhong == null || ngayTraPhong == null) {
             throw new IllegalArgumentException("Ngày nhận phòng và trả phòng không được null");
         }
@@ -119,18 +119,15 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng", "Chưa xếp");
         List<String> trangThaiXP = Arrays.asList("Đã xếp", "Đang ở");
 
-        LocalDateTime ngayNhanPhongDateTime = ngayNhanPhong.atTime(14, 0);
-        LocalDateTime ngayTraPhongDateTime = ngayTraPhong.atTime(12, 0);
-
         return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(
-                ngayNhanPhongDateTime,
-                ngayTraPhongDateTime,
+                ngayNhanPhong,
+                ngayTraPhong,
                 trangThaiXP,
                 trangThaiTTDP
         );
     }
 
-    public List<LoaiPhongKhaDungResponse> getLoaiPhongKhaDungResponseList(LocalDate ngayNhanPhong, LocalDate ngayTraPhong,
+    public List<LoaiPhongKhaDungResponse> getLoaiPhongKhaDungResponseList(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
                                                                           Integer soNguoi, Integer soPhong, Integer idLoaiPhong) {
         List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Chưa xếp");
         List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
@@ -139,7 +136,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.findLPKDRList(ngayNhanPhong, ngayTraPhong,trangThaiXP,trangThaiTTDP,soNguoi,soPhong,idLoaiPhong);
     }
 
-    public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach, LocalDate ngayNhanPhong, LocalDate ngayTraPhong) {
+    public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach, LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
         List<ToHopPhongPhuHop> results = new ArrayList<>();
         int n = loaiPhong.size();
         // Mảng counts lưu số lượng phòng được chọn cho từng loại (theo thứ tự trong list loaiPhong)
@@ -149,7 +146,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     private void generateCombinationsRec(int index, int[] counts, List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach,
-                                         List<ToHopPhongPhuHop> results, LocalDate ngayNhanPhong, LocalDate ngayTraPhong) {
+                                         List<ToHopPhongPhuHop> results, LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
         // Khi đã duyệt hết các loại phòng, tính toán tổ hợp hiện tại
         if (index == loaiPhong.size()) {
             int totalCapacity = 0;
@@ -159,7 +156,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
             // Tính số ngày lưu trú
             long soNgayLuuTru = ChronoUnit.DAYS.between(ngayNhanPhong, ngayTraPhong);
             if (soNgayLuuTru <= 0) {
-                soNgayLuuTru = 1; // Đảm bảo ít nhất 1 ngày nếu ngày nhận và trả phòng trùng nhau
+                soNgayLuuTru = 1;
             }
             for (int i = 0; i < loaiPhong.size(); i++) {
                 LoaiPhongKhaDungResponse room = loaiPhong.get(i);
@@ -232,7 +229,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return new PageImpl<>(pageContent, pageable, list.size());
     }
 
-    public Page<ToHopPhongPhuHop> getToHopPhongPhuHop(LocalDate ngayNhanPhong, LocalDate ngayTraPhong, Integer soNguoi,
+    public Page<ToHopPhongPhuHop> getToHopPhongPhuHop(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi,
                                                       String key, Double tongChiPhiMin,
                                                       Double tongChiPhiMax, Integer tongSoPhongMin, Integer tongSoPhongMax,
                                                       Integer tongSucChuaMin, Integer tongSucChuaMax, List<LoaiPhongChon> loaiPhongChons, Pageable pageable) {

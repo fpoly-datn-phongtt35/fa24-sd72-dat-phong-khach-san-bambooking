@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @NoArgsConstructor
@@ -20,7 +21,7 @@ public class DatPhongResponse {
     private String maDatPhong;
     private Integer soNguoi;
     private Integer soPhong;
-    private LocalDate ngayDat;
+    private LocalDateTime ngayDat;
     private Double tongTien;
     private String ghiChu;
     private String trangThai;

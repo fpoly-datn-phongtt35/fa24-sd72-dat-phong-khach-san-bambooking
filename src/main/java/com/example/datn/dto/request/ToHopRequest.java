@@ -17,8 +17,8 @@ import java.util.List;
 @Getter
 @Setter
 public class ToHopRequest {
-    private LocalDate ngayNhanPhong;
-    private LocalDate ngayTraPhong;
+    private LocalDateTime ngayNhanPhong;
+    private LocalDateTime ngayTraPhong;
 
     private Integer soNguoi;
     private String key;
