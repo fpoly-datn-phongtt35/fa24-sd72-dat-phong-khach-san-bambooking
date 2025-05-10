@@ -29,10 +29,17 @@ import {
   Typography,
 } from "@mui/material";
 import { ExpandLess, ExpandMore, Menu, ChevronLeft } from "@mui/icons-material";
+import { usePermission } from "../hooks/userPermisstion";
+import Cookies from "js-cookie";
+import { permissions } from "../config/rbacConfig";
 
 function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
   const [openSubmenu, setOpenSubmenu] = useState({});
   const location = useLocation();
+
+  const { hasPermission } = usePermission(Cookies.get("role"));
+  // console.log(hasPermission(permissions.VIEW_EMPLOYEE));
+
 
   const handleToggle = (menu) => {
     setOpenSubmenu((prev) => ({ ...prev, [menu]: !prev[menu] }));
@@ -101,7 +108,7 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
               display: "none",
             },
             scrollbarWidth: "none",
-            "-ms-overflow-style": "none", 
+            "-ms-overflow-style": "none",
           },
         }}
       >
@@ -236,69 +243,75 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
             unmountOnExit
           >
             <List component="div" disablePadding>
-              <ListItemButton
-                component={Link}
-                to="/quan-ly-phong"
-                sx={{
-                  pl: 6,
-                  borderRadius: "8px",
-                  margin: "4px 0",
-                  "&:hover": {
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                  },
-                  backgroundColor:
-                    location.pathname === "/quan-ly-phong"
-                      ? "rgba(255,255,255,0.2)"
-                      : "transparent",
-                }}
-              >
-                <ListItemIcon sx={{ color: "#fff", minWidth: 40 }}>
-                  <MeetingRoomIcon />
-                </ListItemIcon>
-                <ListItemText primary="Phòng" />
-              </ListItemButton>
-              <ListItemButton
-                component={Link}
-                to="/loai-phong"
-                sx={{
-                  pl: 6,
-                  borderRadius: "8px",
-                  margin: "4px 0",
-                  "&:hover": {
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                  },
-                  backgroundColor:
-                    location.pathname === "/loai-phong"
-                      ? "rgba(255,255,255,0.2)"
-                      : "transparent",
-                }}
-              >
-                <ListItemIcon sx={{ color: "#fff", minWidth: 40 }}>
-                  <CategoryIcon />
-                </ListItemIcon>
-                <ListItemText primary="Loại phòng" />
-              </ListItemButton>
-              <ListItemButton
-                component={Link}
-                to="/vat-tu"
-                sx={{
-                  pl: 6,
-                  borderRadius: "8px",
-                  margin: "4px 0",
-                  "&:hover": {
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                  },
-                  backgroundColor:
-                    location.pathname === "/vat-tu"
-                      ? "rgba(255,255,255,0.2)"
-                      : "transparent",
-                }}
-              >
-                <ListItemIcon sx={{ color: "#fff", minWidth: 40 }}>
-                  <BuildIcon />
-                </ListItemIcon>
-                <ListItemText primary="Vật tư" />
-              </ListItemButton>
+              {hasPermission(permissions.VIEW_ROOM) &&
+                <ListItemButton
+                  component={Link}
+                  to="/quan-ly-phong"
+                  sx={{
+                    pl: 6,
+                    borderRadius: "8px",
+                    margin: "4px 0",
+                    "&:hover": {
+                      backgroundColor: "rgba(255,255,255,0.1)",
+                    },
+                    backgroundColor:
+                      location.pathname === "/quan-ly-phong"
+                        ? "rgba(255,255,255,0.2)"
+                        : "transparent",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: "#fff", minWidth: 40 }}>
+                    <MeetingRoomIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Phòng" />
+                </ListItemButton>
+              }
+              {hasPermission(permissions.VIEW_TYPE_ROOM) &&
+                <ListItemButton
+                  component={Link}
+                  to="/loai-phong"
+                  sx={{
+                    pl: 6,
+                    borderRadius: "8px",
+                    margin: "4px 0",
+                    "&:hover": {
+                      backgroundColor: "rgba(255,255,255,0.1)",
+                    },
+                    backgroundColor:
+                      location.pathname === "/loai-phong"
+                        ? "rgba(255,255,255,0.2)"
+                        : "transparent",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: "#fff", minWidth: 40 }}>
+                    <CategoryIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Loại phòng" />
+                </ListItemButton>
+              }
+              {hasPermission(permissions.VIEW_MATERIALS) &&
+                <ListItemButton
+                  component={Link}
+                  to="/vat-tu"
+                  sx={{
+                    pl: 6,
+                    borderRadius: "8px",
+                    margin: "4px 0",
+                    "&:hover": {
+                      backgroundColor: "rgba(255,255,255,0.1)",
+                    },
+                    backgroundColor:
+                      location.pathname === "/vat-tu"
+                        ? "rgba(255,255,255,0.2)"
+                        : "transparent",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: "#fff", minWidth: 40 }}>
+                    <BuildIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Vật tư" />
+                </ListItemButton>
+              }
               <ListItemButton
                 component={Link}
                 to="/kiem-tra-phong"
@@ -427,27 +440,29 @@ function SlideBar({ isSidebarOpen, setIsSidebarOpen }) {
           </ListItemButton>
           <Collapse in={openSubmenu["nguoiDung"]} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItemButton
-                component={Link}
-                to="/nhan-vien"
-                sx={{
-                  pl: 6,
-                  borderRadius: "8px",
-                  margin: "4px 0",
-                  "&:hover": {
-                    backgroundColor: "rgba(255,255,255,0.1)",
-                  },
-                  backgroundColor:
-                    location.pathname === "/nhan-vien"
-                      ? "rgba(255,255,255,0.2)"
-                      : "transparent",
-                }}
-              >
-                <ListItemIcon sx={{ color: "#fff", minWidth: 40 }}>
-                  <WorkIcon />
-                </ListItemIcon>
-                <ListItemText primary="Nhân viên" />
-              </ListItemButton>
+              {hasPermission(permissions.VIEW_EMPLOYEE) &&
+                <ListItemButton
+                  component={Link}
+                  to="/nhan-vien"
+                  sx={{
+                    pl: 6,
+                    borderRadius: "8px",
+                    margin: "4px 0",
+                    "&:hover": {
+                      backgroundColor: "rgba(255,255,255,0.1)",
+                    },
+                    backgroundColor:
+                      location.pathname === "/nhan-vien"
+                        ? "rgba(255,255,255,0.2)"
+                        : "transparent",
+                  }}
+                >
+                  <ListItemIcon sx={{ color: "#fff", minWidth: 40 }}>
+                    <WorkIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Nhân viên" />
+                </ListItemButton>
+              }
               <ListItemButton
                 component={Link}
                 to="/khach-hang"

@@ -39,6 +39,7 @@ export const DetailEmployee = () => {
     } = useForm({
         defaultValues: {
             gender: "Nam",
+            role: 1,
         },
     });
 
@@ -61,6 +62,7 @@ export const DetailEmployee = () => {
                 phoneNumber: employee?.phoneNumber || '',
                 address: employee?.address || '',
                 gender: employee?.gender || 'Nam',
+                role: employee?.role || 1,
                 email: employee?.email || '',
             });
             setImagePreview(employee?.avatar)
@@ -74,6 +76,7 @@ export const DetailEmployee = () => {
     }
 
     const gender = watch("gender");
+    const role = watch("role");
 
     const onSubmit = async (data) => {
         console.log(data);
@@ -84,6 +87,7 @@ export const DetailEmployee = () => {
         formData.append('phoneNumber', data.phoneNumber)
         formData.append('address', data.address)
         formData.append('gender', data.gender)
+        formData.append('role', data.role)
         formData.append('email', data.email)
         if (imageObject) {
             formData.append('avatar', imageObject)
@@ -233,6 +237,50 @@ export const DetailEmployee = () => {
                                         </RadioGroup>
                                         {errors.gender && (
                                             <FormHelperText>{errors.gender.message}</FormHelperText>
+                                        )}
+                                    </FormControl>
+                                </Grid>
+                            </Grid>
+
+                            <Grid container spacing={2}>
+                                <Grid xs={12}>
+                                    <FormControl sx={{ width: '100%' }} error={!!errors?.role}>
+                                        <FormLabel required>Chức vụ</FormLabel>
+                                        <RadioGroup
+                                            name="role"
+                                            aria-labelledby="role-group"
+                                            sx={{
+                                                display: "flex",
+                                                flexDirection: "row",
+                                                alignItems: "center",
+                                                gap: 2,
+                                            }}
+                                            value={role}
+                                        >
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                                <Radio
+                                                    value="1"
+                                                    slotProps={{ input: { "aria-label": "Sysadmin" } }}
+                                                    {...register("role", {
+                                                        required: "Chức vụ không được để trống",
+                                                    })}
+                                                />
+                                                <Typography>Quản lý</Typography>
+                                            </Box>
+                                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                                <Radio
+                                                    value="2"
+                                                    slotProps={{ input: { "aria-label": "Admin" } }}
+                                                    {...register("role", {
+                                                        required: "Chức vụ không được để trống",
+
+                                                    })}
+                                                />
+                                                <Typography>Nhân viên</Typography>
+                                            </Box>
+                                        </RadioGroup>
+                                        {errors.role && (
+                                            <FormHelperText>{errors.role.message}</FormHelperText>
                                         )}
                                     </FormControl>
                                 </Grid>
