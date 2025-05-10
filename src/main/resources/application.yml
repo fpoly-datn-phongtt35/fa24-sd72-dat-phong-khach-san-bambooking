@@ -22,3 +22,10 @@ spring:
           auth: true
           starttls:
             enable: true
+
+payos:
+  client-id: ${PAYOS_CLIENT_ID:ef718eee-82ca-4e25-b19a-4d4cd7063dff}
+  api-key: ${PAYOS_API_KEY:b8e3dd95-04f5-49a4-97dc-85a5022798b8}
+  checksum-key: ${PAYOS_CHECKSUM_KEY:6c201111eec858ee4e5e5ec9977a85559c1c32f4cdef28a33ec398c78e8a03a7}
+  return-url: verbally-curious-humpback.ngrok-free.app/payment/success
+  cancel-url: verbally-curious-humpback.ngrok-free.app/payment/cancel

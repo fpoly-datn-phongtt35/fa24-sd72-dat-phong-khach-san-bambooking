@@ -1,5 +1,6 @@
 ﻿create database DATN_v6
 go
+
 use DATN_v6
 go
 
@@ -119,8 +120,21 @@ CREATE TABLE dat_phong (
   ngay_dat DATE,
   tong_tien DECIMAL(18,2),
   ghi_chu NVARCHAR(255),
+  trang_thai_thanh_toan NVARCHAR(255), --'Chờ thanh toán', 'Đã đặt cọc', 'Đã thanh toán trước', 'Hoàn tất'
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_khach_hang) REFERENCES khach_hang(id)
+);
+
+CREATE TABLE dat_coc_thanh_toan (
+	id INT IDENTITY(1,1) PRIMARY KEY,
+	id_dat_phong INT,
+	ngay_thanh_toan DATETIME,
+	tien_thanh_toan DECIMAL(18,2),
+	phuong_thuc_thanh_toan BIT,
+	payment_link_id VARCHAR(255),
+	loai_thanh_toan NVARCHAR(255), -- 'Đặt cọc', 'Thanh toán trước'
+	trang_thai BIT, -- 0: Pending, 1: Success
+	FOREIGN KEY (id_dat_phong) REFERENCES dat_phong(id)
 );
 
 CREATE TABLE thong_tin_dat_phong (

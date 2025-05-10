@@ -33,6 +33,8 @@ public class DatPhong {
     private Double tongTien;
     @Column(name = "ghi_chu")
     private String ghiChu;
+    @Column(name = "trang_thai_thanh_toan")
+    private String trangThaiThanhToan;
     @Column(name = "trang_thai")
     private String trangThai;
 
