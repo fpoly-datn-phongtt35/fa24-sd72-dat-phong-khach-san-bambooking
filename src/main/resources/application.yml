@@ -3,6 +3,7 @@ jwt:
   expireDay: 15
   accessKey: c2VjcmV0QG5ndXllbl90aGlfdGh1X2NodWNfYWNjZXNzX3Rva2Vu
   refreshKey: c2VjcmV0QG5ndXllbl90aGlfdGh1X2NodWNfcmVmcmVzaF90b2tlbg==
+  accessKeySys: aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL1RodUNodWMvYXBpLXByb2plY3RzL3JlZnMvaGVhZHMvbWFpbi9hcGktdGh1LWNodWM=
 api:
   version: v1
 cloudinary:
