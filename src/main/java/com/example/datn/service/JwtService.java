@@ -1,6 +1,7 @@
 package com.example.datn.service;
 
 import com.example.datn.common.TokenType;
+import com.example.datn.repository.TaiKhoanRepository;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
@@ -11,4 +12,6 @@ public interface JwtService {
     String generateRefreshToken(Integer userId, String username, Collection<? extends GrantedAuthority> authorities);
 
     String extractUsername(String token , TokenType type);
+
+    void setDefaultUser(TaiKhoanRepository taiKhoanRepository);
 }

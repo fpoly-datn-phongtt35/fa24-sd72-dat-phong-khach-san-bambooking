@@ -107,6 +107,7 @@ export default function Login() {
     const result = {
       username: data.username,
       password: data.password,
+      adminSystem: false
     };
 
     try {

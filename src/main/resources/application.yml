@@ -1,6 +1,6 @@
 jwt:
-  expireMinutes: 60
-  expireDay: 7
+  expireMinutes: 5
+  expireDay: 15
   accessKey: c2VjcmV0QG5ndXllbl90aGlfdGh1X2NodWNfYWNjZXNzX3Rva2Vu
   refreshKey: c2VjcmV0QG5ndXllbl90aGlfdGh1X2NodWNfcmVmcmVzaF90b2tlbg==
 api:
@@ -11,6 +11,8 @@ cloudinary:
   api_secret: ${API_SECRET:0rS6gHAGgFhyINfAYJyo9vAu644}
 
 spring:
+  app-runner:
+    isOnlySysadmin: true
   mail:
     host: smtp.gmail.com
     port: 587

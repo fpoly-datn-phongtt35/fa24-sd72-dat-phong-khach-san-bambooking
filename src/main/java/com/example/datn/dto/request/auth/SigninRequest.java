@@ -16,4 +16,6 @@ public class SigninRequest implements Serializable {
     @NotBlank(message = "Password must be not blank!")
     @Length(min = 3, max = 20, message = "Password invalid!!")
     private String password;
+
+    private boolean adminSystem;
 }
