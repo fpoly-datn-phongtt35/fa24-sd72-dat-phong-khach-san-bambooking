@@ -313,6 +313,7 @@ const LoaiPhong = () => {
                 <TableCell>Đơn giá</TableCell>
                 <TableCell>Đơn giá phụ thu</TableCell>
                 <TableCell>Mô tả</TableCell>
+                <TableCell>Trạng thái</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -335,6 +336,7 @@ const LoaiPhong = () => {
                       {ti.donGiaPhuThu?.toLocaleString("vi-VN") || "N/A"}
                     </TableCell>
                     <TableCell>{ti.moTa || "N/A"}</TableCell>
+                    <TableCell>{ti.trangThai ? "Hoạt động" : "Không hoạt động"}</TableCell>
                   </TableRow>
                 ))
               ) : (

@@ -14,4 +14,5 @@ public class VatTuRequest {
     private String tenVatTu;
     private Double gia;
     private String hinhAnh;
+    private Boolean trangThai;
 }

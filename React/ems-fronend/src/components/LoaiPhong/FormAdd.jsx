@@ -11,6 +11,7 @@ const FormAdd = ({ show, handleClose }) => {
         donGia: '',
         moTa: '',
         donGiaPhuThu: '',
+        trangThai: 'Hoạt động',
     });
 
     // Hàm xử lý thay đổi giá trị input
@@ -74,6 +75,12 @@ const FormAdd = ({ show, handleClose }) => {
             return;
         }
 
+        // Tạo object mới để không thay đổi formData gốc
+        const updatedFormData = {
+            ...formData,
+            trangThai: formData.trangThai === 'Hoạt động'
+        };
+
         Swal.fire({
             title: 'Xác nhận thêm mới',
             text: 'Bạn có chắc chắn muốn thêm loại phòng mới?',
@@ -83,7 +90,7 @@ const FormAdd = ({ show, handleClose }) => {
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                addLoaiPhong(formData)
+                addLoaiPhong(updatedFormData)
                     .then(response => {
                         console.log("Thêm mới thành công:", response.data);
                         Swal.fire({
@@ -119,97 +126,112 @@ const FormAdd = ({ show, handleClose }) => {
                         <form onSubmit={handleSubmit}>
                             <div className="mb-3">
                                 <label htmlFor="tenLoaiPhong" className="form-label">Tên Loại Phòng</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control" 
-                                    id="tenLoaiPhong" 
-                                    name="tenLoaiPhong" 
-                                    value={formData.tenLoaiPhong} 
-                                    onChange={handleInputChange} 
-                                    required 
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="tenLoaiPhong"
+                                    name="tenLoaiPhong"
+                                    value={formData.tenLoaiPhong}
+                                    onChange={handleInputChange}
+                                    required
                                 />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="maLoaiPhong" className="form-label">Mã Loại Phòng</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control" 
-                                    id="maLoaiPhong" 
-                                    name="maLoaiPhong" 
-                                    value={formData.maLoaiPhong} 
-                                    onChange={handleInputChange} 
-                                    required 
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="maLoaiPhong"
+                                    name="maLoaiPhong"
+                                    value={formData.maLoaiPhong}
+                                    onChange={handleInputChange}
+                                    required
                                 />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="dienTich" className="form-label">Diện tích</label>
-                                <input 
-                                    type="number" 
-                                    className="form-control" 
-                                    id="dienTich" 
-                                    name="dienTich" 
-                                    value={formData.dienTich} 
-                                    onChange={handleInputChange} 
-                                    required 
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    id="dienTich"
+                                    name="dienTich"
+                                    value={formData.dienTich}
+                                    onChange={handleInputChange}
+                                    required
                                     min="0"
                                 />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="soKhachToiDa" className="form-label">Số khách tối đa</label>
-                                <input 
-                                    type="number" 
-                                    className="form-control" 
-                                    id="soKhachToiDa" 
-                                    name="soKhachToiDa" 
-                                    value={formData.soKhachToiDa} 
-                                    onChange={handleInputChange} 
-                                    required 
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    id="soKhachToiDa"
+                                    name="soKhachToiDa"
+                                    value={formData.soKhachToiDa}
+                                    onChange={handleInputChange}
+                                    required
                                     min="0"
                                 />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="donGia" className="form-label">Đơn giá</label>
-                                <input 
-                                    type="number" 
-                                    className="form-control" 
-                                    id="donGia" 
-                                    name="donGia" 
-                                    value={formData.donGia} 
-                                    onChange={handleInputChange} 
-                                    required 
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    id="donGia"
+                                    name="donGia"
+                                    value={formData.donGia}
+                                    onChange={handleInputChange}
+                                    required
                                     min="0"
                                 />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="donGiaPhuThu" className="form-label">Đơn giá phụ thu</label>
-                                <input 
-                                    type="number" 
-                                    className="form-control" 
-                                    id="donGiaPhuThu" 
-                                    name="donGiaPhuThu" 
-                                    value={formData.donGiaPhuThu} 
-                                    onChange={handleInputChange} 
-                                    required 
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    id="donGiaPhuThu"
+                                    name="donGiaPhuThu"
+                                    value={formData.donGiaPhuThu}
+                                    onChange={handleInputChange}
+                                    required
                                     min="0"
                                 />
                             </div>
 
                             <div className="mb-3">
                                 <label htmlFor="moTa" className="form-label">Mô tả</label>
-                                <input 
-                                    type="text" 
-                                    className="form-control" 
-                                    id="moTa" 
-                                    name="moTa" 
-                                    value={formData.moTa} 
-                                    onChange={handleInputChange} 
-                                    required 
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="moTa"
+                                    name="moTa"
+                                    value={formData.moTa}
+                                    onChange={handleInputChange}
+                                    required
                                 />
+                            </div>
+
+                            <div className="mb-3">
+                                <label htmlFor="trangThai" className="form-label">Trạng thái</label>
+                                <select
+                                    className="form-control"
+                                    id="trangThai"
+                                    name="trangThai"
+                                    value={formData.trangThai}
+                                    onChange={handleInputChange}
+                                    required
+                                >
+                                    <option value="active">Hoạt động</option>
+                                    <option value="inactive">Không hoạt động</option>
+                                </select>
                             </div>
 
                             <div className="modal-footer">

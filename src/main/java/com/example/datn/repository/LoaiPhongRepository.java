@@ -22,7 +22,8 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             "lp.soKhachToiDa," +
             "lp.donGia," +
             "lp.donGiaPhuThu," +
-            "lp.moTa)" +
+            "lp.moTa," +
+            "lp.trangThai)" +
             "from LoaiPhong lp")
     Page<LoaiPhongResponse> LoaiPhong(Pageable pageable);
 
@@ -48,12 +49,12 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
 
     @Query(value = "SELECT new com.example.datn.dto.response.LoaiPhongResponse(" +
             "lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, lp.soKhachToiDa, " +
-            "lp.donGia, lp.donGiaPhuThu, lp.moTa) " +
+            "lp.donGia, lp.donGiaPhuThu, lp.moTa, lp.trangThai) " +
             "FROM LoaiPhong lp " +
             "JOIN Phong p ON p.loaiPhong.id = lp.id " +
             "WHERE p.trangThai = true " +
             "GROUP BY lp.id, lp.tenLoaiPhong, lp.maLoaiPhong, lp.dienTich, lp.soKhachToiDa, " +
-            "         lp.donGia, lp.donGiaPhuThu, lp.moTa " +
+            "         lp.donGia, lp.donGiaPhuThu, lp.moTa, lp.trangThai " +
             "HAVING (COUNT(p.id) - " +
             "        (SELECT COUNT(xp) FROM XepPhong xp WHERE xp.phong.loaiPhong.id = lp.id " +
             "         AND xp.ngayNhanPhong < :ngayTraPhong " +

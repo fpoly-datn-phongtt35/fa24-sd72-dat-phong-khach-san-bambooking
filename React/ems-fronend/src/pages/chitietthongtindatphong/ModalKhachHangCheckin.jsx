@@ -15,7 +15,7 @@ import {
   TableHead,
   TableRow,
   Checkbox,
-  Paper,FormControl,InputLabel,Select,MenuItem ,
+  Paper, FormControl, InputLabel, Select, MenuItem,
 } from "@mui/material";
 import jsQR from "jsqr";
 import Swal from 'sweetalert2';
@@ -24,7 +24,7 @@ import {
   createKhachHang,
   getKhachHangByKey,
 } from "../../services/KhachHangService";
-import { them, DanhSachKHC, getKhachHangCheckinByThongTinId,qrCheckIn } from "../../services/KhachHangCheckin";
+import { them, DanhSachKHC, getKhachHangCheckinByThongTinId, qrCheckIn } from "../../services/KhachHangCheckin";
 import { ThemPhuThu, CapNhatPhuThu, CheckPhuThuExists } from '../../services/PhuThuService';
 import { getLoaiPhongById } from '../../services/LoaiPhongService';
 import { getXepPhongByThongTinDatPhongId } from '../../services/XepPhongService.js';
@@ -255,30 +255,30 @@ const ModalKhachHangCheckin = ({
     const rawData = data;
     const qrParsedData = parseQRData(rawData);
     console.log(qrParsedData);
-   
-    const response = await qrCheckIn(qrParsedData,thongTinDatPhong.id)
-    if(response.data == true){
+
+    const response = await qrCheckIn(qrParsedData, thongTinDatPhong.id)
+    if (response.data == true) {
       Swal.fire({
         icon: 'success',
         title: 'Thành công',
         text: 'Checkin thành công',
         confirmButtonText: 'OK',
         confirmButtonColor: '#6a5acd'
-    });
-    }else{
+      });
+    } else {
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
         text: 'Khách hàng này đã Checkin',
         confirmButtonText: 'OK'
-    });
+      });
     }
     fetchKhachHangList(trangThai, searchKeyword, page);
     fetchCheckedInKhachHang();
     setQRModalOpen(false);
     handleCloseModalKC();
-    
-   };
+
+  };
 
 
 
@@ -316,62 +316,7 @@ const ModalKhachHangCheckin = ({
       const soKhachVuot = tongSoKhach - (loaiPhong.data.soKhachToiDa || 0);
 
       if (soKhachVuot > 0) {
-        const tienPhuThu = (loaiPhong.data.donGiaPhuThu || 0) * soKhachVuot;
-
-        const phuThuRequest = {
-          xepPhong: { id: idXepPhong },
-          tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
-          tienPhuThu: tienPhuThu,
-          soLuong: soKhachVuot,
-          trangThai: false,
-        };
-
-        try {
-          let existingPhuThu = null;
-        
-          try {
-            const response = await CheckPhuThuExists(idXepPhong);
-            existingPhuThu = response?.data;
-            console.log("Phụ thu đã có sẵn:", existingPhuThu);
-          } catch (err) {
-            if (err.response?.status === 404) {
-              console.log("Phụ thu không tồn tại, sẽ tạo mới.");
-            } else {
-              console.error("Lỗi khi kiểm tra phụ thu:", err);
-            }
-          }
-        
-          if (existingPhuThu) {
-            // Cập nhật nếu số lượng hoặc tiền thay đổi
-            if (
-              existingPhuThu.soLuong !== soKhachVuot ||
-              existingPhuThu.tienPhuThu !== tienPhuThu
-            ) {
-              const updatedPhuThu = {
-                ...existingPhuThu,
-                soLuong: soKhachVuot,
-                tienPhuThu: tienPhuThu,
-                tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
-              };
-        
-              try {
-                const updatedResponse = await CapNhatPhuThu(updatedPhuThu);
-                console.log("Cập nhật phụ thu thành công:", updatedResponse.data);
-              } catch (updateErr) {
-                console.error("Lỗi khi cập nhật phụ thu:", updateErr);
-              }
-            } else {
-              console.log("Số khách vượt không thay đổi, không cần cập nhật phụ thu.");
-            }
-          } else {
-            const createResponse = await ThemPhuThu(phuThuRequest);
-            console.log("Đã tạo phụ thu vì vượt số khách:", createResponse.data);
-            Swal.fire("Thành công", "Đã tạo phụ thu vượt quá số khách", "success");
-          }
-        
-        } catch (err) {
-          console.error("Lỗi khi xử lý phụ thu:", err);
-        }
+        await handlePhuThu(idXepPhong, loaiPhong, soKhachVuot);
       } else {
         console.log("Số khách không vượt quá giới hạn, không cần phụ thu.");
       }
@@ -397,6 +342,61 @@ const ModalKhachHangCheckin = ({
       setSelectedKhachHang([]); // Reset sau khi tạo check-in thành công
     } catch (error) {
       console.log("Lỗi khi thêm nhiều khách hàng check-in:", error);
+    }
+  };
+
+  const handlePhuThu = async (idXepPhong, loaiPhong, soKhachVuot) => {
+    const tienPhuThu = (loaiPhong.data.donGiaPhuThu || 0) * soKhachVuot;
+    const phuThuRequest = {
+      xepPhong: { id: idXepPhong },
+      tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
+      tienPhuThu: tienPhuThu,
+      soLuong: soKhachVuot,
+      trangThai: false,
+    };
+
+    try {
+      let existingPhuThu = null;
+      try {
+        const response = await CheckPhuThuExists(idXepPhong);
+        existingPhuThu = response?.data;
+      } catch (err) {
+        if (err.response?.status === 404) {
+          console.log("Phụ thu không tồn tại, sẽ tạo mới.");
+        } else {
+          console.error("Lỗi khi kiểm tra phụ thu:", err);
+        }
+      }
+
+      const isPhuThuChanged = existingPhuThu && (
+        existingPhuThu.soLuong !== soKhachVuot ||
+        existingPhuThu.tienPhuThu !== tienPhuThu
+      );
+
+      if (existingPhuThu && isPhuThuChanged) {
+        try {
+          const updatedPhuThu = {
+            ...existingPhuThu,
+            soLuong: soKhachVuot,
+            tienPhuThu: tienPhuThu,
+            tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`
+          };
+          const updatedResponse = await CapNhatPhuThu(updatedPhuThu);
+          console.log("Cập nhật phụ thu thành công:", updatedResponse.data);
+        } catch (updateErr) {
+          console.error("Lỗi khi cập nhật phụ thu:", updateErr);
+        }
+      } else if (!existingPhuThu) {
+        try {
+          const createResponse = await ThemPhuThu(phuThuRequest);
+          console.log("Đã tạo phụ thu vì vượt số khách:", createResponse.data);
+          Swal.fire("Thành công", "Đã tạo phụ thu vượt quá số khách", "success");
+        } catch (err) {
+          console.error("Lỗi khi tạo phụ thu:", err);
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi khi xử lý phụ thu:", err);
     }
   };
 

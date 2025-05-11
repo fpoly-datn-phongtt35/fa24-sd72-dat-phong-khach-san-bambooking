@@ -36,6 +36,10 @@ public class LoaiPhong {
 
     @Column(name = "don_gia_phu_thu")
     private Double donGiaPhuThu;
+
     @Column(name = "mo_ta")
     private String moTa;
+
+    @Column(name = "trang_thai")
+    private Boolean trangThai;
 }

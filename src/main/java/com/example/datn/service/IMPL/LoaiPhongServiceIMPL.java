@@ -61,6 +61,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         loaiPhong.setDonGiaPhuThu(loaiPhongRequest.getDonGiaPhuThu());
         loaiPhong.setMoTa(loaiPhongRequest.getMoTa());
         loaiPhong.setDonGia(loaiPhongRequest.getDonGia());
+        loaiPhong.setTrangThai(loaiPhongRequest.getTrangThai());
         return loaiPhongRepository.save(loaiPhong);
     }
 
@@ -86,6 +87,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         loaiPhong.get().setDonGia(loaiPhongRequest.getDonGia());
         loaiPhong.get().setMoTa(loaiPhongRequest.getMoTa());
         loaiPhong.get().setDonGiaPhuThu(loaiPhongRequest.getDonGiaPhuThu());
+        loaiPhong.get().setTrangThai(loaiPhongRequest.getTrangThai());
         return loaiPhongRepository.save(loaiPhong.get());
     }
 

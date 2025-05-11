@@ -19,4 +19,5 @@ public class LoaiPhongResponse {
     private Double donGia;
     private Double donGiaPhuThu;
     private String moTa;
+    private Boolean trangThai;
 }

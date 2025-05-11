@@ -8,6 +8,7 @@ const FormDetail = ({ show, handleClose, data }) => {
     const [gia, setGia] = useState('');
     const [idVatTu, setIdVatTu] = useState('');
     const [file, setFile] = useState(null);
+    const [trangThai, setTrangThai] = useState(true);
 
     // Cập nhật formData và imagePreview khi prop data thay đổi
     useEffect(() => {
@@ -17,6 +18,7 @@ const FormDetail = ({ show, handleClose, data }) => {
             setIdVatTu(data.id);
             setTenVatTu(data.tenVatTu);
             setGia(data.gia);
+            setTrangThai(data.trangThai);
         }
     }, [data]);
 
@@ -56,6 +58,7 @@ const FormDetail = ({ show, handleClose, data }) => {
         formData.append('id', idVatTu);
         formData.append('tenVatTu', tenVatTu);
         formData.append('gia', gia);
+        formData.append('trangThai', trangThai);
         if (file) {
             formData.append('file', file);
         } else {
@@ -179,14 +182,14 @@ const FormDetail = ({ show, handleClose, data }) => {
                             {/* Giá */}
                             <div className="mb-3">
                                 <label htmlFor="gia" className="form-label">Giá</label>
-                                <input 
-                                    type="number" 
-                                    className="form-control" 
-                                    id="gia" 
-                                    name="gia" 
-                                    value={gia} 
-                                    onChange={handleGiaChange} 
-                                    required 
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    id="gia"
+                                    name="gia"
+                                    value={gia}
+                                    onChange={handleGiaChange}
+                                    required
                                     min="0"
                                 />
                             </div>
@@ -203,6 +206,21 @@ const FormDetail = ({ show, handleClose, data }) => {
                                     <img src={imagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
                                 </div>
                             )}
+
+                            {/* Trạng thái */}
+                            <div className="mb-3">
+                                <label htmlFor="trangThai" className="form-label">Trạng thái</label>
+                                <select
+                                    className="form-select"
+                                    id="trangThai"
+                                    value={trangThai}
+                                    onChange={(e) => setTrangThai(e.target.value === 'true')}
+                                    required
+                                >
+                                    <option value="true">Hoạt động</option>
+                                    <option value="false">Không hoạt động</option>
+                                </select>
+                            </div>
 
                             <button type="submit" className="btn btn-primary">Lưu thay đổi</button>
                             <button type="button" className="btn btn-danger" onClick={handleDelete}>Xóa vật tư</button>

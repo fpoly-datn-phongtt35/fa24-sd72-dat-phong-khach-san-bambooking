@@ -23,4 +23,5 @@ public class LoaiPhongRequest {
 
     private Double donGiaPhuThu;
     private String moTa;
+    private Boolean trangThai;
 }

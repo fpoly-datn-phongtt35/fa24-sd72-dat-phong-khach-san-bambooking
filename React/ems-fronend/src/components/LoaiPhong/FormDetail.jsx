@@ -36,6 +36,7 @@ const FormDetail = ({ show, handleClose, data }) => {
         donGia: data?.donGia || '',
         moTa: data?.moTa || '',
         donGiaPhuThu: data?.donGiaPhuThu || '',
+        trangThai: data?.trangThai || 'Hoạt động',
     });
 
     const [showAddServiceModal, setShowAddServiceModal] = useState(false);
@@ -49,6 +50,12 @@ const FormDetail = ({ show, handleClose, data }) => {
         if (formData.id) {
             fetchDanhSachVatTu();
             fetchDanhSachDichVu();
+        }
+        if (data?.trangThai !== undefined) {
+            setFormData((prevFormData) => ({
+                ...prevFormData,
+                trangThai: data.trangThai ? 'Hoạt động' : 'Không hoạt động',
+            }));
         }
     }, [formData.id]);
 
@@ -126,12 +133,27 @@ const FormDetail = ({ show, handleClose, data }) => {
             cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) {
-                updateLoaiPhong(formData)
+                const updatedFormData = {
+                    ...formData,
+                    trangThai: formData.trangThai === 'Hoạt động',
+                };
+
+                updateLoaiPhong(updatedFormData)
                     .then(() => {
-                        Swal.fire({ title: 'Thành công!', text: 'Thông tin loại phòng đã được cập nhật.', icon: 'success' });
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: 'Thông tin loại phòng đã được cập nhật.',
+                            icon: 'success'
+                        });
                         handleClose();
                     })
-                    .catch(() => Swal.fire({ title: 'Lỗi!', text: 'Không thể cập nhật loại phòng.', icon: 'error' }));
+                    .catch(() => {
+                        Swal.fire({
+                            title: 'Lỗi!',
+                            text: 'Không thể cập nhật loại phòng.',
+                            icon: 'error'
+                        });
+                    });
             }
         });
     };
@@ -188,87 +210,101 @@ const FormDetail = ({ show, handleClose, data }) => {
                 <form onSubmit={handleSubmit}>
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={6}>
-                            <TextField 
-                                fullWidth 
-                                label="ID" 
-                                name="id" 
-                                value={formData.id} 
-                                disabled 
-                                margin="normal" 
+                            <TextField
+                                fullWidth
+                                label="ID"
+                                name="id"
+                                value={formData.id}
+                                disabled
+                                margin="normal"
                             />
-                            <TextField 
-                                fullWidth 
-                                label="Tên Loại Phòng" 
-                                name="tenLoaiPhong" 
-                                value={formData.tenLoaiPhong} 
-                                onChange={handleInputChange} 
-                                required 
-                                margin="normal" 
+                            <TextField
+                                fullWidth
+                                label="Tên Loại Phòng"
+                                name="tenLoaiPhong"
+                                value={formData.tenLoaiPhong}
+                                onChange={handleInputChange}
+                                required
+                                margin="normal"
                             />
-                            <TextField 
-                                fullWidth 
-                                label="Diện tích" 
-                                name="dienTich" 
-                                value={formData.dienTich} 
-                                onChange={handleInputChange} 
-                                required 
-                                margin="normal" 
-                                type="number" 
+                            <TextField
+                                fullWidth
+                                label="Diện tích"
+                                name="dienTich"
+                                value={formData.dienTich}
+                                onChange={handleInputChange}
+                                required
+                                margin="normal"
+                                type="number"
                                 inputProps={{ min: 0 }}
                             />
-                            <TextField 
-                                fullWidth 
-                                label="Số khách tối đa" 
-                                name="soKhachToiDa" 
-                                value={formData.soKhachToiDa} 
-                                onChange={handleInputChange} 
-                                required 
-                                margin="normal" 
-                                type="number" 
+                            <TextField
+                                fullWidth
+                                label="Số khách tối đa"
+                                name="soKhachToiDa"
+                                value={formData.soKhachToiDa}
+                                onChange={handleInputChange}
+                                required
+                                margin="normal"
+                                type="number"
                                 inputProps={{ min: 0 }}
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <TextField 
-                                fullWidth 
-                                label="Mã Loại Phòng" 
-                                name="maLoaiPhong" 
-                                value={formData.maLoaiPhong} 
-                                onChange={handleInputChange} 
-                                required 
-                                margin="normal" 
+                            <TextField
+                                fullWidth
+                                label="Mã Loại Phòng"
+                                name="maLoaiPhong"
+                                value={formData.maLoaiPhong}
+                                onChange={handleInputChange}
+                                required
+                                margin="normal"
                             />
-                            <TextField 
-                                fullWidth 
-                                label="Đơn giá" 
-                                name="donGia" 
-                                value={formData.donGia} 
-                                onChange={handleInputChange} 
-                                required 
-                                margin="normal" 
-                                type="number" 
+                            <TextField
+                                fullWidth
+                                label="Đơn giá"
+                                name="donGia"
+                                value={formData.donGia}
+                                onChange={handleInputChange}
+                                required
+                                margin="normal"
+                                type="number"
                                 inputProps={{ min: 0 }}
                             />
-                            <TextField 
-                                fullWidth 
-                                label="Đơn giá phụ thu" 
-                                name="donGiaPhuThu" 
-                                value={formData.donGiaPhuThu} 
-                                onChange={handleInputChange} 
-                                required 
-                                margin="normal" 
-                                type="number" 
+                            <TextField
+                                fullWidth
+                                label="Đơn giá phụ thu"
+                                name="donGiaPhuThu"
+                                value={formData.donGiaPhuThu}
+                                onChange={handleInputChange}
+                                required
+                                margin="normal"
+                                type="number"
                                 inputProps={{ min: 0 }}
                             />
-                            <TextField 
-                                fullWidth 
-                                label="Mô tả" 
-                                name="moTa" 
-                                value={formData.moTa} 
-                                onChange={handleInputChange} 
-                                required 
-                                margin="normal" 
+                            <TextField
+                                fullWidth
+                                label="Mô tả"
+                                name="moTa"
+                                value={formData.moTa}
+                                onChange={handleInputChange}
+                                required
+                                margin="normal"
                             />
+                            <div className="mb-3">
+                                <label htmlFor="trangThai" className="form-label">Trạng thái</label>
+                                <select
+                                    className="form-select"
+                                    id="trangThai"
+                                    name="trangThai"
+                                    value={formData.trangThai}
+                                    onChange={handleInputChange}
+                                    required
+                                >
+                                    <option value="Hoạt động">Hoạt động</option>
+                                    <option value="Không hoạt động">Không hoạt động</option>
+                                </select>
+                            </div>
                             <Box display="flex" justifyContent="flex-end" mt={2}>
                                 <Button variant="contained" color="primary" type="submit">Lưu thay đổi</Button>
                             </Box>
