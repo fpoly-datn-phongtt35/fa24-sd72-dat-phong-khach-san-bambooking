@@ -82,7 +82,7 @@ const HotelBookingConfirmation = () => {
   //QR
   const [paymentMethod, setPaymentMethod] = useState("Đặt cọc") //Set đặt cọc làm mặc định
   const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
-  const [checkoutUrl, setChekoutUrl] = useState('');
+  const [checkoutUrl, setCheckoutUrl] = useState('');
 
 
   const groupAndNumberRooms = (rooms) => {
@@ -438,11 +438,15 @@ const HotelBookingConfirmation = () => {
 
       //QR
       const paymentRequest = {
-        idDatPhong: datPhong.id,
+        idDatPhong: datPhong?.id,
         loaiThanhToan: paymentMethod
       };
+      console.log("Payment request: " + paymentRequest);
+      
       const paymentResponse = await createPaymentQR(paymentRequest);
-      setChekoutUrl(paymentResponse.checkoutUrl);
+      console.log("payment response: " + paymentResponse);
+      
+      setCheckoutUrl(paymentResponse.checkoutUrl);
       setOpenPaymentDialog(true);
 
       clearTimeout(timeoutRef.current);

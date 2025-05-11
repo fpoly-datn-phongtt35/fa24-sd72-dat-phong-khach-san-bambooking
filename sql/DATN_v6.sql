@@ -304,7 +304,6 @@ VALUES
 
 INSERT INTO khach_hang (id_tai_khoan, cmnd, ho, ten, gioi_tinh, dia_chi, sdt, email, ngay_tao, ngay_sua, trang_thai)
 VALUES 
-(2, '222333444', 'Thu', 'Chuc', 'Nu', '567 Tran Phu', '0843787882', 'nguyenchuc812@gmail.com', GETDATE(), GETDATE(), 1),
 (2, '001204042061', 'Nguyen', 'Hien', 'Nu', 'Tuyen Quang', '0364573309', 'hiennt@gmail.com', GETDATE(), GETDATE(), 1);
 
 
