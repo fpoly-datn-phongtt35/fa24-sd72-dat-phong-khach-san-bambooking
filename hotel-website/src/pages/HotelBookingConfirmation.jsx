@@ -43,6 +43,9 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
 
+import { createPaymentQR } from "../services/Payment";
+import { create } from "lodash";
+
 const HotelBookingConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -75,6 +78,12 @@ const HotelBookingConfirmation = () => {
 
   const TIMEOUT_DURATION = 300000;
   const STORAGE_KEY = `booking_timeout_${datPhong?.id || "temp"}`;
+
+  //QR
+  const [paymentMethod, setPaymentMethod] = useState("Đặt cọc") //Set đặt cọc làm mặc định
+  const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
+  const [checkoutUrl, setChekoutUrl] = useState('');
+
 
   const groupAndNumberRooms = (rooms) => {
     const grouped = {};
@@ -427,11 +436,20 @@ const HotelBookingConfirmation = () => {
 
       await GuiEmailXacNhanDP(datPhong.id);
 
+      //QR
+      const paymentRequest = {
+        idDatPhong: datPhong.id,
+        loaiThanhToan: paymentMethod
+      };
+      const paymentResponse = await createPaymentQR(paymentRequest);
+      setChekoutUrl(paymentResponse.checkoutUrl);
+      setOpenPaymentDialog(true);
+
       clearTimeout(timeoutRef.current);
       localStorage.removeItem(STORAGE_KEY);
       alert("Đặt phòng thành công!");
       alert("Có thể xác nhận đặt phòng qua email của bạn!");
-      navigate("/thong-tin-dat-phong-search");
+      // navigate("/thong-tin-dat-phong-search");
     } catch (error) {
       console.error("Lỗi khi xác nhận đặt phòng:", error);
       if (datPhongResponse?.data) await XoaDatPhong(datPhongResponse.data.id);
@@ -465,23 +483,23 @@ const HotelBookingConfirmation = () => {
 
   return (
     <Container maxWidth="lg" className="confirmation-container">
-      
-          <Box
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            textAlign="center"
-          >
-            <Typography variant="h4" className="confirmation-title">
-              Xác Nhận Đặt Phòng
-            </Typography>
-            <Typography variant="body1" className="confirmation-subtitle">
-              Vui lòng kiểm tra thông tin và cập nhật chi tiết khách hàng
-            </Typography>
-            <Typography variant="h5" className="countdown-timer">
-              ⏳ {formatTimeLeft(timeLeft)} còn lại để xác nhận
-            </Typography>
-          </Box>
+
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        textAlign="center"
+      >
+        <Typography variant="h4" className="confirmation-title">
+          Xác Nhận Đặt Phòng
+        </Typography>
+        <Typography variant="body1" className="confirmation-subtitle">
+          Vui lòng kiểm tra thông tin và cập nhật chi tiết khách hàng
+        </Typography>
+        <Typography variant="h5" className="countdown-timer">
+          ⏳ {formatTimeLeft(timeLeft)} còn lại để xác nhận
+        </Typography>
+      </Box>
 
       <Card className="confirmation-card">
         <CardContent>
@@ -506,6 +524,20 @@ const HotelBookingConfirmation = () => {
                 {ttdpData.reduce((total, room) => total + room.soPhong, 0)}
               </Typography>
             </Grid>
+
+
+            <Grid item xs={12} sm={6}>
+              <Typography variant="body1" className="info-text">
+                <strong>Số tiền cần thanh toán:</strong>{" "}
+                {(paymentMethod === "Đặt cọc"
+                  ? calculateTotalAmount() * 0.3
+                  : calculateTotalAmount()
+                ).toLocaleString()}{" "}
+                VND
+              </Typography>
+            </Grid>
+
+
             <Grid item xs={12} sm={6}>
               <Typography variant="body1" className="info-text">
                 <strong>Số người:</strong>{" "}
@@ -522,7 +554,9 @@ const HotelBookingConfirmation = () => {
                 {datPhong.ngayDat}
               </Typography>
             </Grid>
-            <Grid item xs={12}>
+
+
+            <Grid item xs={12} sm={6}>
               <Button
                 variant="contained"
                 color="primary"
@@ -532,6 +566,20 @@ const HotelBookingConfirmation = () => {
               >
                 Thêm Phòng
               </Button>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth variant="outlined" className="text-field">
+                <InputLabel>Phương thức thanh toán *</InputLabel>
+                <Select
+                  label="Phương thức thanh toán *"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  <MenuItem value="Đặt cọc">Đặt cọc (30%)</MenuItem>
+                  <MenuItem value="Thanh toán trước">Thanh toán trước (100%)</MenuItem>
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
         </CardContent>
@@ -664,6 +712,10 @@ const HotelBookingConfirmation = () => {
                   className="text-field"
                 />
               </Grid>
+
+
+
+
               <Grid item xs={12}>
                 <Button
                   type="submit"
@@ -831,6 +883,41 @@ const HotelBookingConfirmation = () => {
             onClick={() => setOpenSearchDialog(false)}
             color="secondary"
             className="close-button"
+          >
+            Đóng
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+      <Dialog
+        open={openPaymentDialog}
+        onClose={() => setOpenPaymentDialog(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Thanh Toán Đặt Phòng</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1" gutterBottom>
+            Vui lòng quét mã QR để {paymentMethod === "Đặt cọc" ? "đặt cọc" : "thanh toán"}:
+          </Typography>
+          {checkoutUrl && (
+            <iframe
+              src={checkoutUrl}
+              title="PayOS Payment"
+              width="100%"
+              height="400px"
+              style={{ border: 'none' }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenPaymentDialog(false);
+              navigate("/thong-tin-dat-phong-search");
+            }}
+            color="primary"
           >
             Đóng
           </Button>

@@ -48,6 +48,8 @@ public class DatCocThanhToanServiceImpl implements DatCocThanhToanService {
 
             Double tienThanhToan = tinhTienThanhToan(datPhong, request.getLoaiThanhToan());
 
+            Integer convertTienThanhToan = tienThanhToan.intValue();
+
             // Tạo bản ghi thanh toán
             DatCocThanhToan datCocThanhToan = DatCocThanhToan.builder()
                     .datPhong(datPhong)
@@ -63,13 +65,13 @@ public class DatCocThanhToanServiceImpl implements DatCocThanhToanService {
             items.add(ItemData.builder()
                     .name(request.getLoaiThanhToan() + " cho đặt phòng " + datPhong.getMaDatPhong())
                     .quantity(1)
-                    .price(request.getTienThanhToan().intValue())
+                    .price(tienThanhToan.intValue())
                     .build());
 
             PaymentData paymentData = PaymentData.builder()
                     .orderCode(Long.valueOf(datPhong.getId()))
-                    .amount(request.getTienThanhToan().intValue())
-                    .description(request.getLoaiThanhToan() + " cho đặt phòng " + datPhong.getMaDatPhong())
+                    .amount(convertTienThanhToan)
+                    .description(request.getLoaiThanhToan())
                     .items(items)
                     .returnUrl(returnUrl)
                     .cancelUrl(cancelUrl)
@@ -152,15 +154,7 @@ public class DatCocThanhToanServiceImpl implements DatCocThanhToanService {
                 log.warn("Thanh toán thất bại hoặc pending cho paymentLinkId: {}", paymentLinkId);
             }
 
-            // Cập nhật trạng thái đặt phòng
-            DatPhong datPhong = datCocThanhToan.getDatPhong();
-            if (datCocThanhToan.getTrangThai()) {
-                datPhong.setTrangThaiThanhToan("Đã xác nhận");
-                log.info("Cập nhật trạng thái đặt phòng thành 'Đã xác nhận' cho ID: {}", datPhong.getId());
-            }
-
             datCocThanhToanRepository.save(datCocThanhToan);
-            datPhongRepository.save(datPhong);
 
             log.info("Xử lý webhook thành công cho paymentLinkId: {}", paymentLinkId);
             return "Webhook processed successfully";

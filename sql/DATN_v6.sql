@@ -120,7 +120,6 @@ CREATE TABLE dat_phong (
   ngay_dat DATE,
   tong_tien DECIMAL(18,2),
   ghi_chu NVARCHAR(255),
-  trang_thai_thanh_toan NVARCHAR(255), --'Chờ thanh toán', 'Đã đặt cọc', 'Đã thanh toán trước', 'Hoàn tất'
   trang_thai NVARCHAR(255),
   FOREIGN KEY (id_khach_hang) REFERENCES khach_hang(id)
 );

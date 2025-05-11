@@ -80,6 +80,7 @@ export default function App() {
               <Route path="/booking" element={<HotelBookingForm />} />
               <Route path="/booking-confirmation" element={<HotelBookingConfirmation />} />
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+              <Route path="/payment-result" element={<PaymentResult />} />
               {/* <Route
                 path="/register"
                 element={<Register handleRegister={handleLogin} />}
