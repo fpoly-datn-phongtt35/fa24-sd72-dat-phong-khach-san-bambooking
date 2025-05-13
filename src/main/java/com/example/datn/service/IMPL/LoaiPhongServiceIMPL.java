@@ -2,10 +2,8 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.DichVuDikemRequest;
 import com.example.datn.dto.request.LoaiPhongRequest;
-import com.example.datn.dto.response.ChiaPhongResponse;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
-import com.example.datn.dto.response.SearchResultResponse;
 import com.example.datn.dto.response.datphong.LoaiPhongChon;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.DichVuDiKem;
@@ -20,8 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -57,10 +53,15 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         loaiPhong.setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
         loaiPhong.setMaLoaiPhong(loaiPhongRequest.getMaLoaiPhong());
         loaiPhong.setDienTich(loaiPhongRequest.getDienTich());
+        loaiPhong.setSoKhachTieuChuan(loaiPhongRequest.getSoKhachTieuChuan());
         loaiPhong.setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
-        loaiPhong.setDonGiaPhuThu(loaiPhongRequest.getDonGiaPhuThu());
+        loaiPhong.setTreEmTieuChuan(loaiPhongRequest.getTreEmTieuChuan());
+        loaiPhong.setTreEmToiDa(loaiPhongRequest.getTreEmToiDa());
         loaiPhong.setMoTa(loaiPhongRequest.getMoTa());
         loaiPhong.setDonGia(loaiPhongRequest.getDonGia());
+        loaiPhong.setPhuThuNguoiLon(loaiPhongRequest.getPhuThuNguoiLon());
+        loaiPhong.setPhuThuTreEm(loaiPhongRequest.getPhuThuTreEm());
+        loaiPhong.setTrangThai(loaiPhongRequest.getTrangThai());
         return loaiPhongRepository.save(loaiPhong);
     }
 
@@ -77,21 +78,30 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
     @Override
     public LoaiPhong update(LoaiPhongRequest loaiPhongRequest) {
-        Optional<LoaiPhong> loaiPhong = loaiPhongRepository.findById(loaiPhongRequest.getId());
-        loaiPhong.get().setId(loaiPhongRequest.getId());
-        loaiPhong.get().setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
-        loaiPhong.get().setMaLoaiPhong(loaiPhongRequest.getMaLoaiPhong());
-        loaiPhong.get().setDienTich(loaiPhongRequest.getDienTich());
-        loaiPhong.get().setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
-        loaiPhong.get().setDonGia(loaiPhongRequest.getDonGia());
-        loaiPhong.get().setMoTa(loaiPhongRequest.getMoTa());
-        loaiPhong.get().setDonGiaPhuThu(loaiPhongRequest.getDonGiaPhuThu());
-        return loaiPhongRepository.save(loaiPhong.get());
+        LoaiPhong loaiPhong = loaiPhongRepository.findById(loaiPhongRequest.getId()).get();
+        loaiPhong.setId(loaiPhongRequest.getId());
+        loaiPhong.setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
+        loaiPhong.setMaLoaiPhong(loaiPhongRequest.getMaLoaiPhong());
+        loaiPhong.setDienTich(loaiPhongRequest.getDienTich());
+        loaiPhong.setSoKhachTieuChuan(loaiPhongRequest.getSoKhachTieuChuan());
+        loaiPhong.setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
+        loaiPhong.setTreEmTieuChuan(loaiPhongRequest.getTreEmTieuChuan());
+        loaiPhong.setTreEmToiDa(loaiPhongRequest.getTreEmToiDa());
+        loaiPhong.setMoTa(loaiPhongRequest.getMoTa());
+        loaiPhong.setDonGia(loaiPhongRequest.getDonGia());
+        loaiPhong.setPhuThuNguoiLon(loaiPhongRequest.getPhuThuNguoiLon());
+        loaiPhong.setPhuThuTreEm(loaiPhongRequest.getPhuThuTreEm());
+        loaiPhong.setTrangThai(loaiPhongRequest.getTrangThai());
+        return loaiPhongRepository.save(loaiPhong);
     }
 
     @Override
-    public Page<LoaiPhong> filter(String tenLoaiPhong, Integer dienTichMin, Integer dienTichMax, Integer soKhach, Double donGiaMin, Double donGiaMax, Double donGiaPhuThuMin, Double donGiaPhuThuMax, Pageable pageable) {
-        return loaiPhongRepository.filter(tenLoaiPhong, dienTichMin, dienTichMax, soKhach, donGiaMin, donGiaMax, donGiaPhuThuMin, donGiaPhuThuMax, pageable);
+    public Page<LoaiPhong> filter( String tenLoaiPhong, Integer dienTichMin, Integer dienTichMax, Integer soKhachTieuChuan,
+                                   Integer soKhachToiDa, Integer treEmTieuChuan, Integer treEmToiDa, Double donGiaMin,
+                                   Double donGiaMax, Double phuThuNguoiLonMin, Double phuThuNguoiLonMax, Double phuThuTreEmMin,
+                                   Double phuThuTreEmMax, Boolean trangThai, Pageable pageable) {
+        return loaiPhongRepository.filter(tenLoaiPhong, dienTichMin, dienTichMax, soKhachTieuChuan,soKhachToiDa,treEmTieuChuan,
+                treEmToiDa,donGiaMin, donGiaMax,phuThuNguoiLonMin,phuThuNguoiLonMax,phuThuTreEmMin,phuThuTreEmMax,trangThai, pageable);
     }
 
 //    @Override

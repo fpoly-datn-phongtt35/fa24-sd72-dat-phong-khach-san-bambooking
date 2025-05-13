@@ -1,7 +1,7 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Header from '../components/Header';
 import Login from '../components/login/Login';
-import LoaiPhong from '../components/LoaiPhong/LoaiPhong';
+import LoaiPhong from '../pages/loaiphong/LoaiPhong';
 import DanhSach from '../components/DichVu/DanhSach';
 import DanhSachDichVuDiKem from '../components/DichVuDikem/DanhSachDichVuDiKem';
 import DanhSachDichVuSuDung from '../components/DichVuSuDung/DanhSachDichVuSuDung';

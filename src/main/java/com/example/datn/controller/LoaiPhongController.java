@@ -70,17 +70,26 @@ public class LoaiPhongController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<?> search(@RequestParam(value="tenLoaiPhong", required = false) String tenLoaiPhong,
-                                    @RequestParam(value="dienTichMin", required = false) Integer dienTichMin,
-                                    @RequestParam(value="dienTichMax", required = false) Integer dienTichMax,
-                                    @RequestParam(value="soKhach", required = false) Integer soKhach,
-                                    @RequestParam(value="donGiaMin", required = false) Double donGiaMin,
-                                    @RequestParam(value="donGiaMax", required = false) Double donGiaMax,
-                                    @RequestParam(value="donGiaPhuThuMin", required = false) Double donGiaPhuThuMin,
-                                    @RequestParam(value="donGiaPhuThuMax", required = false) Double donGiaPhuThuMax,
-                                    Pageable pageable) {
-        Page<LoaiPhong> lp = phongServiceIMPL.filter(tenLoaiPhong,dienTichMin,dienTichMax,soKhach,donGiaMin,
-                                                     donGiaMax,donGiaPhuThuMin,donGiaPhuThuMax,pageable);
+    public ResponseEntity<?> search(
+            @RequestParam(value = "tenLoaiPhong", required = false) String tenLoaiPhong,
+            @RequestParam(value = "dienTichMin", required = false) Integer dienTichMin,
+            @RequestParam(value = "dienTichMax", required = false) Integer dienTichMax,
+            @RequestParam(value = "soKhachTieuChuan", required = false) Integer soKhachTieuChuan,
+            @RequestParam(value = "soKhachToiDa", required = false) Integer soKhachToiDa,
+            @RequestParam(value = "treEmTieuChuan", required = false) Integer treEmTieuChuan,
+            @RequestParam(value = "treEmToiDa", required = false) Integer treEmToiDa,
+            @RequestParam(value = "donGiaMin", required = false) Double donGiaMin,
+            @RequestParam(value = "donGiaMax", required = false) Double donGiaMax,
+            @RequestParam(value = "phuThuNguoiLonMin", required = false) Double phuThuNguoiLonMin,
+            @RequestParam(value = "phuThuNguoiLonMax", required = false) Double phuThuNguoiLonMax,
+            @RequestParam(value = "phuThuTreEmMin", required = false) Double phuThuTreEmMin,
+            @RequestParam(value = "phuThuTreEmMax", required = false) Double phuThuTreEmMax,
+            @RequestParam(value = "trangThai", required = false) Boolean trangThai,
+            Pageable pageable) {
+        Page<LoaiPhong> lp = phongServiceIMPL.filter( tenLoaiPhong, dienTichMin, dienTichMax, soKhachTieuChuan, soKhachToiDa,
+                treEmTieuChuan, treEmToiDa, donGiaMin, donGiaMax, phuThuNguoiLonMin, phuThuNguoiLonMax, phuThuTreEmMin,
+                phuThuTreEmMax, trangThai, pageable
+        );
         return ResponseEntity.ok(lp);
     }
 
