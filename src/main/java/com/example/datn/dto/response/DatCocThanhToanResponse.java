@@ -19,7 +19,8 @@ public class DatCocThanhToanResponse {
     private Boolean phuongThucThanhToan; // 0:Tien mat, 1: Payos
     private String paymentLinkId;
     private String loaiThanhToan;
-    private Boolean trangThai; //0: Pending, 1: Success
+    private String trangThai;
     private String checkoutUrl; //URL thanh toan tu PayOS (neu co)
+    private Long orderCodePayment;
 
 }

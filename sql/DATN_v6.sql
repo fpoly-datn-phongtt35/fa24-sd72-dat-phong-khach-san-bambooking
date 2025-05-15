@@ -132,7 +132,8 @@ CREATE TABLE dat_coc_thanh_toan (
 	phuong_thuc_thanh_toan BIT,
 	payment_link_id VARCHAR(255),
 	loai_thanh_toan NVARCHAR(255), -- 'Đặt cọc', 'Thanh toán trước'
-	trang_thai BIT, -- 0: Pending, 1: Success
+	trang_thai NVARCHAR(50),
+	order_code_payment BIGINT,
 	FOREIGN KEY (id_dat_phong) REFERENCES dat_phong(id)
 );
 

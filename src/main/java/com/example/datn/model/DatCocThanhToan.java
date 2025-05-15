@@ -30,6 +30,7 @@ public class DatCocThanhToan {
     @Column(name = "loai_thanh_toan")
     private String loaiThanhToan; // 'Đặt cọc' or 'Thanh toán trước'
     @Column(name = "trang_thai")
-    private Boolean trangThai; // 0: Pending, 1: Success
-
+    private String trangThai;
+    @Column(name = "order_code_payment")
+    private Long orderCodePayment;
 }

@@ -11,7 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class DatCocThanhToanRequest {
     private Integer idDatPhong;
-    private Double tienThanhToan;
-    private Boolean phuongThucThanhToan;
     private String loaiThanhToan;
 }

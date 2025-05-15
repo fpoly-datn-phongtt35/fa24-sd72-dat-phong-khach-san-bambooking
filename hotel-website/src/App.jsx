@@ -69,7 +69,7 @@ export default function App() {
               <Route path="/confirm-booking/:iddp" element={<ConfirmBooking />} />
               <Route path="/create-review/:idKhachHang/:idTTDP" element={<CreateReview />} />
               <Route path="/cancel-dat-phong/:idDatPhong" element={<CancelDatPhong />} />
-              <Route path="/cancel-ttdp/:idTTDP" element={<CancelTTDP/>} />
+              <Route path="/cancel-ttdp/:idTTDP" element={<CancelTTDP />} />
               <Route path="/update-kh/:id/:iddp" element={<UpdateKhachHang />} />
               <Route path="/lich-su-dat-phong/:email" element={<LookupHistory />} />
               <Route path="/lookup" element={<Lookup />} />
@@ -80,7 +80,6 @@ export default function App() {
               <Route path="/booking" element={<HotelBookingForm />} />
               <Route path="/booking-confirmation" element={<HotelBookingConfirmation />} />
               <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
-              <Route path="/payment-result" element={<PaymentResult />} />
               {/* <Route
                 path="/register"
                 element={<Register handleRegister={handleLogin} />}
