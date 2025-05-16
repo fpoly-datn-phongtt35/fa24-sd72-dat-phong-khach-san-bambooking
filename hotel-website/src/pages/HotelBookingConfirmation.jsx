@@ -61,7 +61,7 @@ const HotelBookingConfirmation = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [timeLeft, setTimeLeft] = useState(300);
   const timeoutRef = useRef(null);
-  const timerRef = useRef(null); // Thêm ref để lưu interval timer
+  const timerRef = useRef(null);
   const [openSearchDialog, setOpenSearchDialog] = useState(false);
   const [searchForm, setSearchForm] = useState({
     ngayNhanPhong: dayjs().format("YYYY-MM-DD"),
@@ -76,7 +76,7 @@ const HotelBookingConfirmation = () => {
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [openPaymentDialog, setOpenPaymentDialog] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState("");
-  const [orderCodePayment, setOrderCodePayment] = useState(null); // Thêm state để lưu orderCodePayment
+  const [orderCodePayment, setOrderCodePayment] = useState(null);
 
   const TIMEOUT_DURATION = 300000;
   const STORAGE_KEY = `booking_timeout_${datPhong?.id || "temp"}`;
@@ -180,6 +180,42 @@ const HotelBookingConfirmation = () => {
   };
 
   useEffect(() => {
+    if (openPaymentDialog && orderCodePayment) {
+      const intervalId = setInterval(async () => {
+        try {
+          const status = await checkPaymentStatus(orderCodePayment);
+          setPaymentStatus(status);
+          if (status === "PAID") {
+            clearInterval(intervalId);
+            setOpenPaymentDialog(false);
+            clearTimeout(timeoutRef.current);
+            clearInterval(timerRef.current);
+            localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(`orderCode_${orderCodePayment}`);
+            await CapNhatDatPhong({
+              id: datPhong.id,
+              trangThai: "Đã xác nhận",
+              khachHang: datPhong.khachHang,
+              maDatPhong: datPhong.maDatPhong,
+              soNguoi: datPhong.soNguoi,
+              soPhong: datPhong.soPhong,
+              ngayDat: datPhong.ngayDat,
+              tongTien: datPhong.tongTien,
+              ghiChu: datPhong.ghiChu,
+            });
+            alert("Thanh toán thành công! Đặt phòng của bạn đã được xác nhận.");
+            navigate("/information");
+          }
+        } catch (error) {
+          console.error("Lỗi khi kiểm tra trạng thái thanh toán:", error);
+        }
+      }, 3000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [openPaymentDialog, orderCodePayment, navigate, datPhong]);
+
+  useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const orderCodeFromUrl = queryParams.get("orderCode");
     const cancelled = queryParams.get("cancelled");
@@ -191,7 +227,6 @@ const HotelBookingConfirmation = () => {
           const status = await checkPaymentStatus(orderCodeFromUrl);
           setPaymentStatus(status);
           if (status === "PAID") {
-            alert("Thanh toán thành công! Đặt phòng của bạn đã được xác nhận.");
             setOpenPaymentDialog(false);
             clearTimeout(timeoutRef.current);
             clearInterval(timerRef.current);
@@ -208,7 +243,8 @@ const HotelBookingConfirmation = () => {
               tongTien: datPhong.tongTien,
               ghiChu: datPhong.ghiChu,
             });
-            navigate("/thong-tin-dat-phong-search");
+            alert("Thanh toán thành công! Đặt phòng của bạn đã được xác nhận.");
+            navigate("/information");
           } else if (status === "CANCELLED" || cancelled === "true") {
             alert("Thanh toán đã bị hủy. Đặt phòng sẽ bị hủy.");
             setOpenPaymentDialog(false);
@@ -462,8 +498,8 @@ const HotelBookingConfirmation = () => {
       }
 
       setCheckoutUrl(paymentResponse.checkoutUrl);
-      setOrderCodePayment(paymentResponse.orderCodePayment); // Lưu orderCodePayment từ response
-      localStorage.setItem(`orderCode_${paymentResponse.orderCodePayment}`, paymentResponse.orderCodePayment); // Lưu vào localStorage
+      setOrderCodePayment(paymentResponse.orderCodePayment);
+      localStorage.setItem(`orderCode_${paymentResponse.orderCodePayment}`, paymentResponse.orderCodePayment);
       setOpenPaymentDialog(true);
       setIsSubmitting(false);
     } catch (error) {
@@ -677,7 +713,7 @@ const HotelBookingConfirmation = () => {
           <Typography variant="body1" gutterBottom>
             Vui lòng quét mã QR để {paymentMethod === "Đặt cọc" ? "đặt cọc" : "thanh toán"}:
           </Typography>
-          {checkoutUrl && (
+          {checkoutUrl ? (
             <iframe
               src={checkoutUrl}
               title="PayOS Payment"
@@ -685,11 +721,11 @@ const HotelBookingConfirmation = () => {
               height="400px"
               style={{ border: "none" }}
             />
+          ) : (
+            <Typography color="error">Không thể tải mã QR. Vui lòng thử lại.</Typography>
           )}
-          {!checkoutUrl && <Typography color="error">Không thể tải mã QR. Vui lòng thử lại.</Typography>}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenPaymentDialog(false)} color="primary">Đóng</Button>
           <Button onClick={() => handleCancelPayment(orderCodePayment)} color="error">Hủy Thanh Toán</Button>
         </DialogActions>
       </Dialog>
