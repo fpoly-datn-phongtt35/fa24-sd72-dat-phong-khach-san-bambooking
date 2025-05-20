@@ -48,4 +48,9 @@ public class PhuThuServiceIMPL implements PhuThuService {
         }
         phuThuRepository.deleteById(id);
     }
+
+    @Override
+    public PhuThu findByXepPhongIdAndTenPhuThu(Integer idXepPhong, String tenPhuThu) {
+        return phuThuRepository.findByXepPhong_IdAndTenPhuThu(idXepPhong, tenPhuThu);
+    }
 }

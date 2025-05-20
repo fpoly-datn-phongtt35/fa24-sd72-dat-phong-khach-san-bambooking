@@ -13,5 +13,5 @@ public interface PhuThuRepository extends JpaRepository<PhuThu, Integer> {
     List<PhuThu> findByXepPhong_Id(Integer id);
 
     PhuThu findTopByXepPhong_IdOrderByIdDesc(Integer idXepPhong);
-
+    PhuThu findByXepPhong_IdAndTenPhuThu(Integer idXepPhong, String tenPhuThu);
 }

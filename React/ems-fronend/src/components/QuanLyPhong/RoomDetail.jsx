@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { getRoomDetail, getDichVuSuDungByIDXepPhong, AddDichVuSuDung, AddDVDK, changeConditionRoom } from '../../services/ViewPhong';
 import { CapNhatDichVuSuDung } from "../../services/DichVuSuDungService";
 import DVSVDetail from './DVSDDetail';
+import PhuThuForm from './PhuThuForm';
 import {
   Box,
   Grid,
@@ -34,6 +35,7 @@ const RoomDetail = () => {
   const [ListDVSD, setListDVSD] = useState([]);
   const [showFormDetail, setShowFormDetail] = useState(false);
   const [selectedDichVu, setSelectedDichVu] = useState(null);
+  const [showPhuThuForm, setShowPhuThuForm] = useState(false);
   const [alert, setAlert] = useState({
     open: false,
     severity: "success",
@@ -324,6 +326,17 @@ const RoomDetail = () => {
           </Button>
         )}
 
+        {roomDetail && roomDetail.trangThai === "Đang ở" && (
+          <Button
+            variant="contained"
+            color="secondary"
+            sx={{ mt: 2, mx: 2, textTransform: "none" }}
+            onClick={() => setShowPhuThuForm(true)}
+          >
+            Thêm phụ thu
+          </Button>
+        )}
+
         {alert.open && (
           <Box
             sx={{
@@ -362,6 +375,15 @@ const RoomDetail = () => {
           handleClose={handleCloseFormDetail}
           data={selectedDichVu}
           idxp={roomDetail?.id}
+        />
+      )}
+
+      {/* Form Phụ thu */}
+      {showPhuThuForm && (
+        <PhuThuForm
+          show={showPhuThuForm}
+          handleClose={() => setShowPhuThuForm(false)}
+          idxp={roomDetail.id}
         />
       )}
     </Grid>
