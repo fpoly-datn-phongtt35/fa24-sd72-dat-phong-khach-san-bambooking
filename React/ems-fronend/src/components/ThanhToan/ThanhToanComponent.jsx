@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createThanhToan, getHoaDonById, changeStatusInvoice } from '../../services/ThanhToanService';
+import { createThanhToan, getHoaDonById } from '../../services/ThanhToanService';
 import ThanhToanModal from './ThanhToanModal';
 import { Container, Box, Typography, Button, Card, Chip } from '@mui/joy';
-import { IconButton} from '@mui/material';
+import { IconButton } from '@mui/material';
 import PaymentIcon from '@mui/icons-material/Payment';
 
 const ThanhToanComponent = () => {
@@ -58,17 +58,7 @@ const ThanhToanComponent = () => {
     const handleCloseModal = () => {
         setShowModal(false);
         thanhToanRef.current = false;
-    };
-
-    const handleChangeStatus = (id) => {
-        changeStatusInvoice(id)
-            .then(() => {
-                navigate('/hoa-don');
-            })
-            .catch((error) => {
-                console.error("Lỗi khi thay đổi trạng thái hóa đơn:", error);
-                alert("Có lỗi xảy ra khi thay đổi trạng thái hóa đơn!");
-            });
+        fetchHoaDon(idHoaDon); // Cập nhật lại hóa đơn sau khi đóng modal
     };
 
     return (
@@ -97,7 +87,7 @@ const ThanhToanComponent = () => {
                                 variant="plain"
                                 color="primary"
                                 size="sm"
-                                disabled={hoaDon.trangThai === 'Chờ xác nhận'}
+                                disabled={hoaDon.trangThai === 'Đã thanh toán'}
                                 sx={{ marginLeft: 1 }}
                                 onClick={handleCreateThanhToan}
                             >
@@ -113,22 +103,12 @@ const ThanhToanComponent = () => {
                     </Box>
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                        {hoaDon.trangThai === 'Chờ xác nhận' && (
-                            <Button
-                                variant="soft"
-                                color="success"
-                                onClick={() => handleChangeStatus(hoaDon.id)}
-                            >
-                                Xác nhận thanh toán
-                            </Button>
-                        )}
-
                         <Button
                             variant="soft"
                             color="danger"
                             onClick={() => navigate('/hoa-don')}
                         >
-                            Hủy
+                            Đóng
                         </Button>
                     </Box>
                 </Card>

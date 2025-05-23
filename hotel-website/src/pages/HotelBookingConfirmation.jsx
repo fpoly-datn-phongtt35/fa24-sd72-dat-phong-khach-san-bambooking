@@ -246,9 +246,8 @@ const HotelBookingConfirmation = () => {
             alert("Thanh toán thành công! Đặt phòng của bạn đã được xác nhận.");
             navigate("/information");
           } else if (status === "CANCELLED" || cancelled === "true") {
-            alert("Thanh toán đã bị hủy. Đặt phòng sẽ bị hủy.");
-            setOpenPaymentDialog(false);
-            await cancelBooking();
+            alert("Thanh toán đã bị hủy. Vui lòng chọn lại phương thức thanh toán hoặc cập nhật đặt phòng.");
+            setOpenPaymentDialog(true);
           } else {
             alert(`Thanh toán đang ở trạng thái: ${status}. Vui lòng kiểm tra lại.`);
           }
@@ -346,13 +345,14 @@ const HotelBookingConfirmation = () => {
   };
 
   const handleAddRoom = async (room) => {
+    const addedRooms = [];
     if (room.soPhongKhaDung < Number(searchForm.soPhong)) {
       alert("Số phòng khả dụng không đủ!");
       return;
     }
 
     try {
-      const addedRooms = [];
+      
       for (let i = 0; i < Number(searchForm.soPhong); i++) {
         const newRoom = {
           datPhong: datPhong,
@@ -389,26 +389,28 @@ const HotelBookingConfirmation = () => {
   };
 
   const handleCancelPayment = async (orderCode) => {
-    if (!orderCode) {
-      alert("Không tìm thấy mã thanh toán. Vui lòng thử lại.");
-      return;
+  if (!orderCode) {
+    alert("Không tìm thấy mã thanh toán. Vui lòng thử lại.");
+    return;
+  }
+  const confirmCancel = window.confirm("Bạn có chắc chắn muốn hủy thanh toán?");
+  if (!confirmCancel) return;
+  try {
+    await cancelPayment(orderCode);
+    const status = await checkPaymentStatus(orderCode);
+    setPaymentStatus(status);
+    if (status === "CANCELLED") {
+      alert("Thanh toán đã bị hủy. Vui lòng chọn lại phương thức thanh toán hoặc cập nhật đặt phòng.");
+      setOpenPaymentDialog(false);
+      localStorage.removeItem(`orderCode_${orderCode}`);
+    } else {
+      alert(`Hủy thanh toán không thành công. Trạng thái: ${status}`);
     }
-    try {
-      await cancelPayment(orderCode);
-      const status = await checkPaymentStatus(orderCode);
-      setPaymentStatus(status);
-      if (status === "CANCELLED") {
-        alert("Thanh toán đã bị hủy. Đặt phòng sẽ bị hủy.");
-        setOpenPaymentDialog(false);
-        await cancelBooking();
-      } else {
-        alert(`Hủy thanh toán không thành công. Trạng thái: ${status}`);
-      }
-    } catch (error) {
-      console.error("Lỗi khi hủy thanh toán:", error);
-      alert("Lỗi khi hủy thanh toán. Vui lòng thử lại.");
-    }
-  };
+  } catch (error) {
+    console.error("Lỗi khi hủy thanh toán:", error);
+    alert("Lỗi khi hủy thanh toán. Vui lòng thử lại.");
+  }
+};
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -482,6 +484,16 @@ const HotelBookingConfirmation = () => {
       }
 
       await GuiEmailXacNhanDP(datPhong.id);
+
+      //Kiem tra trang thai thanh toan hien tai
+      if (orderCodePayment) {
+        const status = await checkPaymentStatus(orderCodePayment);
+        if (status === "PENDING") {
+          alert("Vui lòng hoàn tất hoặc hủy thanh toán trước khi tạo thanh toán mới!");
+          setIsSubmitting(false);
+          return;
+        }
+      }
 
       const paymentRequest = {
         idDatPhong: datPhong.id,

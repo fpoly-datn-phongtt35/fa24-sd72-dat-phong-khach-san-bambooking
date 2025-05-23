@@ -5,8 +5,10 @@ import com.example.datn.dto.request.DatCocThanhToanRequest;
 import com.example.datn.dto.response.DatCocThanhToanResponse;
 import com.example.datn.model.DatCocThanhToan;
 import com.example.datn.model.DatPhong;
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.repository.DatCocThanhToanRepository;
 import com.example.datn.repository.DatPhongRepository;
+import com.example.datn.repository.ThongTinDatPhongRepository;
 import com.example.datn.service.DatCocThanhToanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import java.util.*;
 public class DatCocThanhToanServiceImpl implements DatCocThanhToanService {
 
     private final DatPhongRepository datPhongRepository;
+    private final ThongTinDatPhongRepository thongTinDatPhongRepository;
     private final DatCocThanhToanRepository datCocThanhToanRepository;
     private final PayOS payOS;
     private final ConfigPayOS configPayOS;
@@ -50,6 +53,19 @@ public class DatCocThanhToanServiceImpl implements DatCocThanhToanService {
                         return new RuntimeException("Đặt phòng không tồn tại với ID: " + request.getIdDatPhong());
                     });
 
+            long paymentCount = datCocThanhToanRepository.countByDatPhongId(request.getIdDatPhong());
+            if (paymentCount >= 3) {
+                log.error("Đã vượt quá số lần tạo thanh toán cho đặt phòng có ID : {}", request.getIdDatPhong());
+                throw new IllegalStateException("Bạn đã tạo quá nhiều thanh toán cho đặt phòng này. Vui lòng liên hệ hỗ trợ.");
+            }
+
+            Optional<DatCocThanhToan> existingPayment = datCocThanhToanRepository.findByDatPhongIdAndTrangThai(request.getIdDatPhong(), "PENDING");
+            if (existingPayment.isPresent()) {
+                log.error("Đã tồn tại đặt cọc thanh toán có trạng thái là PENDING cho đặt phòng có ID: {}", request.getIdDatPhong());
+                throw new IllegalStateException("Vui lòng hủy hoặc hoàn tất thanh toán hiện tại trước khi tạo thanh toán mới!");
+            }
+
+            Double tongTien = datPhong.getTongTien();
             Double tienThanhToan = tinhTienThanhToan(datPhong, request.getLoaiThanhToan());
 
             DatCocThanhToan datCocThanhToan = DatCocThanhToan.builder()
@@ -65,6 +81,19 @@ public class DatCocThanhToanServiceImpl implements DatCocThanhToanService {
             datCocThanhToan.setOrderCodePayment(orderCodePayment);
             String returnUrlWithOrder = returnUrl + "?orderCode=" + URLEncoder.encode(String.valueOf(orderCodePayment), StandardCharsets.UTF_8);
             String cancelUrlWithOrder = cancelUrl + "?orderCode=" + URLEncoder.encode(String.valueOf(orderCodePayment), StandardCharsets.UTF_8);
+
+            //Chia tien
+            List<ThongTinDatPhong> listThongTinDatPhong = thongTinDatPhongRepository.findByDatPhong_Id(datPhong.getId());
+            if (!listThongTinDatPhong.isEmpty()) {
+                double tongGiaPhong = listThongTinDatPhong.stream().mapToDouble(ThongTinDatPhong::getGiaDat).sum();
+                for (ThongTinDatPhong ttdp: listThongTinDatPhong) {
+                    double tyLe = ttdp.getGiaDat()/tongGiaPhong;
+                    double tienPhanBo = tienThanhToan * tyLe;
+                    if (ttdp.getTienDaThanhToan() == null) ttdp.setTienDaThanhToan(0.0);
+                    ttdp.setTienDaThanhToan(tienPhanBo);
+                    thongTinDatPhongRepository.save(ttdp);
+                }
+            }
 
             List<ItemData> items = new ArrayList<>();
             items.add(ItemData.builder()
@@ -190,6 +219,23 @@ public class DatCocThanhToanServiceImpl implements DatCocThanhToanService {
                     } else {
                         log.info("Trạng thái DatPhong đã là 'Đã xác nhận' cho datPhongId: {}", datPhong.getId());
                     }
+
+                    String trangThaiThanhToan = "Đặt cọc".equals(datCocThanhToan.getLoaiThanhToan()) ? "Đã đặt cọc" : "Đã thanh toán trước";
+                    List<ThongTinDatPhong> thongTinDatPhongList = thongTinDatPhongRepository.findByDatPhong_Id(datPhong.getId());
+                    for (ThongTinDatPhong thongTinDatPhong : thongTinDatPhongList) {
+                        if (thongTinDatPhong.getTrangThaiThanhToan() == null) {
+                            thongTinDatPhong.setTrangThaiThanhToan("Chưa thanh toán");
+                        }
+                        if (!"Hoàn tất".equals(thongTinDatPhong.getTrangThaiThanhToan())) {
+                            thongTinDatPhong.setTrangThaiThanhToan(trangThaiThanhToan);
+                        }
+                    }
+                    if (!thongTinDatPhongList.isEmpty()) {
+                        thongTinDatPhongRepository.saveAll(thongTinDatPhongList);
+                        log.info("Cập nhật trạng thái thanh toán thành '{}' cho datPhongId: {}", trangThaiThanhToan, datPhong.getId());
+                    } else {
+                        log.warn("Không tìm thấy bản ghi ThongTinDatPhong nào cho datPhongId: {}", datPhong.getId());
+                    }
                 }
             } else {
                 log.info("Trạng thái không thay đổi cho orderCodePayment: {}, trạng thái hiện tại: {}", orderCode, newStatus);
@@ -238,7 +284,7 @@ public class DatCocThanhToanServiceImpl implements DatCocThanhToanService {
                     .orderCodePayment(datCocThanhToan.getOrderCodePayment())
                     .build();
 
-            log.info("LCafe Lập trình viên: Lấy thông tin thanh toán thành công cho ID: {}", id);
+            log.info("Lấy thông tin thanh toán thành công cho ID: {}", id);
             return response;
         } catch (Exception e) {
             log.error("Lỗi khi lấy thông tin thanh toán: {}", e.getMessage(), e);
@@ -310,9 +356,6 @@ public class DatCocThanhToanServiceImpl implements DatCocThanhToanService {
         } else {
             log.warn("Không tìm thấy orderCodePayment để hủy trên PayOS cho orderCodePayment: {}", orderCode);
         }
-        DatPhong datPhong = datCocThanhToan.getDatPhong();
-        datPhong.setGhiChu("Yêu cầu hủy bởi người đặt phòng!");
-        datPhong.setTrangThai("Đã hủy");
 
         datCocThanhToan.setTrangThai("CANCELLED");
         datCocThanhToanRepository.save(datCocThanhToan);

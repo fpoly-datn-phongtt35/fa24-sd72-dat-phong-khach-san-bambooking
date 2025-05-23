@@ -1,6 +1,5 @@
 ﻿create database DATN_v6
 go
-
 use DATN_v6
 go
 
@@ -148,6 +147,8 @@ CREATE TABLE thong_tin_dat_phong (
   gia_dat DECIMAL(18,2),
   ghi_chu NVARCHAR(255),
   trang_thai NVARCHAR(255),
+  trang_thai_thanh_toan NVARCHAR(100) DEFAULT 'Chưa thanh toán', --"Chua thanh toan", "Da dat coc", "Da thanh toan", "Hoan tat"
+  tien_da_thanh_toan DECIMAL(18,2),
   FOREIGN KEY (id_dat_phong) REFERENCES dat_phong(id),
   FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id)
 );

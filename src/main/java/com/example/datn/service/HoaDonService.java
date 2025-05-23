@@ -38,12 +38,4 @@ public interface HoaDonService {
      * @return Thông tin hóa đơn.
      */
     HoaDonResponse getOneHoaDon(Integer idHoaDon);
-
-    /**
-     * Thay đổi trạng thái của hóa đơn.
-     *
-     * @param id ID hóa đơn cần cập nhật trạng thái.
-     * @return `true` nếu cập nhật thành công, `false` nếu thất bại.
-     */
-    Boolean changeStatusHoaDon(Integer id);
 }

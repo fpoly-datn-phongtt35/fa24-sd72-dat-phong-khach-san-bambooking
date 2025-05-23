@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPhong, Integer> {
@@ -21,11 +22,11 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
 
     @Query(
             "select new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong, " +
-                    "CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong, " +
-                    "ttdp.giaDat,ttdp.ghiChu,ttdp.trangThai) " +
-                    "from ThongTinDatPhong ttdp " +
-                    "where ttdp.trangThai = :trangThai " +
-                    "order by ttdp.datPhong.ngayDat")
+            "CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong, " +
+            "ttdp.giaDat,ttdp.ghiChu,ttdp.trangThai) " +
+            "from ThongTinDatPhong ttdp " +
+            "where ttdp.trangThai = :trangThai " +
+            "order by ttdp.datPhong.ngayDat")
     Page<TTDPResponse> HienThiQuanLy(@Param("trangThai") String trangThai, Pageable pageable);
 
     @Query(
@@ -34,22 +35,22 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     List<ThongTinDatPhong> findByMaDatPhong(@Param("maDatPhong") String maDatPhong);
 
     @Query("SELECT new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong," +
-            " CONCAT(dp.khachHang.ho ,' ', dp.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
-            " ttdp.giaDat, ttdp.ghiChu, ttdp.trangThai) " +
-            "FROM ThongTinDatPhong ttdp " +
-            "JOIN ttdp.loaiPhong lp " +
-            "JOIN ttdp.datPhong dp " +
-            "JOIN ttdp.datPhong.khachHang kh " +
-            "WHERE (:startDate IS NULL OR ttdp.ngayNhanPhong >= :startDate) " +
-            "AND (:endDate IS NULL OR ttdp.ngayTraPhong <= :endDate) " +
-            "AND (:trangThai IS NULL OR ttdp.trangThai LIKE %:trangThai%) " +
-            "AND (:key IS NULL OR (ttdp.maThongTinDatPhong LIKE %:key% " +
-            "OR lp.tenLoaiPhong LIKE %:key% " +
-            "OR dp.maDatPhong LIKE %:key% " +
-            "OR CONCAT(kh.ho, ' ', kh.ten) LIKE %:key% " +
-            "OR kh.sdt LIKE %:key% " +
-            "OR kh.email LIKE %:key%))" +
-            "ORDER BY dp.ngayDat DESC")
+           " CONCAT(dp.khachHang.ho ,' ', dp.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
+           " ttdp.giaDat, ttdp.ghiChu, ttdp.trangThai) " +
+           "FROM ThongTinDatPhong ttdp " +
+           "JOIN ttdp.loaiPhong lp " +
+           "JOIN ttdp.datPhong dp " +
+           "JOIN ttdp.datPhong.khachHang kh " +
+           "WHERE (:startDate IS NULL OR ttdp.ngayNhanPhong >= :startDate) " +
+           "AND (:endDate IS NULL OR ttdp.ngayTraPhong <= :endDate) " +
+           "AND (:trangThai IS NULL OR ttdp.trangThai LIKE %:trangThai%) " +
+           "AND (:key IS NULL OR (ttdp.maThongTinDatPhong LIKE %:key% " +
+           "OR lp.tenLoaiPhong LIKE %:key% " +
+           "OR dp.maDatPhong LIKE %:key% " +
+           "OR CONCAT(kh.ho, ' ', kh.ten) LIKE %:key% " +
+           "OR kh.sdt LIKE %:key% " +
+           "OR kh.email LIKE %:key%))" +
+           "ORDER BY dp.ngayDat DESC")
     Page<TTDPResponse> findByDateRangeAndKey(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
@@ -60,12 +61,6 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
 
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.id = :id")
     ThongTinDatPhong getTTDPById(@Param("id") Integer id);
-
-    @Query("SELECT ttdp FROM ThongTinDatPhong ttdp " +
-           "JOIN XepPhong xp ON ttdp.id = xp.thongTinDatPhong.id " +
-           "JOIN Phong p ON xp.phong.id = p.id " +
-           "WHERE xp.id = :idXepPhong AND ttdp.loaiPhong.id = p.loaiPhong.id")
-    ThongTinDatPhong getTTDPByIdAndLoaiPhong(@Param("idXepPhong") Integer idXepPhong);
 
     @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.maThongTinDatPhong = :maTTDP")
     ThongTinDatPhong getTTDPByMa(@Param("maTTDP") String maTTDP);
@@ -95,14 +90,10 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
 
 
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp and t.loaiPhong.id= :idlp")
-    List<ThongTinDatPhong> getByidDPandidLP(@Param("iddp") Integer iddp,@Param("idlp") Integer idlp);
+    List<ThongTinDatPhong> getByidDPandidLP(@Param("iddp") Integer iddp, @Param("idlp") Integer idlp);
 
     @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :idDatPhong AND ttdp.trangThai IN :trangThai")
-    List<ThongTinDatPhong> findByIDDatPhongandTT(Integer idDatPhong,List<String> trangThai);
-
-    @Query("SELECT CASE WHEN COUNT(ttdp) = SUM(CASE WHEN ttdp.trangThai = 'Đã trả phòng' THEN 1 ELSE 0 END) THEN true ELSE false END " +
-           "FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :datPhongId")
-    boolean areAllThongTinDatPhongCheckedOut(@Param("datPhongId") Integer datPhongId);
+    List<ThongTinDatPhong> findByIDDatPhongandTT(Integer idDatPhong, List<String> trangThai);
 
     List<ThongTinDatPhong> findByDatPhong_Id(Integer datPhongId);
 
