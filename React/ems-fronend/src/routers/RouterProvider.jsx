@@ -2,6 +2,7 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Header from '../components/Header';
 import Login from '../components/login/Login';
 import LoaiPhong from '../pages/loaiphong/LoaiPhong';
+import ThongKe from '../components/ThongKe/ThongKe';
 import DanhSach from '../components/DichVu/DanhSach';
 import DanhSachDichVuDiKem from '../components/DichVuDikem/DanhSachDichVuDiKem';
 import DanhSachDichVuSuDung from '../components/DichVuSuDung/DanhSachDichVuSuDung';
@@ -120,6 +121,7 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
 
         <Route element={<RBACRouter requiredPermission={permissions.VIEW_TYPE_ROOM} />}>
           <Route path="/loai-phong" element={<LoaiPhong />} />
+          <Route path="/thong-ke" element={<ThongKe />} />
         </Route>
 
         <Route element={<RBACRouter requiredPermission={permissions.VIEW_MATERIALS} />}>

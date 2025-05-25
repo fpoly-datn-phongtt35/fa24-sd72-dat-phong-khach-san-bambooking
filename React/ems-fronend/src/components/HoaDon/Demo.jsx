@@ -295,7 +295,7 @@ const Demo = () => {
                         />
                       </td>
                       <td>{item.tenPhong || "Không có dữ liệu"}</td>
-                      <td>{formatDate(item.ngayNhan)}</td>
+                      <td>{formatDateTime(item.ngayNhan)}</td>
                       <td>{formatDateTime(item.ngayTraThucTe)}</td>
                       <td>{item.trangThaiKTP}</td>
                       <td>
