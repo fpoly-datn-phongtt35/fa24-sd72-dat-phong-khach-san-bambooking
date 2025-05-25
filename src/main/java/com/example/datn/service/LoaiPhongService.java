@@ -28,11 +28,17 @@ public interface LoaiPhongService {
     Page<LoaiPhong> filter ( String tenLoaiPhong,
                             Integer dienTichMin,
                             Integer dienTichMax,
-                            Integer soKhach,
+                            Integer soKhachTieuChuan,
+                            Integer soKhachToiDa,
+                            Integer treEmTieuChuan,
+                            Integer treEmToiDa,
                             Double donGiaMin,
                             Double donGiaMax,
-                            Double donGiaPhuThuMin,
-                            Double donGiaPhuThuMax,
+                            Double phuThuNguoiLonMin,
+                            Double phuThuNguoiLonMax,
+                            Double phuThuTreEmMin,
+                            Double phuThuTreEmMax,
+                            Boolean trangThai,
                             Pageable pageable);
 
     LoaiPhong findByID(Integer idLoaiPhong);

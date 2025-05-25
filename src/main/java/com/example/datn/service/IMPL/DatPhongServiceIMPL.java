@@ -64,10 +64,11 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setMaDatPhong(codeDP);
         datPhong.setSoPhong(datPhongRequest.getSoPhong());
         datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
+        datPhong.setSoTre(datPhongRequest.getSoTre());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTongTien(datPhongRequest.getTongTien());
-        datPhong.setNgayDat(LocalDate.now());
+        datPhong.setNgayDat(LocalDateTime.now());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         DatPhong dp = datPhongRepository.save(datPhong);
 
@@ -76,6 +77,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhongResponse.setMaDatPhong(dp.getMaDatPhong());
         datPhongResponse.setSoPhong(dp.getSoPhong());
         datPhongResponse.setSoNguoi(dp.getSoNguoi());
+        datPhongResponse.setSoTre(dp.getSoTre());
         datPhongResponse.setKhachHang(dp.getKhachHang());
         datPhongResponse.setTongTien(dp.getTongTien());
         datPhongResponse.setNgayDat(dp.getNgayDat());
@@ -99,6 +101,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
     public DatPhong updateDatPhong(DatPhongRequest datPhongRequest) {
         DatPhong datPhong = datPhongRepository.findByMaDatPhong(datPhongRequest.getMaDatPhong());
         datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
+        datPhong.setSoTre(datPhongRequest.getSoTre());
         datPhong.setSoPhong(datPhongRequest.getSoPhong());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTongTien(datPhongRequest.getTongTien());
@@ -228,7 +231,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         return datPhongRepository.findByMaDatPhong(maDatPhong);
     }
 
-    @Scheduled(fixedRate = 1000) // Chạy mỗi giây
+    @Scheduled(fixedRate = 1000)
     public void checkDatPhongConfirmed() {
         Logger logger = LoggerFactory.getLogger(DatPhongServiceIMPL.class);
         List<String> trangThai = Arrays.asList("Đang đặt phòng");
@@ -237,21 +240,20 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
         for (DatPhong dp : listDP) {
             logger.debug("Kiểm tra đặt phòng ID: {}", dp.getId());
-            LocalDate ngayDat = dp.getNgayDat();
+            LocalDateTime ngayDat = dp.getNgayDat();
             if (ngayDat != null) {
-                LocalDateTime ngayDatTime = ngayDat.atTime(23, 59, 59);
-                if (ngayDatTime.plusHours(24).isBefore(now)) {
-                    dp.setGhiChu("Hủy do không xác nhận trong vòng 1 ngày");
+                if (ngayDat.plusHours(2).isBefore(now)) {
+                    dp.setGhiChu("Hủy do không xác nhận trong vòng 2 tiếng");
                     dp.setTrangThai("Đã hủy");
                     datPhongRepository.save(dp);
 
                     List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByMaDatPhong(dp.getMaDatPhong());
                     for (ThongTinDatPhong ttdp : ttdps) {
-                        ttdp.setGhiChu("Hủy do không xác nhận trong vòng 1 ngày");
+                        ttdp.setGhiChu("Hủy do không xác nhận trong vòng 2 tiếng");
                         ttdp.setTrangThai("Đã hủy");
                         thongTinDatPhongRepository.save(ttdp);
                     }
-                    logger.info("Đã hủy đặt phòng mã: {} do không xác nhận trong 24 giờ", dp.getMaDatPhong());
+                    logger.info("Đã hủy đặt phòng mã: {} do không xác nhận trong 2 tiếng", dp.getMaDatPhong());
                     try {
                         sendCancellationEmail(dp);
                     } catch (MessagingException e) {
@@ -269,7 +271,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         helper.setSubject("Thông báo hủy đặt phòng");
         helper.setText(
                 "Kính gửi " + dp.getKhachHang().getTen() + ",\n\n" +
-                        "Đặt phòng của bạn với mã " + dp.getMaDatPhong() + " đã bị hủy do không được xác nhận trong vòng 24 giờ.\n" +
+                        "Đặt phòng của bạn với mã " + dp.getMaDatPhong() + " đã bị hủy do không được xác nhận trong 2 tiếng.\n" +
                         "Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ thêm.\n\n" +
                         "Trân trọng,\nĐội ngũ khách sạn", true
         );

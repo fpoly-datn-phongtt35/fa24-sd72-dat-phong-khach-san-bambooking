@@ -30,6 +30,7 @@
     "@mui/joy": "^5.0.0-beta.51",
     "@mui/material": "^6.4.3",
     "@mui/x-date-pickers": "^7.23.6",
+    "@payos/node": "^1.0.10",
     "@zxing/browser": "^0.1.5",
     "axios": "^1.7.7",
     "bootstrap-icons": "^1.11.3",

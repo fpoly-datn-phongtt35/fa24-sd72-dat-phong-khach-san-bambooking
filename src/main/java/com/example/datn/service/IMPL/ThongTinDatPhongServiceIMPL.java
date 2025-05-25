@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +51,12 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setLoaiPhong(lp);
         ttdp.setMaThongTinDatPhong(code.generateUniqueCodeTTDP(thongTinDatPhongRepository.findAll()));
         ttdp.setGiaDat(lp.getDonGia());
-        ttdp.setNgayNhanPhong(request.getNgayNhanPhong());
-        ttdp.setNgayTraPhong(request.getNgayTraPhong());
+        LocalDateTime nhan = request.getNgayNhanPhong();
+        LocalDateTime tra = request.getNgayTraPhong();
+        ttdp.setNgayNhanPhong(nhan);
+        ttdp.setNgayTraPhong(tra);
         ttdp.setSoNguoi(request.getSoNguoi());
+        ttdp.setSoTre(request.getSoTre());
         ttdp.setTrangThai(request.getTrangThai());
         return thongTinDatPhongRepository.save(ttdp);
     }
@@ -78,6 +82,7 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setNgayNhanPhong(request.getNgayNhanPhong());
         ttdp.setNgayTraPhong(request.getNgayTraPhong());
         ttdp.setSoNguoi(request.getSoNguoi());
+        ttdp.setSoTre(request.getSoTre());
         ttdp.setTrangThai(request.getTrangThai());
         ttdp.setGhiChu(request.getGhiChu());
         return thongTinDatPhongRepository.save(ttdp);

@@ -48,14 +48,8 @@ public class XepPhongServiceIMPL implements XepPhongService {
         ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPById(xepPhongRequest.getThongTinDatPhong().getId());
         xp.setPhong(xepPhongRequest.getPhong());
         xp.setThongTinDatPhong(xepPhongRequest.getThongTinDatPhong());
-        LocalDateTime now = LocalDateTime.now();
         LocalDateTime nhan = xepPhongRequest.getNgayNhanPhong();
-        if (nhan.toLocalDate().isEqual(now.toLocalDate()) && now.getHour() >= 14) {
-            nhan = now;
-        } else {
-            nhan = nhan.withHour(14).withMinute(0).withSecond(0).withNano(0);
-        }
-        LocalDateTime tra = xepPhongRequest.getNgayTraPhong().withHour(12).withMinute(0).withSecond(0).withNano(0);
+        LocalDateTime tra = xepPhongRequest.getNgayTraPhong();
         xp.setNgayNhanPhong(nhan);
         xp.setNgayTraPhong(tra);
         xp.setTrangThai(xepPhongRequest.getTrangThai());
@@ -132,10 +126,10 @@ public class XepPhongServiceIMPL implements XepPhongService {
         }
 
         LocalDateTime checkInThreshold = checkInDate.atTime(12, 0);
-        if (currentDateTime.isBefore(checkInThreshold)) {
-            throw new IllegalArgumentException(
-                    "Chỉ có thể check-in sau 12:00 PM của ngày nhận phòng (" + checkInDate + ")");
-        }
+//        if (currentDateTime.isBefore(checkInThreshold)) {
+//            throw new IllegalArgumentException(
+//                    "Chỉ có thể check-in sau 12:00 PM của ngày nhận phòng (" + checkInDate + ")");
+//        }
 
         try {
             XepPhong xp = xepPhongRepository.findById(xepPhongRequest.getId())

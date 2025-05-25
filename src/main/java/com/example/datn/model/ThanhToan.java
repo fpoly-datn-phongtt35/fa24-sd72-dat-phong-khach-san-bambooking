@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "thanh_toan")
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ThanhToan {
     @Id
@@ -35,4 +36,6 @@ public class ThanhToan {
     String maVietQR;
     @Column(name = "trang_thai")
     Boolean trangThai;
+
+
 }

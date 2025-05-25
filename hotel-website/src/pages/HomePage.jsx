@@ -12,14 +12,11 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  IconButton,
   Typography,
 } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import { getLPKDR } from "../services/DatPhong";
 
@@ -41,11 +38,24 @@ const HomePage = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Initialize check-in and check-out dates with specific times
+  const now = dayjs();
+  const isPastCheckInTime = now.hour() >= 14; // Check if current time is past 14:00
+  const initialCheckIn = isPastCheckInTime
+    ? now.add(1, "day").set("hour", 14).set("minute", 0).set("second", 0)
+    : now.set("hour", 14).set("minute", 0).set("second", 0);
+  const initialCheckOut = initialCheckIn
+    .add(1, "day")
+    .set("hour", 12)
+    .set("minute", 0)
+    .set("second", 0);
+
   // State for the main form
-  const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs());
-  const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, "day"));
+  const [ngayNhanPhong, setNgayNhanPhong] = useState(initialCheckIn);
+  const [ngayTraPhong, setNgayTraPhong] = useState(initialCheckOut);
   const [soNguoi, setSoNguoi] = useState(2);
-  const [soPhong, setSoPhong] = useState(1);
+  const [treEm, setTreEm] = useState(0);
+  const [errors, setErrors] = useState({});
 
   // State for advanced filters
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -59,63 +69,71 @@ const HomePage = () => {
   const [loaiPhongList, setLoaiPhongList] = useState([]);
   const [key, setKey] = useState("");
 
+  const validateInputs = () => {
+    const newErrors = {};
+    if (!ngayNhanPhong || !ngayNhanPhong.isValid()) {
+      newErrors.ngayNhanPhong = "Vui lòng chọn ngày nhận phòng hợp lệ";
+    }
+    if (!ngayTraPhong || !ngayTraPhong.isValid()) {
+      newErrors.ngayTraPhong = "Vui lòng chọn ngày trả phòng hợp lệ";
+    }
+    if (ngayNhanPhong && ngayTraPhong && ngayNhanPhong.isAfter(ngayTraPhong)) {
+      newErrors.ngayTraPhong = "Ngày trả phòng phải sau ngày nhận phòng";
+    }
+    if (!soNguoi || soNguoi < 1) {
+      newErrors.soNguoi = "Số người phải lớn hơn hoặc bằng 1";
+    }
+    if (treEm < 0) {
+      newErrors.treEm = "Số trẻ em không được nhỏ hơn 0";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const fetchLoaiPhong = async () => {
-    const n = dayjs(ngayNhanPhong).format("YYYY-MM-DD");
-    const t = dayjs(ngayNhanPhong).format("YYYY-MM-DD");
+    if (!ngayNhanPhong?.isValid() || !ngayTraPhong?.isValid()) {
+      return;
+    }
     try {
-      const response = await getLPKDR(n, t);
-      if (response && response.data) {
+      const response = await getLPKDR(
+        ngayNhanPhong.toISOString(),
+        ngayTraPhong.toISOString()
+      );
+      if (response && response.data && Array.isArray(response.data)) {
         setLoaiPhongList(response.data);
       } else {
+        setLoaiPhongList([]);
         console.error("Không tìm thấy loại phòng nào.");
       }
     } catch (error) {
+      setLoaiPhongList([]);
       console.error("Lỗi khi lấy loại phòng:", error);
     }
   };
 
   useEffect(() => {
     fetchLoaiPhong();
-  }, []);
-
-  const handleGuestChange = (change) => {
-    setSoNguoi((prev) => Math.max(1, prev + change));
-  };
-
-  const handleRoomChange = (change) => {
-    setSoPhong((prev) => Math.max(1, prev + change));
-  };
+  }, [ngayNhanPhong, ngayTraPhong]);
 
   const handleSearch = (e) => {
     e.preventDefault();
 
-    if (
-      !ngayNhanPhong ||
-      !ngayTraPhong ||
-      !ngayNhanPhong.isValid() ||
-      !ngayTraPhong.isValid()
-    ) {
-      alert("Vui lòng chọn ngày nhận và trả phòng hợp lệ.");
-      return;
-    }
-
-    if (ngayTraPhong.diff(ngayNhanPhong, "day") <= 0) {
-      alert("Ngày trả phòng phải sau ngày nhận phòng.");
+    if (!validateInputs()) {
       return;
     }
 
     navigate("/booking", {
       state: {
-        ngayNhanPhong: dayjs(ngayNhanPhong).format("YYYY-MM-DD"),
-        ngayTraPhong: dayjs(ngayTraPhong).format("YYYY-MM-DD"),
+        ngayNhanPhong: ngayNhanPhong.toISOString(),
+        ngayTraPhong: ngayTraPhong.toISOString(),
         soNguoi,
-        soPhong,
-        tongChiPhiMin,
-        tongChiPhiMax,
-        tongSucChuaMin,
-        tongSucChuaMax,
-        tongSoPhongMin,
-        tongSoPhongMax,
+        treEm,
+        tongChiPhiMin: tongChiPhiMin ? Number(tongChiPhiMin) : null,
+        tongChiPhiMax: tongChiPhiMax ? Number(tongChiPhiMax) : null,
+        tongSucChuaMin: tongSucChuaMin ? Number(tongSucChuaMin) : null,
+        tongSucChuaMax: tongSucChuaMax ? Number(tongSucChuaMax) : null,
+        tongSoPhongMin: tongSoPhongMin ? Number(tongSoPhongMin) : null,
+        tongSoPhongMax: tongSoPhongMax ? Number(tongSoPhongMax) : null,
         loaiPhongChons,
         key,
       },
@@ -140,32 +158,45 @@ const HomePage = () => {
             <form onSubmit={handleSearch} className="booking-form">
               <Grid container spacing={2} alignItems="center">
                 <Grid item xs={12} sm={3}>
-                  <DatePicker
+                  <DateTimePicker
                     label="Ngày nhận phòng"
                     value={ngayNhanPhong}
-                    minDate={dayjs()}
+                    minDateTime={dayjs().set("hour", 14).set("minute", 0)}
                     onChange={(newValue) => {
                       if (newValue && dayjs(newValue).isValid()) {
-                        const newCheckInDate = dayjs(newValue);
-                        setNgayNhanPhong(newCheckInDate);
+                        const newCheckInDateTime = dayjs(newValue)
+                          .set("hour", 14)
+                          .set("minute", 0)
+                          .set("second", 0);
+                        setNgayNhanPhong(newCheckInDateTime);
                         if (
-                          newCheckInDate.isSame(ngayTraPhong, "day") ||
-                          newCheckInDate.isAfter(ngayTraPhong)
+                          newCheckInDateTime.isSame(ngayTraPhong, "hour") ||
+                          newCheckInDateTime.isAfter(ngayTraPhong)
                         ) {
-                          setNgayTraPhong(newCheckInDate.add(1, "day"));
+                          setNgayTraPhong(
+                            newCheckInDateTime
+                              .add(1, "day")
+                              .set("hour", 12)
+                              .set("minute", 0)
+                              .set("second", 0)
+                          );
                         }
                       } else {
                         setNgayNhanPhong(null);
                       }
                     }}
+                    ampm={false}
+                    format="DD/MM/YYYY HH:mm"
                     slotProps={{
                       textField: {
                         fullWidth: true,
                         size: "medium",
+                        error: !!errors.ngayNhanPhong,
+                        helperText: errors.ngayNhanPhong,
                         sx: {
                           "& .MuiInputBase-root": {
                             borderRadius: 1,
-                            backgroundColor: "#fff",
+                            backgroundColor: "#f5f5f5",
                           },
                         },
                       },
@@ -173,29 +204,38 @@ const HomePage = () => {
                   />
                 </Grid>
                 <Grid item xs={12} sm={3}>
-                  <DatePicker
+                  <DateTimePicker
                     label="Ngày trả phòng"
                     value={ngayTraPhong}
-                    minDate={
+                    minDateTime={
                       ngayNhanPhong
-                        ? ngayNhanPhong.add(1, "day")
-                        : dayjs().add(1, "day")
+                        ? ngayNhanPhong.add(1, "hour")
+                        : dayjs().add(1, "hour")
                     }
                     onChange={(newValue) => {
                       if (newValue && dayjs(newValue).isValid()) {
-                        setNgayTraPhong(dayjs(newValue));
+                        setNgayTraPhong(
+                          dayjs(newValue)
+                            .set("hour", 12)
+                            .set("minute", 0)
+                            .set("second", 0)
+                        );
                       } else {
                         setNgayTraPhong(null);
                       }
                     }}
+                    ampm={false}
+                    format="DD/MM/YYYY HH:mm"
                     slotProps={{
                       textField: {
                         fullWidth: true,
                         size: "medium",
+                        error: !!errors.ngayTraPhong,
+                        helperText: errors.ngayTraPhong,
                         sx: {
                           "& .MuiInputBase-root": {
                             borderRadius: 1,
-                            backgroundColor: "#fff",
+                            backgroundColor: "#f5f5f5",
                           },
                         },
                       },
@@ -204,21 +244,58 @@ const HomePage = () => {
                 </Grid>
                 <Grid item xs={12} sm={3}>
                   <TextField
-                    label="Số người"
+                    label="Số người lớn"
                     type="number"
                     value={soNguoi}
                     onChange={(e) => {
-                      const value = e.target.value;
-                      setSoNguoi(
-                        value && Number(value) >= 1 ? Number(value) : 1
-                      );
+                      const value = Number(e.target.value);
+                      if (value >= 1) {
+                        setSoNguoi(value);
+                        setErrors({ ...errors, soNguoi: "" });
+                      } else {
+                        setErrors({
+                          ...errors,
+                          soNguoi: "Số người phải lớn hơn hoặc bằng 1",
+                        });
+                      }
                     }}
                     fullWidth
                     inputProps={{ min: 1 }}
+                    error={!!errors.soNguoi}
+                    helperText={errors.soNguoi}
                     sx={{
                       "& .MuiInputBase-root": {
                         borderRadius: 1,
-                        backgroundColor: "#fff",
+                        backgroundColor: "#f5f5f5",
+                      },
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <TextField
+                    label="Số trẻ em"
+                    type="number"
+                    value={treEm}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      if (value >= 0) {
+                        setTreEm(value);
+                        setErrors({ ...errors, treEm: "" });
+                      } else {
+                        setErrors({
+                          ...errors,
+                          treEm: "Số trẻ em không được nhỏ hơn 0",
+                        });
+                      }
+                    }}
+                    fullWidth
+                    inputProps={{ min: 0 }}
+                    error={!!errors.treEm}
+                    helperText={errors.treEm}
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        borderRadius: 1,
+                        backgroundColor: "#f5f5f5",
                       },
                     }}
                   />
@@ -243,7 +320,6 @@ const HomePage = () => {
               <Box mt={2}>
                 <Button
                   variant="text"
-                  startIcon={<AddIcon />}
                   onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
                   sx={{ color: "#1976d2" }}
                 >
@@ -266,8 +342,12 @@ const HomePage = () => {
                           label="Tổng chi phí tối thiểu"
                           type="number"
                           value={tongChiPhiMin}
-                          onChange={(e) => setTongChiPhiMin(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setTongChiPhiMin(value ? Number(value) : "");
+                          }}
                           fullWidth
+                          inputProps={{ min: 0 }}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -288,8 +368,12 @@ const HomePage = () => {
                           label="Tổng chi phí tối đa"
                           type="number"
                           value={tongChiPhiMax}
-                          onChange={(e) => setTongChiPhiMax(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setTongChiPhiMax(value ? Number(value) : "");
+                          }}
                           fullWidth
+                          inputProps={{ min: 0 }}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -310,8 +394,12 @@ const HomePage = () => {
                           label="Tổng sức chứa tối thiểu"
                           type="number"
                           value={tongSucChuaMin}
-                          onChange={(e) => setTongSucChuaMin(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setTongSucChuaMin(value ? Number(value) : "");
+                          }}
                           fullWidth
+                          inputProps={{ min: 0 }}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -325,8 +413,12 @@ const HomePage = () => {
                           label="Tổng sức chứa tối đa"
                           type="number"
                           value={tongSucChuaMax}
-                          onChange={(e) => setTongSucChuaMax(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setTongSucChuaMax(value ? Number(value) : "");
+                          }}
                           fullWidth
+                          inputProps={{ min: 0 }}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -340,8 +432,12 @@ const HomePage = () => {
                           label="Tổng số phòng tối thiểu"
                           type="number"
                           value={tongSoPhongMin}
-                          onChange={(e) => setTongSoPhongMin(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setTongSoPhongMin(value ? Number(value) : "");
+                          }}
                           fullWidth
+                          inputProps={{ min: 0 }}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -355,8 +451,12 @@ const HomePage = () => {
                           label="Tổng số phòng tối đa"
                           type="number"
                           value={tongSoPhongMax}
-                          onChange={(e) => setTongSoPhongMax(e.target.value)}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setTongSoPhongMax(value ? Number(value) : "");
+                          }}
                           fullWidth
+                          inputProps={{ min: 0 }}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -383,7 +483,7 @@ const HomePage = () => {
                               },
                             }}
                           >
-                            <MenuItem value="">Lựa chọn</MenuItem>
+                            <MenuItem value="">Chi phí thấp nhất</MenuItem>
                             <MenuItem value="leastRooms">
                               Tổ hợp ít phòng nhất
                             </MenuItem>
@@ -444,16 +544,13 @@ const HomePage = () => {
                             <TextField
                               label="Số lượng"
                               type="number"
-                              value={lpc.soLuongChon || 1}
+                              value={lpc.soLuongChon || ""}
                               onChange={(e) => {
                                 const newList = [...loaiPhongChons];
-                                const value = e.target.value;
+                                const value = Number(e.target.value);
                                 newList[index] = {
                                   ...newList[index],
-                                  soLuongChon:
-                                    value && Number(value) >= 1
-                                      ? Number(value)
-                                      : 1,
+                                  soLuongChon: value >= 1 ? value : "",
                                 };
                                 setLoaiPhongChons(newList);
                               }}

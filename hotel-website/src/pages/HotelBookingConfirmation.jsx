@@ -48,7 +48,11 @@ const HotelBookingConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { combination, datPhong, khachHang, thongTinDatPhong } =
-    location.state || {};
+    location.state ||
+    JSON.parse(
+      localStorage.getItem(`booking_data_${datPhong?.id || "temp"}`)
+    ) ||
+    {};
 
   const [formData, setFormData] = useState({
     ho: khachHang?.ho || "",
@@ -74,8 +78,9 @@ const HotelBookingConfirmation = () => {
   const [loaiPhongs, setLoaiPhongs] = useState([]);
   const [searchErrors, setSearchErrors] = useState({});
 
-  const TIMEOUT_DURATION = 300000;
+  const TIMEOUT_DURATION = 300000; // 5 phút
   const STORAGE_KEY = `booking_timeout_${datPhong?.id || "temp"}`;
+  const DATA_STORAGE_KEY = `booking_data_${datPhong?.id || "temp"}`;
 
   const groupAndNumberRooms = (rooms) => {
     const grouped = {};
@@ -120,6 +125,7 @@ const HotelBookingConfirmation = () => {
         await huyTTDP(ttdp.maThongTinDatPhong);
       }
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(DATA_STORAGE_KEY);
       Swal.fire({
         icon: "info",
         title: "Thông báo",
@@ -213,6 +219,15 @@ const HotelBookingConfirmation = () => {
     };
   };
 
+  const saveBookingData = () => {
+    if (combination && datPhong && khachHang && thongTinDatPhong) {
+      localStorage.setItem(
+        DATA_STORAGE_KEY,
+        JSON.stringify({ combination, datPhong, khachHang, thongTinDatPhong })
+      );
+    }
+  };
+
   useEffect(() => {
     if (!combination || !datPhong || !khachHang || !thongTinDatPhong) {
       Swal.fire({
@@ -223,10 +238,11 @@ const HotelBookingConfirmation = () => {
       }).then(() => {
         navigate("/information");
       });
-    } else if (datPhong && thongTinDatPhong) {
+    } else {
+      saveBookingData();
       return initializeTimeout();
     }
-  }, [datPhong, thongTinDatPhong]);
+  }, [combination, datPhong, khachHang, thongTinDatPhong]);
 
   useEffect(() => {
     if (datPhong && datPhong.id) {
@@ -258,6 +274,18 @@ const HotelBookingConfirmation = () => {
       fetchLoaiPhongs();
     }
   }, [openSearchDialog, searchForm.ngayNhanPhong, searchForm.ngayTraPhong]);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveBookingData();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [combination, datPhong, khachHang, thongTinDatPhong]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -454,8 +482,7 @@ const HotelBookingConfirmation = () => {
         ho: formData.ho,
         ten: formData.ten,
         sdt: formData.soDienThoai,
-        email: formData.email,
-        trangThai: true,
+        email: saveBookingData(),
       });
       if (!khachHangResponse || !khachHangResponse.data) throw new Error();
 
@@ -496,6 +523,7 @@ const HotelBookingConfirmation = () => {
 
       clearTimeout(timeoutRef.current);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(DATA_STORAGE_KEY);
       Swal.fire({
         icon: "success",
         title: "Thành công",
@@ -591,7 +619,8 @@ const HotelBookingConfirmation = () => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant="body1" className="info-text">
-                <strong>Ngày đặt:</strong> {datPhong.ngayDat}
+                <strong>Ngày đặt:</strong>{" "}
+                {dayjs(datPhong.ngayDat).format("DD/MM/YYYY HH:mm")}
               </Typography>
             </Grid>
             <Grid item xs={12}>
@@ -662,7 +691,7 @@ const HotelBookingConfirmation = () => {
                       >
                         <RemoveIcon />
                       </IconButton>
-                      </TableCell>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

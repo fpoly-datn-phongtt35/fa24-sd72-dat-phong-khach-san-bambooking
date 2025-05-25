@@ -18,10 +18,6 @@ import java.util.List;
 
 @Service
 public interface HotelWebsiteService {
-    KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request);
-    DatPhongResponse addDatPhong(DatPhongRequest datPhongRequest);
-    ThongTinDatPhong add(TTDPRequest request);
-
     List<DatPhong> getDPbyTenDangNhap(String tenDangNhap, String keyword, LocalDate ngayNhanPhong, LocalDate ngayTraPhong );
     List<HoaDon> getHDByidDatPhong(Integer idDatPhong);
 

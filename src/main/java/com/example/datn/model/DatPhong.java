@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,10 +26,13 @@ public class DatPhong {
     private String maDatPhong;
     @Column(name = "so_nguoi")
     private Integer soNguoi;
+
+    @Column(name = "so_tre")
+    private Integer soTre;
     @Column(name = "so_phong")
     private Integer soPhong;
     @Column(name = "ngay_dat")
-    private LocalDate ngayDat;
+    private LocalDateTime ngayDat;
     @Column(name = "tong_tien")
     private Double tongTien;
     @Column(name = "ghi_chu")

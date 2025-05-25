@@ -17,10 +17,10 @@ import java.util.List;
 @Getter
 @Setter
 public class ToHopRequest {
-    private LocalDate ngayNhanPhong;
-    private LocalDate ngayTraPhong;
-
+    private LocalDateTime ngayNhanPhong;
+    private LocalDateTime ngayTraPhong;
     private Integer soNguoi;
+    private Integer soTre;
     private String key;
     private Double tongChiPhiMin;
     private Double tongChiPhiMax;

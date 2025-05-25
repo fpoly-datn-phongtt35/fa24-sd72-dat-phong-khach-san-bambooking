@@ -161,6 +161,7 @@ public class DatPhongController {
                 request.getNgayNhanPhong(),
                 request.getNgayTraPhong(),
                 request.getSoNguoi(),
+                request.getSoTre(),
                 request.getKey(),
                 request.getTongChiPhiMin(),
                 request.getTongChiPhiMax(),

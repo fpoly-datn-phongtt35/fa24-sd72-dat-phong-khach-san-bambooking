@@ -15,7 +15,6 @@ const apiGetLoaiPhongKhaDungResonse =
 const apiGetLPKDRL = "http://localhost:8080/loai-phong/lpkdr-list";
 const apiGetLoaiPhongById = "http://localhost:8080/loai-phong";
 
-
 export const ThemDichVuDiKem = (dvDiKem) => {
   return authorizedAxiosInstance.post(apiAdd, dvDiKem);
 };
@@ -79,25 +78,41 @@ export const filterLoaiPhong = (
   tenLoaiPhong,
   dienTichMin,
   dienTichMax,
-  soKhach,
+  soKhachTieuChuan,
+  soKhachToiDa,
+  treEmTieuChuan,
+  treEmToiDa,
   donGiaMin,
   donGiaMax,
-  donGiaPhuThuMin,
-  donGiaPhuThuMax,
+  phuThuNguoiLonMin,
+  phuThuNguoiLonMax,
+  phuThuTreEmMin,
+  phuThuTreEmMax,
+  trangThai,
   pageable
 ) => {
+  // Kiểm tra nếu pageable là null hoặc undefined, cung cấp giá trị mặc định
+  const page = pageable?.page ?? 0;
+  const size = pageable?.size ?? 10;
+
   // Tạo đối tượng params với các giá trị tìm kiếm và phân trang
   const params = {
     tenLoaiPhong,
     dienTichMin,
     dienTichMax,
-    soKhach,
+    soKhachTieuChuan,
+    soKhachToiDa,
+    treEmTieuChuan,
+    treEmToiDa,
     donGiaMin,
     donGiaMax,
-    donGiaPhuThuMin,
-    donGiaPhuThuMax,
-    page: pageable.page,
-    size: pageable.size,
+    phuThuNguoiLonMin,
+    phuThuNguoiLonMax,
+    phuThuTreEmMin,
+    phuThuTreEmMax,
+    trangThai,
+    page,
+    size,
   };
 
   // Loại bỏ các thuộc tính có giá trị null, undefined hoặc rỗng
@@ -107,12 +122,15 @@ export const filterLoaiPhong = (
       params[key] === undefined ||
       params[key] === null
     ) {
-      delete params[key]; // Dùng 'delete' để xóa các thuộc tính không cần thiết
+      delete params[key]; // Xóa các thuộc tính không cần thiết
     }
   });
 
   // Gọi API filter với các params hợp lệ
-  return authorizedAxiosInstance.get(apiFilter, { params });
+  return authorizedAxiosInstance.get(apiFilter, { params }).catch((error) => {
+    console.error("Lỗi khi gọi API filterLoaiPhong:", error);
+    throw error; // Ném lại lỗi để xử lý ở nơi gọi
+  });
 };
 
 export const kiemTraDon = (ngayNhanPhong, ngayTraPhong, soNguoi) => {
@@ -141,7 +159,7 @@ export const getLoaiPhongKhaDungResponse = (ngayNhanPhong, ngayTraPhong) => {
       ngayNhanPhong,
       ngayTraPhong,
     },
-  }); 
+  });
 };
 
 export const getLPKDRL = (
@@ -163,5 +181,5 @@ export const getLPKDRL = (
 };
 
 export const getLoaiPhongById = (id) => {
-    return authorizedAxiosInstance.get(`${apiGetLoaiPhongById}/${id}`);
-  };
+  return authorizedAxiosInstance.get(`${apiGetLoaiPhongById}/${id}`);
+};
