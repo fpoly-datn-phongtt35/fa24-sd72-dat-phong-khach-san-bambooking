@@ -138,28 +138,40 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     }
 
     public List<LoaiPhongKhaDungResponse> getLoaiPhongKhaDungResponseList(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
-                                                                          Integer soNguoi, Integer soPhong, Integer idLoaiPhong) {
+                                                                          Integer soNguoi,Integer treEm, Integer soPhong, Integer idLoaiPhong) {
         List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Chưa xếp");
         List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
 //        List<String> tinhTrangPhong = Arrays.asList("Trống","Cần kiểm tra");
 
-        return loaiPhongRepository.findLPKDRList(ngayNhanPhong, ngayTraPhong,trangThaiXP,trangThaiTTDP,soNguoi,soPhong,idLoaiPhong);
+        return loaiPhongRepository.findLPKDRList(ngayNhanPhong, ngayTraPhong,trangThaiXP,trangThaiTTDP,soNguoi,treEm,soPhong,idLoaiPhong);
     }
 
-    public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach, LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
+    public List<ToHopPhongPhuHop> DanhSachToHop(
+            List<LoaiPhongKhaDungResponse> loaiPhong,
+            int soKhach,
+            int treEm,
+            LocalDateTime ngayNhanPhong,
+            LocalDateTime ngayTraPhong) {
         List<ToHopPhongPhuHop> results = new ArrayList<>();
         int n = loaiPhong.size();
-        // Mảng counts lưu số lượng phòng được chọn cho từng loại (theo thứ tự trong list loaiPhong)
         int[] counts = new int[n];
-        generateCombinationsRec(0, counts, loaiPhong, soKhach, results, ngayNhanPhong, ngayTraPhong);
+        generateCombinationsRec(0, counts, loaiPhong, soKhach, treEm, results, ngayNhanPhong, ngayTraPhong);
         return results;
     }
 
-    private void generateCombinationsRec(int index, int[] counts, List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach,
-                                         List<ToHopPhongPhuHop> results, LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
+    private void generateCombinationsRec(
+            int index,
+            int[] counts,
+            List<LoaiPhongKhaDungResponse> loaiPhong,
+            int soKhach,
+            int treEm,
+            List<ToHopPhongPhuHop> results,
+            LocalDateTime ngayNhanPhong,
+            LocalDateTime ngayTraPhong) {
         // Khi đã duyệt hết các loại phòng, tính toán tổ hợp hiện tại
         if (index == loaiPhong.size()) {
             int totalCapacity = 0;
+            int totalChildCapacity = 0;
             double totalCost = 0;
             int totalRooms = 0;
             List<LoaiPhongChon> lp = new ArrayList<>();
@@ -172,7 +184,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
                 LoaiPhongKhaDungResponse room = loaiPhong.get(i);
                 int count = counts[i];
                 totalCapacity += count * room.getSoKhachToiDa();
-                // Tính tổng chi phí dựa trên số phòng, đơn giá và số ngày lưu trú
+                totalChildCapacity += count * room.getTreEmToiDa(); // Tính sức chứa trẻ em
                 totalCost += count * room.getDonGia() * soNgayLuuTru;
                 totalRooms += count;
                 // Chỉ thêm vào danh sách nếu số lượng chọn lớn hơn 0
@@ -180,7 +192,8 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
                     lp.add(new LoaiPhongChon(room, count));
                 }
             }
-            if (totalCapacity >= soKhach) {
+            // Kiểm tra cả sức chứa người lớn và trẻ em
+            if (totalCapacity >= soKhach && totalChildCapacity >= treEm) {
                 ToHopPhongPhuHop comb = new ToHopPhongPhuHop(lp, totalCapacity, totalCost, totalRooms);
                 results.add(comb);
             }
@@ -191,7 +204,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         LoaiPhongKhaDungResponse room = loaiPhong.get(index);
         for (int x = 0; x <= room.getSoPhongKhaDung(); x++) {
             counts[index] = x;
-            generateCombinationsRec(index + 1, counts, loaiPhong, soKhach, results, ngayNhanPhong, ngayTraPhong);
+            generateCombinationsRec(index + 1, counts, loaiPhong, soKhach, treEm, results, ngayNhanPhong, ngayTraPhong);
         }
     }
 
@@ -223,7 +236,6 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
                                                 .sum() >= (lpc.getSoLuongChon() == null ? 0 : lpc.getSoLuongChon()))))
                 .collect(Collectors.toList());
 
-        // Sắp xếp theo key
         if (key == null || key.isBlank()) {
             filteredList.sort(Comparator.comparing(ToHopPhongPhuHop::getTongChiPhi));
         } else if (key.equalsIgnoreCase("leastRooms")) {
@@ -239,15 +251,39 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return new PageImpl<>(pageContent, pageable, list.size());
     }
 
-    public Page<ToHopPhongPhuHop> getToHopPhongPhuHop(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Integer soNguoi,
-                                                      String key, Double tongChiPhiMin,
-                                                      Double tongChiPhiMax, Integer tongSoPhongMin, Integer tongSoPhongMax,
-                                                      Integer tongSucChuaMin, Integer tongSucChuaMax, List<LoaiPhongChon> loaiPhongChons, Pageable pageable) {
-        List<LoaiPhongKhaDungResponse> loaiPhongKhaDungResponses = getAllLPKDR(ngayNhanPhong, ngayTraPhong);
+    public Page<ToHopPhongPhuHop> getToHopPhongPhuHop(
+            LocalDateTime ngayNhanPhong,
+            LocalDateTime ngayTraPhong,
+            Integer soNguoi,
+            Integer treEm,
+            String key,
+            Double tongChiPhiMin,
+            Double tongChiPhiMax,
+            Integer tongSoPhongMin,
+            Integer tongSoPhongMax,
+            Integer tongSucChuaMin,
+            Integer tongSucChuaMax,
+            List<LoaiPhongChon> loaiPhongChons,
+            Pageable pageable) {
+        List<LoaiPhongKhaDungResponse> loaiPhongKhaDungResponses = getLoaiPhongKhaDungResponseList(
+                ngayNhanPhong,
+                ngayTraPhong,
+                soNguoi,
+                treEm,
+                1,
+                null
+        );
         List<ToHopPhongPhuHop> toHopPhongPhuHops = toHopPhuHop(
-                DanhSachToHop(loaiPhongKhaDungResponses, soNguoi, ngayNhanPhong, ngayTraPhong),
-                key, tongChiPhiMin, tongChiPhiMax, tongSoPhongMin, tongSoPhongMax,
-                tongSucChuaMin, tongSucChuaMax, loaiPhongChons);
+                DanhSachToHop(loaiPhongKhaDungResponses, soNguoi, treEm, ngayNhanPhong, ngayTraPhong),
+                key,
+                tongChiPhiMin,
+                tongChiPhiMax,
+                tongSoPhongMin,
+                tongSoPhongMax,
+                tongSucChuaMin,
+                tongSucChuaMax,
+                loaiPhongChons
+        );
         return paginateToHopWithPageable(toHopPhongPhuHops, pageable);
     }
 

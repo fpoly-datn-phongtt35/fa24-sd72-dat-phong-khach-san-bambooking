@@ -33,6 +33,8 @@ public class ThongTinDatPhong {
     private LocalDateTime ngayTraPhong;
     @Column(name = "so_nguoi")
     private Integer soNguoi;
+    @Column(name = "so_tre")
+    private Integer soTre;
     @Column(name = "gia_dat")
     private Double giaDat;
     @Column(name = "ghi_chu")

@@ -19,6 +19,7 @@ public class TTDPResponse {
     String maThongTinDatPhong;
     String tenKhachHang;
     Integer soNguoi;
+    Integer soTre;
     LoaiPhong loaiPhong;
     LocalDateTime ngayNhanPhong;
     LocalDateTime ngayTraPhong;

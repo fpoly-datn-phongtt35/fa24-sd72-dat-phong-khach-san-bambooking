@@ -227,6 +227,7 @@ public interface LoaiPhongRepository extends JpaRepository<LoaiPhong, Integer>{
             @Param("trangThaiXP") List<String> trangThaiXP,
             @Param("trangThaiTTDP") List<String> trangThaiTTDP,
             @Param("soNguoi") Integer soNguoi,
+            @Param("treEm") Integer treEm,
             @Param("soPhong") Integer soPhong,
             @Param("idLoaiPhong") Integer idLoaiPhong
     );

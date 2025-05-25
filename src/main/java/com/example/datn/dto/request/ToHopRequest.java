@@ -19,8 +19,8 @@ import java.util.List;
 public class ToHopRequest {
     private LocalDateTime ngayNhanPhong;
     private LocalDateTime ngayTraPhong;
-
     private Integer soNguoi;
+    private Integer soTre;
     private String key;
     private Double tongChiPhiMin;
     private Double tongChiPhiMax;

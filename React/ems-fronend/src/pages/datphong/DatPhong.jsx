@@ -19,16 +19,18 @@ import {
   Select,
   MenuItem,
   Divider,
-  Stack,
 } from "@mui/material";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker"; // Changed to DateTimePicker
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import HotelIcon from "@mui/icons-material/Hotel";
 import PersonIcon from "@mui/icons-material/Person";
+import ChildIcon from "@mui/icons-material/ChildCare";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
 import {
@@ -40,17 +42,34 @@ import { addThongTinDatPhong } from "../../services/TTDP";
 import { getLoaiPhongKhaDungResponse } from "../../services/LoaiPhongService";
 import Swal from "sweetalert2";
 
+// Kích hoạt plugin múi giờ
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const DatPhong = () => {
-  const [ngayNhanPhong, setNgayNhanPhong] = useState(dayjs());
-  const [ngayTraPhong, setNgayTraPhong] = useState(dayjs().add(1, "day"));
+  // Khởi tạo thời gian hợp lý
+  const currentHour = dayjs().hour();
+  const initialCheckIn =
+    currentHour >= 14
+      ? dayjs().add(1, "day").set("hour", 14).set("minute", 0).set("second", 0)
+      : dayjs().set("hour", 14).set("minute", 0).set("second", 0);
+  const initialCheckOut = initialCheckIn
+    .add(1, "day")
+    .set("hour", 12)
+    .set("minute", 0)
+    .set("second", 0);
+
+  const [ngayNhanPhong, setNgayNhanPhong] = useState(initialCheckIn);
+  const [ngayTraPhong, setNgayTraPhong] = useState(initialCheckOut);
   const [soNguoi, setSoNguoi] = useState(1);
+  const [soTre, setSoTre] = useState(0);
   const [key, setKey] = useState("");
-  const [tongChiPhiMin, setTongChiPhiMin] = useState("");
-  const [tongChiPhiMax, setTongChiPhiMax] = useState("");
-  const [tongSucChuaMin, setTongSucChuaMin] = useState("");
-  const [tongSucChuaMax, setTongSucChuaMax] = useState("");
-  const [tongSoPhongMin, setTongSoPhongMin] = useState("");
-  const [tongSoPhongMax, setTongSoPhongMax] = useState("");
+  const [tongChiPhiMin, setTongChiPhiMin] = useState(null);
+  const [tongChiPhiMax, setTongChiPhiMax] = useState(null);
+  const [tongSucChuaMin, setTongSucChuaMin] = useState(null);
+  const [tongSucChuaMax, setTongSucChuaMax] = useState(null);
+  const [tongSoPhongMin, setTongSoPhongMin] = useState(null);
+  const [tongSoPhongMax, setTongSoPhongMax] = useState(null);
   const [loaiPhongChons, setLoaiPhongChons] = useState([]);
   const [loaiPhongList, setLoaiPhongList] = useState([]);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -58,10 +77,10 @@ const DatPhong = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize, setPageSize] = useState(5);
+  const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
 
-  // Xử lý thông báo SweetAlert2
   const handleSnackbar = (message, type = "error") => {
     Swal.fire({
       icon: type,
@@ -72,7 +91,113 @@ const DatPhong = () => {
     });
   };
 
-  // Lấy danh sách loại phòng khả dụng
+  // Hàm định dạng thời gian cho LocalDateTime (không có múi giờ)
+  const formatLocalDateTime = (date) => {
+    return date.format("YYYY-MM-DDTHH:mm:ss"); // Định dạng không có offset, ví dụ: 2025-05-25T14:00:00
+  };
+
+  const validateInputs = () => {
+    const newErrors = {};
+
+    // Validate ngày nhận phòng
+    if (!ngayNhanPhong || !ngayNhanPhong.isValid()) {
+      newErrors.ngayNhanPhong = "Vui lòng chọn ngày nhận phòng hợp lệ";
+    } else if (ngayNhanPhong.isBefore(dayjs(), "minute")) {
+      newErrors.ngayNhanPhong = "Ngày nhận phòng không được nhỏ hơn hiện tại";
+    }
+
+    // Validate ngày trả phòng
+    if (!ngayTraPhong || !ngayTraPhong.isValid()) {
+      newErrors.ngayTraPhong = "Vui lòng chọn ngày trả phòng hợp lệ";
+    } else if (
+      ngayNhanPhong &&
+      ngayTraPhong &&
+      !ngayTraPhong.isAfter(ngayNhanPhong, "minute")
+    ) {
+      newErrors.ngayTraPhong = "Giờ trả phòng phải sau giờ nhận phòng";
+    }
+
+    // Validate số người lớn
+    if (!soNguoi || soNguoi < 1) {
+      newErrors.soNguoi = "Số người lớn phải lớn hơn hoặc bằng 1";
+    }
+
+    // Validate số trẻ em
+    if (soTre < 0) {
+      newErrors.soTre = "Số trẻ em không được nhỏ hơn 0";
+    }
+
+    // Validate tổng chi phí
+    if (tongChiPhiMin !== null && tongChiPhiMin < 0) {
+      newErrors.tongChiPhiMin = "Tổng chi phí tối thiểu không được nhỏ hơn 0";
+    }
+    if (tongChiPhiMax !== null && tongChiPhiMax < 0) {
+      newErrors.tongChiPhiMax = "Tổng chi phí tối đa không được nhỏ hơn 0";
+    }
+    if (
+      tongChiPhiMin !== null &&
+      tongChiPhiMax !== null &&
+      tongChiPhiMin > tongChiPhiMax
+    ) {
+      newErrors.tongChiPhiMax =
+        "Tổng chi phí tối đa phải lớn hơn hoặc bằng tối thiểu";
+    }
+
+    // Validate tổng sức chứa
+    if (tongSucChuaMin !== null && tongSucChuaMin < 0) {
+      newErrors.tongSucChuaMin = "Tổng sức chứa tối thiểu không được nhỏ hơn 0";
+    }
+    if (tongSucChuaMax !== null && tongSucChuaMax < 0) {
+      newErrors.tongSucChuaMax = "Tổng sức chứa tối đa không được nhỏ hơn 0";
+    }
+    if (
+      tongSucChuaMin !== null &&
+      tongSucChuaMax !== null &&
+      tongSucChuaMin > tongSucChuaMax
+    ) {
+      newErrors.tongSucChuaMax =
+        "Tổng sức chứa tối đa phải lớn hơn hoặc bằng tối thiểu";
+    }
+
+    // Validate tổng số phòng
+    if (tongSoPhongMin !== null && tongSoPhongMin < 0) {
+      newErrors.tongSoPhongMin = "Tổng số phòng tối thiểu không được nhỏ hơn 0";
+    }
+    if (tongSoPhongMax !== null && tongSoPhongMax < 0) {
+      newErrors.tongSoPhongMax = "Tổng số phòng tối đa không được nhỏ hơn 0";
+    }
+    if (
+      tongSoPhongMin !== null &&
+      tongSoPhongMax !== null &&
+      tongSoPhongMin > tongSoPhongMax
+    ) {
+      newErrors.tongSoPhongMax =
+        "Tổng số phòng tối đa phải lớn hơn hoặc bằng tối thiểu";
+    }
+
+    // Validate loại phòng được chọn
+    loaiPhongChons.forEach((lpc, index) => {
+      if (!lpc.loaiPhong) {
+        newErrors[`loaiPhong_${index}`] = "Vui lòng chọn loại phòng";
+      }
+      if (!lpc.soLuongChon || lpc.soLuongChon < 0) {
+        newErrors[`soLuong_${index}`] =
+          "Số lượng phòng phải lớn hơn hoặc bằng 0";
+      }
+    });
+
+    // Kiểm tra trùng lặp loại phòng
+    const selectedLoaiPhongs = loaiPhongChons
+      .filter((lpc) => lpc.loaiPhong)
+      .map((lpc) => lpc.loaiPhong.id);
+    if (new Set(selectedLoaiPhongs).size !== selectedLoaiPhongs.length) {
+      newErrors.loaiPhongChons = "Không được chọn trùng loại phòng";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const fetchLoaiPhong = async () => {
     try {
       if (
@@ -81,66 +206,75 @@ const DatPhong = () => {
         ngayNhanPhong.isValid() &&
         ngayTraPhong.isValid()
       ) {
+        console.log(
+          "Fetch loại phòng - Ngày nhận:",
+          formatLocalDateTime(ngayNhanPhong),
+          "Ngày trả:",
+          formatLocalDateTime(ngayTraPhong)
+        );
         const response = await getLoaiPhongKhaDungResponse(
-          ngayNhanPhong.toISOString(),
-          ngayTraPhong.toISOString()
+          formatLocalDateTime(ngayNhanPhong),
+          formatLocalDateTime(ngayTraPhong)
         );
         setLoaiPhongList(response.data || []);
       }
     } catch (error) {
       console.error("Lỗi khi lấy loại phòng:", error);
-      handleSnackbar("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
+      handleSnackbar(
+        "Đã xảy ra lỗi khi tải dữ liệu loại phòng, vui lòng thử lại sau."
+      );
     }
   };
 
-  // Xử lý tìm kiếm tổ hợp phòng
   const handleSearch = async (page = currentPage) => {
+    if (!validateInputs()) {
+      return;
+    }
     try {
-      if (
-        ngayNhanPhong &&
-        ngayTraPhong &&
-        ngayNhanPhong.isValid() &&
-        ngayTraPhong.isValid()
-      ) {
-        const response = await toHopLoaiPhong(
-          ngayNhanPhong.toISOString(), // Include time
-          ngayTraPhong.toISOString(), // Include time
-          soNguoi,
-          key,
-          tongChiPhiMin,
-          tongChiPhiMax,
-          tongSucChuaMin,
-          tongSucChuaMax,
-          tongSoPhongMin,
-          tongSoPhongMax,
-          loaiPhongChons,
-          { page, size: pageSize }
-        );
+      console.log(
+        "Search - Ngày nhận:",
+        formatLocalDateTime(ngayNhanPhong),
+        "Ngày trả:",
+        formatLocalDateTime(ngayTraPhong)
+      );
+      const response = await toHopLoaiPhong(
+        formatLocalDateTime(ngayNhanPhong),
+        formatLocalDateTime(ngayTraPhong),
+        soNguoi,
+        soTre,
+        key || null,
+        tongChiPhiMin ? Number(tongChiPhiMin) : null,
+        tongChiPhiMax ? Number(tongChiPhiMax) : null,
+        tongSucChuaMin ? Number(tongSucChuaMin) : null,
+        tongSucChuaMax ? Number(tongSucChuaMax) : null,
+        tongSoPhongMin ? Number(tongSoPhongMin) : null,
+        tongSoPhongMax ? Number(tongSoPhongMax) : null,
+        loaiPhongChons,
+        { page, size: pageSize }
+      );
 
-        setLoaiPhongKhaDung(response.content || []);
-        setTotalPages(response.totalPages || 1);
-        setCurrentPage(response.number || 0);
-      }
+      setLoaiPhongKhaDung(response.content || []);
+      setTotalPages(response.totalPages || 1);
+      setCurrentPage(response.number || 0);
     } catch (error) {
       console.error("Lỗi khi lấy tổ hợp phòng:", error);
-      handleSnackbar("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
+      handleSnackbar(
+        "Đã xảy ra lỗi khi tải tổ hợp phòng, vui lòng thử lại sau."
+      );
     }
   };
 
-  // Gọi fetchLoaiPhong và handleSearch khi thay đổi ngày hoặc pageSize
   useEffect(() => {
     fetchLoaiPhong();
     handleSearch(0);
-  }, [ngayNhanPhong, ngayTraPhong, pageSize]);
+  }, [ngayNhanPhong, ngayTraPhong, soNguoi, soTre, pageSize]);
 
-  // Xử lý nút tìm kiếm
   const handleSearchClick = () => {
     handleSearch(0);
   };
 
-  // Xử lý thay đổi trang
   const handlePageChange = (e, page) => {
-    const newPage = page - pursued;
+    const newPage = page - 1;
     setCurrentPage(newPage);
     handleSearch(newPage);
   };
@@ -156,7 +290,6 @@ const DatPhong = () => {
         0
       );
 
-      // Tạo khách hàng
       const khachHangRequest = {
         ho: "Khách",
         ten: "Hàng",
@@ -169,14 +302,19 @@ const DatPhong = () => {
         throw new Error("Không thể tạo khách hàng.");
       }
 
-      // Tạo đặt phòng
+      const soNgayLuuTru = Math.max(
+        1,
+        dayjs(ngayTraPhong).diff(ngayNhanPhong, "day")
+      );
+
       const datPhongRequest = {
         khachHang: khachHangResponse.data,
         maDatPhong: "DP" + new Date().getTime(),
         soNguoi: soNguoi,
+        soTre: soTre,
         soPhong: soPhong,
-        ngayDat: dayjs().toISOString(),
-        tongTien: combination.tongChiPhi,
+        ngayDat: formatLocalDateTime(dayjs()), // Sửa ngày đặt để dùng formatLocalDateTime
+        tongTien: combination.tongChiPhi * soNgayLuuTru,
         ghiChu: "Đặt phòng từ tổ hợp được chọn",
         trangThai: "Đang đặt phòng",
       };
@@ -185,7 +323,6 @@ const DatPhong = () => {
         throw new Error("Không thể tạo đặt phòng.");
       }
 
-      // Tạo thông tin đặt phòng cho từng phòng
       for (const phong of combination.phongs) {
         if (phong.soLuongChon > 0) {
           for (let i = 0; i < phong.soLuongChon; i++) {
@@ -193,12 +330,19 @@ const DatPhong = () => {
               datPhong: datPhongResponse.data,
               idLoaiPhong: phong.loaiPhong.id,
               maThongTinDatPhong: "TTDP" + new Date().getTime() + i,
-              ngayNhanPhong: ngayNhanPhong.toISOString(),
-              ngayTraPhong: ngayTraPhong.toISOString(),
+              ngayNhanPhong: formatLocalDateTime(ngayNhanPhong),
+              ngayTraPhong: formatLocalDateTime(ngayTraPhong),
               soNguoi: phong.loaiPhong.soKhachToiDa,
-              giaDat: phong.loaiPhong.donGia,
+              soTre: Math.min(soTre, phong.loaiPhong.treEmToiDa),
+              giaDat: phong.loaiPhong.donGia * soNgayLuuTru,
               trangThai: "Đang đặt phòng",
             };
+            console.log(
+              "ThongTinDatPhongRequest - Ngày nhận:",
+              thongTinDatPhongRequest.ngayNhanPhong,
+              "Ngày trả:",
+              thongTinDatPhongRequest.ngayTraPhong
+            );
             const response = await addThongTinDatPhong(thongTinDatPhongRequest);
             if (!response || !response.data) {
               throw new Error(
@@ -210,14 +354,13 @@ const DatPhong = () => {
         }
       }
 
-      // Kiểm tra số lượng ThongTinDatPhong có khớp với soPhong
       if (thongTinDatPhongResponseList.length !== soPhong) {
         throw new Error(
           "Số lượng thông tin đặt phòng không khớp với số phòng đã chọn."
         );
       }
 
-      handleSnackbar("Thành công!", "success");
+      handleSnackbar("Đặt phòng thành công!", "success");
       navigate("/tao-dat-phong", {
         state: {
           combination: combination,
@@ -235,7 +378,19 @@ const DatPhong = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        width: "100%",
+        marginLeft: "auto",
+        boxSizing: "border-box",
+        marginRight: "auto",
+        paddingLeft: "16px",
+        paddingRight: "16px",
+        paddingTop: "0",
+        paddingBottom: "32px",
+      }}
+    >
       {/* Phần tìm kiếm */}
       <Paper
         elevation={3}
@@ -262,32 +417,30 @@ const DatPhong = () => {
         </Box>
 
         <Box sx={{ bgcolor: "white", p: 4 }}>
-          <Grid container spacing={4}>
+          <Grid container spacing={2}>
             <Grid item xs={12} md={3}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DateTimePicker
                   label="Ngày nhận phòng"
                   value={ngayNhanPhong}
-                  minDateTime={dayjs()} // Prevent past dates
+                  minDateTime={dayjs()}
                   onChange={(newValue) => {
                     if (newValue && dayjs(newValue).isValid()) {
                       const newCheckInDateTime = dayjs(newValue);
                       setNgayNhanPhong(newCheckInDateTime);
-                      if (
-                        newCheckInDateTime.isSame(ngayTraPhong) ||
-                        newCheckInDateTime.isAfter(ngayTraPhong)
-                      ) {
-                        // Set check-out to 1 hour after check-in
-                        setNgayTraPhong(newCheckInDateTime.add(1, "hour"));
-                      }
                     } else {
                       setNgayNhanPhong(null);
                     }
+                    validateInputs();
                   }}
+                  ampm={false}
+                  format="DD/MM/YYYY HH:mm"
                   slotProps={{
                     textField: {
                       fullWidth: true,
                       size: "medium",
+                      error: !!errors.ngayNhanPhong,
+                      helperText: errors.ngayNhanPhong,
                       sx: {
                         "& .MuiInputBase-root": {
                           borderRadius: 1,
@@ -304,22 +457,23 @@ const DatPhong = () => {
                 <DateTimePicker
                   label="Ngày trả phòng"
                   value={ngayTraPhong}
-                  minDateTime={
-                    ngayNhanPhong
-                      ? ngayNhanPhong
-                      : dayjs()
-                  }
+                  minDateTime={ngayNhanPhong ? ngayNhanPhong : dayjs()}
                   onChange={(newValue) => {
                     if (newValue && dayjs(newValue).isValid()) {
                       setNgayTraPhong(dayjs(newValue));
                     } else {
                       setNgayTraPhong(null);
                     }
+                    validateInputs();
                   }}
+                  ampm={false}
+                  format="DD/MM/YYYY HH:mm"
                   slotProps={{
                     textField: {
                       fullWidth: true,
                       size: "medium",
+                      error: !!errors.ngayTraPhong,
+                      helperText: errors.ngayTraPhong,
                       sx: {
                         "& .MuiInputBase-root": {
                           borderRadius: 1,
@@ -333,13 +487,18 @@ const DatPhong = () => {
             </Grid>
             <Grid item xs={12} md={3}>
               <TextField
-                label="Số người"
+                label="Số người lớn"
                 type="number"
                 value={soNguoi}
-                onChange={(e) => setSoNguoi(e.target.value)}
+                onChange={(e) => {
+                  setSoNguoi(Math.max(1, Number(e.target.value)));
+                  validateInputs();
+                }}
                 inputProps={{ min: 1 }}
                 fullWidth
                 size="medium"
+                error={!!errors.soNguoi}
+                helperText={errors.soNguoi}
                 sx={{
                   "& .MuiInputBase-root": {
                     borderRadius: 1,
@@ -354,24 +513,31 @@ const DatPhong = () => {
               />
             </Grid>
             <Grid item xs={12} md={3}>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                size="large"
-                onClick={handleSearchClick}
-                startIcon={<SearchIcon />}
-                sx={{
-                  height: "56px",
-                  fontWeight: "bold",
-                  borderRadius: 1,
-                  py: 1.5,
-                  bgcolor: "#1976d2",
-                  "&:hover": { bgcolor: "#115293" },
+              <TextField
+                label="Số trẻ em"
+                type="number"
+                value={soTre}
+                onChange={(e) => {
+                  setSoTre(Math.max(0, Number(e.target.value)));
+                  validateInputs();
                 }}
-              >
-                Tìm kiếm
-              </Button>
+                inputProps={{ min: 0 }}
+                fullWidth
+                size="medium"
+                error={!!errors.soTre}
+                helperText={errors.soTre}
+                sx={{
+                  "& .MuiInputBase-root": {
+                    borderRadius: 1,
+                    backgroundColor: "#f5f5f5",
+                  },
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <ChildIcon sx={{ color: "text.secondary", mr: 1 }} />
+                  ),
+                }}
+              />
             </Grid>
           </Grid>
 
@@ -406,9 +572,16 @@ const DatPhong = () => {
                   <TextField
                     label="Tổng chi phí tối thiểu"
                     type="number"
-                    value={tongChiPhiMin}
-                    onChange={(e) => setTongChiPhiMin(e.target.value)}
+                    value={tongChiPhiMin || ""}
+                    onChange={(e) => {
+                      setTongChiPhiMin(
+                        e.target.value ? Number(e.target.value) : null
+                      );
+                      validateInputs();
+                    }}
                     fullWidth
+                    error={!!errors.tongChiPhiMin}
+                    helperText={errors.tongChiPhiMin}
                     sx={{
                       "& .MuiInputBase-root": {
                         borderRadius: 1,
@@ -428,9 +601,16 @@ const DatPhong = () => {
                   <TextField
                     label="Tổng chi phí tối đa"
                     type="number"
-                    value={tongChiPhiMax}
-                    onChange={(e) => setTongChiPhiMax(e.target.value)}
+                    value={tongChiPhiMax || ""}
+                    onChange={(e) => {
+                      setTongChiPhiMax(
+                        e.target.value ? Number(e.target.value) : null
+                      );
+                      validateInputs();
+                    }}
                     fullWidth
+                    error={!!errors.tongChiPhiMax}
+                    helperText={errors.tongChiPhiMax}
                     sx={{
                       "& .MuiInputBase-root": {
                         borderRadius: 1,
@@ -450,9 +630,16 @@ const DatPhong = () => {
                   <TextField
                     label="Tổng sức chứa tối thiểu"
                     type="number"
-                    value={tongSucChuaMin}
-                    onChange={(e) => setTongSucChuaMin(e.target.value)}
+                    value={tongSucChuaMin || ""}
+                    onChange={(e) => {
+                      setTongSucChuaMin(
+                        e.target.value ? Number(e.target.value) : null
+                      );
+                      validateInputs();
+                    }}
                     fullWidth
+                    error={!!errors.tongSucChuaMin}
+                    helperText={errors.tongSucChuaMin}
                     sx={{
                       "& .MuiInputBase-root": {
                         borderRadius: 1,
@@ -465,9 +652,16 @@ const DatPhong = () => {
                   <TextField
                     label="Tổng sức chứa tối đa"
                     type="number"
-                    value={tongSucChuaMax}
-                    onChange={(e) => setTongSucChuaMax(e.target.value)}
+                    value={tongSucChuaMax || ""}
+                    onChange={(e) => {
+                      setTongSucChuaMax(
+                        e.target.value ? Number(e.target.value) : null
+                      );
+                      validateInputs();
+                    }}
                     fullWidth
+                    error={!!errors.tongSucChuaMax}
+                    helperText={errors.tongSucChuaMax}
                     sx={{
                       "& .MuiInputBase-root": {
                         borderRadius: 1,
@@ -480,9 +674,16 @@ const DatPhong = () => {
                   <TextField
                     label="Tổng số phòng tối thiểu"
                     type="number"
-                    value={tongSoPhongMin}
-                    onChange={(e) => setTongSoPhongMin(e.target.value)}
+                    value={tongSoPhongMin || ""}
+                    onChange={(e) => {
+                      setTongSoPhongMin(
+                        e.target.value ? Number(e.target.value) : null
+                      );
+                      validateInputs();
+                    }}
                     fullWidth
+                    error={!!errors.tongSoPhongMin}
+                    helperText={errors.tongSoPhongMin}
                     sx={{
                       "& .MuiInputBase-root": {
                         borderRadius: 1,
@@ -495,9 +696,16 @@ const DatPhong = () => {
                   <TextField
                     label="Tổng số phòng tối đa"
                     type="number"
-                    value={tongSoPhongMax}
-                    onChange={(e) => setTongSoPhongMax(e.target.value)}
+                    value={tongSoPhongMax || ""}
+                    onChange={(e) => {
+                      setTongSoPhongMax(
+                        e.target.value ? Number(e.target.value) : null
+                      );
+                      validateInputs();
+                    }}
                     fullWidth
+                    error={!!errors.tongSoPhongMax}
+                    helperText={errors.tongSoPhongMax}
                     sx={{
                       "& .MuiInputBase-root": {
                         borderRadius: 1,
@@ -524,7 +732,7 @@ const DatPhong = () => {
                         },
                       }}
                     >
-                      <MenuItem value="">Lựa chọn</MenuItem>
+                      <MenuItem value="">Chi phí thấp nhất</MenuItem>
                       <MenuItem value="leastRooms">
                         Tổ hợp ít phòng nhất
                       </MenuItem>
@@ -534,7 +742,10 @@ const DatPhong = () => {
                 {loaiPhongChons.map((lpc, index) => (
                   <Grid container item spacing={2} key={index}>
                     <Grid item xs={6}>
-                      <FormControl fullWidth>
+                      <FormControl
+                        fullWidth
+                        error={!!errors[`loaiPhong_${index}`]}
+                      >
                         <InputLabel>Loại phòng</InputLabel>
                         <Select
                           value={lpc.loaiPhong?.tenLoaiPhong || ""}
@@ -548,6 +759,7 @@ const DatPhong = () => {
                               loaiPhong: selectedLoaiPhong,
                             };
                             setLoaiPhongChons(newList);
+                            validateInputs();
                           }}
                           label="Loại phòng"
                           sx={{ borderRadius: 1, backgroundColor: "#fff" }}
@@ -559,6 +771,11 @@ const DatPhong = () => {
                             </MenuItem>
                           ))}
                         </Select>
+                        {!!errors[`loaiPhong_${index}`] && (
+                          <Typography color="error" variant="caption">
+                            {errors[`loaiPhong_${index}`]}
+                          </Typography>
+                        )}
                       </FormControl>
                     </Grid>
                     <Grid item xs={4}>
@@ -575,8 +792,12 @@ const DatPhong = () => {
                               : null,
                           };
                           setLoaiPhongChons(newList);
+                          validateInputs();
                         }}
                         fullWidth
+                        inputProps={{ min: 0 }}
+                        error={!!errors[`soLuong_${index}`]}
+                        helperText={errors[`soLuong_${index}`]}
                         sx={{
                           "& .MuiInputBase-root": {
                             borderRadius: 1,
@@ -594,6 +815,7 @@ const DatPhong = () => {
                             (_, i) => i !== index
                           );
                           setLoaiPhongChons(newList);
+                          validateInputs();
                         }}
                         sx={{ borderRadius: 1 }}
                       >
@@ -603,6 +825,11 @@ const DatPhong = () => {
                   </Grid>
                 ))}
                 <Grid item xs={12}>
+                  {errors.loaiPhongChons && (
+                    <Typography color="error" variant="caption">
+                      {errors.loaiPhongChons}
+                    </Typography>
+                  )}
                   <Button
                     variant="outlined"
                     color="primary"
@@ -612,9 +839,24 @@ const DatPhong = () => {
                         { loaiPhong: null, soLuongChon: null },
                       ])
                     }
-                    sx={{ borderRadius: 1 }}
+                    sx={{ borderRadius: 1, mr: 2 }}
                   >
                     Thêm loại phòng
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    onClick={handleSearchClick}
+                    startIcon={<SearchIcon />}
+                    sx={{
+                      borderRadius: 1,
+                      fontWeight: "bold",
+                      "&:hover": { bgcolor: "#115293" },
+                    }}
+                    disabled={Object.keys(errors).length > 0}
+                  >
+                    Tìm kiếm
                   </Button>
                 </Grid>
               </Grid>
@@ -672,11 +914,12 @@ const DatPhong = () => {
                   <TableRow>
                     <TableCell>STT</TableCell>
                     <TableCell>Loại phòng</TableCell>
-                    <TableCell>Diện tích</TableCell>
-                    <TableCell>Số khách tối đa</TableCell>
-                    <TableCell>Đơn giá</TableCell>
+                    <TableCell>Diện tích(m²)</TableCell>
+                    <TableCell>Số khách</TableCell>
+                    <TableCell>Số trẻ em</TableCell>
+                    <TableCell>Đơn giá (VND)</TableCell>
                     <TableCell>Số lượng chọn</TableCell>
-                    <TableCell>Thành tiền</TableCell>
+                    <TableCell>Thành tiền (VND)</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -691,20 +934,32 @@ const DatPhong = () => {
                       }}
                     >
                       <TableCell>{idx + 1}</TableCell>
-                      <TableCell>{phong.loaiPhong.tenLoaiPhong}</TableCell>
-                      <TableCell>{phong.loaiPhong.dienTich} m²</TableCell>
                       <TableCell>
-                        {phong.loaiPhong.soKhachToiDa} khách
+                        {phong.loaiPhong?.tenLoaiPhong || "N/A"}
                       </TableCell>
                       <TableCell>
-                        {phong.loaiPhong.donGia.toLocaleString()} VND
+                        {phong.loaiPhong?.dienTich
+                          ? `${phong.loaiPhong.dienTich} `
+                          : "N/A"}
                       </TableCell>
-                      <TableCell>{phong.soLuongChon}</TableCell>
                       <TableCell>
-                        {(
-                          phong.soLuongChon * phong.loaiPhong.donGia
-                        ).toLocaleString()}{" "}
-                        VND
+                        {phong.loaiPhong?.soKhachTieuChuan
+                          ? `${phong.loaiPhong.soKhachTieuChuan}`
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell>{phong.loaiPhong?.treEmTieuChuan}</TableCell>
+                      <TableCell>
+                        {phong.loaiPhong?.donGia
+                          ? Number(phong.loaiPhong.donGia).toLocaleString()
+                          : "N/A"}
+                      </TableCell>
+                      <TableCell>{phong.soLuongChon || 0}</TableCell>
+                      <TableCell>
+                        {phong.loaiPhong?.donGia && phong.soLuongChon
+                          ? (
+                              phong.soLuongChon * phong.loaiPhong.donGia
+                            ).toLocaleString()
+                          : "N/A"}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -719,7 +974,7 @@ const DatPhong = () => {
         </Typography>
       )}
 
-      {/* Phân trang */}
+      {/* Phần phân trang */}
       <Box
         sx={{
           mt: 3,

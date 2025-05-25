@@ -195,7 +195,19 @@ const LoaiPhong = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        width: "100%",
+        marginLeft: "auto",
+        boxSizing: "border-box",
+        marginRight: "auto",
+        paddingLeft: "16px",
+        paddingRight: "16px",
+        paddingTop: "0",
+        paddingBottom: "32px",
+      }}
+    >
       {/* Phần tìm kiếm */}
       <Paper
         elevation={3}
@@ -581,7 +593,7 @@ const LoaiPhong = () => {
                     <TableCell>{ti.dienTich || "N/A"}</TableCell>
                     <TableCell>{ti.soKhachTieuChuan || "N/A"}</TableCell>
                     <TableCell>{ti.soKhachToiDa || "N/A"}</TableCell>
-                    <TableCell>{ti.treEmTieuChuan || "N/A"}</TableCell>
+                    <TableCell>{ti.treEmTieuChuan}</TableCell>
                     <TableCell>{ti.treEmToiDa || "N/A"}</TableCell>
                     <TableCell>
                       {ti.donGia ? ti.donGia.toLocaleString("vi-VN") : "N/A"}

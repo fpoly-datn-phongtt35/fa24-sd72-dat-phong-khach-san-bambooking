@@ -26,6 +26,9 @@ public class DatPhong {
     private String maDatPhong;
     @Column(name = "so_nguoi")
     private Integer soNguoi;
+
+    @Column(name = "so_tre")
+    private Integer soTre;
     @Column(name = "so_phong")
     private Integer soPhong;
     @Column(name = "ngay_dat")

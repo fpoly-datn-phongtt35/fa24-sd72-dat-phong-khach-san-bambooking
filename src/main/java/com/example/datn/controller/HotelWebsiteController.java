@@ -132,6 +132,7 @@ public class HotelWebsiteController {
                 request.getNgayNhanPhong(),
                 request.getNgayTraPhong(),
                 request.getSoNguoi(),
+                request.getSoTre(),
                 request.getKey(),
                 request.getTongChiPhiMin(),
                 request.getTongChiPhiMax(),
@@ -244,9 +245,10 @@ public class HotelWebsiteController {
     public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
                                         @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
                                         @RequestParam("soNguoi") Integer soNguoi,
+                                        @RequestParam("soTre") Integer soTre,
                                         @RequestParam("soPhong") Integer soPhong,
                                         @RequestParam(value = "idLoaiPhong", required = false) Integer idLoaiPhong){
-        return ResponseEntity.ok(loaiPhongServiceIMPL.getLoaiPhongKhaDungResponseList(ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,idLoaiPhong));
+        return ResponseEntity.ok(loaiPhongServiceIMPL.getLoaiPhongKhaDungResponseList(ngayNhanPhong,ngayTraPhong,soNguoi,soTre,soPhong,idLoaiPhong));
     }
 
     // Những đường dẫn không yêu cầu xác thực/////////////////////

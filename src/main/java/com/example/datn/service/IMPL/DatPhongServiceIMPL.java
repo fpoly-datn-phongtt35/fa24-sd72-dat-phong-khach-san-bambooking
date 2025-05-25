@@ -64,6 +64,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setMaDatPhong(codeDP);
         datPhong.setSoPhong(datPhongRequest.getSoPhong());
         datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
+        datPhong.setSoTre(datPhongRequest.getSoTre());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTongTien(datPhongRequest.getTongTien());
@@ -76,6 +77,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhongResponse.setMaDatPhong(dp.getMaDatPhong());
         datPhongResponse.setSoPhong(dp.getSoPhong());
         datPhongResponse.setSoNguoi(dp.getSoNguoi());
+        datPhongResponse.setSoTre(dp.getSoTre());
         datPhongResponse.setKhachHang(dp.getKhachHang());
         datPhongResponse.setTongTien(dp.getTongTien());
         datPhongResponse.setNgayDat(dp.getNgayDat());
@@ -99,6 +101,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
     public DatPhong updateDatPhong(DatPhongRequest datPhongRequest) {
         DatPhong datPhong = datPhongRepository.findByMaDatPhong(datPhongRequest.getMaDatPhong());
         datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
+        datPhong.setSoTre(datPhongRequest.getSoTre());
         datPhong.setSoPhong(datPhongRequest.getSoPhong());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTongTien(datPhongRequest.getTongTien());

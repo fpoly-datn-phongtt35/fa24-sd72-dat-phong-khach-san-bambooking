@@ -18,6 +18,7 @@ public class DatPhongRequest {
     private KhachHang khachHang;
     private String maDatPhong;
     private Integer soNguoi;
+    private Integer soTre;
     private Integer soPhong;
     private LocalDateTime ngayDat;
     private Double tongTien;
