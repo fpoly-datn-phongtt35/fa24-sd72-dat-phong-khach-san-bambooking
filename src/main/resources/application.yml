@@ -31,6 +31,6 @@ payos:
   api-key: ${PAYOS_API_KEY:b8e3dd95-04f5-49a4-97dc-85a5022798b8}
   checksum-key: ${PAYOS_CHECKSUM_KEY:6c201111eec858ee4e5e5ec9977a85559c1c32f4cdef28a33ec398c78e8a03a7}
   #Port tạm thời
-  return-url: https://e39f-113-23-49-23.ngrok-free.app/api/v1/payment/success
-  cancel-url: https://e39f-113-23-49-23.ngrok-free.app/api/v1/payment/cancel #Port 3001:
+  return-url: https://4de7-14-177-163-59.ngrok-free.app/api/v1/payment/success
+  cancel-url: https://4de7-14-177-163-59.ngrok-free.app/api/v1/payment/cancel #Port 3001:
   #Port webhook url: #Port 8080

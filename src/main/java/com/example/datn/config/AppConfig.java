@@ -34,7 +34,7 @@ public class AppConfig {
     private final JwtService jwtService;
 
     private final String[] WHILE_LIST = {"/api/auth/**","/api/ttdp/**","/api/kh/**","/api/loai-phong/**","/api/tthd/**",
-    "/api/hoa-don/**","/api/dp/**","/api/tra-cuu/**","/danh-gia/**","/api/dich_vu/**", "/test-domain", "/api/v1/payment/**",  "/api/v1/payment/webhook",}; // Những đường dẫn không yêu cầu xác thực
+    "/api/hoa-don/**","/api/dp/**","/api/tra-cuu/**","/danh-gia/**","/api/dich_vu/**", "/test-domain", "/api/v1/payment/**",  "/api/v1/payment/webhook"}; // Những đường dẫn không yêu cầu xác thực
     private final String[] URI_ADMIN = {"/api/*/customer/**", "/xep-phong/**", "/ttdp/**", "/tra-phong/**",
             "/tien-ich-phong/**", "/tien-ich/**", "/thong-tin-hoa-don/**", "/phong/**", "/loai-phong/**",
             "/khach-hang-checkin/**", "/hoa-don/**", "/dich_vu_su_dung/**", "/dich_vu_di_kem/**", "/dich_vu/**",
