@@ -12,9 +12,11 @@ public interface VatTuRepository extends JpaRepository<VatTu,Integer> {
     @Query("select new com.example.datn.dto.response.VatTuResponse(ti.id," +
             "ti.tenVatTu," +
             "ti.hinhAnh," +
-            "ti.gia)" +
+            "ti.gia," +
+            "ti.trangThai)" +
             "from VatTu ti")
     Page<VatTuResponse> VatTu(Pageable pageable);
+
 
     @Query("SELECT tn FROM VatTu tn " +
             "WHERE tn.tenVatTu LIKE %:tenVatTu% "

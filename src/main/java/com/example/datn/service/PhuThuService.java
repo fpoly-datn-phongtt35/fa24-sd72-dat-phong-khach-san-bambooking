@@ -10,5 +10,5 @@ public interface PhuThuService {
     PhuThu updatePhuThu(PhuThuRequest phuThuRequest);
     PhuThu checkIfPhuThuExists(Integer idXepPhong);
     void deletePhuThu(Integer id);
-
+    PhuThu findByXepPhongIdAndTenPhuThu(Integer idXepPhong, String tenPhuThu);
 }

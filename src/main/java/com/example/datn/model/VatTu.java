@@ -28,5 +28,4 @@ public class VatTu {
 
     @Column(name = "trang_thai")
     private Boolean trangThai;
-
 }

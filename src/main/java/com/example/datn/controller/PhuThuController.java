@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @CrossOrigin("*")
@@ -51,6 +52,17 @@ public class PhuThuController {
             return ResponseEntity.ok(existingPhuThu);
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy phụ thu nào cho xếp phòng này");
+        }
+    }
+    //Dùng cho thêm phụ thu ở chi tiết phòng
+    @GetMapping("/check-by-name")
+    public ResponseEntity<?> checkPhuThuByName(@RequestParam Integer idXepPhong,
+                                               @RequestParam String tenPhuThu) {
+        PhuThu existingPhuThu = phuThuServiceIMPL.findByXepPhongIdAndTenPhuThu(idXepPhong, tenPhuThu);
+        if (existingPhuThu != null) {
+            return ResponseEntity.ok(existingPhuThu);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Không tìm thấy phụ thu với tên này.");
         }
     }
 
