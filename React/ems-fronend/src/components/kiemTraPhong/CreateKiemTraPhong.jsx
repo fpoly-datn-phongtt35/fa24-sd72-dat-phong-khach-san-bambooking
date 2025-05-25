@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
-  getAllNhanVien,
   hienThiVatTu,
   performRoomCheck,
 } from "../../services/KiemTraPhongService";
@@ -13,8 +12,6 @@ import {
   Table,
   Input,
   Button,
-  Select,
-  Option,
   Modal,
   ModalDialog,
   ModalClose,
@@ -22,6 +19,24 @@ import {
 import { useTheme, useMediaQuery } from "@mui/material";
 import { ThemPhuThu } from "../../services/PhuThuService";
 import Swal from "sweetalert2";
+
+// Hàm giải mã JWT token để lấy userId
+const parseJwt = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("Lỗi khi giải mã token: ", error);
+    return null;
+  }
+};
 
 const CreateKiemTraPhong = () => {
   const { idXepPhong } = useParams();
@@ -31,39 +46,36 @@ const CreateKiemTraPhong = () => {
 
   const [materials, setMaterials] = useState([]);
   const [checkData, setCheckData] = useState([]);
-  const [nhanvien, setNhanVien] = useState([]);
-  const [selectedNhanVien, setSelectedNhanVien] = useState(null);
+  const [nhanVienId, setNhanVienId] = useState(null);
   const [errors, setErrors] = useState({});
   const [openConfirmModal, setOpenConfirmModal] = useState(false);
 
+  // Lấy id nhân viên từ accessToken
   useEffect(() => {
-    getAllNhanVien()
-      .then((response) => {
-        if (response && Array.isArray(response.data)) {
-          setNhanVien(response.data);
-          const firstNhanVien =
-            response.data.length > 0 ? response.data[0].id : null;
-          setSelectedNhanVien(firstNhanVien);
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Lỗi",
-            text: "Không thể tải danh sách nhân viên.",
-            confirmButtonText: "Đóng",
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tải danh sách nhân viên: ", error);
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      const tokenPayload = parseJwt(accessToken);
+      if (tokenPayload && tokenPayload.userId) {
+        setNhanVienId(tokenPayload.userId); // Lấy userId từ token
+      } else {
         Swal.fire({
           icon: "error",
           title: "Lỗi",
-          text: "Không thể tải danh sách nhân viên.",
+          text: "Không thể lấy ID nhân viên từ token.",
           confirmButtonText: "Đóng",
         });
+      }
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không tìm thấy accessToken trong localStorage.",
+        confirmButtonText: "Đóng",
       });
+    }
   }, []);
 
+  // Lấy danh sách vật tư
   useEffect(() => {
     if (idXepPhong) {
       hienThiVatTu(idXepPhong)
@@ -128,9 +140,19 @@ const CreateKiemTraPhong = () => {
   };
 
   const handleConfirmSubmit = async () => {
+    if (!nhanVienId) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không tìm thấy ID nhân viên đăng nhập!",
+        confirmButtonText: "Đóng",
+      });
+      return;
+    }
+
     const request = {
       idXepPhong: idXepPhong,
-      idNhanVien: selectedNhanVien,
+      idNhanVien: nhanVienId, // Sử dụng ID từ token
       danhSachVatTu: checkData,
     };
 
@@ -151,38 +173,19 @@ const CreateKiemTraPhong = () => {
       // Tìm các vật tư có số lượng thực tế < số lượng tiêu chuẩn
       const phuThuItems = checkData.filter((item) => {
         const material = materials.find((m) => m.id === item.idVatTu);
-        console.log(
-          "SoLuongThucTe:",
-          item.soLuongThucTe,
-          "SoLuongTieuChuan:",
-          material ? material.soLuongTieuChuan : "Không tìm thấy vật tư"
-        );
         return material && item.soLuongThucTe < material.soLuongTieuChuan;
       });
-
-      console.log("PhuThuItems:", phuThuItems);
 
       // Nếu có vật tư thiếu, tạo phụ thu
       for (const item of phuThuItems) {
         const material = materials.find((m) => m.id === item.idVatTu);
-
-        if (!material) {
-          console.log(`Không tìm thấy vật tư với ID ${item.idVatTu}`);
+        if (!material || !material.donGia) {
+          console.log(`Vật tư ${material?.tenVatTu || item.idVatTu} không hợp lệ, bỏ qua.`);
           continue;
         }
-
-        if (!material.donGia) {
-          console.log(`Vật tư ${material.tenVatTu} không có giá tiền, bỏ qua.`);
-          continue;
-        }
-
-        console.log("Tạo phụ thu với vật tư:", material);
 
         const ghiChu = item.ghiChu ? item.ghiChu.trim() : "";
-        const tenPhuThu = ghiChu
-          ? `${ghiChu} - ${material.tenVatTu}`
-          : material.tenVatTu;
-
+        const tenPhuThu = ghiChu ? `${ghiChu} - ${material.tenVatTu}` : material.tenVatTu;
         const soLuongThieu = material.soLuongTieuChuan - item.soLuongThucTe;
         const tienPhuThu = material.donGia * soLuongThieu;
 
@@ -194,15 +197,12 @@ const CreateKiemTraPhong = () => {
           trangThai: false,
         };
 
-        console.log("Tạo phụ thu với thông tin:", phuThuRequest);
         try {
           await ThemPhuThu(phuThuRequest);
           Swal.fire({
             icon: "success",
             title: "Thành công",
-            text: `Đã thêm phụ thu: ${tenPhuThu}, Tổng tiền: ${formatCurrency(
-              tienPhuThu
-            )}`,
+            text: `Đã thêm phụ thu: ${tenPhuThu}, Tổng tiền: ${formatCurrency(tienPhuThu)}`,
             confirmButtonText: "Đóng",
           });
         } catch (error) {
@@ -216,7 +216,6 @@ const CreateKiemTraPhong = () => {
         }
       }
 
-      // Đóng modal và hiển thị thông báo thành công
       setOpenConfirmModal(false);
       Swal.fire({
         icon: "success",
@@ -254,6 +253,15 @@ const CreateKiemTraPhong = () => {
       });
       return;
     }
+    if (!nhanVienId) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không tìm thấy ID nhân viên đăng nhập!",
+        confirmButtonText: "Đóng",
+      });
+      return;
+    }
     setOpenConfirmModal(true);
   };
 
@@ -285,41 +293,6 @@ const CreateKiemTraPhong = () => {
         >
           Kiểm tra phòng - Danh sách vật tư
         </Typography>
-
-        {/* Chọn nhân viên */}
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            flexDirection: isMobile ? "column" : "row",
-            justifyContent: isMobile ? "center" : "flex-end",
-            alignItems: "center",
-            gap: 1,
-            px: isMobile ? 0 : 3,
-          }}
-        >
-          <Typography
-            level="h6"
-            sx={{ fontSize: isMobile ? "1rem" : "1.1rem" }}
-          >
-            Chọn nhân viên:
-          </Typography>
-          <Select
-            sx={{
-              width: isMobile ? "100%" : 180,
-              bgcolor: "background.paper",
-              borderRadius: 1,
-            }}
-            value={selectedNhanVien}
-            onChange={(event, newValue) => setSelectedNhanVien(newValue)}
-          >
-            {nhanvien.map((nv) => (
-              <Option key={nv.id} value={nv.id}>
-                {nv.hoTen}
-              </Option>
-            ))}
-          </Select>
-        </Box>
       </Box>
 
       {/* Bảng danh sách vật tư */}
@@ -397,7 +370,9 @@ const CreateKiemTraPhong = () => {
             </Table>
           </Sheet>
         ) : (
-          <Box sx={{ textAlign: "center", mt: 2 }} />
+          <Box sx={{ textAlign: "center", mt: 2 }}>
+            <Typography>Không có vật tư để hiển thị.</Typography>
+          </Box>
         )}
       </Box>
 
@@ -413,6 +388,7 @@ const CreateKiemTraPhong = () => {
           variant="soft"
           color="primary"
           onClick={handleSubmit}
+          disabled={!nhanVienId}
           sx={{
             width: isMobile ? "100%" : "auto",
             fontSize: isMobile ? "1rem" : "1.1rem",
