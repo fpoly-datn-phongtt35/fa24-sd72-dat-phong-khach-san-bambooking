@@ -19,7 +19,7 @@ public class ThanhToanMapper {
         thanhToan.setTienThua(0.0);
         thanhToan.setPhuongThucThanhToan(false); // false: tiền mặt, true: chuyển khoản
         thanhToan.setNgayThanhToan(LocalDateTime.now());
-        thanhToan.setTrangThai(false); // false: chưa xác nhận, true: xác nhận
+        thanhToan.setTrangThai(false); // false: chưa xác nhận, true: Đã thanh toán
         return thanhToan;
     }
 

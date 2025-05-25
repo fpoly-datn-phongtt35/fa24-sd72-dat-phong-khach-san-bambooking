@@ -58,6 +58,8 @@ public class ThongTinDatPhongServiceIMPL implements ThongTinDatPhongService {
         ttdp.setSoNguoi(request.getSoNguoi());
         ttdp.setSoTre(request.getSoTre());
         ttdp.setTrangThai(request.getTrangThai());
+        ttdp.setTrangThaiThanhToan("Chưa thanh toán");
+        ttdp.setTienDaThanhToan(0.0);
         return thongTinDatPhongRepository.save(ttdp);
     }
 

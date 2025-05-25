@@ -1,4 +1,3 @@
-// import axios from "axios";
 import authorizedAxiosInstance from "../utils/authorizedAxios";
 
 const apiHoaDon = "http://localhost:8080/hoa-don";
@@ -31,11 +30,6 @@ export const updateThanhToan = async (id, data) => {
         console.error("Lỗi cập nhật Thanh Toán:", error.response?.data || error.message);
         throw error;
     }
-};
-
-
-export const changeStatusInvoice = (id) => {
-    return authorizedAxiosInstance.put(`${apiHoaDon}/${id}/status`); //Front-end không chấp nhận method PATCH nếu chưa được cấu hình
 };
 
 export const getThongKeDT = () => {

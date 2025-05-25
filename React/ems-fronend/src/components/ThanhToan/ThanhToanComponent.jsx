@@ -3,13 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import {
   createThanhToan,
   getHoaDonById,
-  changeStatusInvoice,
 } from "../../services/ThanhToanService";
 import ThanhToanModal from "./ThanhToanModal";
 import { Container, Box, Typography, Button, Card, Chip } from "@mui/joy";
 import { IconButton } from "@mui/material";
 import PaymentIcon from "@mui/icons-material/Payment";
-import Swal from "sweetalert2";
 
 const ThanhToanComponent = () => {
   const { idHoaDon } = useParams();
@@ -32,12 +30,6 @@ const ThanhToanComponent = () => {
       setHoaDon(response.data);
     } catch (error) {
       console.error("Lỗi khi lấy thông tin hóa đơn:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: "Lỗi hiển thị thông tin hóa đơn!",
-        confirmButtonText: "Đóng",
-      });
     }
   };
 
@@ -52,22 +44,10 @@ const ThanhToanComponent = () => {
       };
       const response = await createThanhToan(thanhToanRequest);
       setThanhToan(response.data);
-      Swal.fire({
-        icon: "success",
-        title: "Thành công",
-        text: "Đã tạo thanh toán thành công!",
-        timer: 1500,
-        showConfirmButton: false,
-      });
       setShowModal(true);
     } catch (error) {
       console.error("Lỗi khi tạo thanh toán mới:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: "Có lỗi xảy ra khi tạo thanh toán!",
-        confirmButtonText: "Đóng",
-      });
+      alert("Có lỗi xảy ra khi tạo thanh toán!");
     } finally {
       thanhToanRef.current = false;
     }
@@ -84,30 +64,7 @@ const ThanhToanComponent = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     thanhToanRef.current = false;
-  };
-
-  const handleChangeStatus = (id) => {
-    changeStatusInvoice(id)
-      .then(() => {
-        Swal.fire({
-          icon: "success",
-          title: "Thành công",
-          text: "Đã xác nhận thanh toán thành công!",
-          timer: 1500,
-          showConfirmButton: false,
-        }).then(() => {
-          navigate("/hoa-don");
-        });
-      })
-      .catch((error) => {
-        console.error("Lỗi khi thay đổi trạng thái hóa đơn:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Lỗi",
-          text: "Có lỗi xảy ra khi thay đổi trạng thái hóa đơn!",
-          confirmButtonText: "Đóng",
-        });
-      });
+    fetchHoaDon(idHoaDon); // Cập nhật lại hóa đơn sau khi đóng modal
   };
 
   return (
@@ -154,7 +111,7 @@ const ThanhToanComponent = () => {
                 variant="plain"
                 color="primary"
                 size="sm"
-                disabled={hoaDon.trangThai === "Chờ xác nhận"}
+                disabled={hoaDon.trangThai === "Đã thanh toán"}
                 sx={{ marginLeft: 1 }}
                 onClick={handleCreateThanhToan}
               >
@@ -175,27 +132,19 @@ const ThanhToanComponent = () => {
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}>
-            {hoaDon.trangThai === "Chờ xác nhận" && (
-              <Button
-                variant="soft"
-                color="success"
-                onClick={() => handleChangeStatus(hoaDon.id)}
-              >
-                Xác nhận thanh toán
-              </Button>
-            )}
-
             <Button
               variant="soft"
               color="danger"
               onClick={() => navigate("/hoa-don")}
             >
-              Hủy
+              Đóng
             </Button>
           </Box>
         </Card>
       ) : (
-        <Box sx={{ textAlign: "center", mt: 2 }} />
+        <Typography textAlign="center" color="danger">
+          Lỗi hiển thị thông tin hóa đơn!
+        </Typography>
       )}
 
       {showModal && (

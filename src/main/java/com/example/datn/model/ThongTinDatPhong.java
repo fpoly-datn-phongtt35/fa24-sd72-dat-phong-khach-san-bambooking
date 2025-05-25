@@ -41,4 +41,8 @@ public class ThongTinDatPhong {
     private String ghiChu;
     @Column(name = "trang_thai")
     private String trangThai;
+    @Column(name = "trang_thai_thanh_toan")
+    private String trangThaiThanhToan;
+    @Column(name = "tien_da_thanh_toan")
+    private Double tienDaThanhToan;
 }
