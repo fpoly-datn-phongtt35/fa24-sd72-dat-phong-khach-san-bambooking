@@ -18,8 +18,17 @@ export const XoaPhuThu = (idPhuThu) => {
     return authorizedAxiosInstance.delete(`${apiDelete}/${idPhuThu}`);
 };
 
-export const CheckPhuThuExists = (idXepPhong) => {
-    return authorizedAxiosInstance.get(`${apiCheck}/${idXepPhong}`);
+// export const CheckPhuThuExists = (idXepPhong) => {
+//     return authorizedAxiosInstance.get(`${apiCheck}/${idXepPhong}`);
+// };
+
+export const CheckPhuThuExists = (idXepPhong, tenPhuThu) => {
+    return authorizedAxiosInstance.get(apiCheckByName, {
+        params: {
+            idXepPhong,
+            tenPhuThu,
+        }
+    });
 };
 
 export const CheckPhuThuExistsByName = (idXepPhong, tenPhuThu) => {
