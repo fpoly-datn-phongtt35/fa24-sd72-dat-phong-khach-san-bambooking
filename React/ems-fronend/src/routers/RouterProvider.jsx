@@ -40,6 +40,7 @@ import Checkin from '../pages/checkin/Checkin';
 import { KhachHangLuuTru } from '../pages/customer/KhachHangLuuTru'
 import RBACRouter from '../components/core/RBACRouter';
 import { permissions } from '../config/rbacConfig';
+import QuanLyDatPhongDaHuy from '../pages/quanlydatphong/QuanLyDatPhongDaHuy';
 
 function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
   const UnauthorizedRoutes = () => {
@@ -139,6 +140,7 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/quan-ly-dat-phong" element={<QuanLyDatPhong />} />
         <Route path="/nhan-phong" element={<Checkin />} />
         <Route path="/khach-hang-luu-tru" element={<KhachHangLuuTru />} />
+        <Route path="/dat-phong-da-huy" element={<QuanLyDatPhongDaHuy />} />
       </Route>
 
       <Route path="/access-denied" element={<div>access-denied</div>} />

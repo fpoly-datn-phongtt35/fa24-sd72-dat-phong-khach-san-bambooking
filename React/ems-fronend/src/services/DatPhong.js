@@ -1,3 +1,4 @@
+import { size } from "lodash";
 import authorizedAxiosInstance from "../utils/authorizedAxios";
 const apiDP = "http://localhost:8080/dat-phong/hien-thi";
 const apiDPAdd = "http://localhost:8080/dat-phong/them-moi";
@@ -20,6 +21,8 @@ const apiHuyDatPhong = "http://localhost:8080/dat-phong/huy-dp";
 
 const apiTBDatPhongThanhCong =
   "http://localhost:8080/api/dp/email-dp-thanh-cong";
+
+const apiCanceledDatPhong = "http://localhost:8080/dat-phong/danh-sach-da-huy";
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
   return authorizedAxiosInstance.get(apiDP, {
@@ -185,4 +188,12 @@ export const EmailXacNhanDPThanhCong = (iddp) => {
       iddp: iddp,
     },
   });
+};
+
+export const searchCanceledDatPhong = async ({ page, size, maDatPhong = ""}) => {
+  const params = { page, size, maDatPhong};
+  console.log("Calling searchCanceledDatPhong with params:", params);
+  const response = await authorizedAxiosInstance.get(apiCanceledDatPhong, { params });
+  console.log("Response from searchCanceledDatPhong:", response.data);
+  return response;
 };

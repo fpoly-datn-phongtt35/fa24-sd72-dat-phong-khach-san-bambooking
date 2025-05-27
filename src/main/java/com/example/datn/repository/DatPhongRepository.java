@@ -151,5 +151,7 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
 
     @Query("Select dp from DatPhong dp where dp.id = :iddp AND dp.trangThai = :trangThai")
     DatPhong findByIDDPandTT(@Param("iddp") Integer iddp,String trangThai);
+
+    Page<DatPhong> findByTrangThaiAndMaDatPhongContainingIgnoreCase(String trangThai, String maDatPhong, Pageable pageable);
 }
 
