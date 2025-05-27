@@ -74,8 +74,8 @@ public interface DatPhongRepository extends JpaRepository<DatPhong, Integer> {
             @Param("trangThai") List<String> trangThai,
             @Param("trangThaiTTDP") List<String> trangThaiTTDP,
             @Param("key") String key,
-            @Param("ngayNhanPhong") LocalDate ngayNhanPhong,
-            @Param("ngayTraPhong") LocalDate ngayTraPhong,
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
             Pageable pageable);
 
     @Query("SELECT dp FROM DatPhong dp " +

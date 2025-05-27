@@ -23,19 +23,12 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
-import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckIcon from "@mui/icons-material/Check";
 import { useNavigate } from "react-router-dom";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
@@ -51,7 +44,7 @@ const QuanLyDatPhong = () => {
   const navigate = useNavigate();
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [datPhong, setDatPhong] = useState([]);
-  const [ngayNhan, setNgayNhan] = useState(null);
+  const [ngayNhan, setNgayNhan] = useState(dayjs().startOf("day"));
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
   const [page, setPage] = useState(0);
@@ -61,22 +54,33 @@ const QuanLyDatPhong = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [showXepPhongModal, setShowXepPhongModal] = useState(false);
-  const [openCancelDialog, setOpenCancelDialog] = useState(false);
-  const [cancelNote, setCancelNote] = useState("");
-  const [selectedDatPhong, setSelectedDatPhong] = useState(null);
 
   const searchDatPhong = useCallback(
     debounce(
       async (searchKey, searchNgayNhan, searchNgayTra, currentPage, size) => {
+        if (
+          searchNgayNhan &&
+          searchNgayTra &&
+          searchNgayNhan.isAfter(searchNgayTra)
+        ) {
+          Swal.fire({
+            icon: "warning",
+            title: "Cảnh báo",
+            text: "Ngày trả phòng phải sau ngày nhận phòng!",
+            confirmButtonText: "Đóng",
+          });
+          return;
+        }
         setLoading(true);
         try {
-          const formattedNgayNhan = searchNgayNhan
-            ? dayjs(searchNgayNhan).format("YYYY-MM-DD")
-            : null;
-          console.log("formattedNgayNhan", formattedNgayNhan);
-          const formattedNgayTra = searchNgayTra
-            ? dayjs(searchNgayTra).format("YYYY-MM-DD")
-            : null;
+          const formattedNgayNhan =
+            searchNgayNhan && dayjs(searchNgayNhan).isValid()
+              ? dayjs(searchNgayNhan).format("YYYY-MM-DD[T]HH:mm:ss.SSSZ")
+              : null;
+          const formattedNgayTra =
+            searchNgayTra && dayjs(searchNgayTra).isValid()
+              ? dayjs(searchNgayTra).format("YYYY-MM-DD[T]HH:mm:ss.SSSZ")
+              : null;
 
           const res = await findDatPhong(
             searchKey,
@@ -87,7 +91,6 @@ const QuanLyDatPhong = () => {
               size: size,
             }
           );
-          console.log("res", res);
           const data = res.data;
           setDatPhong(data.content || []);
           setTotalPages(data.totalPages || 0);
@@ -130,34 +133,36 @@ const QuanLyDatPhong = () => {
   };
 
   const handleOpenCancelDialog = (dp) => {
-    setSelectedDatPhong(dp);
-    setCancelNote("");
-    setOpenCancelDialog(true);
+    Swal.fire({
+      title: "Nhập lý do hủy đặt phòng",
+      input: "textarea",
+      inputLabel: "Ghi chú",
+      inputPlaceholder: "Vui lòng nhập lý do hủy...",
+      inputAttributes: {
+        "aria-label": "Ghi chú hủy",
+      },
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+      inputValidator: (value) => {
+        if (!value.trim()) {
+          return "Ghi chú không được để trống!";
+        }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        handleHuyDP(dp, result.value);
+      }
+    });
   };
 
-  const handleCloseCancelDialog = () => {
-    setOpenCancelDialog(false);
-    setSelectedDatPhong(null);
-    setCancelNote("");
-  };
-
-  const handleHuyDP = async (dp) => {
-    if (!cancelNote.trim()) {
-      Swal.fire({
-        icon: "warning",
-        title: "Cảnh báo",
-        text: "Vui lòng nhập ghi chú trước khi hủy!",
-        confirmButtonText: "Đóng",
-      });
-      return;
-    }
-
+  const handleHuyDP = async (dp, cancelNote) => {
     const confirmDelete = await Swal.fire({
       icon: "question",
       title: "Xác nhận",
       text: `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${dp.maDatPhong} không?`,
       showCancelButton: true,
-      confirmButtonText: "Xóa",
+      confirmButtonText: "Xác nhận",
       cancelButtonText: "Hủy",
     });
     if (!confirmDelete.isConfirmed) return;
@@ -169,6 +174,7 @@ const QuanLyDatPhong = () => {
         maDatPhong: dp.maDatPhong,
         khachHang: dp.khachHang,
         soNguoi: dp.soNguoi,
+        soTre: dp.soTre || 0,
         soPhong: dp.soPhong,
         ngayDat: dp.ngayDat,
         tongTien: dp.tongTien,
@@ -186,7 +192,6 @@ const QuanLyDatPhong = () => {
         text: "Hủy đặt phòng thành công!",
         confirmButtonText: "Đóng",
       });
-      handleCloseCancelDialog();
     } catch (err) {
       console.error("Lỗi khi hủy TTDP:", err);
       Swal.fire({
@@ -218,6 +223,7 @@ const QuanLyDatPhong = () => {
         maDatPhong: dp.maDatPhong,
         khachHang: dp.khachHang,
         soNguoi: dp.soNguoi,
+        soTre: dp.soTre || 0,
         soPhong: dp.soPhong,
         ngayDat: dp.ngayDat,
         tongTien: dp.tongTien,
@@ -238,7 +244,7 @@ const QuanLyDatPhong = () => {
       Swal.fire({
         icon: "error",
         title: "Lỗi",
-        text: "Xác nhận đặt phòng thất bại!",
+        text: err.response?.data?.message || "Xác nhận đặt phòng thất bại!",
         confirmButtonText: "Đóng",
       });
     } finally {
@@ -348,15 +354,17 @@ const QuanLyDatPhong = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
+                    <DateTimePicker
                       label="Ngày nhận phòng"
                       value={ngayNhan}
                       onChange={(newValue) => {
                         setNgayNhan(newValue);
                         if (newValue && ngayTra && newValue.isAfter(ngayTra)) {
-                          setNgayTra(newValue.add(1, "day"));
+                          setNgayTra(newValue.add(1, "hour"));
                         }
                       }}
+                      ampm={false}
+                      format="DD/MM/YYYY HH:mm"
                       slotProps={{
                         textField: {
                           fullWidth: true,
@@ -375,11 +383,13 @@ const QuanLyDatPhong = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
+                    <DateTimePicker
                       label="Ngày trả phòng"
                       value={ngayTra}
-                      minDate={ngayNhan || dayjs()}
+                      minDateTime={ngayNhan ? ngayNhan.add(1, "hour") : dayjs()}
                       onChange={(newValue) => setNgayTra(newValue)}
+                      ampm={false}
+                      format="DD/MM/YYYY HH:mm"
                       slotProps={{
                         textField: {
                           fullWidth: true,
@@ -387,9 +397,9 @@ const QuanLyDatPhong = () => {
                           sx: {
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
-                              backgroundColor: "#f5f5f5",
-                              fontSize: { xs: "0.875rem", sm: "1rem" },
+                              backgroundColor: "#f5f5f5f5",
                             },
+                            fontSize: { xs: "0.875rem", sm: "1rem" },
                           },
                         },
                       }}
@@ -412,7 +422,7 @@ const QuanLyDatPhong = () => {
           gap: { xs: 2, sm: 0 },
         }}
       >
-        <FormControl sx={{ minWidth: { xs: "100%", sm: 120 } }}>
+        <FormControl sx={{ minWidth: { xs: "100%", sm: "120px" } }}>
           <InputLabel>Số bản ghi</InputLabel>
           <Select
             value={pageSize}
@@ -451,47 +461,50 @@ const QuanLyDatPhong = () => {
       ) : datPhong.length > 0 ? (
         <>
           <Box sx={{ display: { xs: "block", sm: "none" } }}>
-            {datPhong.map((dp) => (
-              <Paper key={dp.maDatPhong} sx={{ p: 2, mb: 2 }}>
+            {datPhong.map((row) => (
+              <Paper key={row.maDatPhong} sx={{ p: 2, mb: 2 }}>
                 <Typography variant="body2">
-                  <strong>Mã Đặt Phòng:</strong>{" "}
+                  <strong>Mã đặt phòng:</strong>{" "}
                   <span
                     style={{ color: "blue", cursor: "pointer" }}
-                    onClick={() => handleViewDetails(dp.maDatPhong)}
+                    onClick={() => handleViewDetails(row.maDatPhong)}
                   >
-                    {dp.maDatPhong}
+                    {row.maDatPhong}
                   </span>
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Khách Hàng:</strong>{" "}
-                  {dp.khachHang?.ho + " " + dp.khachHang?.ten}
+                  <strong>Khách hàng:</strong>{" "}
+                  {row.khachHang?.ho + "h" + row.khachHang?.ten}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Số Điện Thoại:</strong> {dp.khachHang?.sdt}
+                  <strong>Số điện thoại:</strong> {row.khachHang?.sdt}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Số Người:</strong> {dp.soNguoi}
+                  <strong>Số người:</strong> {row.soNguoi}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Số Phòng:</strong> {dp.soPhong}
+                  <strong>Số trẻ em:</strong> {row.soTre || 0}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Ngày Đặt:</strong>{" "}
-                  {dayjs(dp.ngayDat).format("DD/MM/YYYY")}
+                  <strong>Số phòng:</strong> {row.soPhong}
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Tổng Tiền:</strong> {dp.tongTien?.toLocaleString()}{" "}
+                  <strong>Ngày đặt:</strong>{" "}
+                  {dayjs(row.ngayDat).format("DD/MM/YYYY")}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Tổng tiền:</strong> {row.tongTien?.toLocaleString()}{" "}
                   VND
                 </Typography>
                 <Typography variant="body2">
-                  <strong>Trạng Thái:</strong> {dp.trangThai}
+                  <strong>Trạng thái:</strong> {row.trangThai}
                 </Typography>
                 <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                  {dp.trangThai === "Đang đặt phòng" && (
+                  {row.trangThai === "Chưa xác nhận" && (
                     <IconButton
                       size="small"
                       color="success"
-                      onClick={() => handleConfirm(dp)}
+                      onClick={() => handleConfirm(row)}
                       disabled={actionLoading}
                     >
                       {actionLoading ? (
@@ -501,11 +514,13 @@ const QuanLyDatPhong = () => {
                       )}
                     </IconButton>
                   )}
-                  {["Đang đặt phòng", "Đã xác nhận"].includes(dp.trangThai) && (
+                  {["Chưa xác nhận", "Đang đặt phòng", "Đã xác nhận"].includes(
+                    row.trangThai
+                  ) && (
                     <IconButton
                       size="small"
                       color="error"
-                      onClick={() => handleOpenCancelDialog(dp)}
+                      onClick={() => handleOpenCancelDialog(row)}
                       disabled={actionLoading}
                     >
                       {actionLoading ? (
@@ -531,6 +546,7 @@ const QuanLyDatPhong = () => {
                   <TableCell>Khách Hàng</TableCell>
                   <TableCell>Số Điện Thoại</TableCell>
                   <TableCell>Số Người</TableCell>
+                  <TableCell>Số Trẻ Em</TableCell>
                   <TableCell>Số Phòng</TableCell>
                   <TableCell>Ngày Đặt</TableCell>
                   <TableCell>Tổng Tiền</TableCell>
@@ -539,35 +555,36 @@ const QuanLyDatPhong = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {datPhong.map((dp) => (
-                  <TableRow key={dp.maDatPhong}>
+                {datPhong.map((row) => (
+                  <TableRow key={row.maDatPhong}>
                     <TableCell>
                       <Typography
                         variant="body2"
                         sx={{ color: "blue", cursor: "pointer" }}
-                        onClick={() => handleViewDetails(dp.maDatPhong)}
+                        onClick={() => handleViewDetails(row.maDatPhong)}
                       >
-                        {dp.maDatPhong}
+                        {row.maDatPhong}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      {dp.khachHang?.ho + " " + dp.khachHang?.ten}
+                      {row.khachHang?.ho + " " + row.khachHang?.ten}
                     </TableCell>
-                    <TableCell>{dp.khachHang?.sdt}</TableCell>
-                    <TableCell>{dp.soNguoi}</TableCell>
-                    <TableCell>{dp.soPhong}</TableCell>
+                    <TableCell>{row.khachHang?.sdt}</TableCell>
+                    <TableCell>{row.soNguoi}</TableCell>
+                    <TableCell>{row.soTre || 0}</TableCell>
+                    <TableCell>{row.soPhong}</TableCell>
                     <TableCell>
-                      {dayjs(dp.ngayDat).format("DD/MM/YYYY")}
+                      {dayjs(row.ngayDat).format("DD/MM/YYYY")}
                     </TableCell>
-                    <TableCell>{dp.tongTien?.toLocaleString()} VND</TableCell>
-                    <TableCell>{dp.trangThai}</TableCell>
+                    <TableCell>{row.tongTien?.toLocaleString()} VND</TableCell>
+                    <TableCell>{row.trangThai}</TableCell>
                     <TableCell>
                       <Stack direction="row" spacing={1}>
-                        {dp.trangThai === "Chưa xác nhận" && (
+                        {row.trangThai === "Chưa xác nhận" && (
                           <IconButton
                             size="small"
                             color="success"
-                            onClick={() => handleConfirm(dp)}
+                            onClick={() => handleConfirm(row)}
                             disabled={actionLoading}
                           >
                             {actionLoading ? (
@@ -578,14 +595,14 @@ const QuanLyDatPhong = () => {
                           </IconButton>
                         )}
                         {[
-                          "Đang đặt phòng",
                           "Chưa xác nhận",
+                          "Đang đặt phòng",
                           "Đã xác nhận",
-                        ].includes(dp.trangThai) && (
+                        ].includes(row.trangThai) && (
                           <IconButton
                             size="small"
                             color="error"
-                            onClick={() => handleOpenCancelDialog(dp)}
+                            onClick={() => handleOpenCancelDialog(row)}
                             disabled={actionLoading}
                           >
                             {actionLoading ? (
@@ -612,35 +629,6 @@ const QuanLyDatPhong = () => {
           Không tìm thấy thông tin đặt phòng
         </Typography>
       )}
-
-      <Dialog open={openCancelDialog} onClose={handleCloseCancelDialog}>
-        <DialogTitle>Nhập lý do hủy đặt phòng</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Ghi chú"
-            fullWidth
-            multiline
-            rows={4}
-            value={cancelNote}
-            onChange={(e) => setCancelNote(e.target.value)}
-            helperText={!cancelNote.trim() ? "Ghi chú không được để trống" : ""}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseCancelDialog} color="secondary">
-            Hủy
-          </Button>
-          <Button
-            onClick={() => handleHuyDP(selectedDatPhong)}
-            color="primary"
-            disabled={!cancelNote.trim() || actionLoading}
-          >
-            {actionLoading ? <CircularProgress size={20} /> : "Xác nhận"}
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       <XepPhong
         show={showXepPhongModal}

@@ -172,7 +172,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         return result;
     }
 
-    public Page<DatPhongResponse> findDatPhong(String key, LocalDate ngayNhanPhong, LocalDate ngayTraPhong, Pageable pageable) {
+    public Page<DatPhongResponse> findDatPhong(String key, LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable) {
         List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng", "Đang ở", "Chưa xếp", "Đã xếp", "Đã trả phòng", "Đã kiểm tra phòng");
         List<String> trangThai = Arrays.asList("Đang đặt phòng", "Chưa xác nhận", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
         System.out.println(key);

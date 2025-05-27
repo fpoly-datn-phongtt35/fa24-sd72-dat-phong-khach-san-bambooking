@@ -127,6 +127,17 @@ const BookingInfo = ({ datPhong, thongTinDatPhong, formatDate }) => (
         </Typography>
       </Box>
       <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+        <Typography sx={{ fontWeight: "medium", mr: 1 }}>
+          Số người lớn:
+        </Typography>
+        <Typography>{datPhong?.soNguoi}</Typography>
+      </Box>
+      <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+        <Typography sx={{ fontWeight: "medium", mr: 1 }}>Số trẻ em:</Typography>
+        <Typography>{datPhong?.soTre}</Typography>
+      </Box>
+
+      <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
         <Typography sx={{ fontWeight: "medium", mr: 1 }}>Số phòng:</Typography>
         <Typography>
           {Array.isArray(thongTinDatPhong)
@@ -134,10 +145,6 @@ const BookingInfo = ({ datPhong, thongTinDatPhong, formatDate }) => (
                 .length
             : 0}
         </Typography>
-      </Box>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-        <Typography sx={{ fontWeight: "medium", mr: 1 }}>Số người:</Typography>
-        <Typography>{datPhong?.soNguoi}</Typography>
       </Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Typography sx={{ fontWeight: "medium", mr: 1 }}>Tổng tiền:</Typography>

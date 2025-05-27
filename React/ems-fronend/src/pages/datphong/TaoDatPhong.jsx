@@ -57,6 +57,49 @@ import {
 dayjs.extend(utc);
 
 const TaoDatPhong = () => {
+  // Hàm tiện ích: Tính số ngày đặt phòng
+  const calculateBookingDays = (ngayNhanPhong, ngayTraPhong) => {
+    const start = dayjs(ngayNhanPhong);
+    const end = dayjs(ngayTraPhong);
+    const diffDays = end.diff(start, "day");
+    return diffDays > 0 ? diffDays : 1;
+  };
+
+  // Hàm tiện ích: Định dạng ngày giờ
+  const formatDateTime = (dateTimeValue) => {
+    return dayjs(dateTimeValue).format("DD/MM/YYYY HH:mm");
+  };
+
+  // Hàm tiện ích: Nhóm và đếm số phòng
+  const groupAndNumberRooms = (rooms) => {
+    const grouped = {};
+    rooms.forEach((room) => {
+      const key = `${room.loaiPhong.id}-${room.ngayNhanPhong}-${room.ngayTraPhong}-${room.soTre}`;
+      if (!grouped[key]) {
+        grouped[key] = [];
+      }
+      grouped[key].push(room);
+    });
+
+    const result = [];
+    Object.values(grouped).forEach((group) => {
+      const representativeRoom = { ...group[0] };
+      representativeRoom.soPhong = group.length;
+      result.push(representativeRoom);
+    });
+
+    return result;
+  };
+
+  // Hàm tính tổng tiền
+  const calculateTotalAmount = (ttdpData) => {
+    return ttdpData.reduce((total, room) => {
+      const days = calculateBookingDays(room.ngayNhanPhong, room.ngayTraPhong);
+      return total + room.loaiPhong.donGia * days * room.soPhong;
+    }, 0);
+  };
+
+  // State và hooks
   const location = useLocation();
   const navigate = useNavigate();
   const { datPhong, khachHang, thongTinDatPhong } = location.state || {};
@@ -98,6 +141,7 @@ const TaoDatPhong = () => {
   const [loaiPhongs, setLoaiPhongs] = useState([]);
   const [searchErrors, setSearchErrors] = useState({});
 
+  // Lấy danh sách loại phòng khi mở dialog tìm kiếm
   useEffect(() => {
     if (openSearchDialog) {
       const fetchLoaiPhongs = async () => {
@@ -106,7 +150,6 @@ const TaoDatPhong = () => {
           const t = searchForm.ngayTraPhong.toISOString();
           const response = await getLoaiPhongKhaDungResponse(n, t);
           setLoaiPhongs(response.data);
-          console.log("Danh sách loại phòng:", response.data);
         } catch (error) {
           console.error("Lỗi khi lấy danh sách loại phòng:", error);
           Swal.fire({
@@ -121,6 +164,7 @@ const TaoDatPhong = () => {
     }
   }, [openSearchDialog, searchForm.ngayNhanPhong, searchForm.ngayTraPhong]);
 
+  // Lấy thông tin đặt phòng
   const fetchThongTinDatPhongById = async (datPhongId) => {
     try {
       const response = await getThongTinDatPhong(datPhongId);
@@ -148,12 +192,14 @@ const TaoDatPhong = () => {
     }
   }, [datPhong, thongTinDatPhong]);
 
+  // Đóng dialog chỉnh sửa số phòng
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedRoom(null);
     setNewRoomCount("");
   };
 
+  // Cập nhật số phòng
   const handleUpdateRoomCount = async () => {
     if (!selectedRoom) return;
 
@@ -206,6 +252,7 @@ const TaoDatPhong = () => {
     }
   };
 
+  // Xóa một phòng
   const handleRemoveRoom = async (room) => {
     const confirmDelete = await Swal.fire({
       icon: "question",
@@ -234,6 +281,7 @@ const TaoDatPhong = () => {
     }
   };
 
+  // Xóa tất cả phòng giống nhau
   const handleRemoveAllRooms = async (room) => {
     const confirmDeleteAll = await Swal.fire({
       icon: "question",
@@ -271,6 +319,7 @@ const TaoDatPhong = () => {
     }
   };
 
+  // Tách họ và tên
   const splitHoTen = (hoTen) => {
     const trimmed = hoTen.trim();
     const parts = trimmed.split(" ");
@@ -279,6 +328,7 @@ const TaoDatPhong = () => {
     return { ho, ten };
   };
 
+  // Xác nhận đặt phòng
   const handleConfirmBooking = async () => {
     if (ttdpData.length === 0) {
       Swal.fire({
@@ -324,9 +374,10 @@ const TaoDatPhong = () => {
         khachHang: khachHangResponse.data,
         maDatPhong: datPhong.maDatPhong,
         soNguoi: datPhong.soNguoi,
+        soTre: datPhong.soTre || 0,
         soPhong: ttdpData.reduce((total, room) => total + room.soPhong, 0),
         ngayDat: datPhong ? datPhong.ngayDat : new Date().toISOString(),
-        tongTien: calculateTotalAmount(),
+        tongTien: calculateTotalAmount(ttdpData),
         ghiChu: "Ghi chú thêm nếu cần",
         trangThai: "Đã xác nhận",
       };
@@ -389,6 +440,7 @@ const TaoDatPhong = () => {
     }
   };
 
+  // Tìm phòng khả dụng
   const handleSearchRooms = async () => {
     const errors = {};
     const now = dayjs();
@@ -451,7 +503,6 @@ const TaoDatPhong = () => {
         });
       }
       setAvailableRooms(response.data);
-      console.log("Phòng khả dụng:", response.data);
     } catch (error) {
       console.error("Lỗi khi tìm phòng khả dụng:", error);
       Swal.fire({
@@ -463,6 +514,7 @@ const TaoDatPhong = () => {
     }
   };
 
+  // Thêm phòng
   const handleAddRoom = async (room) => {
     if (room.soPhongKhaDung < Number(searchForm.soPhong)) {
       Swal.fire({
@@ -527,13 +579,7 @@ const TaoDatPhong = () => {
     }
   };
 
-  const calculateTotalAmount = () => {
-    return ttdpData.reduce((total, room) => {
-      const days = calculateBookingDays(room.ngayNhanPhong, room.ngayTraPhong);
-      return total + room.loaiPhong.donGia * days * room.soPhong;
-    }, 0);
-  };
-
+  // Kiểm tra form thông tin khách hàng
   const validateForm = () => {
     const errors = {};
     if (!formData.hoTen.trim()) {
@@ -552,13 +598,15 @@ const TaoDatPhong = () => {
     return Object.keys(errors).length === 0;
   };
 
+  // Xử lý thay đổi input thông tin khách hàng
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
     setFormErrors({});
     setShowError(false);
   };
 
-  const handleSearchInputChange = (field, value) => {
+  // Xử lý thay đổi input tìm kiếm phòng
+  const handleSearchInputChange = async (field, value) => {
     if (field === "soNguoi" || field === "soPhong" || field === "soTre") {
       const numericValue = value.replace(/[^0-9]/g, "");
       setSearchForm({ ...searchForm, [field]: numericValue });
@@ -566,14 +614,51 @@ const TaoDatPhong = () => {
       if (value && value.isValid()) {
         setSearchForm((prev) => {
           const newForm = { ...prev, [field]: value };
-          if (
-            field === "ngayNhanPhong" &&
-            value.isAfter(dayjs(), "minute")
-          ) {
-            newForm.ngayTraPhong = value.add(1, "hour");
+          if (field === "ngayNhanPhong" && value.isAfter(dayjs(), "minute")) {
+            newForm.ngayTraPhong = value
+              .add(1, "day")
+              .set("hour", 12)
+              .set("minute", 0)
+              .set("second", 0);
           }
           return newForm;
         });
+        // Cập nhật ngày trong ttdpData
+        if (TTDP.length > 0) {
+          try {
+            const updatedTTDP = await Promise.all(
+              TTDP.map(async (room) => {
+                if (room.trangThai === "Đang đặt phòng") {
+                  const updatedRoom = {
+                    ...room,
+                    ngayNhanPhong:
+                      field === "ngayNhanPhong"
+                        ? value.toISOString()
+                        : room.ngayNhanPhong,
+                    ngayTraPhong:
+                      field === "ngayTraPhong"
+                        ? value.toISOString()
+                        : room.ngayTraPhong,
+                  };
+                  const response = await updateThongTinDatPhong(updatedRoom);
+                  return response.data;
+                }
+                return room;
+              })
+            );
+            const numberedRooms = groupAndNumberRooms(updatedTTDP);
+            setTtdpData(numberedRooms);
+            setTTDP(updatedTTDP);
+          } catch (error) {
+            console.error("Lỗi khi cập nhật ngày trong TTDP:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Lỗi",
+              text: "Đã xảy ra lỗi khi cập nhật ngày phòng. Vui lòng thử lại!",
+              confirmButtonText: "Đóng",
+            });
+          }
+        }
       } else {
         setSearchForm({ ...searchForm, [field]: null });
       }
@@ -581,37 +666,6 @@ const TaoDatPhong = () => {
       setSearchForm({ ...searchForm, [field]: value });
     }
     setSearchErrors({});
-  };
-
-  const calculateBookingDays = (ngayNhanPhong, ngayTraPhong) => {
-    const start = dayjs(ngayNhanPhong);
-    const end = dayjs(ngayTraPhong);
-    const diffDays = end.diff(start, "day");
-    return diffDays > 0 ? diffDays : 1;
-  };
-
-  const formatDateTime = (dateTimeValue) => {
-    return dayjs(dateTimeValue).format("DD/MM/YYYY HH:mm");
-  };
-
-  const groupAndNumberRooms = (rooms) => {
-    const grouped = {};
-    rooms.forEach((room) => {
-      const key = `${room.loaiPhong.id}-${room.ngayNhanPhong}-${room.ngayTraPhong}-${room.soTre}`;
-      if (!grouped[key]) {
-        grouped[key] = [];
-      }
-      grouped[key].push(room);
-    });
-
-    const result = [];
-    Object.values(grouped).forEach((group) => {
-      const representativeRoom = { ...group[0] };
-      representativeRoom.soPhong = group.length;
-      result.push(representativeRoom);
-    });
-
-    return result;
   };
 
   return (
@@ -760,7 +814,7 @@ const TaoDatPhong = () => {
                 <Divider sx={{ my: 2 }} />
                 <Typography variant="h6" sx={{ textAlign: "right", mb: 3 }}>
                   <strong>Tổng tiền:</strong>{" "}
-                  {calculateTotalAmount().toLocaleString()} VND
+                  {calculateTotalAmount(ttdpData).toLocaleString()} VND
                 </Typography>
                 <Button
                   variant="contained"
