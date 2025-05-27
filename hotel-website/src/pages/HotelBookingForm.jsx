@@ -930,7 +930,7 @@ const HotelBookingForm = () => {
                       <th>Loại phòng</th>
                       <th>Diện tích</th>
                       <th>Số khách</th>
-                      <th>Số trẻ em tối đa</th>
+                      <th>Số trẻ em</th>
                       <th>Đơn giá</th>
                       <th>Số lượng</th>
                       <th>Thành tiền</th>
