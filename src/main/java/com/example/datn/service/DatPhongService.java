@@ -5,7 +5,6 @@ import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.model.DatPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,9 +23,10 @@ public interface DatPhongService {
 
 //    Double sumTotalAmountByIDDatPhong(Integer idDP);
 
-
     //Gnut
     Page<DatPhongResponse> findAll(String keyword, Pageable pageable);
+    Page<DatPhong> getCanceledDatPhong(String maDatPhong, Pageable pageable);
+    //
     DatPhong addDatPhongNgay(DatPhongRequest datPhongRequest);
 
     Page<DatPhong> DSDatPhong (Pageable pageable);

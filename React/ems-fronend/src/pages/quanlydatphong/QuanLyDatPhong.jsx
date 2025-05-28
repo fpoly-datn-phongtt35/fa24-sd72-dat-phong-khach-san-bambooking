@@ -30,6 +30,8 @@ import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import CheckIcon from "@mui/icons-material/Check";
 import { useNavigate } from "react-router-dom";
 import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
+import CheckCircleIcon from "@mui/icons-material/Check";
+import { Link } from "react-router-dom";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
@@ -47,7 +49,6 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const QuanLyDatPhong = () => {
-  const navigate = useNavigate();
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [datPhong, setDatPhong] = useState([]);
   const [ngayNhan, setNgayNhan] = useState(dayjs().startOf("day"));
@@ -100,32 +101,33 @@ const QuanLyDatPhong = () => {
           const data = res.data;
           setDatPhong(data.content || []);
           setTotalPages(data.totalPages || 0);
-        } catch (err) {
-          console.error("Error fetching data:", err);
-          setDatPhong([]);
-          setTotalPages(0);
-          alert("Lỗi khi tải dữ liệu, vui lòng thử lại!");
-        } finally {
-          setLoading(false);
-        }
-      },
-      300
-    ),
+      } catch (err) {
+        console.error("Error fetching data:", err.response?.data || err.message);
+        setDatPhong([]);
+        setTotalPages(0);
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Đã xảy ra lỗi khi tìm kiếm đặt phòng. Vui lòng thử lại!",
+          confirmButtonText: "Đóng",
+        });
+      } finally {
+        setLoading(false);
+      }
+    }, 300),
     []
   );
 
   useEffect(() => {
     searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
-    return () => searchDatPhong.cancel();
-  }, [key, ngayNhan, ngayTra, page, pageSize, searchDatPhong]);
+  }, [key, ngayNhan, ngayTra, page, pageSize]);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage - 1);
   };
 
   const handlePageSizeChange = (event) => {
-    const newSize = event.target.value;
-    setPageSize(newSize);
+    setPageSize(event.target.value);
     setPage(0);
   };
 
@@ -183,10 +185,10 @@ const QuanLyDatPhong = () => {
         trangThai: "Đã hủy",
       };
       await CapNhatDatPhong(datPhongRequest);
-
       await huyDatPhong(dp.maDatPhong);
 
       searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
+
       Swal.fire({
         icon: "success",
         title: "Thành công",
@@ -291,35 +293,21 @@ const QuanLyDatPhong = () => {
         </Box>
 
         <Box sx={{ bgcolor: "white", p: { xs: 2, sm: 4 } }}>
-          <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={{ xs: 1, sm: 2 }}
-            justifyContent="center"
-            alignItems="center"
-          >
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 1, sm: 2 }} justifyContent="center" alignItems="center">
             <Input
               fullWidth
               placeholder="Nhập mã hoặc từ khóa..."
               value={key}
               onChange={(e) => setKey(e.target.value)}
               startAdornment={<SearchIcon />}
-              sx={{
-                mb: { xs: 1, sm: 0 },
-                fontSize: { xs: "1rem", sm: "1.25rem" },
-                "& .MuiInputBase-input": { padding: "12px" },
-              }}
+              sx={{ mb: { xs: 1, sm: 0 }, fontSize: { xs: "1rem", sm: "1.25rem" }, "& .MuiInputBase-input": { padding: "12px" } }}
             />
             <Button
               variant="contained"
               color="primary"
-              onClick={() =>
-                searchDatPhong(key, ngayNhan, ngayTra, 0, pageSize)
-              }
+              onClick={() => searchDatPhong(key, ngayNhan, ngayTra, 0, pageSize)}
               disabled={loading}
-              sx={{
-                width: { xs: "50%", sm: "auto" },
-                height: { xs: "40px", sm: "56px" },
-              }}
+              sx={{ width: { xs: "50%", sm: "auto" }, height: { xs: "40px", sm: "56px" } }}
             >
               {loading ? <CircularProgress size={24} color="inherit" /> : "Tìm"}
             </Button>
@@ -328,29 +316,14 @@ const QuanLyDatPhong = () => {
           <Box sx={{ mt: 2, textAlign: "center" }}>
             <Button
               onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              sx={{
-                textTransform: "none",
-                color: "#1976d2",
-                "&:hover": { bgcolor: "#f5f5f5" },
-                fontSize: { xs: "0.875rem", sm: "1rem" },
-              }}
+              sx={{ textTransform: "none", color: "#1976d2", "&:hover": { bgcolor: "#f5f5f5" }, fontSize: { xs: "0.875rem", sm: "1rem" } }}
             >
-              {showAdvancedFilters
-                ? "Ẩn bộ lọc nâng cao"
-                : "Hiển thị bộ lọc nâng cao"}
+              {showAdvancedFilters ? "Ẩn bộ lọc nâng cao" : "Hiển thị bộ lọc nâng cao"}
             </Button>
           </Box>
 
           {showAdvancedFilters && (
-            <Box
-              sx={{
-                mt: 2,
-                p: 2,
-                border: "1px solid #e0e0e0",
-                borderRadius: 1,
-                bgcolor: "#fafafa",
-              }}
-            >
+            <Box sx={{ mt: 2, p: 2, border: "1px solid #e0e0e0", borderRadius: 1, bgcolor: "#fafafa" }}>
               <Divider sx={{ mb: 3 }} />
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
@@ -425,13 +398,7 @@ const QuanLyDatPhong = () => {
       >
         <FormControl sx={{ minWidth: { xs: "100%", sm: "120px" } }}>
           <InputLabel>Số bản ghi</InputLabel>
-          <Select
-            value={pageSize}
-            onChange={handlePageSizeChange}
-            label="Số bản ghi"
-            disabled={loading}
-            sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
-          >
+          <Select value={pageSize} onChange={handlePageSizeChange} label="Số bản ghi" disabled={loading} sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}>
             <MenuItem value={5}>5</MenuItem>
             <MenuItem value={10}>10</MenuItem>
             <MenuItem value={20}>20</MenuItem>
@@ -446,11 +413,7 @@ const QuanLyDatPhong = () => {
             color="primary"
             disabled={loading}
             size="small"
-            sx={{
-              "& .MuiPaginationItem-root": {
-                fontSize: { xs: "0.875rem", sm: "1rem" },
-              },
-            }}
+            sx={{ "& .MuiPaginationItem-root": { fontSize: { xs: "0.875rem", sm: "1rem" } } }}
           />
         )}
       </Box>
@@ -536,10 +499,7 @@ const QuanLyDatPhong = () => {
             ))}
           </Box>
 
-          <TableContainer
-            component={Paper}
-            sx={{ display: { xs: "none", sm: "block" }, overflowX: "auto" }}
-          >
+          <TableContainer component={Paper} sx={{ display: { xs: "none", sm: "block" }, overflowX: "auto" }}>
             <Table sx={{ minWidth: 650 }}>
               <TableHead>
                 <TableRow>
@@ -620,13 +580,19 @@ const QuanLyDatPhong = () => {
               </TableBody>
             </Table>
           </TableContainer>
+          <Box sx={{ textAlign: "end", mt: 2 }}>
+            <InputLabel
+              variant="standard"
+              component={Link}
+              to="/dat-phong-da-huy"
+              sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
+            >
+              Xem danh sách đặt phòng đã hủy
+            </InputLabel>
+          </Box>
         </>
       ) : (
-        <Typography
-          variant="h6"
-          align="center"
-          sx={{ mt: 4, fontSize: { xs: "1rem", sm: "1.25rem" } }}
-        >
+        <Typography variant="h6" align="center" sx={{ mt: 4, fontSize: { xs: "1rem", sm: "1.25rem" } }}>
           Không tìm thấy thông tin đặt phòng
         </Typography>
       )}

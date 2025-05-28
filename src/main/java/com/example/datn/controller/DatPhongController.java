@@ -6,7 +6,6 @@ import com.example.datn.dto.request.ToHopRequest;
 import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.DatPhong;
-import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.PhongServiceIMPL;
@@ -14,6 +13,7 @@ import com.example.datn.service.IMPL.XepPhongServiceIMPL;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -179,5 +179,11 @@ public class DatPhongController {
     @GetMapping("/huy-dp")
     public DatPhong huyDP(@RequestParam String maDatPhong) {
         return datPhongServiceIMPL.huyDatPhong(maDatPhong);
+    }
+
+    @GetMapping("/danh-sach-da-huy")
+    public ResponseEntity<Page<DatPhong>> getCanceledDatPhong(@RequestParam(required = false) String maDatPhong, Pageable pageable) {
+        Page<DatPhong> result = datPhongServiceIMPL.getCanceledDatPhong(maDatPhong, pageable);
+        return ResponseEntity.ok(result);
     }
 }
