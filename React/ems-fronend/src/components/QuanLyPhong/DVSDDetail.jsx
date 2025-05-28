@@ -25,7 +25,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
     id: data?.id || "",
     dichVu: { id: data?.dichVu?.id } || "",
     xepPhong: { id: idxp },
-    soLuongSuDung: data?.soLuongSuDung || "",
+    soLuongSuDung: data?.soLuongSuDung || 1,
     giaSuDung: data?.giaSuDung || 0,
     trangThai: data?.trangThai ?? 0,
   });
@@ -42,7 +42,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
         id: data.id || "",
         dichVu: { id: data.dichVu?.id || "" },
         xepPhong: { id: idxp },
-        soLuongSuDung: data.soLuongSuDung || "",
+        soLuongSuDung: data.soLuongSuDung || 1,
         giaSuDung: data.giaSuDung || 0,
         trangThai: data.trangThai === true,
       });

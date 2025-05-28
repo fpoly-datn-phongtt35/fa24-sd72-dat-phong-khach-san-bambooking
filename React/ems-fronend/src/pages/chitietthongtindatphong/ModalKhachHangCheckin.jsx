@@ -280,8 +280,6 @@ const ModalKhachHangCheckin = ({
 
   };
 
-
-
   const handleCreate = async () => {
     try {
       if (!selectedKhachHang || selectedKhachHang.length === 0) {
@@ -313,13 +311,7 @@ const ModalKhachHangCheckin = ({
       const tongSoKhach = (daCheckin.data.length || 0) + (khachHangToCreate.length || 0);
 
       const loaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
-      const soKhachVuot = tongSoKhach - (loaiPhong.data.soKhachToiDa || 0);
-
-      if (soKhachVuot > 0) {
-        await handlePhuThu(idXepPhong, loaiPhong, soKhachVuot);
-      } else {
-        console.log("Số khách không vượt quá giới hạn, không cần phụ thu.");
-      }
+      await handlePhuThu(idXepPhong, loaiPhong, tongSoKhach);
 
       const checkinRequests = khachHangToCreate.map((kh) => ({
         khachHang: kh,
@@ -345,58 +337,56 @@ const ModalKhachHangCheckin = ({
     }
   };
 
-  const handlePhuThu = async (idXepPhong, loaiPhong, soKhachVuot) => {
-    const tienPhuThu = (loaiPhong.data.donGiaPhuThu || 0) * soKhachVuot;
+  const handlePhuThu = async (idXepPhong, loaiPhong, tongSoKhach) => {
+    const { soKhachTieuChuan = 0, phuThuNguoiLon = 0 } = loaiPhong.data;
+
+    const tong = Number(tongSoKhach);
+    const tieuChuan = Number(soKhachTieuChuan);
+
+    const soNguoiVuot = Math.max(0, tong - tieuChuan);
+
+    if (soNguoiVuot <= 0) {
+      console.log("Không vượt số khách tiêu chuẩn, không cần phụ thu.");
+      return;
+    }
+
+    const tenPhuThu = `Phụ thu do vượt quá số khách người lớn`;
+    const tienPhuThu = soNguoiVuot * Number(phuThuNguoiLon);
+
     const phuThuRequest = {
       xepPhong: { id: idXepPhong },
-      tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
-      tienPhuThu: tienPhuThu,
-      soLuong: soKhachVuot,
+      tenPhuThu,
+      tienPhuThu,
+      soLuong: soNguoiVuot,
       trangThai: false,
     };
 
     try {
-      let existingPhuThu = null;
-      try {
-        const response = await CheckPhuThuExists(idXepPhong);
-        existingPhuThu = response?.data;
-      } catch (err) {
-        if (err.response?.status === 404) {
-          console.log("Phụ thu không tồn tại, sẽ tạo mới.");
-        } else {
-          console.error("Lỗi khi kiểm tra phụ thu:", err);
-        }
-      }
+      const response = await CheckPhuThuExists(idXepPhong, tenPhuThu);
+      console.log("CheckPhuThuExists response data:", response?.data);
 
-      const isPhuThuChanged = existingPhuThu && (
-        existingPhuThu.soLuong !== soKhachVuot ||
-        existingPhuThu.tienPhuThu !== tienPhuThu
-      );
+      const existingPhuThu = response?.data;
 
-      if (existingPhuThu && isPhuThuChanged) {
-        try {
-          const updatedPhuThu = {
-            ...existingPhuThu,
-            soLuong: soKhachVuot,
-            tienPhuThu: tienPhuThu,
-            tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`
-          };
-          const updatedResponse = await CapNhatPhuThu(updatedPhuThu);
-          console.log("Cập nhật phụ thu thành công:", updatedResponse.data);
-        } catch (updateErr) {
-          console.error("Lỗi khi cập nhật phụ thu:", updateErr);
-        }
+      const isChanged = existingPhuThu &&
+        (existingPhuThu.soLuong !== soNguoiVuot || existingPhuThu.tienPhuThu !== tienPhuThu);
+
+      if (existingPhuThu && isChanged) {
+        console.log("Đang cập nhật phụ thu hiện tại:", existingPhuThu);
+        await CapNhatPhuThu({ ...existingPhuThu, ...phuThuRequest });
+        Swal.fire("Thành công", "Đã cập nhật phụ thu", "success");
       } else if (!existingPhuThu) {
-        try {
-          const createResponse = await ThemPhuThu(phuThuRequest);
-          console.log("Đã tạo phụ thu vì vượt số khách:", createResponse.data);
-          Swal.fire("Thành công", "Đã tạo phụ thu vượt quá số khách", "success");
-        } catch (err) {
-          console.error("Lỗi khi tạo phụ thu:", err);
-        }
+        console.log("Không tìm thấy phụ thu hiện tại, tạo mới.");
+        await ThemPhuThu(phuThuRequest);
+        Swal.fire("Thành công", "Đã tạo phụ thu mới", "success");
       }
     } catch (err) {
-      console.error("Lỗi khi xử lý phụ thu:", err);
+      if (err.response?.status === 404) {
+        console.log("404 - Không tìm thấy phụ thu, tạo mới.");
+        await ThemPhuThu(phuThuRequest);
+        Swal.fire("Thành công", "Đã tạo phụ thu mới", "success");
+      } else {
+        console.error("Lỗi khi xử lý phụ thu:", err);
+      }
     }
   };
 

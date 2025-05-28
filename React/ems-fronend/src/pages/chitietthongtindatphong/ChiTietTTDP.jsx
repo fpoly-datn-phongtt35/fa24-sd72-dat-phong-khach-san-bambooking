@@ -205,89 +205,6 @@ const ChiTietTTDP = () => {
       // Gọi API checkIn để cập nhật trạng thái xếp phòng
       await checkIn(xepPhongRequest);
 
-      // Kiểm tra và xử lý phụ thu
-      const resDaCheckin = await getKhachHangCheckinByThongTinId(
-        thongTinDatPhong.id
-      );
-      const daCheckinList = resDaCheckin.data || [];
-      const tongSoKhach = daCheckinList.length;
-
-      // Lấy thông tin loại phòng
-      const resLoaiPhong = await getLoaiPhongById(
-        thongTinDatPhong.loaiPhong.id
-      );
-      const loaiPhong = resLoaiPhong.data;
-      const soKhachToiDa = loaiPhong.soKhachToiDa || 0;
-      const soKhachVuot = tongSoKhach - soKhachToiDa;
-
-      if (soKhachVuot > 0) {
-        const tienPhuThu = (loaiPhong.donGiaPhuThu || 0) * soKhachVuot;
-        const phuThuRequest = {
-          xepPhong: { id: xepPhongData.id },
-          tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
-          tienPhuThu,
-          soLuong: soKhachVuot,
-          trangThai: false,
-        };
-
-        try {
-          let existingPhuThu = null;
-          try {
-            const response = await CheckPhuThuExists(xepPhongData.id);
-            existingPhuThu = response?.data;
-          } catch (err) {
-            if (err.response?.status !== 404) throw err;
-          }
-
-          if (existingPhuThu) {
-            // Cập nhật phụ thu nếu cần
-            if (
-              existingPhuThu.soLuong !== soKhachVuot ||
-              existingPhuThu.tienPhuThu !== tienPhuThu
-            ) {
-              const updatedPhuThu = {
-                ...existingPhuThu,
-                soLuong: soKhachVuot,
-                tienPhuThu,
-                tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
-              };
-              await CapNhatPhuThu(updatedPhuThu);
-            }
-          } else {
-            await ThemPhuThu(phuThuRequest);
-          }
-        } catch (err) {
-          console.error("Lỗi khi xử lý phụ thu:", err);
-          Swal.fire({
-            icon: "error",
-            title: "Lỗi",
-            text: `Không thể xử lý phụ thu: ${err.message}`,
-            confirmButtonText: "Đóng",
-          });
-          return;
-        }
-      } else {
-        // Xóa phụ thu nếu không còn vượt quá
-        try {
-          const response = await CheckPhuThuExists(xepPhongData.id);
-          const existingPhuThu = response?.data;
-          if (existingPhuThu) {
-            await XoaPhuThu(existingPhuThu.id);
-          }
-        } catch (err) {
-          if (err.response?.status !== 404) {
-            console.error("Lỗi khi kiểm tra hoặc xóa phụ thu:", err);
-            Swal.fire({
-              icon: "error",
-              title: "Lỗi",
-              text: `Không thể xóa phụ thu: ${err.message}`,
-              confirmButtonText: "Đóng",
-            });
-            return;
-          }
-        }
-      }
-
       // Cập nhật giao diện
       Swal.fire({
         icon: "success",
@@ -303,9 +220,8 @@ const ChiTietTTDP = () => {
       Swal.fire({
         icon: "error",
         title: "Lỗi",
-        text: `Không thể check-in: ${
-          error.response?.data?.message || error.message
-        }`,
+        text: `Không thể check-in: ${error.response?.data?.message || error.message
+          }`,
         confirmButtonText: "Đóng",
       });
     }
@@ -357,83 +273,76 @@ const ChiTietTTDP = () => {
       }
 
       // Lấy loại phòng để biết giới hạn khách
-      const resLoaiPhong = await getLoaiPhongById(
-        thongTinDatPhong.loaiPhong.id
-      );
+      const resLoaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
       const loaiPhong = resLoaiPhong.data;
-      const soKhachToiDa = loaiPhong.soKhachToiDa || 0;
-      const soKhachVuot = tongSoKhach - soKhachToiDa;
+      const soKhachToiDa = Number(loaiPhong.soKhachToiDa) || 0;
+      const donGiaPhuThu = Number(loaiPhong.phuThuNguoiLon) || 0;
 
-      if (soKhachVuot > 0) {
-        const tienPhuThu = (loaiPhong.donGiaPhuThu || 0) * soKhachVuot;
-        const phuThuRequest = {
-          xepPhong: { id: idXepPhong },
-          tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
-          tienPhuThu,
-          soLuong: soKhachVuot,
-          trangThai: false,
-        };
+      // Tính số khách vượt quá số tiêu chuẩn
+      const soKhachVuot = Math.max(0, tongSoKhach - soKhachToiDa);
+      const tenPhuThu = `Phụ thu do vượt quá số khách người lớn`;
 
+      try {
+        // Kiểm tra phụ thu hiện tại theo id xếp phòng và tên phụ thu
+        let existingPhuThu = null;
         try {
-          let existingPhuThu = null;
-          try {
-            const response = await CheckPhuThuExists(idXepPhong);
-            existingPhuThu = response?.data;
-          } catch (err) {
-            if (err.response?.status !== 404) throw err;
-          }
+          const response = await CheckPhuThuExists(idXepPhong, tenPhuThu);
+          existingPhuThu = response?.data;
+        } catch (err) {
+          if (err.response?.status !== 404) throw err;
+        }
+
+        if (soKhachVuot > 0) {
+          // Nếu vượt số khách
+          const tienPhuThu = soKhachVuot * donGiaPhuThu;
+          const phuThuRequest = {
+            xepPhong: { id: idXepPhong },
+            tenPhuThu,
+            tienPhuThu,
+            soLuong: soKhachVuot,
+            trangThai: false,
+          };
 
           if (existingPhuThu) {
-            // Nếu có phụ thu -> cập nhật nếu khác
+            // Cập nhật phụ thu nếu thông tin thay đổi
             if (
               existingPhuThu.soLuong !== soKhachVuot ||
               existingPhuThu.tienPhuThu !== tienPhuThu
             ) {
-              const updatedPhuThu = {
-                ...existingPhuThu,
-                soLuong: soKhachVuot,
-                tienPhuThu,
-                tenPhuThu: `Phụ thu do vượt quá số khách (${soKhachVuot} người)`,
-              };
+              const updatedPhuThu = { ...existingPhuThu, ...phuThuRequest };
               const updatedResponse = await CapNhatPhuThu(updatedPhuThu);
               console.log("Cập nhật phụ thu thành công", updatedResponse.data);
+            } else {
+              console.log("Phụ thu hiện tại không thay đổi, không cần cập nhật.");
             }
           } else {
+            // Tạo mới phụ thu
             await ThemPhuThu(phuThuRequest);
+            console.log("Tạo mới phụ thu thành công");
           }
-        } catch (err) {
-          console.error("Lỗi khi xử lý phụ thu:", err);
-          Swal.fire({
-            icon: "error",
-            title: "Lỗi",
-            text: `Không thể xử lý phụ thu: ${err.message}`,
-            confirmButtonText: "Đóng",
-          });
-        }
-      } else {
-        try {
-          const response = await CheckPhuThuExists(idXepPhong);
-          const existingPhuThu = response?.data;
+        } else {
+          // Không vượt số khách: nếu có phụ thu thì xóa
           if (existingPhuThu) {
             await XoaPhuThu(existingPhuThu.id);
+            console.log("Đã xóa phụ thu do không còn vượt quá số khách");
             Swal.fire({
               icon: "success",
               title: "Thành công",
               text: "Đã xóa phụ thu vì không còn vượt quá số khách",
               confirmButtonText: "Đóng",
             });
-          }
-        } catch (err) {
-          if (err.response?.status !== 404) {
-            console.error("Lỗi khi kiểm tra hoặc xóa phụ thu:", err);
-            Swal.fire({
-              icon: "error",
-              title: "Lỗi",
-              text: `Không thể xóa phụ thu: ${err.message}`,
-              confirmButtonText: "Đóng",
-            });
+          } else {
+            console.log("Không có phụ thu nào để xóa.");
           }
         }
+      } catch (err) {
+        console.error("Lỗi khi xử lý phụ thu:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: `Không thể xử lý phụ thu: ${err.message}`,
+          confirmButtonText: "Đóng",
+        });
       }
 
       // Cuối cùng: cập nhật danh sách hiển thị
@@ -699,11 +608,11 @@ const ChiTietTTDP = () => {
                   <Typography variant="body1" sx={{ fontWeight: "medium" }}>
                     {xepPhong?.ngayNhanPhong
                       ? new Date(xepPhong.ngayNhanPhong).toLocaleDateString(
-                          "vi-VN"
-                        )
+                        "vi-VN"
+                      )
                       : new Date(
-                          thongTinDatPhong?.ngayNhanPhong
-                        ).toLocaleDateString("vi-VN") || "N/A"}
+                        thongTinDatPhong?.ngayNhanPhong
+                      ).toLocaleDateString("vi-VN") || "N/A"}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "center" }}>
@@ -723,11 +632,11 @@ const ChiTietTTDP = () => {
                   <Typography variant="body1" sx={{ fontWeight: "medium" }}>
                     {xepPhong?.ngayTraPhong
                       ? new Date(xepPhong.ngayTraPhong).toLocaleDateString(
-                          "vi-VN"
-                        )
+                        "vi-VN"
+                      )
                       : new Date(
-                          thongTinDatPhong?.ngayTraPhong
-                        ).toLocaleDateString("vi-VN") || "N/A"}
+                        thongTinDatPhong?.ngayTraPhong
+                      ).toLocaleDateString("vi-VN") || "N/A"}
                   </Typography>
                 </Box>
               </Box>
