@@ -156,22 +156,13 @@ const QuanLyDatPhongDaHuy = () => {
                     <TableCell>Số Phòng</TableCell>
                     <TableCell>Ngày Đặt</TableCell>
                     <TableCell>Tổng Tiền</TableCell>
-                    <TableCell>Trạng Thái</TableCell>
                     <TableCell>Ghi chú hủy</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {canceledDatPhong.map((dp) => (
                     <TableRow key={dp.maDatPhong}>
-                      <TableCell>
-                        <Typography
-                          variant="body2"
-                          sx={{ color: "blue", cursor: "pointer" }}
-                          onClick={() => handleViewDetails(dp.maDatPhong)}
-                        >
-                          {dp.maDatPhong || "N/A"}
-                        </Typography>
-                      </TableCell>
+                      <TableCell> {dp.maDatPhong || "N/A"}</TableCell>
                       <TableCell>
                         {dp.khachHang ? `${dp.khachHang.ho || ""} ${dp.khachHang.ten || ""}`.trim() : "N/A"}
                       </TableCell>
@@ -180,7 +171,6 @@ const QuanLyDatPhongDaHuy = () => {
                       <TableCell>{dp.soPhong || 0}</TableCell>
                       <TableCell>{dp.ngayDat ? dayjs(dp.ngayDat).format("DD/MM/YYYY") : "N/A"}</TableCell>
                       <TableCell>{(dp.tongTien || 0).toLocaleString()} VND</TableCell>
-                      <TableCell>{dp.trangThai || "N/A"}</TableCell>
                       <TableCell>{dp.ghiChu || "Không có ghi chú"}</TableCell>
                     </TableRow>
                   ))}
