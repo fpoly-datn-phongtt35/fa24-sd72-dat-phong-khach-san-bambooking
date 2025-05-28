@@ -15,19 +15,32 @@ import {
   TableHead,
   TableRow,
   Checkbox,
-  Paper, FormControl, InputLabel, Select, MenuItem,
+  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import jsQR from "jsqr";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import ModalCreateKHC from "./ModalCreateKHC";
 import {
   createKhachHang,
   getKhachHangByKey,
 } from "../../services/KhachHangService";
-import { them, DanhSachKHC, getKhachHangCheckinByThongTinId, qrCheckIn } from "../../services/KhachHangCheckin";
-import { ThemPhuThu, CapNhatPhuThu, CheckPhuThuExists } from '../../services/PhuThuService';
-import { getLoaiPhongById } from '../../services/LoaiPhongService';
-import { getXepPhongByThongTinDatPhongId } from '../../services/XepPhongService.js';
+import {
+  them,
+  DanhSachKHC,
+  getKhachHangCheckinByThongTinId,
+  qrCheckIn,
+} from "../../services/KhachHangCheckin";
+import {
+  ThemPhuThu,
+  CapNhatPhuThu,
+  CheckPhuThuExists,
+} from "../../services/PhuThuService";
+import { getLoaiPhongById } from "../../services/LoaiPhongService";
+import { getXepPhongByThongTinDatPhongId } from "../../services/XepPhongService.js";
 
 const ModalKhachHangCheckin = ({
   isOpen,
@@ -65,11 +78,28 @@ const ModalKhachHangCheckin = ({
     }
   };
 
-  // Reset selectedKhachHang và lấy danh sách check-in khi modal mở
   useEffect(() => {
     if (isOpen) {
-      setSelectedKhachHang([]); // Reset danh sách khách hàng được chọn
-      fetchCheckedInKhachHang(); // Lấy danh sách khách hàng đã check-in
+      setSelectedKhachHang([]);
+      fetchCheckedInKhachHang();
+      // Lấy thông tin loại phòng để kiểm tra số khách tối đa
+      const checkMaxGuests = async () => {
+        const loaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
+        const daCheckin = await getKhachHangCheckinByThongTinId(
+          thongTinDatPhong.id
+        );
+        if (daCheckin.data.length >= loaiPhong.data.soKhachToiDa) {
+          Swal.fire({
+            icon: "warning",
+            title: "Cảnh báo",
+            text: "Đã đạt số lượng khách tối đa cho phòng này.",
+            confirmButtonText: "OK",
+            confirmButtonColor: "#6a5acd",
+          });
+          // Có thể vô hiệu hóa nút check-in hoặc quét QR
+        }
+      };
+      checkMaxGuests();
     }
   }, [isOpen, thongTinDatPhong]);
 
@@ -80,20 +110,34 @@ const ModalKhachHangCheckin = ({
       navigator.mediaDevices
         .enumerateDevices()
         .then((devices) => {
-          const videoDevices = devices.filter(device => device.kind === "videoinput");
+          const videoDevices = devices.filter(
+            (device) => device.kind === "videoinput"
+          );
           console.log("Danh sách camera khả dụng:", videoDevices);
           if (videoDevices.length === 0) {
-            setCameraError("Không tìm thấy camera trên thiết bị. Vui lòng kiểm tra thiết bị hoặc kết nối camera.");
+            setCameraError(
+              "Không tìm thấy camera trên thiết bị. Vui lòng kiểm tra thiết bị hoặc kết nối camera."
+            );
             return;
           }
           // Chọn USB2.0 HD UVC WebCam hoặc camera đầu tiên
-          const preferredCamera = videoDevices.find(device => device.label.includes('USB2.0 HD UVC WebCam')) || videoDevices[0];
-          console.log("Sử dụng camera:", preferredCamera.label, "với deviceId:", preferredCamera.deviceId);
+          const preferredCamera =
+            videoDevices.find((device) =>
+              device.label.includes("USB2.0 HD UVC WebCam")
+            ) || videoDevices[0];
+          console.log(
+            "Sử dụng camera:",
+            preferredCamera.label,
+            "với deviceId:",
+            preferredCamera.deviceId
+          );
 
           // Khởi tạo luồng video
           const constraints = {
             video: {
-              deviceId: preferredCamera.deviceId ? { exact: preferredCamera.deviceId } : undefined,
+              deviceId: preferredCamera.deviceId
+                ? { exact: preferredCamera.deviceId }
+                : undefined,
               facingMode: "environment",
               width: { ideal: 1280 },
               height: { ideal: 720 },
@@ -110,26 +154,44 @@ const ModalKhachHangCheckin = ({
               };
             })
             .catch((err) => {
-              console.error("Lỗi truy cập camera:", { name: err.name, message: err.message, stack: err.stack });
+              console.error("Lỗi truy cập camera:", {
+                name: err.name,
+                message: err.message,
+                stack: err.stack,
+              });
               if (err.name === "NotAllowedError") {
-                setCameraError("Quyền truy cập camera bị từ chối. Vui lòng cấp quyền trong trình duyệt.");
+                setCameraError(
+                  "Quyền truy cập camera bị từ chối. Vui lòng cấp quyền trong trình duyệt."
+                );
               } else if (err.name === "NotFoundError") {
-                setCameraError("Không tìm thấy camera USB2.0 HD UVC WebCam. Vui lòng kiểm tra thiết bị.");
+                setCameraError(
+                  "Không tìm thấy camera USB2.0 HD UVC WebCam. Vui lòng kiểm tra thiết bị."
+                );
               } else {
-                setCameraError(`Lỗi truy cập camera: ${err.name || "Lỗi không xác định"} - ${err.message || "Không có thông tin chi tiết"}`);
+                setCameraError(
+                  `Lỗi truy cập camera: ${err.name || "Lỗi không xác định"} - ${
+                    err.message || "Không có thông tin chi tiết"
+                  }`
+                );
               }
             });
         })
         .catch((err) => {
-          console.error("Lỗi liệt kê camera:", { name: err.name, message: err.message, stack: err.stack });
-          setCameraError("Không thể liệt kê camera: " + (err.message || "Lỗi không xác định"));
+          console.error("Lỗi liệt kê camera:", {
+            name: err.name,
+            message: err.message,
+            stack: err.stack,
+          });
+          setCameraError(
+            "Không thể liệt kê camera: " + (err.message || "Lỗi không xác định")
+          );
         });
     }
 
     // Dọn dẹp
     return () => {
       if (videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       }
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
@@ -165,7 +227,12 @@ const ModalKhachHangCheckin = ({
         console.log("Đang quét khung hình...");
         context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         try {
-          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const imageData = context.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+          );
           const code = jsQR(imageData.data, imageData.width, imageData.height, {
             inversionAttempts: "dontInvert",
           });
@@ -183,7 +250,10 @@ const ModalKhachHangCheckin = ({
           console.error("Lỗi khi lấy dữ liệu hình ảnh:", err);
         }
       } else {
-        console.log("Video chưa sẵn sàng, readyState:", videoRef.current.readyState);
+        console.log(
+          "Video chưa sẵn sàng, readyState:",
+          videoRef.current.readyState
+        );
       }
       animationFrameId.current = requestAnimationFrame(scan);
     };
@@ -194,7 +264,7 @@ const ModalKhachHangCheckin = ({
 
   const stopStream = () => {
     if (videoRef.current && videoRef.current.srcObject) {
-      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       videoRef.current.srcObject = null;
       console.log("Đã dừng luồng video từ stopStream");
     }
@@ -229,7 +299,7 @@ const ModalKhachHangCheckin = ({
     setQRModalOpen(false);
     // Đảm bảo dừng luồng video khi đóng modal
     if (videoRef.current && videoRef.current.srcObject) {
-      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject.getTracks().forEach((track) => track.stop());
       videoRef.current.srcObject = null;
       console.log("Đã dừng luồng video khi đóng modal");
     }
@@ -241,10 +311,47 @@ const ModalKhachHangCheckin = ({
 
   const parseQRData = (rawData) => {
     const fields = rawData.split("|");
+
+    // Hàm chuyển đổi ngày sinh từ DDMMYYYY sang YYYY-MM-DD
+    const parseDate = (dateStr) => {
+      if (!dateStr || dateStr.length !== 8) {
+        return ""; // Trả về rỗng nếu không hợp lệ
+      }
+
+      try {
+        const day = dateStr.slice(0, 2); // Lấy 2 ký tự đầu (ngày)
+        const month = dateStr.slice(2, 4); // Lấy 2 ký tự tiếp (tháng)
+        const year = dateStr.slice(4, 8); // Lấy 4 ký tự cuối (năm)
+
+        // Kiểm tra định dạng số hợp lệ
+        if (!/^\d{8}$/.test(dateStr)) {
+          return "";
+        }
+
+        // Tạo chuỗi định dạng YYYY-MM-DD
+        const formattedDate = `${year}-${month}-${day}`;
+
+        // Kiểm tra xem ngày có hợp lệ không
+        const date = new Date(formattedDate);
+        if (
+          date.getFullYear() !== parseInt(year) ||
+          date.getMonth() + 1 !== parseInt(month) ||
+          date.getDate() !== parseInt(day)
+        ) {
+          return "";
+        }
+
+        return formattedDate;
+      } catch (error) {
+        console.error("Lỗi khi phân tích ngày sinh:", error);
+        return "";
+      }
+    };
+
     return {
       cmnd: fields[0] || "",
       hoTen: fields[2] || "",
-      ngaySinh: fields[3] || "",
+      ngaySinh: parseDate(fields[3]),
       gioiTinh: fields[4] || "",
       diaChi: fields[5] || "",
     };
@@ -254,39 +361,89 @@ const ModalKhachHangCheckin = ({
     if (e && e.preventDefault) e.preventDefault();
     const rawData = data;
     const qrParsedData = parseQRData(rawData);
-    console.log(qrParsedData);
 
-    const response = await qrCheckIn(qrParsedData, thongTinDatPhong.id)
-    if (response.data == true) {
+    // Lấy thông tin loại phòng và số khách đã check-in
+    const loaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
+    const daCheckin = await getKhachHangCheckinByThongTinId(
+      thongTinDatPhong.id
+    );
+    const tongSoKhach = (daCheckin.data.length || 0) + 1; // Thêm 1 khách từ QR
+
+    // Kiểm tra nếu vượt quá số khách tối đa
+    if (tongSoKhach > loaiPhong.data.soKhachToiDa) {
       Swal.fire({
-        icon: 'success',
-        title: 'Thành công',
-        text: 'Checkin thành công',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#6a5acd'
+        icon: "error",
+        title: "Lỗi",
+        text: `Số khách check-in (${tongSoKhach}) vượt quá số khách tối đa cho phép (${loaiPhong.data.soKhachToiDa}).`,
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6a5acd",
+      });
+      closeQRScanner();
+      return;
+    }
+
+    // Tiếp tục xử lý check-in QR
+    const response = await qrCheckIn(qrParsedData, thongTinDatPhong.id);
+    if (response.data === true) {
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Check-in thành công",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6a5acd",
       });
     } else {
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: 'Khách hàng này đã Checkin',
-        confirmButtonText: 'OK'
+        icon: "error",
+        title: "Lỗi",
+        text: "Khách hàng này đã check-in",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6a5acd",
       });
     }
+
     fetchKhachHangList(trangThai, searchKeyword, page);
     fetchCheckedInKhachHang();
     setQRModalOpen(false);
     handleCloseModalKC();
-
   };
 
   const handleCreate = async () => {
     try {
       if (!selectedKhachHang || selectedKhachHang.length === 0) {
-        console.log("Chưa chọn khách hàng nào để check-in");
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Vui lòng chọn ít nhất một khách hàng để check-in.",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6a5acd",
+        });
         return;
       }
 
+      // Lấy thông tin loại phòng và số khách đã check-in
+      const loaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
+      const daCheckin = await getKhachHangCheckinByThongTinId(
+        thongTinDatPhong.id
+      );
+
+      // Tính tổng số khách (đã check-in + mới chọn)
+      const tongSoKhach =
+        (daCheckin.data.length || 0) + (selectedKhachHang.length || 0);
+
+      // Kiểm tra nếu tổng số khách vượt quá số khách tối đa
+      if (tongSoKhach > loaiPhong.data.soKhachToiDa) {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: `Số khách check-in (${tongSoKhach}) vượt quá số khách tối đa cho phép (${loaiPhong.data.soKhachToiDa}).`,
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6a5acd",
+        });
+        return;
+      }
+
+      // Tiếp tục xử lý tạo khách hàng nếu chưa có ID
       const khachHangToCreate = [];
       for (let kh of selectedKhachHang) {
         if (!kh.id) {
@@ -297,43 +454,63 @@ const ModalKhachHangCheckin = ({
         }
       }
 
+      // Lấy ID xếp phòng
       let idXepPhong = null;
       try {
-        const resXepPhong = await getXepPhongByThongTinDatPhongId(thongTinDatPhong.id);
+        const resXepPhong = await getXepPhongByThongTinDatPhongId(
+          thongTinDatPhong.id
+        );
         idXepPhong = resXepPhong?.data?.id || null;
         console.log("Lấy được idXepPhong:", idXepPhong);
       } catch (err) {
         console.error("Lỗi khi lấy idXepPhong từ API:", err);
       }
 
-      // Tính tổng số khách hiện có
-      const daCheckin = await getKhachHangCheckinByThongTinId(thongTinDatPhong.id);
-      const tongSoKhach = (daCheckin.data.length || 0) + (khachHangToCreate.length || 0);
-
-      const loaiPhong = await getLoaiPhongById(thongTinDatPhong.loaiPhong.id);
+      // Xử lý phụ thu
       await handlePhuThu(idXepPhong, loaiPhong, tongSoKhach);
 
+      // Tạo yêu cầu check-in
       const checkinRequests = khachHangToCreate.map((kh) => ({
         khachHang: kh,
         thongTinDatPhong: thongTinDatPhong,
         trangThai: false,
       }));
 
+      // Gửi yêu cầu check-in
       const responses = await Promise.all(
         checkinRequests.map((req) => them(req))
       );
       console.log("Tạo nhiều khách hàng check-in thành công:", responses);
 
+      // Điều hướng đến trang chi tiết
       const maThongTinDatPhong = thongTinDatPhong.maThongTinDatPhong;
       navigate("/chi-tiet-ttdp", { state: { maThongTinDatPhong } });
 
+      // Gọi callback khi check-in thành công
       if (onCheckinSuccess) {
         onCheckinSuccess();
       }
 
-      setSelectedKhachHang([]); // Reset sau khi tạo check-in thành công
+      // Reset danh sách khách hàng được chọn
+      setSelectedKhachHang([]);
+
+      // Thông báo thành công
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Check-in khách hàng thành công!",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6a5acd",
+      });
     } catch (error) {
       console.log("Lỗi khi thêm nhiều khách hàng check-in:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi thực hiện check-in. Vui lòng thử lại.",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6a5acd",
+      });
     }
   };
 
@@ -367,8 +544,10 @@ const ModalKhachHangCheckin = ({
 
       const existingPhuThu = response?.data;
 
-      const isChanged = existingPhuThu &&
-        (existingPhuThu.soLuong !== soNguoiVuot || existingPhuThu.tienPhuThu !== tienPhuThu);
+      const isChanged =
+        existingPhuThu &&
+        (existingPhuThu.soLuong !== soNguoiVuot ||
+          existingPhuThu.tienPhuThu !== tienPhuThu);
 
       if (existingPhuThu && isChanged) {
         console.log("Đang cập nhật phụ thu hiện tại:", existingPhuThu);
@@ -497,9 +676,9 @@ const ModalKhachHangCheckin = ({
               </FormControl>
             </Stack>
             <Stack direction="row" spacing={2}>
-              {/* <Button variant="contained" onClick={handleOpenModalKHC}>
+              <Button variant="contained" onClick={handleOpenModalKHC}>
                 Tạo Mới
-              </Button> */}
+              </Button>
               <Button variant="contained" onClick={openQRScanner}>
                 Quét QR
               </Button>
@@ -601,17 +780,19 @@ const ModalKhachHangCheckin = ({
       />
 
       <Modal open={isQRModalOpen} onClose={closeQRScanner}>
-        <Box sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: { xs: "90%", sm: 600 },
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 4,
-          borderRadius: 2,
-        }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: { xs: "90%", sm: 600 },
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
           <Typography variant="h6" component="h3" gutterBottom>
             Quét Mã QR
           </Typography>
@@ -625,7 +806,11 @@ const ModalKhachHangCheckin = ({
                 ref={videoRef}
                 autoPlay
                 playsInline
-                style={{ width: "100%", maxHeight: "400px", border: "1px solid #ccc" }}
+                style={{
+                  width: "100%",
+                  maxHeight: "400px",
+                  border: "1px solid #ccc",
+                }}
               />
               <canvas ref={canvasRef} style={{ display: "none" }} />
             </>

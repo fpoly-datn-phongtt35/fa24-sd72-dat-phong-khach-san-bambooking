@@ -13,6 +13,7 @@ import {
   getLPKDR,
   addThongTinDatPhong,
   getLPKDRL,
+  HuyDP,
 } from "../services/DatPhong";
 import dayjs from "dayjs";
 import {
@@ -48,17 +49,19 @@ import {
   cancelPayment,
 } from "../services/Payment";
 import Swal from "sweetalert2";
-
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 const HotelBookingConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const dialogRef = useRef(null);
   const { combination, datPhong, khachHang, thongTinDatPhong } =
     location.state ||
     JSON.parse(
       localStorage.getItem(`booking_data_${datPhong?.id || Date.now()}`)
     ) ||
     {};
-
   const [formData, setFormData] = useState({
     ho: khachHang?.ho || "",
     ten: khachHang?.ten || "",
@@ -73,10 +76,21 @@ const HotelBookingConfirmation = () => {
   const timeoutRef = useRef(null);
   const timerRef = useRef(null);
   const [openSearchDialog, setOpenSearchDialog] = useState(false);
+  const currentHour = dayjs().hour();
+  const initNgayNhanPhong =
+    currentHour >= 14
+      ? dayjs().add(1, "day").set("hour", 14).set("minute", 0).set("second", 0)
+      : dayjs().set("hour", 14).set("minute", 0).set("second", 0);
+  const initNgayTraPhong = initNgayNhanPhong
+    .add(1, "day")
+    .set("hour", 12)
+    .set("minute", 0)
+    .set("second", 0);
   const [searchForm, setSearchForm] = useState({
-    ngayNhanPhong: dayjs().format("YYYY-MM-DD"),
-    ngayTraPhong: dayjs().add(1, "day").format("YYYY-MM-DD"),
+    ngayNhanPhong: initNgayNhanPhong,
+    ngayTraPhong: initNgayTraPhong,
     soNguoi: "",
+    soTre: "",
     soPhong: "",
     idLoaiPhong: null,
   });
@@ -135,11 +149,7 @@ const HotelBookingConfirmation = () => {
     }
 
     try {
-      const updatedResponse = await getThongTinDatPhong(datPhong.id);
-      const updatedThongTinDatPhong = updatedResponse.data;
-      for (const ttdp of updatedThongTinDatPhong) {
-        await huyTTDP(ttdp.maThongTinDatPhong);
-      }
+      await HuyDP(datPhong.id);
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(DATA_STORAGE_KEY);
       Swal.fire({
@@ -277,6 +287,7 @@ const HotelBookingConfirmation = () => {
               khachHang: datPhong.khachHang,
               maDatPhong: datPhong.maDatPhong,
               soNguoi: datPhong.soNguoi,
+              soTre: datPhong.soTre || 0,
               soPhong: datPhong.soPhong,
               ngayDat: datPhong.ngayDat,
               tongTien: datPhong.tongTien,
@@ -335,6 +346,7 @@ const HotelBookingConfirmation = () => {
               khachHang: datPhong.khachHang,
               maDatPhong: datPhong.maDatPhong,
               soNguoi: datPhong.soNguoi,
+              soTre: datPhong.soTre || 0,
               soPhong: datPhong.soPhong,
               ngayDat: datPhong.ngayDat,
               tongTien: datPhong.tongTien,
@@ -377,8 +389,12 @@ const HotelBookingConfirmation = () => {
     if (openSearchDialog) {
       const fetchLoaiPhongs = async () => {
         try {
-          const n = dayjs(searchForm.ngayNhanPhong).format("YYYY-MM-DD");
-          const t = dayjs(searchForm.ngayTraPhong).format("YYYY-MM-DD");
+          const n = dayjs(searchForm.ngayNhanPhong).format(
+            "YYYY-MM-DD[T]HH:mm:ss.SSSZ"
+          );
+          const t = dayjs(searchForm.ngayTraPhong).format(
+            "YYYY-MM-DD[T]HH:mm:ss.SSSZ"
+          );
           const response = await getLPKDR(n, t);
           setLoaiPhongs(response.data);
         } catch (error) {
@@ -438,69 +454,88 @@ const HotelBookingConfirmation = () => {
 
   const handleSearchRooms = async () => {
     const errors = {};
-    const today = dayjs().format("YYYY-MM-DD");
-    if (!searchForm.ngayNhanPhong)
-      errors.ngayNhanPhong = "Vui lòng chọn ngày nhận phòng";
-    else if (searchForm.ngayNhanPhong < today)
-      errors.ngayNhanPhong = "Ngày nhận phòng không được trước ngày hiện tại";
-    if (!searchForm.ngayTraPhong)
-      errors.ngayTraPhong = "Vui lòng chọn ngày trả phòng";
-    else if (
-      dayjs(searchForm.ngayTraPhong).isBefore(
-        dayjs(searchForm.ngayNhanPhong)
-      ) ||
-      dayjs(searchForm.ngayTraPhong).isSame(dayjs(searchForm.ngayNhanPhong))
-    )
-      errors.ngayTraPhong = "Ngày trả phòng phải sau ngày nhận phòng";
-    if (
-      !searchForm.soNguoi ||
-      searchForm.soNguoi <= 0 ||
-      !Number.isInteger(Number(searchForm.soNguoi))
-    )
-      errors.soNguoi = "Số người phải là số nguyên lớn hơn 0";
-    if (
-      !searchForm.soPhong ||
-      searchForm.soPhong <= 0 ||
-      !Number.isInteger(Number(searchForm.soPhong))
-    )
-      errors.soPhong = "Số phòng phải là số nguyên lớn hơn 0";
+    const today = dayjs();
+
+    // Chuyển đổi chuỗi ngày thành đối tượng dayjs
+    const ngayNhanPhong = dayjs(searchForm.ngayNhanPhong);
+    const ngayTraPhong = dayjs(searchForm.ngayTraPhong);
+
+    // Kiểm tra ngày nhận phòng
+    if (!searchForm.ngayNhanPhong || !ngayNhanPhong.isValid()) {
+      errors.ngayNhanPhong = "Vui lòng chọn ngày nhận phòng hợp lệ";
+    }
+
+    // Kiểm tra ngày trả phòng
+    if (!searchForm.ngayTraPhong || !ngayTraPhong.isValid()) {
+      errors.ngayTraPhong = "Vui lòng chọn ngày trả phòng hợp lệ";
+    }
+
+    // Kiểm tra số người
+    const soNguoi = Number(searchForm.soNguoi);
+    if (!soNguoi || soNguoi < 0 || isNaN(soNguoi)) {
+      errors.soNguoi = "Số người lớn phải là số nguyên dương";
+    }
+
+    // Kiểm tra số trẻ em
+    const soTre = Number(searchForm.soTre);
+    if (isNaN(soTre) || soTre < 0) {
+      errors.soTre = "Số trẻ em không được âm";
+    }
+
+    // Kiểm tra số phòng
+    const soPhong = Number(searchForm.soPhong);
+    if (!soPhong || isNaN(soPhong) || soPhong < 1) {
+      errors.soPhong = "Số phòng phải là số nguyên dương";
+    }
 
     setSearchErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
     try {
-      const n = dayjs(searchForm.ngayNhanPhong).format("YYYY-MM-DD");
-      const t = dayjs(searchForm.ngayTraPhong).format("YYYY-MM-DD");
+      setIsSubmitting(true);
+      const n = searchForm.ngayNhanPhong.toISOString();
+      const t = searchForm.ngayTraPhong.toISOString();
+
       const response = await getLPKDRL(
         n,
         t,
-        Number(searchForm.soNguoi),
-        Number(searchForm.soPhong),
-        searchForm.idLoaiPhong
+        soNguoi,
+        soTre,
+        soPhong,
+        searchForm.idLoaiPhong || null
       );
-      if (response.data.length === 0) {
+
+      if (!response.data || response.data.length === 0) {
         Swal.fire({
           icon: "info",
           title: "Thông báo",
           text: "Không có phòng khả dụng cho yêu cầu của bạn. Vui lòng thử lại với ngày hoặc số lượng khác.",
           confirmButtonText: "Đóng",
+          target: dialogRef.current, // Gắn vào dialog
+          backdrop: true,
         });
+        setAvailableRooms([]);
+      } else {
+        setAvailableRooms(response.data);
       }
-      setAvailableRooms(response.data);
     } catch (error) {
-      console.error("Lỗi khi tìm phòng khả dụng:", error);
+      console.error("Lỗi khi tìm kiếm phòng khả dụng:", error);
       Swal.fire({
         icon: "error",
         title: "Lỗi",
-        text: "Có lỗi xảy ra khi tìm phòng. Vui lòng thử lại.",
+        text: "Lỗi khi tìm kiếm phòng. Vui lòng thử lại.",
         confirmButtonText: "Đóng",
+        target: dialogRef.current, // Gắn vào dialog
+        backdrop: true,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleAddRoom = async (room) => {
-    const addedRooms = [];
-    if (room.soPhongKhaDung < Number(searchForm.soPhong)) {
+    const soPhong = Number(searchForm.soPhong);
+    if (room.soPhongKhaDung < soPhong) {
       Swal.fire({
         icon: "error",
         title: "Lỗi",
@@ -511,37 +546,88 @@ const HotelBookingConfirmation = () => {
     }
 
     try {
-      for (let i = 0; i < Number(searchForm.soPhong); i++) {
+      const soNguoi = Number(searchForm.soNguoi);
+      const soTre = Number(searchForm.soTre);
+
+      if (isNaN(soNguoi) || soNguoi < 1) {
+        throw new Error("Số người lớn không hợp lệ");
+      }
+      if (isNaN(soTre) || soTre < 0) {
+        throw new Error("Số trẻ em không hợp lệ");
+      }
+
+      const addedRooms = [];
+      for (let i = 0; i < soPhong; i++) {
         const newRoom = {
           datPhong: datPhong,
           idLoaiPhong: room.id,
           maThongTinDatPhong: `TDP-${Date.now()}-${room.id}-${i}`,
-          ngayNhanPhong: searchForm.ngayNhanPhong,
-          ngayTraPhong: searchForm.ngayTraPhong,
-          soNguoi: room.soKhachToiDa,
+          ngayNhanPhong: dayjs(searchForm.ngayNhanPhong)
+            .set("hour", 14)
+            .set("minute", 0)
+            .format("YYYY-MM-DDTHH:mm:ss"),
+          ngayTraPhong: dayjs(searchForm.ngayTraPhong)
+            .set("hour", 12)
+            .set("minute", 0)
+            .format("YYYY-MM-DDTHH:mm:ss"),
+          soNguoi: soNguoi,
+          soTre: soTre,
           giaDat: room.donGia,
           trangThai: "Đang đặt phòng",
         };
         const response = await addThongTinDatPhong(newRoom);
-        if (!response || !response.data)
+        if (!response?.data) {
           throw new Error(
             `Không thể thêm thông tin đặt phòng: ${newRoom.maThongTinDatPhong}`
           );
+        }
         addedRooms.push(response.data);
       }
 
+      // Lấy danh sách thông tin đặt phòng mới
       const updatedResponse = await getThongTinDatPhong(datPhong.id);
       const numberedRooms = groupAndNumberRooms(updatedResponse.data);
       setTtdpData(numberedRooms);
 
+      // Cập nhật thông tin đặt phòng
+      const newTotalPrice = calculateTotalAmount();
+      const updatedDatPhong = {
+        id: datPhong.id,
+        khachHang: datPhong.khachHang,
+        maDatPhong: datPhong.maDatPhong,
+        soNguoi: numberedRooms.reduce(
+          (total, room) => total + room.soNguoi * room.soPhong,
+          0
+        ),
+        soTre: numberedRooms.reduce(
+          (total, room) => total + (room.soTre || 0) * room.soPhong,
+          0
+        ),
+        soPhong: numberedRooms.reduce((total, room) => total + room.soPhong, 0),
+        ngayDat: datPhong.ngayDat,
+        tongTien: newTotalPrice,
+        ghiChu: datPhong.ghiChu,
+        trangThai: "Chưa xác nhận",
+      };
+      datPhong = await CapNhatDatPhong(updatedDatPhong);
+
+      // Reset form tìm kiếm
       setOpenSearchDialog(false);
       setAvailableRooms([]);
       setSearchForm({
-        ngayNhanPhong: dayjs().format("YYYY-MM-DD"),
-        ngayTraPhong: dayjs().add(1, "day").format("YYYY-MM-DD"),
-        soNguoi: "",
-        soPhong: "",
+        ngayNhanPhong: dayjs(),
+        ngayTraPhong: dayjs().add(1, "day"),
+        soNguoi: 1,
+        soTre: 0,
+        soPhong: 1,
         idLoaiPhong: null,
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Thêm phòng thành công!",
+        confirmButtonText: "Đóng",
       });
     } catch (error) {
       console.error("Lỗi khi thêm phòng:", error);
@@ -728,436 +814,510 @@ const HotelBookingConfirmation = () => {
   };
 
   return (
-    <Container maxWidth="lg" className="confirmation-container">
-      <Box
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        textAlign="center"
-      >
-        <Typography variant="h4" className="confirmation-title">
-          Xác Nhận Đặt Phòng
-        </Typography>
-        <Typography variant="body1" className="confirmation-subtitle">
-          Vui lòng kiểm tra thông tin và cập nhật chi tiết khách hàng
-        </Typography>
-        {datPhong?.id && (
-          <Typography variant="h5" className="countdown-timer">
-            ⏳ {formatTimeLeft(timeLeft)} còn lại để xác nhận
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Container maxWidth="lg" className="confirmation-container">
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          textAlign="center"
+        >
+          <Typography variant="h4" className="confirmation-title">
+            Xác Nhận Đặt Phòng
           </Typography>
-        )}
-      </Box>
-
-      <Card className="confirmation-card">
-        <CardContent>
-          <Typography variant="h5" className="section-title">
-            Thông Tin Đặt Phòng
+          <Typography variant="body1" className="confirmation-subtitle">
+            Vui lòng kiểm tra thông tin và cập nhật chi tiết khách hàng
           </Typography>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body1" className="info-text">
-                <strong>Mã đặt phòng:</strong> {datPhong.maDatPhong}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body1" className="info-text">
-                <strong>Tổng chi phí:</strong>{" "}
-                {calculateTotalAmount().toLocaleString()} VND
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body1" className="info-text">
-                <strong>Tổng số phòng:</strong>{" "}
-                {ttdpData.reduce((total, room) => total + room.soPhong, 0)}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body1" className="info-text">
-                <strong>Số tiền cần thanh toán:</strong>{" "}
-                {(paymentMethod === "Đặt cọc"
-                  ? calculateTotalAmount() * 0.3
-                  : calculateTotalAmount()
-                ).toLocaleString()}{" "}
-                VND
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body1" className="info-text">
-                <strong>Ngày đặt:</strong>{" "}
-                {dayjs(datPhong.ngayDat).format("DD/MM/YYYY HH:mm")}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="body1" className="info-text">
-                <strong>Ngày đặt:</strong> {formatDateTime(datPhong.ngayDat)}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={() => setOpenSearchDialog(true)}
-                className="add-room-button"
-              >
-                Thêm Phòng
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth variant="outlined" className="text-field">
-                <InputLabel>Phương thức thanh toán *</InputLabel>
-                <Select
-                  label="Phương thức thanh toán *"
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                >
-                  <MenuItem value="Đặt cọc">Đặt cọc (30%)</MenuItem>
-                  <MenuItem value="Thanh toán trước">
-                    Thanh toán trước (100%)
-                  </MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
-        </CardContent>
-      </Card>
-
-      <Card className="confirmation-card">
-        <CardContent>
-          <Typography variant="h5" className="section-title">
-            Chi Tiết Phòng Đã Chọn
-          </Typography>
-          <TableContainer className="table-container">
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Loại phòng</TableCell>
-                  <TableCell>Ngày nhận phòng</TableCell>
-                  <TableCell>Ngày trả phòng</TableCell>
-                  <TableCell>Giá mỗi đêm</TableCell>
-                  <TableCell>Số đêm</TableCell>
-                  <TableCell>Số phòng</TableCell>
-                  <TableCell>Thành tiền</TableCell>
-                  <TableCell>Hành động</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {ttdpData.map((room, index) => (
-                  <TableRow key={index} className="table-row">
-                    <TableCell>{room.loaiPhong.tenLoaiPhong}</TableCell>
-                    <TableCell>{formatDateTime(room.ngayNhanPhong)}</TableCell>
-                    <TableCell>{formatDateTime(room.ngayTraPhong)}</TableCell>
-                    <TableCell>
-                      {room.loaiPhong.donGia.toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      {calculateBookingDays(
-                        room.ngayNhanPhong,
-                        room.ngayTraPhong
-                      )}
-                    </TableCell>
-                    <TableCell>{room.soPhong}</TableCell>
-                    <TableCell>
-                      {(
-                        calculateBookingDays(
-                          room.ngayNhanPhong,
-                          room.ngayTraPhong
-                        ) *
-                        room.loaiPhong.donGia *
-                        room.soPhong
-                      ).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <IconButton
-                        color="error"
-                        onClick={() => handleRemoveRoom(room)}
-                        title="Hủy phòng này"
-                      >
-                        <RemoveIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </CardContent>
-      </Card>
-
-      <Card className="confirmation-card">
-        <CardContent>
-          <Typography variant="h5" className="section-title">
-            Thông Tin Khách Hàng
-          </Typography>
-          {showError && (
-            <Typography variant="body2" className="error-message">
-              Vui lòng điền đầy đủ và đúng thông tin trước khi xác nhận.
+          {datPhong?.id && (
+            <Typography variant="h5" className="countdown-timer">
+              ⏳ {formatTimeLeft(timeLeft)} còn lại để xác nhận
             </Typography>
           )}
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={3}>
+        </Box>
+
+        <Card className="confirmation-card">
+          <CardContent>
+            <Typography variant="h5" className="section-title">
+              Thông Tin Đặt Phòng
+            </Typography>
+            <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Họ *"
-                  name="ho"
-                  value={formData.ho}
-                  onChange={handleInputChange}
-                  error={!!formErrors.ho}
-                  helperText={formErrors.ho}
-                  variant="outlined"
-                  className="text-field"
-                />
+                <Typography variant="body1" className="info-text">
+                  <strong>Mã đặt phòng:</strong> {datPhong.maDatPhong}
+                </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Tên *"
-                  name="ten"
-                  value={formData.ten}
-                  onChange={handleInputChange}
-                  error={!!formErrors.ten}
-                  helperText={formErrors.ten}
-                  variant="outlined"
-                  className="text-field"
-                />
+                <Typography variant="body1" className="info-text">
+                  <strong>Tổng chi phí:</strong>{" "}
+                  {calculateTotalAmount().toLocaleString()} VND
+                </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Số điện thoại *"
-                  name="soDienThoai"
-                  value={formData.soDienThoai}
-                  onChange={handleInputChange}
-                  error={!!formErrors.soDienThoai}
-                  helperText={formErrors.soDienThoai}
-                  variant="outlined"
-                  inputProps={{ pattern: "[0-9]{10}" }}
-                  className="text-field"
-                />
+                <Typography variant="body1" className="info-text">
+                  <strong>Tổng số phòng:</strong>{" "}
+                  {ttdpData.reduce((total, room) => total + room.soPhong, 0)}
+                </Typography>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Email *"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  error={!!formErrors.email}
-                  helperText={formErrors.email}
-                  variant="outlined"
-                  className="text-field"
-                />
+                <Typography variant="body1" className="info-text">
+                  <strong>Số tiền cần thanh toán:</strong>{" "}
+                  {(paymentMethod === "Đặt cọc"
+                    ? calculateTotalAmount() * 0.3
+                    : calculateTotalAmount()
+                  ).toLocaleString()}{" "}
+                  VND
+                </Typography>
               </Grid>
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body1" className="info-text">
+                  <strong>Ngày đặt:</strong>{" "}
+                  {dayjs(datPhong.ngayDat).format("DD/MM/YYYY HH:mm")}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="body1" className="info-text">
+                  <strong>Ngày đặt:</strong> {formatDateTime(datPhong.ngayDat)}
+                </Typography>
+              </Grid>
+              <Grid item xs={12} sm={6}>
                 <Button
-                  type="submit"
                   variant="contained"
                   color="primary"
-                  disabled={isSubmitting}
-                  fullWidth
-                  className="confirm-button"
+                  startIcon={<AddIcon />}
+                  onClick={() => setOpenSearchDialog(true)}
+                  className="add-room-button"
                 >
-                  {isSubmitting ? "Đang xử lý..." : "Đặt phòng"}
+                  Thêm Phòng
                 </Button>
               </Grid>
-            </Grid>
-          </form>
-        </CardContent>
-      </Card>
-
-      <Dialog
-        open={openSearchDialog}
-        onClose={() => setOpenSearchDialog(false)}
-        fullWidth
-        maxWidth="md"
-        className="search-dialog"
-      >
-        <DialogTitle>Tìm Loại Phòng Khả Dụng</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Ngày Nhận Phòng"
-                type="date"
-                value={searchForm.ngayNhanPhong}
-                onChange={(e) =>
-                  handleSearchInputChange("ngayNhanPhong", e.target.value)
-                }
-                error={!!searchErrors.ngayNhanPhong}
-                helperText={searchErrors.ngayNhanPhong}
-                InputLabelProps={{ shrink: true }}
-                inputProps={{ min: dayjs().format("YYYY-MM-DD") }}
-                className="text-field"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Ngày Trả Phòng"
-                type="date"
-                value={searchForm.ngayTraPhong}
-                onChange={(e) =>
-                  handleSearchInputChange("ngayTraPhong", e.target.value)
-                }
-                error={!!searchErrors.ngayTraPhong}
-                helperText={searchErrors.ngayTraPhong}
-                InputLabelProps={{ shrink: true }}
-                inputProps={{
-                  min: dayjs(searchForm.ngayNhanPhong)
-                    .add(1, "day")
-                    .format("YYYY-MM-DD"),
-                }}
-                className="text-field"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Số Người"
-                type="number"
-                value={searchForm.soNguoi}
-                onChange={(e) =>
-                  handleSearchInputChange("soNguoi", e.target.value)
-                }
-                error={!!searchErrors.soNguoi}
-                helperText={searchErrors.soNguoi}
-                InputProps={{ inputProps: { min: 1 } }}
-                className="text-field"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Số Phòng"
-                type="number"
-                value={searchForm.soPhong}
-                onChange={(e) =>
-                  handleSearchInputChange("soPhong", e.target.value)
-                }
-                error={!!searchErrors.soPhong}
-                helperText={searchErrors.soPhong}
-                InputProps={{ inputProps: { min: 1 } }}
-                className="text-field"
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <FormControl fullWidth className="variant">
-                <InputLabel>Loại Phòng</InputLabel>
-                <Select
-                  value={searchForm.idLoaiPhong || ""}
-                  onChange={(e) =>
-                    handleSearchInputChange("idLoaiPhong", e.target.value)
-                  }
-                  label="Loại Phòng"
+              <Grid item xs={12} sm={6}>
+                <FormControl
+                  fullWidth
+                  variant="outlined"
+                  className="text-field"
                 >
-                  <MenuItem value="">Tất cả</MenuItem>
-                  {loaiPhongs.map((lp) => (
-                    <MenuItem key={lp.id} value={lp.id}>
-                      {lp.tenLoaiPhong}
+                  <InputLabel>Phương thức thanh toán *</InputLabel>
+                  <Select
+                    label="Phương thức thanh toán *"
+                    value={paymentMethod}
+                    onChange={(e) => setPaymentMethod(e.target.value)}
+                  >
+                    <MenuItem value="Đặt cọc">Đặt cọc (30%)</MenuItem>
+                    <MenuItem value="Thanh toán trước">
+                      Thanh toán trước (100%)
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  </Select>
+                </FormControl>
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                onClick={handleSearchRooms}
-                className="search-button"
-              >
-                Tìm
-              </Button>
-            </Grid>
-          </Grid>
+          </CardContent>
+        </Card>
 
-          {availableRooms.length > 0 && (
+        <Card className="confirmation-card">
+          <CardContent>
+            <Typography variant="h5" className="section-title">
+              Chi Tiết Phòng Đã Chọn
+            </Typography>
             <TableContainer className="table-container">
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell>Loại Phòng</TableCell>
-                    <TableCell>Giá Mỗi Đêm</TableCell>
-                    <TableCell>Số Phòng Khả Dụng</TableCell>
-                    <TableCell>Hành Động</TableCell>
+                    <TableCell>Loại phòng</TableCell>
+                    <TableCell>Ngày nhận phòng</TableCell>
+                    <TableCell>Ngày trả phòng</TableCell>
+                    <TableCell>Giá mỗi đêm</TableCell>
+                    <TableCell>Số đêm</TableCell>
+                    <TableCell>Số phòng</TableCell>
+                    <TableCell>Thành tiền</TableCell>
+                    <TableCell>Hành động</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {availableRooms.map((room) => (
-                    <TableRow key={room.id} className="table-row">
-                      <TableCell>{room.tenLoaiPhong}</TableCell>
-                      <TableCell>{room.donGia.toLocaleString()}</TableCell>
-                      <TableCell>{room.soPhongKhaDung}</TableCell>
+                  {ttdpData.map((room, index) => (
+                    <TableRow key={index} className="table-row">
+                      <TableCell>{room.loaiPhong.tenLoaiPhong}</TableCell>
                       <TableCell>
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          onClick={() => handleAddRoom(room)}
-                          disabled={
-                            room.soPhongKhaDung < Number(searchForm.soPhong)
-                          }
-                          className="add-room-button"
+                        {formatDateTime(room.ngayNhanPhong)}
+                      </TableCell>
+                      <TableCell>{formatDateTime(room.ngayTraPhong)}</TableCell>
+                      <TableCell>
+                        {room.loaiPhong.donGia.toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        {calculateBookingDays(
+                          room.ngayNhanPhong,
+                          room.ngayTraPhong
+                        )}
+                      </TableCell>
+                      <TableCell>{room.soPhong}</TableCell>
+                      <TableCell>
+                        {(
+                          calculateBookingDays(
+                            room.ngayNhanPhong,
+                            room.ngayTraPhong
+                          ) *
+                          room.loaiPhong.donGia *
+                          room.soPhong
+                        ).toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        <IconButton
+                          color="error"
+                          onClick={() => handleRemoveRoom(room)}
+                          title="Hủy phòng này"
                         >
-                          Thêm
-                        </Button>
+                          <RemoveIcon />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => setOpenSearchDialog(false)}
-            color="secondary"
-            className="close-button"
-          >
-            Đóng
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </CardContent>
+        </Card>
 
-      <Dialog
-        open={openPaymentDialog}
-        onClose={() => setOpenPaymentDialog(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>Thanh Toán Đặt Phòng</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" gutterBottom>
-            Vui lòng quét mã QR để{" "}
-            {paymentMethod === "Đặt cọc" ? "đặt cọc" : "thanh toán"}:
-          </Typography>
-          {checkoutUrl ? (
-            <iframe
-              src={checkoutUrl}
-              title="PayOS Payment"
-              width="100%"
-              height="400px"
-              style={{ border: "none" }}
-            />
-          ) : (
-            <Typography color="error">
-              Không thể tải mã QR. Vui lòng thử lại.
+        <Card className="confirmation-card">
+          <CardContent>
+            <Typography variant="h5" className="section-title">
+              Thông Tin Khách Hàng
             </Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => handleCancelPayment(orderCodePayment)}
-            color="error"
-          >
-            Hủy Thanh Toán
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+            {showError && (
+              <Typography variant="body2" className="error-message">
+                Vui lòng điền đầy đủ và đúng thông tin trước khi xác nhận.
+              </Typography>
+            )}
+            <form onSubmit={handleSubmit}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Họ *"
+                    name="ho"
+                    value={formData.ho}
+                    onChange={handleInputChange}
+                    error={!!formErrors.ho}
+                    helperText={formErrors.ho}
+                    variant="outlined"
+                    className="text-field"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Tên *"
+                    name="ten"
+                    value={formData.ten}
+                    onChange={handleInputChange}
+                    error={!!formErrors.ten}
+                    helperText={formErrors.ten}
+                    variant="outlined"
+                    className="text-field"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Số điện thoại *"
+                    name="soDienThoai"
+                    value={formData.soDienThoai}
+                    onChange={handleInputChange}
+                    error={!!formErrors.soDienThoai}
+                    helperText={formErrors.soDienThoai}
+                    variant="outlined"
+                    inputProps={{ pattern: "[0-9]{10}" }}
+                    className="text-field"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Email *"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    error={!!formErrors.email}
+                    helperText={formErrors.email}
+                    variant="outlined"
+                    className="text-field"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                    disabled={isSubmitting}
+                    fullWidth
+                    className="confirm-button"
+                  >
+                    {isSubmitting ? "Đang xử lý..." : "Đặt phòng"}
+                  </Button>
+                </Grid>
+              </Grid>
+            </form>
+          </CardContent>
+        </Card>
+
+        <Dialog
+          open={openSearchDialog}
+          onClose={() => setOpenSearchDialog(false)}
+          fullWidth
+          maxWidth="md"
+          className="search-dialog"
+          ref={dialogRef}
+        >
+          <DialogTitle>Tìm Loại Phòng Khả Dụng</DialogTitle>
+          <DialogContent>
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid item xs={12} md={3}>
+                <DateTimePicker
+                  label="Ngày Nhận Phòng"
+                  value={searchForm.ngayNhanPhong}
+                  minDateTime={dayjs()}
+                  onChange={(newValue) =>
+                    handleSearchInputChange("ngayNhanPhong", newValue)
+                  }
+                  ampm={false}
+                  format="DD/MM/YYYY HH:mm"
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!searchErrors.ngayNhanPhong,
+                      helperText: searchErrors.ngayNhanPhong,
+                      sx: {
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#f5f5f5",
+                        },
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={3}>
+                <DateTimePicker
+                  label="Ngày Trả Phòng"
+                  value={searchForm.ngayTraPhong}
+                  minDateTime={
+                    searchForm.ngayNhanPhong
+                      ? searchForm.ngayNhanPhong.add(1, "hour")
+                      : dayjs().add(1, "hour")
+                  }
+                  onChange={(newValue) =>
+                    handleSearchInputChange("ngayTraPhong", newValue)
+                  }
+                  ampm={false}
+                  format="DD/MM/YYYY HH:mm"
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      error: !!searchErrors.ngayTraPhong,
+                      helperText: searchErrors.ngayTraPhong,
+                      sx: {
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#f5f5f5",
+                        },
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <TextField
+                  fullWidth
+                  label="Số Phòng"
+                  type="number"
+                  value={searchForm.soPhong}
+                  onChange={(e) =>
+                    handleSearchInputChange("soPhong", e.target.value)
+                  }
+                  error={!!searchErrors.soPhong}
+                  helperText={searchErrors.soPhong}
+                  InputProps={{ inputProps: { min: 1 } }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      borderRadius: 1,
+                      backgroundColor: "#f5f5f5",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <TextField
+                  fullWidth
+                  label="Số Người"
+                  type="number"
+                  value={searchForm.soNguoi}
+                  onChange={(e) =>
+                    handleSearchInputChange("soNguoi", e.target.value)
+                  }
+                  error={!!searchErrors.soNguoi}
+                  helperText={searchErrors.soNguoi}
+                  InputProps={{ inputProps: { min: 1 } }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      borderRadius: 1,
+                      backgroundColor: "#f5f5f5",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={2}>
+                <TextField
+                  fullWidth
+                  label="Số Trẻ Em"
+                  type="number"
+                  value={searchForm.soTre}
+                  onChange={(e) =>
+                    handleSearchInputChange("soTre", e.target.value)
+                  }
+                  error={!!searchErrors.soTre}
+                  helperText={searchErrors.soTre}
+                  InputProps={{ inputProps: { min: 0 } }}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      borderRadius: 1,
+                      backgroundColor: "#f5f5f5",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel>Loại Phòng</InputLabel>
+                  <Select
+                    value={searchForm.idLoaiPhong || ""}
+                    onChange={(e) =>
+                      handleSearchInputChange("idLoaiPhong", e.target.value)
+                    }
+                    label="Loại Phòng"
+                    sx={{
+                      "& .MuiInputBase-root": {
+                        borderRadius: 1,
+                        backgroundColor: "#f5f5f5",
+                      },
+                    }}
+                  >
+                    <MenuItem value="">Tất cả</MenuItem>
+                    {loaiPhongs.map((lp) => (
+                      <MenuItem key={lp.id} value={lp.id}>
+                        {lp.tenLoaiPhong}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={handleSearchRooms}
+                  disabled={isSubmitting}
+                  sx={{
+                    borderRadius: 1,
+                    bgcolor: "#1976d2",
+                    "&:hover": { bgcolor: "#115293" },
+                  }}
+                >
+                  {isSubmitting ? "Đang tìm..." : "Tìm Phòng"}
+                </Button>
+              </Grid>
+            </Grid>
+
+            {availableRooms.length > 0 && (
+              <TableContainer sx={{ mt: 3, borderRadius: 2 }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Loại Phòng</TableCell>
+                      <TableCell>Diện tích (m²)</TableCell>
+                      <TableCell>Người lớn</TableCell>
+                      <TableCell>Trẻ em</TableCell>
+                      <TableCell>Giá Mỗi Đêm (VND)</TableCell>
+                      <TableCell>Số Phòng Khả Dụng</TableCell>
+                      <TableCell>Hành Động</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {availableRooms.map((room) => (
+                      <TableRow key={room.id}>
+                        <TableCell>{room.tenLoaiPhong}</TableCell>
+                        <TableCell>{room.dienTich || "N/A"}</TableCell>
+                        <TableCell>{room.soKhachTieuChuan || "N/A"}</TableCell>
+                        <TableCell>{room.treEmTieuChuan || "0"}</TableCell>
+                        <TableCell>{room.donGia.toLocaleString()}</TableCell>
+                        <TableCell>{room.soPhongKhaDung}</TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => handleAddRoom(room)}
+                            disabled={
+                              room.soPhongKhaDung < Number(searchForm.soPhong)
+                            }
+                            sx={{ borderRadius: 1 }}
+                          >
+                            Thêm
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => setOpenSearchDialog(false)}
+              color="secondary"
+              sx={{ borderRadius: 1 }}
+            >
+              Đóng
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={openPaymentDialog}
+          onClose={() => setOpenPaymentDialog(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>Thanh Toán Đặt Phòng</DialogTitle>
+          <DialogContent>
+            <Typography variant="body1" gutterBottom>
+              Vui lòng quét mã QR để{" "}
+              {paymentMethod === "Đặt cọc" ? "đặt cọc" : "thanh toán"}:
+            </Typography>
+            {checkoutUrl ? (
+              <iframe
+                src={checkoutUrl}
+                title="PayOS Payment"
+                width="100%"
+                height="400px"
+                style={{ border: "none" }}
+              />
+            ) : (
+              <Typography color="error">
+                Không thể tải mã QR. Vui lòng thử lại.
+              </Typography>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => handleCancelPayment(orderCodePayment)}
+              color="error"
+            >
+              Hủy Thanh Toán
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
+    </LocalizationProvider>
   );
 };
 

@@ -537,8 +537,12 @@ const TaoDatPhong = () => {
           datPhong: datPhong,
           idLoaiPhong: room.id,
           maThongTinDatPhong: `TDP-${Date.now()}-${room.id}-${i}`,
-          ngayNhanPhong: searchForm.ngayNhanPhong.toISOString(),
-          ngayTraPhong: searchForm.ngayTraPhong.toISOString(),
+          ngayNhanPhong: dayjs(searchForm.ngayNhanPhong).format(
+            "YYYY-MM-DD[T]HH:mm:ss"
+          ),
+          ngayTraPhong: dayjs(searchForm.ngayTraPhong).format(
+            "YYYY-MM-DD[T]HH:mm:ss"
+          ),
           soNguoi: room.soKhachToiDa,
           soTre: Number(searchForm.soTre) || 0,
           giaDat: room.donGia,
@@ -1021,7 +1025,7 @@ const TaoDatPhong = () => {
                             : "N/A"}
                         </TableCell>
                         <TableCell>
-                          {room.treEmTieuChuan ? room.treEmTieuChuan : "N/A"}
+                          {room.treEmTieuChuan}
                         </TableCell>
                         <TableCell>{room.donGia.toLocaleString()}</TableCell>
                         <TableCell>{room.soPhongKhaDung}</TableCell>

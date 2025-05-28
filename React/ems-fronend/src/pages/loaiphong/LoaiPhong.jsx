@@ -594,7 +594,7 @@ const LoaiPhong = () => {
                     <TableCell>{ti.soKhachTieuChuan || "N/A"}</TableCell>
                     <TableCell>{ti.soKhachToiDa || "N/A"}</TableCell>
                     <TableCell>{ti.treEmTieuChuan}</TableCell>
-                    <TableCell>{ti.treEmToiDa || "N/A"}</TableCell>
+                    <TableCell>{ti.treEmToiDa}</TableCell>
                     <TableCell>
                       {ti.donGia ? ti.donGia.toLocaleString("vi-VN") : "N/A"}
                     </TableCell>

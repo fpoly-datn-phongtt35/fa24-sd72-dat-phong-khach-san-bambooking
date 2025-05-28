@@ -46,5 +46,4 @@ public class KhachHang {
 
     @Column(name = "public_id")
     private String public_id;
-
 }

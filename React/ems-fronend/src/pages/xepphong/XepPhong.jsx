@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -26,8 +26,9 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const dialogRef = useRef(null); // Thêm ref cho Dialog
 
-  const isEditMode = !!xepPhong; // Kiểm tra xem đang sửa phòng hay xếp mới
+  const isEditMode = !!xepPhong;
 
   const formatToLocalDateTime = (dateString) => {
     const date = new Date(dateString);
@@ -47,6 +48,16 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
       if (unassignedTTDPs.length === 0) {
         setAvailableRooms([]);
         return;
+      }
+
+      // Kiểm tra dữ liệu TTDP
+      if (
+        unassignedTTDPs.some(
+          (ttdp) =>
+            !ttdp.loaiPhong?.id || !ttdp.ngayNhanPhong || !ttdp.ngayTraPhong
+        )
+      ) {
+        throw new Error("Dữ liệu thông tin đặt phòng không hợp lệ");
       }
 
       const minDate = new Date(
@@ -89,7 +100,6 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
             index === self.findIndex((r) => r.id === room.id)
         );
 
-      // Thêm phòng hiện tại (nếu sửa) vào danh sách
       if (isEditMode && xepPhong?.phong) {
         const currentRoom = allRooms.find(
           (room) => room.id === xepPhong.phong.id
@@ -105,7 +115,6 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
         }
       }
 
-      // Thêm các phòng đã xếp của TTDP khác (nếu có)
       const preAssignedRooms = selectedTTDPs
         .filter(
           (ttdp) =>
@@ -181,7 +190,6 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
         const requiredCount = requiredRoomTypeCounts[room.roomTypeId] || 0;
 
         if (isEditMode) {
-          // Khi sửa, chỉ cho phép chọn 1 phòng
           if (selectedRooms.length > 0) {
             await huyPhongDangDat(selectedRooms[0]);
           }
@@ -199,6 +207,8 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
             title: "Cảnh báo",
             text: "Không thể chọn thêm phòng này vì đã đủ số phòng cho loại phòng này!",
             confirmButtonText: "Đóng",
+            target: dialogRef.current, // Gắn vào dialog
+            backdrop: true,
           });
         }
       }
@@ -218,6 +228,8 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
         title: "Cảnh báo",
         text: `Vui lòng chọn đúng ${unassignedTTDPs.length} phòng!`,
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
       return;
     }
@@ -231,6 +243,8 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
       showCancelButton: true,
       confirmButtonText: "Xác nhận",
       cancelButtonText: "Hủy",
+      target: dialogRef.current,
+      backdrop: true,
     });
 
     if (!confirmSave.isConfirmed) return;
@@ -262,6 +276,8 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
           selectedRooms.length
         } đặt phòng!`,
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
       if (onSuccess) onSuccess();
       handleClose();
@@ -274,6 +290,8 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
         title: "Lỗi",
         text: error.message || "Đã có lỗi xảy ra!",
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
     } finally {
       setIsLoading(false);
@@ -333,7 +351,13 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
   };
 
   return (
-    <Dialog open={show} onClose={handleCancel} fullWidth maxWidth="md">
+    <Dialog
+      open={show}
+      onClose={handleCancel}
+      fullWidth
+      maxWidth="md"
+      ref={dialogRef}
+    >
       <DialogTitle>{isEditMode ? "Sửa phòng" : "Xếp phòng"}</DialogTitle>
       <DialogContent dividers>
         {isLoading && (

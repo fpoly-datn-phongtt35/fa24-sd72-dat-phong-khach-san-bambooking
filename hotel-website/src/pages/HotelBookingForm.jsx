@@ -235,8 +235,6 @@ const HotelBookingForm = () => {
     }
   };
 
-  const debouncedSearch = debounce(handleSearch, 500);
-
   const fetchLoaiPhong = async () => {
     if (!ngayNhanPhong?.isValid() || !ngayTraPhong?.isValid()) {
       return;
@@ -291,10 +289,8 @@ const HotelBookingForm = () => {
       ngayNhanPhong.isValid() &&
       ngayTraPhong.isValid()
     ) {
-      debouncedSearch();
+      handleSearch();
     }
-
-    return () => debouncedSearch.cancel();
   }, [
     currentPage,
     ngayNhanPhong,
@@ -308,13 +304,16 @@ const HotelBookingForm = () => {
     tongSoPhongMin,
     tongSoPhongMax,
     key,
-    loaiPhongChons,
   ]);
 
   const handleCreateBooking = async (combination) => {
     setIsLoading(true);
     let datPhongResponse = null;
     let thongTinDatPhongResponseList = [];
+
+    console.log("combination:", combination); // Gỡ lỗi combination
+    console.log("soNguoi:", soNguoi, "soTre:", soTre); // Gỡ lỗi biến trạng thái
+    console.log("ngayNhanPhong:", ngayNhanPhong, "ngayTraPhong:", ngayTraPhong);
 
     try {
       let user;
@@ -323,6 +322,7 @@ const HotelBookingForm = () => {
 
       try {
         user = localStorage.getItem("user");
+        console.log("user từ localStorage:", user); // Gỡ lỗi user
       } catch (error) {
         console.error("Lỗi khi parse user từ localStorage:", error);
       }
@@ -330,11 +330,13 @@ const HotelBookingForm = () => {
       if (user) {
         try {
           const response = await getKhachHangByUsername(user);
+          console.log("getKhachHangByUsername response:", response); // Gỡ lỗi response
           if (!response || !response.data) {
             throw new Error("Không tìm thấy thông tin khách hàng.");
           }
           khachHangData = response.data;
           kh = khachHangData;
+          console.log("khachHangData:", khachHangData, "kh:", kh); // Gỡ lỗi kh
         } catch (error) {
           console.error("Lỗi khi lấy thông tin khách hàng:", error);
           Swal.fire({
@@ -349,25 +351,16 @@ const HotelBookingForm = () => {
           return;
         }
       } else {
-        if (!guestInfo.hoTen || !guestInfo.email || !guestInfo.soDienThoai) {
-          setSelectedCombination(combination);
-          setOpenGuestDialog(true);
-          setIsLoading(false);
-          return;
-        }
-
-        const [ho, ...tenParts] = guestInfo.hoTen.split(" ");
-        const ten = tenParts.join(" ").trim();
-
         khachHangData = {
-          ho: ho.trim(),
-          ten: ten || "",
-          email: guestInfo.email,
-          sdt: guestInfo.soDienThoai,
+          ho: "",
+          ten: "",
+          email: "",
+          sdt: "",
           trangThai: false,
         };
-
+        console.log("khachHangData (khách):", khachHangData); // Gỡ lỗi dữ liệu khách
         kh = await ThemKhachHangDatPhong(khachHangData);
+        console.log("ThemKhachHangDatPhong response:", kh); // Gỡ lỗi kh
         if (!kh || !kh.data) {
           throw new Error("Không thể tạo thông tin khách hàng.");
         }
@@ -386,7 +379,9 @@ const HotelBookingForm = () => {
           : "Đặt phòng không đăng nhập",
         trangThai: "Đang đặt phòng",
       };
+      console.log("datPhongRequest:", datPhongRequest); // Gỡ lỗi request
       datPhongResponse = await ThemMoiDatPhong(datPhongRequest);
+      console.log("ThemMoiDatPhong response:", datPhongResponse); // Gỡ lỗi response
       if (!datPhongResponse || !datPhongResponse.data) {
         throw new Error("Không thể tạo đặt phòng.");
       }
@@ -405,7 +400,9 @@ const HotelBookingForm = () => {
               giaDat: phong.loaiPhong.donGia,
               trangThai: "Đang đặt phòng",
             };
+            console.log("thongTinDatPhongRequest:", thongTinDatPhongRequest); // Gỡ lỗi request
             const response = await addThongTinDatPhong(thongTinDatPhongRequest);
+            console.log("addThongTinDatPhong response:", response); // Gỡ lỗi response
             if (!response || !response.data) {
               throw new Error("Không thể tạo thông tin đặt phòng.");
             }
@@ -466,6 +463,12 @@ const HotelBookingForm = () => {
     setOpenGuestDialog(false);
     await handleCreateBooking(selectedCombination);
   };
+
+  const calculateBookingDays = () => {
+      const start = dayjs(ngayNhanPhong).startOf("day");
+      const end = dayjs(ngayTraPhong).startOf("day");
+      return Math.max(1, end.diff(start, "day"));
+    };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -963,7 +966,7 @@ const HotelBookingForm = () => {
                         <td>{phong.soLuongChon}</td>
                         <td>
                           {(
-                            phong.soLuongChon * phong.loaiPhong.donGia
+                            phong.soLuongChon * phong.loaiPhong.donGia *(calculateBookingDays() || 1)
                           ).toLocaleString()}{" "}
                           VND
                         </td>

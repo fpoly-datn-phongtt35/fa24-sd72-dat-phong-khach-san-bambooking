@@ -630,13 +630,7 @@ const ChiTietTTDP = () => {
                     Trả phòng
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: "medium" }}>
-                    {xepPhong?.ngayTraPhong
-                      ? new Date(xepPhong.ngayTraPhong).toLocaleDateString(
-                        "vi-VN"
-                      )
-                      : new Date(
-                        thongTinDatPhong?.ngayTraPhong
-                      ).toLocaleDateString("vi-VN") || "N/A"}
+                    {xepPhong?.ngayTraPhong}
                   </Typography>
                 </Box>
               </Box>

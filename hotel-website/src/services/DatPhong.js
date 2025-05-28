@@ -157,6 +157,7 @@ export const getLPKDRL = (
   ngayNhanPhong,
   ngayTraPhong,
   soNguoi,
+  soTre,
   soPhong,
   idLoaiPhong
 ) => {
@@ -165,6 +166,7 @@ export const getLPKDRL = (
       ngayNhanPhong,
       ngayTraPhong,
       soNguoi,
+      soTre,
       soPhong,
       idLoaiPhong,
     },

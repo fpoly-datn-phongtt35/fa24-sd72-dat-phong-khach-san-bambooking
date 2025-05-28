@@ -74,10 +74,32 @@ const PendingBooking = () => {
   };
 
   // Định dạng thời gian còn lại
-  const formatTimeLeft = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+  const formatTimeLeft = (ngayDat) => {
+    try {
+      // Chuyển ngayDat (chuỗi ISO từ LocalDateTime) thành đối tượng Date
+      const thoiGianDat = new Date(ngayDat);
+
+      // Kiểm tra xem thoiGianDat có hợp lệ không
+      if (isNaN(thoiGianDat.getTime())) {
+        return "Thời gian không hợp lệ";
+      }
+
+      // Thêm 5 phút (5 phút = 5 * 60 * 1000 milliseconds)
+      thoiGianDat.setTime(thoiGianDat.getTime() + 5 * 60 * 1000);
+
+      // Lấy ngày, tháng, năm, giờ, phút
+      const day = thoiGianDat.getDate().toString().padStart(2, "0");
+      const month = (thoiGianDat.getMonth() + 1).toString().padStart(2, "0"); // Tháng bắt đầu từ 0
+      const year = thoiGianDat.getFullYear();
+      const hours = thoiGianDat.getHours().toString().padStart(2, "0");
+      const minutes = thoiGianDat.getMinutes().toString().padStart(2, "0");
+
+      // Định dạng thành DD/MM/YYYY HH:mm
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
+    } catch (error) {
+      console.error("Lỗi khi xử lý ngày đặt:", error);
+      return "Thời gian không hợp lệ";
+    }
   };
 
   // Xử lý tiếp tục xác nhận đơn đặt phòng
@@ -119,7 +141,7 @@ const PendingBooking = () => {
   useEffect(() => {
     fetchPendingBookings();
     // Cập nhật danh sách định kỳ để kiểm tra timeout
-    const intervalId = setInterval(fetchPendingBookings, 10000); // Kiểm tra mỗi 10 giây
+    const intervalId = setInterval(fetchPendingBookings, 100); // Kiểm tra mỗi 10 giây
     return () => clearInterval(intervalId);
   }, []);
 
@@ -140,7 +162,7 @@ const PendingBooking = () => {
                   <TableCell>Tổng Chi Phí</TableCell>
                   <TableCell>Số Phòng</TableCell>
                   <TableCell>Số Người</TableCell>
-                  <TableCell>Thời Gian Còn Lại</TableCell>
+                  <TableCell>Thời Gian Hết Hạn</TableCell>
                   <TableCell>Loại Phòng</TableCell>
                   <TableCell>Hành Động</TableCell>
                 </TableRow>
@@ -168,7 +190,7 @@ const PendingBooking = () => {
                       {booking.data.combination.tongSucChua}
                     </TableCell>
                     <TableCell>
-                      {formatTimeLeft(booking.remainingTime)}
+                      {formatTimeLeft(booking.data.datPhong.ngayDat)}
                     </TableCell>
                     <TableCell>
                       {booking.data.combination.phongs.map((phong) => (
