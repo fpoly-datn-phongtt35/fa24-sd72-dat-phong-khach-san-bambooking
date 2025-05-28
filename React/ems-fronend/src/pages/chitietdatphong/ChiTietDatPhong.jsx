@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import {
   Container,
   Box,
@@ -37,6 +37,7 @@ import {
   huyTTDP,
   addThongTinDatPhong,
   updateThongTinDatPhong,
+  findDatCoc
 } from "../../services/TTDP";
 import {
   findDatPhongByMaDatPhong,
@@ -65,6 +66,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import { SuaTTKH } from "../../services/KhachHangService";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
+
+
 
 const CustomerInfo = ({ datPhong, onEdit, disabled }) => (
   <Card elevation={3} sx={{ height: "100%" }}>
@@ -110,52 +113,77 @@ const CustomerInfo = ({ datPhong, onEdit, disabled }) => (
   </Card>
 );
 
-const BookingInfo = ({ datPhong, thongTinDatPhong, formatDate }) => (
-  <Card elevation={3} sx={{ height: "100%" }}>
-    <CardContent>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-        <CalendarMonthIcon color="primary" sx={{ mr: 1 }} />
-        <Typography variant="h6" color="primary">
-          Thông tin đặt phòng
-        </Typography>
-      </Box>
-      <Divider sx={{ mb: 2 }} />
-      <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-        <Typography sx={{ fontWeight: "medium", mr: 1 }}>Ngày đặt:</Typography>
-        <Typography>
-          {datPhong?.ngayDat ? formatDate(datPhong.ngayDat) : "N/A"}
-        </Typography>
-      </Box>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-        <Typography sx={{ fontWeight: "medium", mr: 1 }}>
-          Số người lớn:
-        </Typography>
-        <Typography>{datPhong?.soNguoi}</Typography>
-      </Box>
-      <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-        <Typography sx={{ fontWeight: "medium", mr: 1 }}>Số trẻ em:</Typography>
-        <Typography>{datPhong?.soTre}</Typography>
-      </Box>
+const BookingInfo = ({ datPhong, thongTinDatPhong, formatDate }) => {
+  const [tienDatCoc, setTienDatCoc] = useState(0);
 
-      <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
-        <Typography sx={{ fontWeight: "medium", mr: 1 }}>Số phòng:</Typography>
-        <Typography>
-          {Array.isArray(thongTinDatPhong)
-            ? thongTinDatPhong.filter((ttdp) => ttdp.trangThai !== "Đã hủy")
+  useEffect(() => {
+    const fetchDatCoc = async () => {
+      if (datPhong?.id) {
+        try {
+          const response = await findDatCoc(datPhong.id);
+          setTienDatCoc(response?.data.tienThanhToan || 0);
+        } catch (error) {
+          console.error("Error fetching deposit:", error);
+          setTienDatCoc(0);
+        }
+      }
+    };
+    fetchDatCoc();
+  }, [datPhong?.id]);
+
+  return (
+    <Card elevation={3} sx={{ height: "100%" }}>
+      <CardContent>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+          <CalendarMonthIcon color="primary" sx={{ mr: 1 }} />
+          <Typography variant="h6" color="primary">
+            Thông tin đặt phòng
+          </Typography>
+        </Box>
+        <Divider sx={{ mb: 2 }} />
+        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+          <Typography sx={{ fontWeight: "medium", mr: 1 }}>Ngày đặt:</Typography>
+          <Typography>
+            {datPhong?.ngayDat ? formatDate(datPhong.ngayDat) : "N/A"}
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+          <Typography sx={{ fontWeight: "medium", mr: 1 }}>
+            Số người lớn:
+          </Typography>
+          <Typography>{datPhong?.soNguoi}</Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+          <Typography sx={{ fontWeight: "medium", mr: 1 }}>Số trẻ em:</Typography>
+          <Typography>{datPhong?.soTre || 0}</Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+          <Typography sx={{ fontWeight: "medium", mr: 1 }}>Số phòng:</Typography>
+          <Typography>
+            {Array.isArray(thongTinDatPhong)
+              ? thongTinDatPhong.filter((ttdp) => ttdp.trangThai !== "Đã hủy")
                 .length
-            : 0}
-        </Typography>
-      </Box>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Typography sx={{ fontWeight: "medium", mr: 1 }}>Tổng tiền:</Typography>
-        <Typography sx={{ fontWeight: "bold", color: "success.main" }}>
-          {datPhong?.tongTien?.toLocaleString() || "0"} VNĐ
-        </Typography>
-      </Box>
-    </CardContent>
-  </Card>
-);
-
+              : 0}
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+          <Typography sx={{ fontWeight: "medium", mr: 1 }}>Tổng tiền:</Typography>
+          <Typography sx={{ fontWeight: "bold", color: "success.main" }}>
+            {datPhong?.tongTien?.toLocaleString() || "0"} VNĐ
+          </Typography>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Typography sx={{ fontWeight: "medium", mr: 1 }}>
+            Số tiền đã đặt cọc:
+          </Typography>
+          <Typography sx={{ fontWeight: "bold", color: "success.main" }}>
+            {tienDatCoc.toLocaleString()} VNĐ
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
+  );
+};
 const NoteSection = ({
   datPhong,
   setDatPhong,
@@ -197,6 +225,7 @@ const NoteSection = ({
 );
 
 const ChiTietDatPhong = () => {
+  const dialogRef = useRef(null); // Thêm ref cho Dialog
   const [datPhong, setDatPhong] = useState(null);
   const [thongTinDatPhong, setThongTinDatPhong] = useState([]);
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
@@ -243,7 +272,7 @@ const ChiTietDatPhong = () => {
         const days = Math.max(
           Math.ceil(
             (new Date(ttdp.ngayTraPhong) - new Date(ttdp.ngayNhanPhong)) /
-              (1000 * 60 * 60 * 24)
+            (1000 * 60 * 60 * 24)
           ),
           1
         );
@@ -331,6 +360,8 @@ const ChiTietDatPhong = () => {
         title: "Lỗi",
         text: `Lỗi: ${error.message}`,
         confirmButtonText: "Đóng",
+        target: dialogRef.current, // Gắn vào dialog
+        backdrop: true,
       });
       setThongTinDatPhong([]);
     }
@@ -374,6 +405,8 @@ const ChiTietDatPhong = () => {
       showCancelButton: true,
       confirmButtonText: "Xác nhận",
       cancelButtonText: "Hủy",
+      target: dialogRef.current,
+      backdrop: true,
     });
 
     if (!confirmUpdate.isConfirmed) return;
@@ -390,6 +423,8 @@ const ChiTietDatPhong = () => {
           showCancelButton: true,
           confirmButtonText: "Xác nhận",
           cancelButtonText: "Hủy",
+          target: dialogRef.current,
+          backdrop: true,
         });
         if (!confirmUpdateNotes.isConfirmed) {
           setIsUpdating(false);
@@ -422,6 +457,8 @@ const ChiTietDatPhong = () => {
           title: "Thành công",
           text: "Cập nhật ghi chú cho tất cả thông tin đặt phòng thành công",
           confirmButtonText: "Đóng",
+          target: dialogRef.current,
+          backdrop: true,
         });
       } else {
         Swal.fire({
@@ -429,6 +466,8 @@ const ChiTietDatPhong = () => {
           title: "Thành công",
           text: "Lưu thông tin thành công",
           confirmButtonText: "Đóng",
+          target: dialogRef.current,
+          backdrop: true,
         });
         getDetailDatPhong(maDatPhong);
       }
@@ -441,6 +480,8 @@ const ChiTietDatPhong = () => {
         title: "Lỗi",
         text: `Không thể cập nhật thông tin: ${errorMessage}`,
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
     } finally {
       setIsUpdating(false);
@@ -455,6 +496,8 @@ const ChiTietDatPhong = () => {
       showCancelButton: true,
       confirmButtonText: "Xóa",
       cancelButtonText: "Hủy",
+      target: dialogRef.current,
+      backdrop: true,
     });
     if (!confirmDelete.isConfirmed) return;
 
@@ -483,6 +526,8 @@ const ChiTietDatPhong = () => {
         title: "Thành công",
         text: "Hủy thành công",
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
     } catch (error) {
       const errorMessage =
@@ -493,6 +538,8 @@ const ChiTietDatPhong = () => {
         title: "Lỗi",
         text: `Không thể hủy thông tin đặt phòng: ${errorMessage}`,
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
     }
   };
@@ -504,6 +551,8 @@ const ChiTietDatPhong = () => {
         title: "Lỗi",
         text: "Không tìm thấy thông tin đặt phòng.",
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
       return;
     }
@@ -515,6 +564,8 @@ const ChiTietDatPhong = () => {
       showCancelButton: true,
       confirmButtonText: "Xác nhận",
       cancelButtonText: "Hủy",
+      target: dialogRef.current,
+      backdrop: true,
     });
     if (!confirmAction.isConfirmed) return;
 
@@ -525,6 +576,8 @@ const ChiTietDatPhong = () => {
         title: "Thành công",
         text: "Đổi tình trạng cho toàn bộ phòng thành công!",
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
       getDetailDatPhong(maDatPhong);
       thongTinDatPhong.forEach((ttdp) =>
@@ -539,6 +592,8 @@ const ChiTietDatPhong = () => {
         title: "Lỗi",
         text: `Có lỗi xảy ra khi cập nhật tình trạng phòng: ${errorMessage}`,
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
     }
   };
@@ -587,6 +642,8 @@ const ChiTietDatPhong = () => {
           title: "Cảnh báo",
           text: "Không có phòng khả dụng cho yêu cầu của bạn. Vui lòng thử lại với ngày hoặc số lượng khác.",
           confirmButtonText: "Đóng",
+          target: dialogRef.current,
+          backdrop: true,
         });
       }
       setAvailableRooms(response.data || []);
@@ -599,6 +656,8 @@ const ChiTietDatPhong = () => {
         title: "Lỗi",
         text: `Có lỗi xảy ra khi tìm phòng: ${errorMessage}`,
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
     } finally {
       setLoading(false);
@@ -612,6 +671,8 @@ const ChiTietDatPhong = () => {
         title: "Lỗi",
         text: "Số phòng khả dụng không đủ!",
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
       return;
     }
@@ -667,6 +728,8 @@ const ChiTietDatPhong = () => {
         title: "Thành công",
         text: "Thêm phòng thành công!",
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
     } catch (error) {
       const errorMessage =
@@ -677,6 +740,8 @@ const ChiTietDatPhong = () => {
         title: "Lỗi",
         text: `Có lỗi xảy ra khi thêm phòng: ${errorMessage}`,
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
     }
   };
@@ -755,6 +820,8 @@ const ChiTietDatPhong = () => {
         title: "Thành công",
         text: "Cập nhật thông tin khách hàng thành công",
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
       handleCloseEditModal();
     } catch (error) {
@@ -766,6 +833,8 @@ const ChiTietDatPhong = () => {
         title: "Lỗi",
         text: `Không thể cập nhật thông tin khách hàng: ${errorMessage}`,
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
     }
   };
@@ -789,6 +858,8 @@ const ChiTietDatPhong = () => {
             title: "Lỗi",
             text: `Lỗi khi lấy danh sách loại phòng: ${errorMessage}`,
             confirmButtonText: "Đóng",
+            target: dialogRef.current,
+            backdrop: true,
           });
         }
       };
@@ -853,6 +924,8 @@ const ChiTietDatPhong = () => {
             title: "Lỗi",
             text: "Không tìm thấy phòng đã xếp.",
             confirmButtonText: "Đóng",
+            target: dialogRef.current,
+            backdrop: true,
           });
           continue;
         }
@@ -878,6 +951,8 @@ const ChiTietDatPhong = () => {
           title: "Thành công",
           text: "Check-in thành công!",
           confirmButtonText: "Đóng",
+          target: dialogRef.current,
+          backdrop: true,
         });
       }
     } catch (error) {
@@ -888,6 +963,8 @@ const ChiTietDatPhong = () => {
         title: "Lỗi",
         text: `Đã xảy ra lỗi khi thực hiện check-in: ${errorMessage}`,
         confirmButtonText: "Đóng",
+        target: dialogRef.current,
+        backdrop: true,
       });
     }
     getDetailDatPhong(maDatPhong);
@@ -1047,16 +1124,16 @@ const ChiTietDatPhong = () => {
                   indeterminate={
                     selectedTTDPs.length > 0 &&
                     selectedTTDPs.length <
-                      thongTinDatPhong.filter(
-                        (ttdp) => ttdp.trangThai !== "Đã hủy"
-                      ).length
+                    thongTinDatPhong.filter(
+                      (ttdp) => ttdp.trangThai !== "Đã hủy"
+                    ).length
                   }
                   checked={
                     thongTinDatPhong.length > 0 &&
                     selectedTTDPs.length ===
-                      thongTinDatPhong.filter(
-                        (ttdp) => ttdp.trangThai !== "Đã hủy"
-                      ).length
+                    thongTinDatPhong.filter(
+                      (ttdp) => ttdp.trangThai !== "Đã hủy"
+                    ).length
                   }
                   onChange={() => {
                     if (
@@ -1156,7 +1233,7 @@ const ChiTietDatPhong = () => {
                         "Đã kiểm tra phòng",
                         "Đã trả phòng",
                       ].includes(ttdp.trangThai) &&
-                      phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong ? (
+                        phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong ? (
                         <Typography>
                           {phongData[ttdp.maThongTinDatPhong]?.phong?.maPhong}
                         </Typography>
@@ -1227,31 +1304,31 @@ const ChiTietDatPhong = () => {
                           "Đã kiểm tra phòng",
                           "Đã trả phòng",
                         ].includes(ttdp.trangThai) && (
-                          <Tooltip title="Chi tiết thông tin đặt phòng">
-                            <IconButton
-                              color="success"
-                              onClick={() =>
-                                handleTTDPClick(ttdp.maThongTinDatPhong)
-                              }
-                              size="small"
-                            >
-                              <InfoIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
+                            <Tooltip title="Chi tiết thông tin đặt phòng">
+                              <IconButton
+                                color="success"
+                                onClick={() =>
+                                  handleTTDPClick(ttdp.maThongTinDatPhong)
+                                }
+                                size="small"
+                              >
+                                <InfoIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
                         {(ttdp.trangThai === "Đang đặt phòng" ||
                           ttdp.trangThai === "Chưa xếp" ||
                           ttdp.trangThai === "Đã xếp") && (
-                          <Tooltip title="Hủy thông tin đặt phòng">
-                            <IconButton
-                              color="error"
-                              onClick={() => handleHuyTTDP(ttdp)}
-                              size="small"
-                            >
-                              <RemoveCircleOutlineIcon />
-                            </IconButton>
-                          </Tooltip>
-                        )}
+                            <Tooltip title="Hủy thông tin đặt phòng">
+                              <IconButton
+                                color="error"
+                                onClick={() => handleHuyTTDP(ttdp)}
+                                size="small"
+                              >
+                                <RemoveCircleOutlineIcon />
+                              </IconButton>
+                            </Tooltip>
+                          )}
                       </Box>
                     </TableCell>
                   </TableRow>

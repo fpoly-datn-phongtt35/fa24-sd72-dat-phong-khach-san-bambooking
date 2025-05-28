@@ -15,11 +15,18 @@ import {
   TableHead,
   TableRow,
   Checkbox,
-  Paper, FormControl, InputLabel, Select, MenuItem,
+  Paper,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  IconButton,
 } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
 import jsQR from "jsqr";
 import Swal from 'sweetalert2';
 import ModalCreateKHC from "./ModalCreateKHC";
+import ModalUpdateKHC from "./ModalUpdateKHC";
 import {
   createKhachHang,
   getKhachHangByKey,
@@ -35,6 +42,9 @@ const ModalKhachHangCheckin = ({
   thongTinDatPhong,
   onCheckinSuccess,
 }) => {
+  const dialogRef = useRef(null); // Thêm ref cho Dialog
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [editKhachHang, setEditKhachHang] = useState(null);
   const [isModalKHCOpen, setModalKHCOpen] = useState(false);
   const [isQRModalOpen, setQRModalOpen] = useState(false);
   const [qrData, setQRData] = useState("");
@@ -224,6 +234,17 @@ const ModalKhachHangCheckin = ({
     setQRModalOpen(true);
   };
 
+
+  const handleOpenEditModal = (khachHang) => {
+    setEditKhachHang(khachHang);
+    setEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditKhachHang(null);
+    setEditModalOpen(false);
+  };
+
   const closeQRScanner = () => {
     setQRData("");
     setQRModalOpen(false);
@@ -263,14 +284,18 @@ const ModalKhachHangCheckin = ({
         title: 'Thành công',
         text: 'Checkin thành công',
         confirmButtonText: 'OK',
-        confirmButtonColor: '#6a5acd'
+        confirmButtonColor: '#6a5acd',
+        target: dialogRef.current, 
+      backdrop: true,
       });
     } else {
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
         text: 'Khách hàng này đã Checkin',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'OK',
+        target: dialogRef.current, 
+      backdrop: true,
       });
     }
     fetchKhachHangList(trangThai, searchKeyword, page);
@@ -278,6 +303,10 @@ const ModalKhachHangCheckin = ({
     setQRModalOpen(false);
     handleCloseModalKC();
 
+  };
+  const handleKhachHangUpdated = () => {
+    fetchKhachHangList(trangThai, searchKeyword, page);
+    fetchCheckedInKhachHang();
   };
 
   const handleCreate = async () => {
@@ -431,7 +460,7 @@ const ModalKhachHangCheckin = ({
   };
 
   const handleRowSelection = (kh) => {
-    if (!checkedInKhachHangIds.includes(kh.id)) {
+    if ( kh.trangThai && !checkedInKhachHangIds.includes(kh.id)) {
       setSelectedKhachHang((prev) => {
         const isSelected = prev.some((item) => item.id === kh.id);
         if (isSelected) {
@@ -468,7 +497,7 @@ const ModalKhachHangCheckin = ({
 
   return (
     <>
-      <Modal open={isOpen} onClose={onClose}>
+      <Modal open={isOpen} onClose={onClose}  ref={dialogRef}>
         <Box sx={modalStyle}>
           <Typography variant="h6" component="h3" gutterBottom>
             {thongTinDatPhong.maThongTinDatPhong} - Tìm Hồ Sơ Khách Hàng
@@ -521,6 +550,7 @@ const ModalKhachHangCheckin = ({
                     <TableCell>Email</TableCell>
                     <TableCell>Địa Chỉ</TableCell>
                     <TableCell>Trạng thái</TableCell>
+                    <TableCell>Hành động</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -550,6 +580,17 @@ const ModalKhachHangCheckin = ({
                         <TableCell>{kh.diaChi || "N/A"}</TableCell>
                         <TableCell>
                           {kh.trangThai ? "Hoạt động" : "Không hoạt động"}
+                        </TableCell>
+                        <TableCell>
+                         
+                          <IconButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenEditModal(kh);
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
                         </TableCell>
                       </TableRow>
                     ))
@@ -598,6 +639,12 @@ const ModalKhachHangCheckin = ({
         thongTinDatPhong={thongTinDatPhong}
         onKhachHangAdded={handleKhachHangAdded}
         initialData={initialQRData}
+      />
+      <ModalUpdateKHC
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        khachHang={editKhachHang}
+        onKhachHangUpdated={handleKhachHangUpdated}
       />
 
       <Modal open={isQRModalOpen} onClose={closeQRScanner}>

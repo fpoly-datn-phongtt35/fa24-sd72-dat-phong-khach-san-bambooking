@@ -3,15 +3,22 @@ package com.example.datn.controller;
 import com.example.datn.controller.response.ResponseData;
 import com.example.datn.dto.request.DatCocThanhToanRequest;
 import com.example.datn.dto.response.DatCocThanhToanResponse;
+import com.example.datn.dto.response.DatPhongResponse;
+import com.example.datn.model.DatCocThanhToan;
 import com.example.datn.service.DatCocThanhToanService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @RestController
@@ -100,5 +107,15 @@ public class DatCocThanhToanController {
             log.error("Lỗi khi xử lý hủy thanh toán: {}", e.getMessage());
             return new ResponseData<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Lỗi khi xử lý hủy thanh toán", null);
         }
+    }
+
+    @GetMapping("/tim-dat-coc")
+    public ResponseEntity<DatCocThanhToan> findDatCocByiddp(@RequestParam("iddp") Integer iddp){
+        return ResponseEntity.ok(paymentService.findDatCoc(iddp));
+    }
+
+    @GetMapping("/findDatCocByidHoaDon")
+    public ResponseEntity<DatCocThanhToan> findDatCocByidHoaDon(@RequestParam("idHoaDon") Integer idHoaDon){
+        return ResponseEntity.ok(paymentService.findDatCocByidHoaDon(idHoaDon));
     }
 }

@@ -235,7 +235,7 @@ export default function LookupHistory() {
                                                     >
 
                                                     </InfoIcon></Tooltip>
-                                                {canCancel[booking.id] && (
+                                                    {canCancel[booking.id] && booking.trangThai !== "Chưa xác nhận" &&(
                                                     <IconButton
                                                         size="small"
                                                         sx={{ color: '#d32f2f' }}

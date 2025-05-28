@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
@@ -189,6 +190,12 @@ public class DatPhongServiceIMPL implements DatPhongService {
     public Page<DatPhongResponse> findDatPhong(String key, LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable) {
         List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng", "Đang ở", "Chưa xếp", "Đã xếp", "Đã trả phòng", "Đã kiểm tra phòng");
         List<String> trangThai = Arrays.asList("Đang đặt phòng", "Chưa xác nhận", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        if (ngayNhanPhong != null) {
+            System.out.println(ngayNhanPhong.format(formatter));
+        } else {
+            System.out.println("ngayNhanPhong is null");
+        }
         return datPhongRepository.findDatPhong(trangThai, trangThaiTTDP, key, ngayNhanPhong, ngayTraPhong, pageable);
     }
 
@@ -255,6 +262,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         if ("Chưa thanh toán".equals(trangThaiThanhToan)) {
             dp.setTrangThai("Đã hủy");
             datPhongRepository.save(dp);
+            System.out.println(trangThaiThanhToan);
             for (ThongTinDatPhong ttdp : ttdps) {
                 ttdp.setTrangThai("Đã hủy");
                 thongTinDatPhongRepository.save(ttdp);
@@ -267,6 +275,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
             }
         } else {
             // Hủy trên web
+            System.out.println(trangThaiThanhToan);
             DatCocThanhToan dctt = datCocThanhToanRepository.findByDatPhongIdAndTrangThai(dp.getId(), "PAID")
                     .orElseThrow(() -> new EntityNotFountException("Không tìm thấy bản ghi thanh toán với trạng thái PAID cho đặt phòng có id: " + dp.getId()));
 

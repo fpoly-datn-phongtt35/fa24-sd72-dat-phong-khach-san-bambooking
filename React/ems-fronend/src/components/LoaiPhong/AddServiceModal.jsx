@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef } from 'react';
 import { DanhSachDichVu } from '../../services/DichVuDiKemService';
 import { ThemDichVuDiKem } from '../../services/LoaiPhongService';
 import Swal from 'sweetalert2';
@@ -20,6 +20,7 @@ const AddServiceModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
     const [dichVuList, setDichVuList] = useState([]);
     const [selectedDichVu, setSelectedDichVu] = useState('');
     const [soLuongDichVu, setSoLuongDichVu] = useState('');
+    const dialogRef = useRef(null); // Thêm ref cho Dialog
 
     useEffect(() => {
         DanhSachDichVu()
@@ -29,12 +30,14 @@ const AddServiceModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
 
     const handleAddDichVuDiKem = () => {
         if (!selectedDichVu || !soLuongDichVu) {
-            Swal.fire({ title: 'Lỗi!', text: 'Vui lòng chọn dịch vụ và nhập số lượng.', icon: 'error' });
+            Swal.fire({ title: 'Lỗi!', text: 'Vui lòng chọn dịch vụ và nhập số lượng.', icon: 'error',target: dialogRef.current,
+            backdrop: true, });
             return;
         }
         const soLuong = parseInt(soLuongDichVu);
         if (soLuong < 1) {
-            Swal.fire({ title: 'Lỗi!', text: 'Số lượng phải lớn hơn hoặc bằng 1.', icon: 'error' });
+            Swal.fire({ title: 'Lỗi!', text: 'Số lượng phải lớn hơn hoặc bằng 1.', icon: 'error',target: dialogRef.current,
+            backdrop: true, });
             return;
         }
         const dichVuDiKemRequest = {
@@ -45,13 +48,15 @@ const AddServiceModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
         };
         ThemDichVuDiKem(dichVuDiKemRequest)
             .then(() => {
-                Swal.fire({ title: 'Thành công!', text: 'Dịch vụ đã được thêm.', icon: 'success' });
+                Swal.fire({ title: 'Thành công!', text: 'Dịch vụ đã được thêm.', icon: 'success' ,target: dialogRef.current,
+                backdrop: true,});
                 setSelectedDichVu('');
                 setSoLuongDichVu('');
                 onAddSuccess();
                 handleClose();
             })
-            .catch(() => Swal.fire({ title: 'Lỗi!', text: 'Không thể thêm dịch vụ.', icon: 'error' }));
+            .catch(() => Swal.fire({ title: 'Lỗi!', text: 'Không thể thêm dịch vụ.', icon: 'error',target: dialogRef.current,
+            backdrop: true, }));
     };
 
     const handleSoLuongChange = (e) => {
@@ -63,7 +68,7 @@ const AddServiceModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
     };
 
     return (
-        <Dialog open={show} onClose={handleClose} maxWidth="sm" fullWidth>
+        <Dialog open={show} onClose={handleClose} ref={dialogRef} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ bgcolor: '#1976d2', color: 'white' }}>
                 <Typography variant="h6">Thêm Dịch Vụ Đi Kèm</Typography>
             </DialogTitle>

@@ -6,6 +6,7 @@ import {
   getThongTinHoaDonByHoaDonId,
   getPhuThuByHoaDonId,
   getListVatTuHongThieu,
+  findDatCocByidHoaDon,
 } from "../../services/InfoHoaDon";
 import {
   Container,
@@ -28,24 +29,27 @@ const InfoHoaDon = () => {
   const [phuThu, setPhuThu] = useState([]);
   const [danhSachVatTu, setDanhSachVatTu] = useState([]);
   const [expanded, setExpanded] = useState(null);
+  const [datCoc, setDatCoc] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [
+          findDatCocByidHoaDonResponse,
           hoaDonResponse,
           thongTinHoaDonResponse,
           dichVuSuDungResponse,
           phuThuResponse,
           vatTuResponse,
         ] = await Promise.all([
+          findDatCocByidHoaDon(id),
           getHoaDonById(id),
           getThongTinHoaDonByHoaDonId(id),
           getDichVuSuDung(id),
           getPhuThuByHoaDonId(id),
           getListVatTuHongThieu(id),
         ]);
-
+        setDatCoc(findDatCocByidHoaDonResponse?.data || null);
         setHoaDon(hoaDonResponse?.data || null);
         setThongTinHoaDon(thongTinHoaDonResponse?.data || []);
         setDichVuSuDung(dichVuSuDungResponse?.data || []);
@@ -81,6 +85,18 @@ const InfoHoaDon = () => {
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     return Math.max(diffDays, 1);
   };
+
+  // Tính toán các tổng
+  const tongTienPhong = thongTinHoaDon.reduce((sum, item) => sum + (item.tienPhong || 0), 0);
+  const tongTienDichVu = dichVuSuDung.reduce(
+    (sum, dv) => sum + (dv.giaDichVu * dv.soLuongSuDung || 0),
+    0
+  );
+  const tongTienPhuThu = phuThu.reduce((sum, pt) => sum + (pt.tienPhuThu || 0), 0);
+  const tongTienKhauTru = thongTinHoaDon.reduce((sum, item) => sum + (item.tienKhauTru || 0), 0);
+  const tienDatCoc = datCoc?.tienThanhToan || 0;
+  const tongCong = tongTienPhong + tongTienDichVu + tongTienPhuThu - tongTienKhauTru + tienDatCoc;
+  const tongTienHoaDon= tongTienPhong + tongTienDichVu + tongTienPhuThu - tongTienKhauTru ;
 
   if (!hoaDon) {
     return (
@@ -398,6 +414,113 @@ const InfoHoaDon = () => {
               ))}
             </tbody>
           </Table>
+        </Sheet>
+      </Box>
+
+      {/* Tóm tắt tài chính */}
+      <Box sx={{ marginTop: 3 }}>
+        <Sheet
+          sx={{
+            p: 2,
+            borderRadius: 2,
+            boxShadow: 3,
+            bgcolor: "#fff",
+          }}
+        >
+          <Typography level="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+            Tóm tắt hóa đơn 
+          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 1,
+            }}
+          >
+            <Typography level="body1">Tổng tiền phòng:</Typography>
+            <Typography level="body1">{formatCurrency(tongTienPhong)}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 1,
+            }}
+          >
+            <Typography level="body1">Tổng tiền dịch vụ:</Typography>
+            <Typography level="body1">{formatCurrency(tongTienDichVu)}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 1,
+            }}
+          >
+            <Typography level="body1">Tổng tiền phụ thu:</Typography>
+            <Typography level="body1">{formatCurrency(tongTienPhuThu)}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 1,
+            }}
+          >
+            <Typography level="body1">Tiền khấu trừ:</Typography>
+            <Typography level="body1">{formatCurrency(tongTienKhauTru)}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderTop: "1px solid #e0e0e0",
+              pt: 1,
+            }}
+          >
+            <Typography level="h6" sx={{ fontWeight: "bold" }}>
+              Tổng tiền hóa đơn:
+            </Typography>
+            <Typography level="h6" sx={{ fontWeight: "bold" }}>
+              {formatCurrency(tongTienHoaDon)}
+            </Typography>
+          </Box>
+          
+          {datCoc && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 1,
+              }}
+            >
+              <Typography level="body1">Tiền đặt cọc:</Typography>
+              <Typography level="body1">{formatCurrency(tienDatCoc)}</Typography>
+            </Box>
+          )}
+  
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              borderTop: "1px solid #e0e0e0",
+              pt: 1,
+            }}
+          >
+            <Typography level="h6" sx={{ fontWeight: "bold" }}>
+              Tổng tiền thanh toán:
+            </Typography>
+            <Typography level="h6" sx={{ fontWeight: "bold" }}>
+              {formatCurrency(tongCong)}
+            </Typography>
+          </Box>
         </Sheet>
       </Box>
     </Container>

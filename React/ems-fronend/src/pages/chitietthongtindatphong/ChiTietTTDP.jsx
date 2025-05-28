@@ -665,7 +665,7 @@ const ChiTietTTDP = () => {
                 >
                   {xepPhong?.phong ? "Đã xếp phòng" : "Xếp phòng"}
                 </Button>
-                {xepPhong?.phong && (
+                {xepPhong?.phong && thongTinDatPhong.trangThai ==="Đã xếp" &&(
                   <Button
                     variant="outlined"
                     color="primary"
