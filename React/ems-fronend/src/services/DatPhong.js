@@ -174,8 +174,8 @@ export const findDatPhong = (key, ngayNhanPhong, ngayTraPhong, pageable) => {
   return authorizedAxiosInstance.get(apiFindDatPhong, {
     params: {
       key: key,
-      ngayNhanPhong: ngayNhanPhong ? dayjs.tz(ngayNhanPhong, 'Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss') : null,
-      ngayTraPhong: ngayTraPhong ? dayjs.tz(ngayTraPhong, 'Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss') : null,
+      ngayNhanPhong: ngayNhanPhong,
+      ngayTraPhong: ngayTraPhong,
         page: pageable.page,
         size: pageable.size,
     },

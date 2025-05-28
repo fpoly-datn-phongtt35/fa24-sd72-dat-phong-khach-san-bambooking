@@ -180,6 +180,4 @@ public class DatPhongController {
     public DatPhong huyDP(@RequestParam String maDatPhong) {
         return datPhongServiceIMPL.huyDatPhong(maDatPhong);
     }
-
-
 }
