@@ -11,6 +11,7 @@ import {
 import { ThemPhuThu, CapNhatPhuThu, CheckPhuThuExistsByName } from "../../services/PhuThuService";
 import Swal from "sweetalert2";
 
+
 const PhuThuForm = ({ show, handleClose, data, idxp }) => {
     const [formData, setFormData] = useState({
         id: data?.id || "",
@@ -18,7 +19,7 @@ const PhuThuForm = ({ show, handleClose, data, idxp }) => {
         tenPhuThu: data?.tenPhuThu || "",
         tienPhuThu: data?.tienPhuThu || 0,
         soLuong: data?.soLuong || 1,
-        trangThai: 0, // mặc định 0
+        trangThai: 0,
     });
 
     useEffect(() => {
@@ -29,7 +30,7 @@ const PhuThuForm = ({ show, handleClose, data, idxp }) => {
                 tenPhuThu: data.tenPhuThu || "",
                 tienPhuThu: data.tienPhuThu || 0,
                 soLuong: data.soLuong || 1,
-                trangThai: 0, // luôn mặc định 0
+                trangThai: 0,
             });
         } else {
             setFormData({
@@ -55,13 +56,34 @@ const PhuThuForm = ({ show, handleClose, data, idxp }) => {
             [name]: parsedValue,
         }));
     };
-
+    
+    const [errors, setErrors] = useState({});
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const newErrors = {};
+        if (!formData.tenPhuThu.trim()) {
+            newErrors.tenPhuThu = "Tên phụ thu không được để trống";
+        }
+
+        if (isNaN(formData.tienPhuThu) || formData.tienPhuThu < 0) {
+            newErrors.tienPhuThu = "Tiền phụ thu phải là số không âm";
+        }
+
+        if (!Number.isInteger(formData.soLuong) || formData.soLuong < 1) {
+            newErrors.soLuong = "Số lượng phải là số nguyên >= 1";
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
+        setErrors({});
+
         try {
             if (data) {
-                // Nếu đang ở chế độ sửa (có dữ liệu từ props)
+                // Nếu đang ở chế độ sửa
                 await CapNhatPhuThu(formData);
                 Swal.fire("Thành công", "Cập nhật phụ thu thành công!", "success");
                 handleClose();
@@ -111,7 +133,8 @@ const PhuThuForm = ({ show, handleClose, data, idxp }) => {
                         margin="dense"
                         value={formData.tenPhuThu}
                         onChange={handleChange}
-                        required
+                        error={!!errors.tenPhuThu}
+                        helperText={errors.tenPhuThu}
                     />
 
                     <TextField
@@ -123,7 +146,8 @@ const PhuThuForm = ({ show, handleClose, data, idxp }) => {
                         value={formData.tienPhuThu}
                         onChange={handleChange}
                         inputProps={{ min: 0 }}
-                        required
+                        error={!!errors.tienPhuThu}
+                        helperText={errors.tienPhuThu}
                     />
 
                     <TextField
@@ -135,7 +159,8 @@ const PhuThuForm = ({ show, handleClose, data, idxp }) => {
                         value={formData.soLuong}
                         onChange={handleChange}
                         inputProps={{ min: 1 }}
-                        required
+                        error={!!errors.soLuong}
+                        helperText={errors.soLuong}
                     />
                 </form>
             </DialogContent>
