@@ -145,9 +145,9 @@ public class DatPhongController {
     public ResponseEntity<Page<DatPhongResponse>> findDatPhong(
             @RequestParam(value = "key", required = false) String key,
             @RequestParam(value = "ngayNhanPhong", required = false)
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime ngayNhanPhong,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
             @RequestParam(value = "ngayTraPhong", required = false)
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime ngayTraPhong,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
             Pageable pageable) {
         Page<DatPhongResponse> result = datPhongServiceIMPL.findDatPhong(
                 key, ngayNhanPhong, ngayTraPhong, pageable);

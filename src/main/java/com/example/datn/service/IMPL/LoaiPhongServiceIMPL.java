@@ -176,7 +176,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
             int totalRooms = 0;
             List<LoaiPhongChon> lp = new ArrayList<>();
             // Tính số ngày lưu trú
-            long soNgayLuuTru = ChronoUnit.DAYS.between(ngayNhanPhong, ngayTraPhong);
+            long soNgayLuuTru = ChronoUnit.DAYS.between(ngayNhanPhong.toLocalDate(), ngayTraPhong.toLocalDate());
             if (soNgayLuuTru <= 0) {
                 soNgayLuuTru = 1;
             }
@@ -184,7 +184,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
                 LoaiPhongKhaDungResponse room = loaiPhong.get(i);
                 int count = counts[i];
                 totalCapacity += count * room.getSoKhachToiDa();
-                totalChildCapacity += count * room.getTreEmToiDa(); // Tính sức chứa trẻ em
+                totalChildCapacity += count * room.getTreEmToiDa();
                 totalCost += count * room.getDonGia() * soNgayLuuTru;
                 totalRooms += count;
                 // Chỉ thêm vào danh sách nếu số lượng chọn lớn hơn 0

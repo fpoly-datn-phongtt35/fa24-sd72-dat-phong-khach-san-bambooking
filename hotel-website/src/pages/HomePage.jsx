@@ -13,11 +13,13 @@ import {
   Select,
   MenuItem,
   Typography,
+  IconButton,
 } from "@mui/material";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import SearchIcon from "@mui/icons-material/Search"; // Thêm icon tìm kiếm
 import { getLPKDR } from "../services/DatPhong";
 
 const HomePage = () => {
@@ -34,13 +36,16 @@ const HomePage = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setBgIndex((prev) => (prev + 1) % backgrounds.length);
-    }, 5000); // Đổi ảnh mỗi 5 giây
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  // Initialize check-in and check-out dates with specific times
+  // Initialize check-in and check-out dates
   const now = dayjs();
-  const initialCheckIn = now.startOf("day").set("hour", 14).set("minute", 0).set("second", 0);
+  const isPastCheckInTime = now.hour() >= 14;
+  const initialCheckIn = isPastCheckInTime
+    ? now.add(1, "day").set("hour", 14).set("minute", 0).set("second", 0)
+    : now.set("hour", 14).set("minute", 0).set("second", 0);
   const initialCheckOut = initialCheckIn
     .add(1, "day")
     .set("hour", 12)
@@ -68,6 +73,8 @@ const HomePage = () => {
 
   const validateInputs = () => {
     const newErrors = {};
+
+    // Validate check-in and check-out dates
     if (!ngayNhanPhong || !ngayNhanPhong.isValid()) {
       newErrors.ngayNhanPhong = "Vui lòng chọn ngày nhận phòng hợp lệ";
     }
@@ -83,6 +90,54 @@ const HomePage = () => {
     if (treEm < 0) {
       newErrors.treEm = "Số trẻ em không được nhỏ hơn 0";
     }
+
+    // Validate advanced filters
+    if (showAdvancedFilters) {
+      if (tongChiPhiMin && Number(tongChiPhiMin) < 0) {
+        newErrors.tongChiPhiMin = "Chi phí tối thiểu không được nhỏ hơn 0";
+      }
+      if (
+        tongChiPhiMin &&
+        tongChiPhiMax &&
+        Number(tongChiPhiMin) > Number(tongChiPhiMax)
+      ) {
+        newErrors.tongChiPhiMax =
+          "Chi phí tối đa phải lớn hơn chi phí tối thiểu";
+      }
+      if (tongSucChuaMin && Number(tongSucChuaMin) < 0) {
+        newErrors.tongSucChuaMin = "Sức chứa tối thiểu không được nhỏ hơn 0";
+      }
+      if (
+        tongSucChuaMin &&
+        tongSucChuaMax &&
+        Number(tongSucChuaMin) > Number(tongSucChuaMax)
+      ) {
+        newErrors.tongSucChuaMax =
+          "Sức chứa tối đa phải lớn hơn sức chứa tối thiểu";
+      }
+      if (tongSoPhongMin && Number(tongSoPhongMin) < 0) {
+        newErrors.tongSoPhongMin = "Số phòng tối thiểu không được nhỏ hơn 0";
+      }
+      if (
+        tongSoPhongMin &&
+        tongSoPhongMax &&
+        Number(tongSoPhongMin) > Number(tongSoPhongMax)
+      ) {
+        newErrors.tongSoPhongMax =
+          "Số phòng tối đa phải lớn hơn số phòng tối thiểu";
+      }
+      if (loaiPhongChons.length > 0) {
+        loaiPhongChons.forEach((lpc, index) => {
+          if (!lpc.loaiPhong) {
+            newErrors[`loaiPhong_${index}`] = "Vui lòng chọn loại phòng";
+          }
+          if (!lpc.soLuongChon || lpc.soLuongChon < 1) {
+            newErrors[`soLuongChon_${index}`] = "Số lượng phòng phải lớn hơn 0";
+          }
+        });
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -154,7 +209,7 @@ const HomePage = () => {
           <Box className="booking-box">
             <form onSubmit={handleSearch} className="booking-form">
               <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} sm={3}>
+                <Grid item xs={12} sm={3.1}>
                   <DateTimePicker
                     label="Ngày nhận phòng"
                     value={ngayNhanPhong}
@@ -200,7 +255,7 @@ const HomePage = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={3}>
+                <Grid item xs={12} sm={3.1}>
                   <DateTimePicker
                     label="Ngày trả phòng"
                     value={ngayTraPhong}
@@ -239,7 +294,7 @@ const HomePage = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={3}>
+                <Grid item xs={12} sm={2}>
                   <TextField
                     label="Số người lớn"
                     type="number"
@@ -268,7 +323,7 @@ const HomePage = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={3}>
+                <Grid item xs={12} sm={2}>
                   <TextField
                     label="Số trẻ em"
                     type="number"
@@ -297,20 +352,21 @@ const HomePage = () => {
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} sm={3}>
-                  <Button
+                <Grid item xs={12} sm={1}>
+                  <IconButton
                     type="submit"
-                    variant="contained"
-                    fullWidth
                     sx={{
                       borderRadius: 1,
                       bgcolor: "#1976d2",
                       "&:hover": { bgcolor: "#1565c0" },
+                      color: "#fff",
+                      width: 56,
                       height: 56,
                     }}
+                    aria-label="Tìm kiếm"
                   >
-                    TÌM
-                  </Button>
+                    <SearchIcon fontSize="large" />
+                  </IconButton>
                 </Grid>
               </Grid>
 
@@ -345,6 +401,8 @@ const HomePage = () => {
                           }}
                           fullWidth
                           inputProps={{ min: 0 }}
+                          error={!!errors.tongChiPhiMin}
+                          helperText={errors.tongChiPhiMin}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -371,6 +429,8 @@ const HomePage = () => {
                           }}
                           fullWidth
                           inputProps={{ min: 0 }}
+                          error={!!errors.tongChiPhiMax}
+                          helperText={errors.tongChiPhiMax}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -397,6 +457,8 @@ const HomePage = () => {
                           }}
                           fullWidth
                           inputProps={{ min: 0 }}
+                          error={!!errors.tongSucChuaMin}
+                          helperText={errors.tongSucChuaMin}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -416,6 +478,8 @@ const HomePage = () => {
                           }}
                           fullWidth
                           inputProps={{ min: 0 }}
+                          error={!!errors.tongSucChuaMax}
+                          helperText={errors.tongSucChuaMax}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -435,6 +499,8 @@ const HomePage = () => {
                           }}
                           fullWidth
                           inputProps={{ min: 0 }}
+                          error={!!errors.tongSoPhongMin}
+                          helperText={errors.tongSoPhongMin}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -454,6 +520,8 @@ const HomePage = () => {
                           }}
                           fullWidth
                           inputProps={{ min: 0 }}
+                          error={!!errors.tongSoPhongMax}
+                          helperText={errors.tongSoPhongMax}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -490,7 +558,10 @@ const HomePage = () => {
                       {loaiPhongChons.map((lpc, index) => (
                         <Grid container item spacing={2} key={index}>
                           <Grid item xs={6}>
-                            <FormControl fullWidth>
+                            <FormControl
+                              fullWidth
+                              error={!!errors[`loaiPhong_${index}`]}
+                            >
                               <InputLabel>Loại phòng</InputLabel>
                               <Select
                                 value={lpc.loaiPhong?.tenLoaiPhong || ""}
@@ -535,6 +606,15 @@ const HomePage = () => {
                                   </MenuItem>
                                 ))}
                               </Select>
+                              {!!errors[`loaiPhong_${index}`] && (
+                                <Typography
+                                  variant="caption"
+                                  color="error"
+                                  sx={{ mt: 1 }}
+                                >
+                                  {errors[`loaiPhong_${index}`]}
+                                </Typography>
+                              )}
                             </FormControl>
                           </Grid>
                           <Grid item xs={4}>
@@ -553,6 +633,8 @@ const HomePage = () => {
                               }}
                               fullWidth
                               inputProps={{ min: 1 }}
+                              error={!!errors[`soLuongChon_${index}`]}
+                              helperText={errors[`soLuongChon_${index}`]}
                               sx={{
                                 "& .MuiInputBase-root": {
                                   borderRadius: 1,

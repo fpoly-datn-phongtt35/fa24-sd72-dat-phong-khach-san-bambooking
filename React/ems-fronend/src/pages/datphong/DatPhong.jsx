@@ -37,6 +37,8 @@ import {
   toHopLoaiPhong,
   ThemKhachHangDatPhong,
   ThemMoiDatPhong,
+  XoaDatPhong,
+  XoaKhachHangDatPhong,
 } from "../../services/DatPhong";
 import { addThongTinDatPhong } from "../../services/TTDP";
 import { getLoaiPhongKhaDungResponse } from "../../services/LoaiPhongService";
@@ -91,22 +93,29 @@ const DatPhong = () => {
     });
   };
 
-  // Hàm định dạng thời gian cho LocalDateTime (không có múi giờ)
+  // Hàm định dạng thời gian cho LocalDateTime
   const formatLocalDateTime = (date) => {
-    return date.format("YYYY-MM-DDTHH:mm:ss"); // Định dạng không có offset, ví dụ: 2025-05-25T14:00:00
+    if (!date || !dayjs(date).isValid()) {
+      throw new Error("Ngày giờ không hợp lệ.");
+    }
+    return date.format("YYYY-MM-DDTHH:mm:ss");
+  };
+
+  const calculateBookingDays = () => {
+    const start = dayjs(ngayNhanPhong).startOf("day");
+    const end = dayjs(ngayTraPhong).startOf("day");
+    return Math.max(1, end.diff(start, "day"));
   };
 
   const validateInputs = () => {
-    const newErrors = {};
+    let newErrors = {};
 
-    // Validate ngày nhận phòng
     if (!ngayNhanPhong || !ngayNhanPhong.isValid()) {
-      newErrors.ngayNhanPhong = "Vui lòng chọn ngày nhận phòng hợp lệ";
+      newErrors.NhanPhongDay = "Vui lòng chọn ngày nhận phòng hợp lệ";
     } else if (ngayNhanPhong.isBefore(dayjs(), "minute")) {
       newErrors.ngayNhanPhong = "Ngày nhận phòng không được nhỏ hơn hiện tại";
     }
 
-    // Validate ngày trả phòng
     if (!ngayTraPhong || !ngayTraPhong.isValid()) {
       newErrors.ngayTraPhong = "Vui lòng chọn ngày trả phòng hợp lệ";
     } else if (
@@ -117,17 +126,14 @@ const DatPhong = () => {
       newErrors.ngayTraPhong = "Giờ trả phòng phải sau giờ nhận phòng";
     }
 
-    // Validate số người lớn
     if (!soNguoi || soNguoi < 1) {
       newErrors.soNguoi = "Số người lớn phải lớn hơn hoặc bằng 1";
     }
 
-    // Validate số trẻ em
     if (soTre < 0) {
       newErrors.soTre = "Số trẻ em không được nhỏ hơn 0";
     }
 
-    // Validate tổng chi phí
     if (tongChiPhiMin !== null && tongChiPhiMin < 0) {
       newErrors.tongChiPhiMin = "Tổng chi phí tối thiểu không được nhỏ hơn 0";
     }
@@ -143,12 +149,12 @@ const DatPhong = () => {
         "Tổng chi phí tối đa phải lớn hơn hoặc bằng tối thiểu";
     }
 
-    // Validate tổng sức chứa
     if (tongSucChuaMin !== null && tongSucChuaMin < 0) {
       newErrors.tongSucChuaMin = "Tổng sức chứa tối thiểu không được nhỏ hơn 0";
     }
     if (tongSucChuaMax !== null && tongSucChuaMax < 0) {
-      newErrors.tongSucChuaMax = "Tổng sức chứa tối đa không được nhỏ hơn 0";
+      newErrors.tongSucChuaMax =
+      "Tổng sức chứa tối đa không được nhỏ hơn 0";
     }
     if (
       tongSucChuaMin !== null &&
@@ -156,10 +162,9 @@ const DatPhong = () => {
       tongSucChuaMin > tongSucChuaMax
     ) {
       newErrors.tongSucChuaMax =
-        "Tổng sức chứa tối đa phải lớn hơn hoặc bằng tối thiểu";
+      "Tổng sức chứa tối đa phải lớn hơn hoặc bằng tối thiểu";
     }
 
-    // Validate tổng số phòng
     if (tongSoPhongMin !== null && tongSoPhongMin < 0) {
       newErrors.tongSoPhongMin = "Tổng số phòng tối thiểu không được nhỏ hơn 0";
     }
@@ -175,7 +180,6 @@ const DatPhong = () => {
         "Tổng số phòng tối đa phải lớn hơn hoặc bằng tối thiểu";
     }
 
-    // Validate loại phòng được chọn
     loaiPhongChons.forEach((lpc, index) => {
       if (!lpc.loaiPhong) {
         newErrors[`loaiPhong_${index}`] = "Vui lòng chọn loại phòng";
@@ -186,7 +190,6 @@ const DatPhong = () => {
       }
     });
 
-    // Kiểm tra trùng lặp loại phòng
     const selectedLoaiPhongs = loaiPhongChons
       .filter((lpc) => lpc.loaiPhong)
       .map((lpc) => lpc.loaiPhong.id);
@@ -206,12 +209,6 @@ const DatPhong = () => {
         ngayNhanPhong.isValid() &&
         ngayTraPhong.isValid()
       ) {
-        console.log(
-          "Fetch loại phòng - Ngày nhận:",
-          formatLocalDateTime(ngayNhanPhong),
-          "Ngày trả:",
-          formatLocalDateTime(ngayTraPhong)
-        );
         const response = await getLoaiPhongKhaDungResponse(
           formatLocalDateTime(ngayNhanPhong),
           formatLocalDateTime(ngayTraPhong)
@@ -231,12 +228,6 @@ const DatPhong = () => {
       return;
     }
     try {
-      console.log(
-        "Search - Ngày nhận:",
-        formatLocalDateTime(ngayNhanPhong),
-        "Ngày trả:",
-        formatLocalDateTime(ngayTraPhong)
-      );
       const response = await toHopLoaiPhong(
         formatLocalDateTime(ngayNhanPhong),
         formatLocalDateTime(ngayTraPhong),
@@ -265,8 +256,18 @@ const DatPhong = () => {
   };
 
   useEffect(() => {
-    fetchLoaiPhong();
-    handleSearch(0);
+    validateInputs();
+    if (
+      ngayNhanPhong &&
+      ngayTraPhong &&
+      ngayNhanPhong.isValid() &&
+      ngayTraPhong.isValid() &&
+      soNguoi >= 1 &&
+      soTre >= 0
+    ) {
+      fetchLoaiPhong();
+      handleSearch(0);
+    }
   }, [ngayNhanPhong, ngayTraPhong, soNguoi, soTre, pageSize]);
 
   const handleSearchClick = () => {
@@ -290,10 +291,12 @@ const DatPhong = () => {
         0
       );
 
+      const soNgayLuuTru = calculateBookingDays();
+
       const khachHangRequest = {
         ho: "Khách",
         ten: "Hàng",
-        email: "khachhang@example.com",
+        email: null,
         sdt: "",
         trangThai: false,
       };
@@ -302,18 +305,13 @@ const DatPhong = () => {
         throw new Error("Không thể tạo khách hàng.");
       }
 
-      const soNgayLuuTru = Math.max(
-        1,
-        dayjs(ngayTraPhong).diff(ngayNhanPhong, "day")
-      );
-
       const datPhongRequest = {
         khachHang: khachHangResponse.data,
         maDatPhong: "DP" + new Date().getTime(),
         soNguoi: soNguoi,
         soTre: soTre,
         soPhong: soPhong,
-        ngayDat: formatLocalDateTime(dayjs()), // Sửa ngày đặt để dùng formatLocalDateTime
+        ngayDat: formatLocalDateTime(dayjs()),
         tongTien: combination.tongChiPhi * soNgayLuuTru,
         ghiChu: "Đặt phòng từ tổ hợp được chọn",
         trangThai: "Đang đặt phòng",
@@ -337,12 +335,6 @@ const DatPhong = () => {
               giaDat: phong.loaiPhong.donGia * soNgayLuuTru,
               trangThai: "Đang đặt phòng",
             };
-            console.log(
-              "ThongTinDatPhongRequest - Ngày nhận:",
-              thongTinDatPhongRequest.ngayNhanPhong,
-              "Ngày trả:",
-              thongTinDatPhongRequest.ngayTraPhong
-            );
             const response = await addThongTinDatPhong(thongTinDatPhongRequest);
             if (!response || !response.data) {
               throw new Error(
@@ -360,7 +352,10 @@ const DatPhong = () => {
         );
       }
 
-      handleSnackbar("Đặt phòng thành công!", "success");
+      handleSnackbar(
+        "Tạo đặt phòng thành công! Vui lòng nhập thông tin khách hàng.",
+        "success"
+      );
       navigate("/tao-dat-phong", {
         state: {
           combination: combination,
@@ -374,6 +369,22 @@ const DatPhong = () => {
       handleSnackbar(
         error.message || "Đã xảy ra lỗi khi tạo đặt phòng. Vui lòng thử lại."
       );
+
+      // Rollback
+      if (datPhongResponse && datPhongResponse.data) {
+        try {
+          await XoaDatPhong(datPhongResponse.data.id);
+        } catch (err) {
+          console.error("Lỗi khi rollback đặt phòng:", err);
+        }
+      }
+      if (khachHangResponse && khachHangResponse.data) {
+        try {
+          await XoaKhachHangDatPhong(khachHangResponse.data);
+        } catch (err) {
+          console.error("Lỗi khi rollback khách hàng:", err);
+        }
+      }
     }
   };
 
@@ -391,7 +402,6 @@ const DatPhong = () => {
         paddingBottom: "32px",
       }}
     >
-      {/* Phần tìm kiếm */}
       <Paper
         elevation={3}
         sx={{
@@ -428,6 +438,14 @@ const DatPhong = () => {
                     if (newValue && dayjs(newValue).isValid()) {
                       const newCheckInDateTime = dayjs(newValue);
                       setNgayNhanPhong(newCheckInDateTime);
+                      if (newCheckInDateTime.isAfter(ngayTraPhong)) {
+                        setNgayTraPhong(
+                          newCheckInDateTime
+                            .add(1, "day")
+                            .set("hour", 12)
+                            .set("minute", 0)
+                        );
+                      }
                     } else {
                       setNgayNhanPhong(null);
                     }
@@ -457,7 +475,9 @@ const DatPhong = () => {
                 <DateTimePicker
                   label="Ngày trả phòng"
                   value={ngayTraPhong}
-                  minDateTime={ngayNhanPhong ? ngayNhanPhong : dayjs()}
+                  minDateTime={
+                    ngayNhanPhong ? ngayNhanPhong.add(1, "hour") : dayjs()
+                  }
                   onChange={(newValue) => {
                     if (newValue && dayjs(newValue).isValid()) {
                       setNgayTraPhong(dayjs(newValue));
@@ -579,6 +599,7 @@ const DatPhong = () => {
                       );
                       validateInputs();
                     }}
+                    inputProps={{ min: 0 }}
                     fullWidth
                     error={!!errors.tongChiPhiMin}
                     helperText={errors.tongChiPhiMin}
@@ -608,6 +629,7 @@ const DatPhong = () => {
                       );
                       validateInputs();
                     }}
+                    inputProps={{ min: 0 }}
                     fullWidth
                     error={!!errors.tongChiPhiMax}
                     helperText={errors.tongChiPhiMax}
@@ -637,6 +659,7 @@ const DatPhong = () => {
                       );
                       validateInputs();
                     }}
+                    inputProps={{ min: 0 }}
                     fullWidth
                     error={!!errors.tongSucChuaMin}
                     helperText={errors.tongSucChuaMin}
@@ -659,6 +682,7 @@ const DatPhong = () => {
                       );
                       validateInputs();
                     }}
+                    inputProps={{ min: 0 }}
                     fullWidth
                     error={!!errors.tongSucChuaMax}
                     helperText={errors.tongSucChuaMax}
@@ -681,6 +705,7 @@ const DatPhong = () => {
                       );
                       validateInputs();
                     }}
+                    inputProps={{ min: 0 }}
                     fullWidth
                     error={!!errors.tongSoPhongMin}
                     helperText={errors.tongSoPhongMin}
@@ -703,6 +728,7 @@ const DatPhong = () => {
                       );
                       validateInputs();
                     }}
+                    inputProps={{ min: 0 }}
                     fullWidth
                     error={!!errors.tongSoPhongMax}
                     helperText={errors.tongSoPhongMax}
@@ -794,8 +820,8 @@ const DatPhong = () => {
                           setLoaiPhongChons(newList);
                           validateInputs();
                         }}
-                        fullWidth
                         inputProps={{ min: 0 }}
+                        fullWidth
                         error={!!errors[`soLuong_${index}`]}
                         helperText={errors[`soLuong_${index}`]}
                         sx={{
@@ -826,7 +852,7 @@ const DatPhong = () => {
                 ))}
                 <Grid item xs={12}>
                   {errors.loaiPhongChons && (
-                    <Typography color="error" variant="caption">
+                    <Typography color="error" variant="body2" sx={{ mb: 1 }}>
                       {errors.loaiPhongChons}
                     </Typography>
                   )}
@@ -865,7 +891,6 @@ const DatPhong = () => {
         </Box>
       </Paper>
 
-      {/* Phần kết quả */}
       {loaiPhongKhaDung && loaiPhongKhaDung.length > 0 ? (
         loaiPhongKhaDung.map((combination, combIndex) => (
           <Box
@@ -888,7 +913,10 @@ const DatPhong = () => {
               }}
             >
               Tổ hợp {combIndex + 1}: Tổng sức chứa {combination.tongSucChua} -
-              Tổng chi phí: {Number(combination.tongChiPhi).toLocaleString()}{" "}
+              Tổng chi phí:{" "}
+              {(
+                Number(combination.tongChiPhi)
+              ).toLocaleString()}{" "}
               VND - Tổng số phòng: {combination.tongSoPhong}
             </Typography>
             <Button
@@ -939,7 +967,7 @@ const DatPhong = () => {
                       </TableCell>
                       <TableCell>
                         {phong.loaiPhong?.dienTich
-                          ? `${phong.loaiPhong.dienTich} `
+                          ? `${phong.loaiPhong.dienTich}`
                           : "N/A"}
                       </TableCell>
                       <TableCell>
@@ -947,7 +975,9 @@ const DatPhong = () => {
                           ? `${phong.loaiPhong.soKhachTieuChuan}`
                           : "N/A"}
                       </TableCell>
-                      <TableCell>{phong.loaiPhong?.treEmTieuChuan}</TableCell>
+                      <TableCell>
+                        {phong.loaiPhong?.treEmTieuChuan || "N/A"}
+                      </TableCell>
                       <TableCell>
                         {phong.loaiPhong?.donGia
                           ? Number(phong.loaiPhong.donGia).toLocaleString()
@@ -957,7 +987,9 @@ const DatPhong = () => {
                       <TableCell>
                         {phong.loaiPhong?.donGia && phong.soLuongChon
                           ? (
-                              phong.soLuongChon * phong.loaiPhong.donGia
+                              phong.soLuongChon *
+                              phong.loaiPhong.donGia *
+                              calculateBookingDays()
                             ).toLocaleString()
                           : "N/A"}
                       </TableCell>
@@ -974,7 +1006,6 @@ const DatPhong = () => {
         </Typography>
       )}
 
-      {/* Phần phân trang */}
       <Box
         sx={{
           mt: 3,
