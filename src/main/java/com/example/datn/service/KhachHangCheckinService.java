@@ -17,4 +17,8 @@ public interface KhachHangCheckinService {
 
      List<KhachHangCheckin> findByTrangThaiTTDP();
 
+    List<KhachHangCheckin> findByThongTinDatPhongId(int idThongTin);
+
+    boolean qrCheckIn(Integer idTTDP,String cmnd,String diaChi,String gioiTinh,String hoTen);
+
 }

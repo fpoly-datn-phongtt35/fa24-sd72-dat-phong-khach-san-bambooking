@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { getRoomDetail, getDichVuSuDungByIDXepPhong, AddDichVuSuDung, AddDVDK, changeConditionRoom } from '../../services/ViewPhong';
 import { CapNhatDichVuSuDung } from "../../services/DichVuSuDungService";
 import DVSVDetail from './DVSDDetail';
+import PhuThuForm from './PhuThuForm';
 import {
   Box,
   Grid,
@@ -34,6 +35,7 @@ const RoomDetail = () => {
   const [ListDVSD, setListDVSD] = useState([]);
   const [showFormDetail, setShowFormDetail] = useState(false);
   const [selectedDichVu, setSelectedDichVu] = useState(null);
+  const [showPhuThuForm, setShowPhuThuForm] = useState(false);
   const [alert, setAlert] = useState({
     open: false,
     severity: "success",
@@ -159,7 +161,7 @@ const RoomDetail = () => {
   const handleChangeConditionRoom = async () => {
     try {
       await changeConditionRoom(roomId);
-      const updatedRoom = await getRoomDetail(roomId,date);
+      const updatedRoom = await getRoomDetail(roomId, date);
       console.log("Dữ liệu phòng sau khi thay đổi:", updatedRoom);
       setRoomDetail(updatedRoom);
 
@@ -237,7 +239,7 @@ const RoomDetail = () => {
                 <TableCell sx={{ fontWeight: "bold" }}>
                   Tổng chi phí (VND)
                 </TableCell>
-                {roomDetail?.trangThai != "Đã trả phòng"  && roomDetail?.trangThai != "Đã kiểm tra" && (
+                {roomDetail?.trangThai != "Đã trả phòng" && roomDetail?.trangThai != "Đã kiểm tra" && (
                   <TableCell sx={{ fontWeight: "bold" }}>Hành động</TableCell>
                 )}
               </TableRow>
@@ -264,7 +266,7 @@ const RoomDetail = () => {
                     <TableCell>{dv.giaSuDung}</TableCell>
                     <TableCell>{dv.soLuongSuDung}</TableCell>
                     <TableCell>{dv.giaSuDung * dv.soLuongSuDung}</TableCell>
-                    {roomDetail?.trangThai != "Đã trả phòng" && roomDetail?.trangThai != "Đã kiểm tra" &&(
+                    {roomDetail?.trangThai != "Đã trả phòng" && roomDetail?.trangThai != "Đã kiểm tra" && (
                       <TableCell>
                         <Button
                           variant="contained"
@@ -299,29 +301,40 @@ const RoomDetail = () => {
             </TableBody>
           </Table>
         </TableContainer>
-        {roomDetail && roomDetail.phong.tinhTrang == "Đang ở" && (
-          <>
-            <Button
-              variant="contained"
-              color="primary"
-              sx={{ mt: 2, textTransform: "none" }}
-              onClick={() => {
-                setShowFormDetail(true);
-                setSelectedDichVu(null);
-              }}
-            >
-              Thêm dịch vụ
-            </Button>
-            <Button
-              variant="contained"
-              color="success"
-              sx={{ mt: 2, mx: 2, textTransform: "none" }}
-              onClick={handleChangeConditionRoom}
-              disabled={buttonStatus.disabled}
-            >
-              {buttonStatus.text}
-            </Button>
-          </>
+        {roomDetail && (roomDetail.trangThai == "Đang ở" || roomDetail.trangThai == "Đã xếp") && (
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ mt: 2, textTransform: "none" }}
+            onClick={() => {
+              setShowFormDetail(true);
+              setSelectedDichVu(null);
+            }}
+          >
+            Thêm dịch vụ
+          </Button>
+        )}
+        {roomDetail && roomDetail.trangThai == "Đang ở" && (
+          <Button
+            variant="contained"
+            color="success"
+            sx={{ mt: 2, mx: 2, textTransform: "none" }}
+            onClick={handleChangeConditionRoom}
+            disabled={buttonStatus.disabled}
+          >
+            Kiểm tra phòng
+          </Button>
+        )}
+
+        {roomDetail && roomDetail.trangThai === "Đang ở" && (
+          <Button
+            variant="contained"
+            color="secondary"
+            sx={{ mt: 2, mx: 2, textTransform: "none" }}
+            onClick={() => setShowPhuThuForm(true)}
+          >
+            Thêm phụ thu
+          </Button>
         )}
 
         {alert.open && (
@@ -362,6 +375,15 @@ const RoomDetail = () => {
           handleClose={handleCloseFormDetail}
           data={selectedDichVu}
           idxp={roomDetail?.id}
+        />
+      )}
+
+      {/* Form Phụ thu */}
+      {showPhuThuForm && (
+        <PhuThuForm
+          show={showPhuThuForm}
+          handleClose={() => setShowPhuThuForm(false)}
+          idxp={roomDetail.id}
         />
       )}
     </Grid>

@@ -1,6 +1,7 @@
 package com.example.datn.service;
 
 import com.example.datn.dto.response.TraPhongResponse;
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.model.TraPhong;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,6 @@ public interface TraPhongService {
     TraPhong checkOutById(Integer idTraPhong);
     List<TraPhongResponse> checkOutByKey(String key);
     List<TraPhong> DSTraPhong();
-    void sendMailCheckout(Integer idTraPhong);
+    void sendMailCheckout(ThongTinDatPhong thongTinDatPhong);
 //    List<TraPhongResponse> findXepPhongByKey(String key);
 }

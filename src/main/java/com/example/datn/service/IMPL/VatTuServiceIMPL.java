@@ -82,6 +82,7 @@ public class VatTuServiceIMPL implements VatTuService {
         vatTu.setTenVatTu(vatTuRequest.getTenVatTu());
         vatTu.setHinhAnh(cloudinary.url().generate(publicValue + "." + extension));
         vatTu.setGia(vatTuRequest.getGia());
+        vatTu.setTrangThai(vatTuRequest.getTrangThai());
         vatTuRepository.save(vatTu);
 
         VatTuResponse response = new VatTuResponse();
@@ -89,6 +90,7 @@ public class VatTuServiceIMPL implements VatTuService {
         response.setTenVatTu(vatTu.getTenVatTu());
         response.setHinhAnh(vatTu.getHinhAnh());
         response.setGia(vatTu.getGia());
+        response.setTrangThai(vatTu.getTrangThai());
         return response;
     }
 
@@ -133,6 +135,7 @@ public class VatTuServiceIMPL implements VatTuService {
         // Cập nhật tên tiện ích
         vatTu.setTenVatTu(vatTuRequest.getTenVatTu());
         vatTu.setGia(vatTuRequest.getGia());
+        vatTu.setTrangThai(vatTuRequest.getTrangThai());
         vatTuRepository.save(vatTu);
 
         // Tạo response sau khi cập nhật thành công
@@ -141,6 +144,7 @@ public class VatTuServiceIMPL implements VatTuService {
         response.setTenVatTu(vatTu.getTenVatTu());
         response.setGia(vatTu.getGia());
         response.setHinhAnh(vatTu.getHinhAnh());  // Giữ nguyên ảnh cũ nếu không upload ảnh mới
+        response.setTrangThai(vatTu.getTrangThai());
         return response;
     }
 

@@ -2,15 +2,22 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.response.DatPhongResponse;
+import com.example.datn.exception.InvalidDataException;
 import com.example.datn.model.DatPhong;
-import com.example.datn.model.NhanVien;
 import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.model.XepPhong;
 import com.example.datn.repository.*;
 import com.example.datn.service.DatPhongService;
 import com.example.datn.utilities.UniqueDatPhongCode;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -18,10 +25,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
 public class DatPhongServiceIMPL implements DatPhongService {
+    private final JavaMailSender mailSender;
     @Autowired
     DatPhongRepository datPhongRepository;
 
@@ -30,6 +40,10 @@ public class DatPhongServiceIMPL implements DatPhongService {
 
     @Autowired
     XepPhongRepository xepPhongRepository;
+
+    public DatPhongServiceIMPL(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Override
     public Page<DatPhongResponse> getByTrangThai(String tt, Pageable pageable) {
@@ -50,10 +64,11 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhong.setMaDatPhong(codeDP);
         datPhong.setSoPhong(datPhongRequest.getSoPhong());
         datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
+        datPhong.setSoTre(datPhongRequest.getSoTre());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setGhiChu(datPhongRequest.getGhiChu());
         datPhong.setTongTien(datPhongRequest.getTongTien());
-        datPhong.setNgayDat(LocalDate.now());
+        datPhong.setNgayDat(LocalDateTime.now());
         datPhong.setTrangThai(datPhongRequest.getTrangThai());
         DatPhong dp = datPhongRepository.save(datPhong);
 
@@ -62,6 +77,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhongResponse.setMaDatPhong(dp.getMaDatPhong());
         datPhongResponse.setSoPhong(dp.getSoPhong());
         datPhongResponse.setSoNguoi(dp.getSoNguoi());
+        datPhongResponse.setSoTre(dp.getSoTre());
         datPhongResponse.setKhachHang(dp.getKhachHang());
         datPhongResponse.setTongTien(dp.getTongTien());
         datPhongResponse.setNgayDat(dp.getNgayDat());
@@ -85,6 +101,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
     public DatPhong updateDatPhong(DatPhongRequest datPhongRequest) {
         DatPhong datPhong = datPhongRepository.findByMaDatPhong(datPhongRequest.getMaDatPhong());
         datPhong.setSoNguoi(datPhongRequest.getSoNguoi());
+        datPhong.setSoTre(datPhongRequest.getSoTre());
         datPhong.setSoPhong(datPhongRequest.getSoPhong());
         datPhong.setKhachHang(datPhongRequest.getKhachHang());
         datPhong.setTongTien(datPhongRequest.getTongTien());
@@ -156,10 +173,10 @@ public class DatPhongServiceIMPL implements DatPhongService {
     }
 
     public Page<DatPhongResponse> findDatPhong(String key, LocalDate ngayNhanPhong, LocalDate ngayTraPhong, Pageable pageable) {
-        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Đang ở","Chưa xếp", "Đã xếp", "Đã trả phòng", "Đã kiểm tra phòng");
-        List<String> trangThai = Arrays.asList("Đang đặt phòng","Chưa xác nhận", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
-        String searchKey = (key == null || key.trim().isEmpty()) ? null : "%" + key.trim() + "%";
-        return datPhongRepository.findDatPhong(trangThai, trangThaiTTDP, searchKey, ngayNhanPhong, ngayTraPhong, pageable);
+        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng", "Đang ở", "Chưa xếp", "Đã xếp", "Đã trả phòng", "Đã kiểm tra phòng");
+        List<String> trangThai = Arrays.asList("Đang đặt phòng", "Chưa xác nhận", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
+        System.out.println(key);
+        return datPhongRepository.findDatPhong(trangThai, trangThaiTTDP, key, ngayNhanPhong, ngayTraPhong, pageable);
     }
 
 //    public void updateTrangThaiDatPhong() {
@@ -213,4 +230,53 @@ public class DatPhongServiceIMPL implements DatPhongService {
         }
         return datPhongRepository.findByMaDatPhong(maDatPhong);
     }
+
+    @Scheduled(fixedRate = 1000)
+    public void checkDatPhongConfirmed() {
+        Logger logger = LoggerFactory.getLogger(DatPhongServiceIMPL.class);
+        List<String> trangThai = Arrays.asList("Đang đặt phòng");
+        LocalDateTime now = LocalDateTime.now();
+        List<DatPhong> listDP = datPhongRepository.findDatPhongByTrangThais(trangThai);
+
+        for (DatPhong dp : listDP) {
+            logger.debug("Kiểm tra đặt phòng ID: {}", dp.getId());
+            LocalDateTime ngayDat = dp.getNgayDat();
+            if (ngayDat != null) {
+                if (ngayDat.plusHours(2).isBefore(now)) {
+                    dp.setGhiChu("Hủy do không xác nhận trong vòng 2 tiếng");
+                    dp.setTrangThai("Đã hủy");
+                    datPhongRepository.save(dp);
+
+                    List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByMaDatPhong(dp.getMaDatPhong());
+                    for (ThongTinDatPhong ttdp : ttdps) {
+                        ttdp.setGhiChu("Hủy do không xác nhận trong vòng 2 tiếng");
+                        ttdp.setTrangThai("Đã hủy");
+                        thongTinDatPhongRepository.save(ttdp);
+                    }
+                    logger.info("Đã hủy đặt phòng mã: {} do không xác nhận trong 2 tiếng", dp.getMaDatPhong());
+                    try {
+                        sendCancellationEmail(dp);
+                    } catch (MessagingException e) {
+                        logger.error("Lỗi khi gửi email thông báo hủy đặt phòng mã: {}", dp.getMaDatPhong(), e);
+                    }
+                }
+            }
+        }
+    }
+    private void sendCancellationEmail(DatPhong dp) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+        helper.setTo(dp.getKhachHang().getEmail());
+        helper.setSubject("Thông báo hủy đặt phòng");
+        helper.setText(
+                "Kính gửi " + dp.getKhachHang().getTen() + ",\n\n" +
+                        "Đặt phòng của bạn với mã " + dp.getMaDatPhong() + " đã bị hủy do không được xác nhận trong 2 tiếng.\n" +
+                        "Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ thêm.\n\n" +
+                        "Trân trọng,\nĐội ngũ khách sạn", true
+        );
+
+        mailSender.send(mimeMessage);
+    }
+
 }

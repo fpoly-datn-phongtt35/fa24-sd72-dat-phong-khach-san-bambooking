@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPhong, Integer> {
@@ -21,7 +22,7 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
 
     @Query(
             "select new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong, " +
-                    "CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong, " +
+                    "CONCAT(ttdp.datPhong.khachHang.ho ,' ', ttdp.datPhong.khachHang.ten), ttdp.soNguoi,ttdp.soTre, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong, " +
                     "ttdp.giaDat,ttdp.ghiChu,ttdp.trangThai) " +
                     "from ThongTinDatPhong ttdp " +
                     "where ttdp.trangThai = :trangThai " +
@@ -34,7 +35,7 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
     List<ThongTinDatPhong> findByMaDatPhong(@Param("maDatPhong") String maDatPhong);
 
     @Query("SELECT new com.example.datn.dto.response.TTDPResponse(ttdp.id, ttdp.datPhong.maDatPhong, ttdp.maThongTinDatPhong," +
-            " CONCAT(dp.khachHang.ho ,' ', dp.khachHang.ten), ttdp.soNguoi, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
+            " CONCAT(dp.khachHang.ho ,' ', dp.khachHang.ten), ttdp.soNguoi,ttdp.soTre, ttdp.loaiPhong, ttdp.ngayNhanPhong, ttdp.ngayTraPhong," +
             " ttdp.giaDat, ttdp.ghiChu, ttdp.trangThai) " +
             "FROM ThongTinDatPhong ttdp " +
             "JOIN ttdp.loaiPhong lp " +
@@ -89,14 +90,13 @@ public interface ThongTinDatPhongRepository extends JpaRepository<ThongTinDatPho
 
 
     @Query("SELECT t FROM ThongTinDatPhong t WHERE t.datPhong.id = :iddp and t.loaiPhong.id= :idlp")
-    List<ThongTinDatPhong> getByidDPandidLP(@Param("iddp") Integer iddp,@Param("idlp") Integer idlp);
+    List<ThongTinDatPhong> getByidDPandidLP(@Param("iddp") Integer iddp, @Param("idlp") Integer idlp);
 
-    @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :idDatPhong AND ttdp.trangThai = :trangThai")
-    List<ThongTinDatPhong> findByIDDatPhongandTT(Integer idDatPhong,String trangThai);
+    @Query("SELECT ttdp FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :idDatPhong AND ttdp.trangThai IN :trangThai")
+    List<ThongTinDatPhong> findByIDDatPhongandTT(Integer idDatPhong, List<String> trangThai);
 
-    @Query("SELECT CASE WHEN COUNT(ttdp) = SUM(CASE WHEN ttdp.trangThai = 'Đã trả phòng' THEN 1 ELSE 0 END) THEN true ELSE false END " +
-           "FROM ThongTinDatPhong ttdp WHERE ttdp.datPhong.id = :datPhongId")
-    boolean areAllThongTinDatPhongCheckedOut(@Param("datPhongId") Integer datPhongId);
+    List<ThongTinDatPhong> findByDatPhong_Id(Integer datPhongId);
 
+    List<ThongTinDatPhong> findByDatPhong(DatPhong datPhong);
 }
 

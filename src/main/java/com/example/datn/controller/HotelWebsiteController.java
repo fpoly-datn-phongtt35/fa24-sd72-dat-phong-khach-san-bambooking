@@ -7,6 +7,12 @@ import com.example.datn.dto.request.ToHopRequest;
 import com.example.datn.dto.response.*;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.*;
+import com.example.datn.repository.DatPhongRepository;
+import com.example.datn.model.DichVu;
+import com.example.datn.model.HinhAnh;
+import com.example.datn.model.KhachHang;
+import com.example.datn.model.LoaiPhong;
+import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.*;
 import com.example.datn.service.IMPL.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -46,6 +52,10 @@ public class HotelWebsiteController {
     KhachHangServiceIMPL khachHangServiceIMPL;
     @Autowired
     XepPhongServiceIMPL xepPhongServiceIMPL;
+    @Autowired
+    DatPhongRepository datPhongRepository;
+    @Autowired
+    DichVuServiceIMPL dichVuServiceIMPL;
 
     @GetMapping("/loai-phong")
     public ResponseEntity<?> home(){
@@ -122,6 +132,7 @@ public class HotelWebsiteController {
                 request.getNgayNhanPhong(),
                 request.getNgayTraPhong(),
                 request.getSoNguoi(),
+                request.getSoTre(),
                 request.getKey(),
                 request.getTongChiPhiMin(),
                 request.getTongChiPhiMax(),
@@ -158,6 +169,11 @@ public class HotelWebsiteController {
     @PutMapping("/kh/update-kh-dp")
     public ResponseEntity<?> updateKhachHangDatPhong(@RequestBody KhachHangDatPhongRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(khachHangService.updateKhachHangDatPhong(request));
+    }
+
+    @PutMapping("/kh/update-kh")
+    public ResponseEntity<?> updateKhachHang(@RequestBody KhachHangDatPhongRequest request){
+        return ResponseEntity.status(HttpStatus.CREATED).body(hotelWebsiteServiceImpl.updateKhachHang(request));
     }
 
     @PutMapping("/dp/cap-nhat")
@@ -220,12 +236,20 @@ public class HotelWebsiteController {
     }
 
     @GetMapping("/loai-phong/loai-phong-kha-dung-list")
-    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
-                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong){
+    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
+                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong){
         return ResponseEntity.ok(loaiPhongServiceIMPL.getAllLPKDR(ngayNhanPhong,ngayTraPhong));
     }
 
-
+    @GetMapping("/loai-phong/lpkdr-list")
+    public ResponseEntity<?> getLPKDRL (@RequestParam(value = "ngayNhanPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
+                                        @RequestParam(value = "ngayTraPhong")@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
+                                        @RequestParam("soNguoi") Integer soNguoi,
+                                        @RequestParam("soTre") Integer soTre,
+                                        @RequestParam("soPhong") Integer soPhong,
+                                        @RequestParam(value = "idLoaiPhong", required = false) Integer idLoaiPhong){
+        return ResponseEntity.ok(loaiPhongServiceIMPL.getLoaiPhongKhaDungResponseList(ngayNhanPhong,ngayTraPhong,soNguoi,soTre,soPhong,idLoaiPhong));
+    }
 
     // Những đường dẫn không yêu cầu xác thực/////////////////////
     @GetMapping("/tra-cuu/search-lich-su-dp")
@@ -285,15 +309,78 @@ public class HotelWebsiteController {
         return ResponseEntity.ok( hotelWebsiteServiceImpl.getHDByidDatPhong(idDatPhong));
     }
 
-    @PostMapping("/dp/gui-email-xac-nhan-dp")
-    public void guiEmailXacNhandp(@RequestBody DatPhongRequest datPhongRequest){
-         hotelWebsiteServiceImpl.guiEmailXacNhandp(datPhongRequest);
+    @GetMapping("/dp/gui-email-xac-nhan-dp")
+    public void guiEmailXacNhandp(@RequestParam("idDatPhong") Integer idDatPhong){
+         hotelWebsiteServiceImpl.guiEmailXacNhandp(idDatPhong);
+    }
+
+    @GetMapping("/dp/gui-email-xac-nhan-dp-sau-UD-KH")
+    public void guiEmailXacNhandpsauUDKH(@RequestParam("idDatPhong") Integer idDatPhong){
+        hotelWebsiteServiceImpl.guiEmailXacNhandpsauUDKhachHang(idDatPhong);
     }
 
     @GetMapping("/dp/xac-nhan-dp")
-    public boolean xacNhanDP(@RequestParam("iddp") Integer iddp){
-        return hotelWebsiteServiceImpl.xacNhanDP(iddp);
+    public ResponseEntity<ResponseDTO> xacNhanDP(@RequestParam("iddp") Integer iddp) {
+        try {
+            DatPhong datPhong = datPhongRepository.findById(iddp)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy đặt phòng với ID: " + iddp));
+
+            if (datPhong.getTrangThai().equals("Đã xác nhận")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(new ResponseDTO(false, "Đặt phòng đã được xác nhận trước đó", null));
+            }
+
+            if (!datPhong.getTrangThai().equals("Chưa xác nhận")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ResponseDTO(false, "Đặt phòng không ở trạng thái có thể xác nhận", null));
+            }
+
+            datPhong.setTrangThai("Đã xác nhận");
+            datPhongRepository.save(datPhong);
+            return ResponseEntity.ok(new ResponseDTO(true, "Xác nhận đặt phòng thành công", null));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ResponseDTO(false, e.getMessage(), null));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDTO(false, "Lỗi server: " + e.getMessage(), null));
+        }
     }
 
+
+    @GetMapping("/dp/email-dp-thanh-cong")
+    public void emailDatPhongThanhCong(@RequestParam("iddp") Integer iddp){
+        hotelWebsiteServiceImpl.emailDatPhongThanhCong(iddp);
+    }
+
+    @GetMapping("/dich_vu")
+    public List<DichVu> dichVuHome() {
+        return dichVuServiceIMPL.getAll();
+    }
+
+    @GetMapping("/ttdp/TTDP-Co-The-Huy")
+    public ResponseEntity<?> dsTTDPCoTheHuy(@RequestParam("idDatPhong") Integer iddp) {
+        return ResponseEntity.ok( hotelWebsiteServiceImpl.dsTTDPcothehuy(iddp));
+    }
+
+    @GetMapping("/dp/huy-dat-phong")
+    public void huyDP(@RequestParam("idDatPhong") Integer iddp) {
+        hotelWebsiteServiceImpl.huyDPandTTDP(iddp);
+    }
+
+    @GetMapping("/ttdp/huy-ttdp2")
+    public void huyTTDP2(@RequestParam("idTTDP") Integer idTTDP) {
+        hotelWebsiteServiceImpl.huyTTDP(idTTDP);
+    }
+
+    @GetMapping("/dp/email-xac-nhan-huy-dp")
+    public void emailXacNhanHuydp(@RequestParam("idDatPhong") Integer idDatPhong){
+        hotelWebsiteServiceImpl.guiEmailXacNhanHuyDP(idDatPhong);
+    }
+
+    @GetMapping("/ttdp/email-xac-nhan-huy-ttdp")
+    public void emailXacNhanHuyTTDP(@RequestParam("idTTDP") Integer idTTDP){
+        hotelWebsiteServiceImpl.guiEmailXacNhanHuyTTDP(idTTDP);
+    }
 }
 

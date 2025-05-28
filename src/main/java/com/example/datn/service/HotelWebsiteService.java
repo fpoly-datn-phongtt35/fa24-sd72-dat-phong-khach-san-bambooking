@@ -18,10 +18,6 @@ import java.util.List;
 
 @Service
 public interface HotelWebsiteService {
-    KhachHang createKhachHangDatPhong(KhachHangDatPhongRequest request);
-    DatPhongResponse addDatPhong(DatPhongRequest datPhongRequest);
-    ThongTinDatPhong add(TTDPRequest request);
-
     List<DatPhong> getDPbyTenDangNhap(String tenDangNhap, String keyword, LocalDate ngayNhanPhong, LocalDate ngayTraPhong );
     List<HoaDon> getHDByidDatPhong(Integer idDatPhong);
 
@@ -29,7 +25,23 @@ public interface HotelWebsiteService {
 
     List<DatPhong> getLichSuDPbyEmail (String email);
 
-    void guiEmailXacNhandp(DatPhongRequest datPhongRequest);
+    void guiEmailXacNhandp( Integer idDatPhong);
 
     boolean xacNhanDP(Integer iddp);
+
+     void emailDatPhongThanhCong(Integer iddp);
+
+    void guiEmailXacNhandpsauUDKhachHang(Integer iddp);
+
+
+    KhachHang updateKhachHang(KhachHangDatPhongRequest request);
+
+    boolean dsTTDPcothehuy(Integer iddp);
+
+    void huyDPandTTDP(Integer iddp);
+
+    void huyTTDP(Integer idTTDP);
+    void guiEmailXacNhanHuyDP(Integer iddp);
+
+    void guiEmailXacNhanHuyTTDP(Integer idTTDP);
 }

@@ -23,6 +23,11 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
@@ -33,20 +38,20 @@ import { useNavigate } from "react-router-dom";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import Swal from "sweetalert2";
 import {
   findDatPhong,
   huyDatPhong,
   CapNhatDatPhong,
+  EmailXacNhanDPThanhCong,
 } from "../../services/DatPhong";
-import { checkIn, phongDaXep } from "../../services/XepPhongService";
-import { ThemPhuThu } from "../../services/PhuThuService";
 import XepPhong from "../../pages/xepphong/XepPhong";
 
 const QuanLyDatPhong = () => {
   const navigate = useNavigate();
   const [selectedTTDPs, setSelectedTTDPs] = useState([]);
   const [datPhong, setDatPhong] = useState([]);
-  const [ngayNhan, setNgayNhan] = useState(dayjs());
+  const [ngayNhan, setNgayNhan] = useState(null);
   const [ngayTra, setNgayTra] = useState(null);
   const [key, setKey] = useState("");
   const [page, setPage] = useState(0);
@@ -56,6 +61,9 @@ const QuanLyDatPhong = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [showXepPhongModal, setShowXepPhongModal] = useState(false);
+  const [openCancelDialog, setOpenCancelDialog] = useState(false);
+  const [cancelNote, setCancelNote] = useState("");
+  const [selectedDatPhong, setSelectedDatPhong] = useState(null);
 
   const searchDatPhong = useCallback(
     debounce(
@@ -65,27 +73,34 @@ const QuanLyDatPhong = () => {
           const formattedNgayNhan = searchNgayNhan
             ? dayjs(searchNgayNhan).format("YYYY-MM-DD")
             : null;
+          console.log("formattedNgayNhan", formattedNgayNhan);
           const formattedNgayTra = searchNgayTra
             ? dayjs(searchNgayTra).format("YYYY-MM-DD")
             : null;
 
-          const params = {
-            key: searchKey,
-            ngayNhanPhong: formattedNgayNhan,
-            ngayTraPhong: formattedNgayTra,
-            pageable: {
+          const res = await findDatPhong(
+            searchKey,
+            formattedNgayNhan,
+            formattedNgayTra,
+            {
               page: currentPage,
               size: size,
-            },
-          };
-
-          const res = await findDatPhong(params);
-          setDatPhong(res.content || []);
-          setTotalPages(res.totalPages || 0);
+            }
+          );
+          console.log("res", res);
+          const data = res.data;
+          setDatPhong(data.content || []);
+          setTotalPages(data.totalPages || 0);
         } catch (err) {
           console.error("Error fetching data:", err);
           setDatPhong([]);
           setTotalPages(0);
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: "Đã xảy ra lỗi khi tìm kiếm đặt phòng. Vui lòng thử lại!",
+            confirmButtonText: "Đóng",
+          });
         } finally {
           setLoading(false);
         }
@@ -114,59 +129,137 @@ const QuanLyDatPhong = () => {
     navigate("/thong-tin-dat-phong", { state: { maDatPhong } });
   };
 
-  const handleHuyDP = async (maDatPhong) => {
-    if (
-      window.confirm(
-        `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${maDatPhong} không?`
-      )
-    ) {
-      setActionLoading(true);
-      try {
-        await huyDatPhong(maDatPhong);
-        searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
-        alert("Hủy đặt phòng thành công!");
-      } catch (err) {
-        console.error("Lỗi khi hủy TTDP:", err);
-        alert("Hủy đặt phòng thất bại!");
-      } finally {
-        setActionLoading(false);
-      }
+  const handleOpenCancelDialog = (dp) => {
+    setSelectedDatPhong(dp);
+    setCancelNote("");
+    setOpenCancelDialog(true);
+  };
+
+  const handleCloseCancelDialog = () => {
+    setOpenCancelDialog(false);
+    setSelectedDatPhong(null);
+    setCancelNote("");
+  };
+
+  const handleHuyDP = async (dp) => {
+    if (!cancelNote.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Cảnh báo",
+        text: "Vui lòng nhập ghi chú trước khi hủy!",
+        confirmButtonText: "Đóng",
+      });
+      return;
+    }
+
+    const confirmDelete = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: `Bạn có chắc chắn muốn hủy thông tin đặt phòng ${dp.maDatPhong} không?`,
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    });
+    if (!confirmDelete.isConfirmed) return;
+
+    setActionLoading(true);
+    try {
+      const datPhongRequest = {
+        id: dp.id,
+        maDatPhong: dp.maDatPhong,
+        khachHang: dp.khachHang,
+        soNguoi: dp.soNguoi,
+        soPhong: dp.soPhong,
+        ngayDat: dp.ngayDat,
+        tongTien: dp.tongTien,
+        ghiChu: cancelNote,
+        trangThai: "Đã hủy",
+      };
+      await CapNhatDatPhong(datPhongRequest);
+
+      await huyDatPhong(dp.maDatPhong);
+
+      searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Hủy đặt phòng thành công!",
+        confirmButtonText: "Đóng",
+      });
+      handleCloseCancelDialog();
+    } catch (err) {
+      console.error("Lỗi khi hủy TTDP:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: err.response?.data?.message || "Hủy đặt phòng thất bại!",
+        confirmButtonText: "Đóng",
+      });
+    } finally {
+      setActionLoading(false);
     }
   };
 
   const handleConfirm = async (dp) => {
-    if (
-      window.confirm(
-        `Bạn có chắc chắn muốn xác nhận đặt phòng ${dp.maDatPhong} không?`
-      )
-    ) {
-      setActionLoading(true);
-      try {
-        const datPhongRequest = {
-          id: dp.id,
-          maDatPhong: dp.maDatPhong,
-          khachHang: dp.khachHang,
-          soNguoi: dp.soNguoi,
-          soPhong: dp.soPhong,
-          ngayDat: dp.ngayDat,
-          tongTien: dp.tongTien,
-          ghiChu: dp.ghiChu,
-          trangThai: "Đã xác nhận",
-        };
-        await CapNhatDatPhong(datPhongRequest);
-        alert("Xác nhận đặt phòng thành công!");
-        searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
-      } catch (err) {
-        console.error("Lỗi khi xác nhận đặt phòng:", err);
-        alert("Xác nhận đặt phòng thất bại!");
-      } finally {
-        setActionLoading(false);
-      }
+    const confirmAction = await Swal.fire({
+      icon: "question",
+      title: "Xác nhận",
+      text: `Bạn có chắc chắn muốn xác nhận đặt phòng ${dp.maDatPhong} không?`,
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: "Hủy",
+    });
+    if (!confirmAction.isConfirmed) return;
+
+    setActionLoading(true);
+    try {
+      const datPhongRequest = {
+        id: dp.id,
+        maDatPhong: dp.maDatPhong,
+        khachHang: dp.khachHang,
+        soNguoi: dp.soNguoi,
+        soPhong: dp.soPhong,
+        ngayDat: dp.ngayDat,
+        tongTien: dp.tongTien,
+        ghiChu: dp.ghiChu,
+        trangThai: "Đã xác nhận",
+      };
+      await CapNhatDatPhong(datPhongRequest);
+      EmailXacNhanDPThanhCong(datPhongRequest.id);
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Xác nhận đặt phòng thành công!",
+        confirmButtonText: "Đóng",
+      });
+      searchDatPhong(key, ngayNhan, ngayTra, page, pageSize);
+    } catch (err) {
+      console.error("Lỗi khi xác nhận đặt phòng:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Xác nhận đặt phòng thất bại!",
+        confirmButtonText: "Đóng",
+      });
+    } finally {
+      setActionLoading(false);
     }
   };
 
   return (
-    <Container sx={{ maxWidth: "100%", padding: { xs: 2, sm: 3 } }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        width: "100%",
+        marginLeft: "auto",
+        boxSizing: "border-box",
+        marginRight: "auto",
+        paddingLeft: "16px",
+        paddingRight: "16px",
+        paddingTop: "0",
+        paddingBottom: "32px",
+      }}
+    >
       <Paper
         elevation={3}
         sx={{
@@ -217,17 +310,11 @@ const QuanLyDatPhong = () => {
               }
               disabled={loading}
               sx={{
-                width: { xs: "100%", sm: "auto" },
-                height: { xs: "48px", sm: "56px" },
-                fontSize: { xs: "0.875rem", sm: "1rem" },
-                borderRadius: 1,
+                width: { xs: "50%", sm: "auto" },
+                height: { xs: "40px", sm: "56px" },
               }}
             >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                "Tìm kiếm"
-              )}
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Tìm"}
             </Button>
           </Stack>
 
@@ -319,7 +406,6 @@ const QuanLyDatPhong = () => {
         sx={{
           display: "flex",
           flexDirection: { xs: "column", sm: "row" },
-          justifyhandles: ["flex", "flex-col", "flex-row"],
           justifyContent: "space-between",
           alignItems: "center",
           p: 2,
@@ -397,7 +483,7 @@ const QuanLyDatPhong = () => {
                   <strong>Tổng Tiền:</strong> {dp.tongTien?.toLocaleString()}{" "}
                   VND
                 </Typography>
-                <Typography variant="body2\">
+                <Typography variant="body2">
                   <strong>Trạng Thái:</strong> {dp.trangThai}
                 </Typography>
                 <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
@@ -419,7 +505,7 @@ const QuanLyDatPhong = () => {
                     <IconButton
                       size="small"
                       color="error"
-                      onClick={() => handleHuyDP(dp.maDatPhong)}
+                      onClick={() => handleOpenCancelDialog(dp)}
                       disabled={actionLoading}
                     >
                       {actionLoading ? (
@@ -491,13 +577,15 @@ const QuanLyDatPhong = () => {
                             )}
                           </IconButton>
                         )}
-                        {["Đang đặt phòng", "Đã xác nhận"].includes(
-                          dp.trangThai
-                        ) && (
+                        {[
+                          "Đang đặt phòng",
+                          "Chưa xác nhận",
+                          "Đã xác nhận",
+                        ].includes(dp.trangThai) && (
                           <IconButton
                             size="small"
                             color="error"
-                            onClick={() => handleHuyDP(dp.maDatPhong)}
+                            onClick={() => handleOpenCancelDialog(dp)}
                             disabled={actionLoading}
                           >
                             {actionLoading ? (
@@ -524,6 +612,35 @@ const QuanLyDatPhong = () => {
           Không tìm thấy thông tin đặt phòng
         </Typography>
       )}
+
+      <Dialog open={openCancelDialog} onClose={handleCloseCancelDialog}>
+        <DialogTitle>Nhập lý do hủy đặt phòng</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Ghi chú"
+            fullWidth
+            multiline
+            rows={4}
+            value={cancelNote}
+            onChange={(e) => setCancelNote(e.target.value)}
+            helperText={!cancelNote.trim() ? "Ghi chú không được để trống" : ""}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseCancelDialog} color="secondary">
+            Hủy
+          </Button>
+          <Button
+            onClick={() => handleHuyDP(selectedDatPhong)}
+            color="primary"
+            disabled={!cancelNote.trim() || actionLoading}
+          >
+            {actionLoading ? <CircularProgress size={20} /> : "Xác nhận"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <XepPhong
         show={showXepPhongModal}

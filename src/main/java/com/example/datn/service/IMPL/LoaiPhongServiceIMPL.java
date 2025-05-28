@@ -2,10 +2,8 @@ package com.example.datn.service.IMPL;
 
 import com.example.datn.dto.request.DichVuDikemRequest;
 import com.example.datn.dto.request.LoaiPhongRequest;
-import com.example.datn.dto.response.ChiaPhongResponse;
 import com.example.datn.dto.response.LoaiPhongKhaDungResponse;
 import com.example.datn.dto.response.LoaiPhongResponse;
-import com.example.datn.dto.response.SearchResultResponse;
 import com.example.datn.dto.response.datphong.LoaiPhongChon;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.DichVuDiKem;
@@ -20,9 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,10 +53,15 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         loaiPhong.setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
         loaiPhong.setMaLoaiPhong(loaiPhongRequest.getMaLoaiPhong());
         loaiPhong.setDienTich(loaiPhongRequest.getDienTich());
+        loaiPhong.setSoKhachTieuChuan(loaiPhongRequest.getSoKhachTieuChuan());
         loaiPhong.setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
-        loaiPhong.setDonGiaPhuThu(loaiPhongRequest.getDonGiaPhuThu());
+        loaiPhong.setTreEmTieuChuan(loaiPhongRequest.getTreEmTieuChuan());
+        loaiPhong.setTreEmToiDa(loaiPhongRequest.getTreEmToiDa());
         loaiPhong.setMoTa(loaiPhongRequest.getMoTa());
         loaiPhong.setDonGia(loaiPhongRequest.getDonGia());
+        loaiPhong.setPhuThuNguoiLon(loaiPhongRequest.getPhuThuNguoiLon());
+        loaiPhong.setPhuThuTreEm(loaiPhongRequest.getPhuThuTreEm());
+        loaiPhong.setTrangThai(loaiPhongRequest.getTrangThai());
         return loaiPhongRepository.save(loaiPhong);
     }
 
@@ -76,21 +78,30 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
 
     @Override
     public LoaiPhong update(LoaiPhongRequest loaiPhongRequest) {
-        Optional<LoaiPhong> loaiPhong = loaiPhongRepository.findById(loaiPhongRequest.getId());
-        loaiPhong.get().setId(loaiPhongRequest.getId());
-        loaiPhong.get().setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
-        loaiPhong.get().setMaLoaiPhong(loaiPhongRequest.getMaLoaiPhong());
-        loaiPhong.get().setDienTich(loaiPhongRequest.getDienTich());
-        loaiPhong.get().setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
-        loaiPhong.get().setDonGia(loaiPhongRequest.getDonGia());
-        loaiPhong.get().setMoTa(loaiPhongRequest.getMoTa());
-        loaiPhong.get().setDonGiaPhuThu(loaiPhongRequest.getDonGiaPhuThu());
-        return loaiPhongRepository.save(loaiPhong.get());
+        LoaiPhong loaiPhong = loaiPhongRepository.findById(loaiPhongRequest.getId()).get();
+        loaiPhong.setId(loaiPhongRequest.getId());
+        loaiPhong.setTenLoaiPhong(loaiPhongRequest.getTenLoaiPhong());
+        loaiPhong.setMaLoaiPhong(loaiPhongRequest.getMaLoaiPhong());
+        loaiPhong.setDienTich(loaiPhongRequest.getDienTich());
+        loaiPhong.setSoKhachTieuChuan(loaiPhongRequest.getSoKhachTieuChuan());
+        loaiPhong.setSoKhachToiDa(loaiPhongRequest.getSoKhachToiDa());
+        loaiPhong.setTreEmTieuChuan(loaiPhongRequest.getTreEmTieuChuan());
+        loaiPhong.setTreEmToiDa(loaiPhongRequest.getTreEmToiDa());
+        loaiPhong.setMoTa(loaiPhongRequest.getMoTa());
+        loaiPhong.setDonGia(loaiPhongRequest.getDonGia());
+        loaiPhong.setPhuThuNguoiLon(loaiPhongRequest.getPhuThuNguoiLon());
+        loaiPhong.setPhuThuTreEm(loaiPhongRequest.getPhuThuTreEm());
+        loaiPhong.setTrangThai(loaiPhongRequest.getTrangThai());
+        return loaiPhongRepository.save(loaiPhong);
     }
 
     @Override
-    public Page<LoaiPhong> filter(String tenLoaiPhong, Integer dienTichMin, Integer dienTichMax, Integer soKhach, Double donGiaMin, Double donGiaMax, Double donGiaPhuThuMin, Double donGiaPhuThuMax, Pageable pageable) {
-        return loaiPhongRepository.filter(tenLoaiPhong, dienTichMin, dienTichMax, soKhach, donGiaMin, donGiaMax, donGiaPhuThuMin, donGiaPhuThuMax, pageable);
+    public Page<LoaiPhong> filter( String tenLoaiPhong, Integer dienTichMin, Integer dienTichMax, Integer soKhachTieuChuan,
+                                   Integer soKhachToiDa, Integer treEmTieuChuan, Integer treEmToiDa, Double donGiaMin,
+                                   Double donGiaMax, Double phuThuNguoiLonMin, Double phuThuNguoiLonMax, Double phuThuTreEmMin,
+                                   Double phuThuTreEmMax, Boolean trangThai, Pageable pageable) {
+        return loaiPhongRepository.filter(tenLoaiPhong, dienTichMin, dienTichMax, soKhachTieuChuan,soKhachToiDa,treEmTieuChuan,
+                treEmToiDa,donGiaMin, donGiaMax,phuThuNguoiLonMin,phuThuNguoiLonMax,phuThuTreEmMin,phuThuTreEmMax,trangThai, pageable);
     }
 
 //    @Override
@@ -110,51 +121,79 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return loaiPhongRepository.findLoaiPhongResponseTest(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
     }
 
-    public List<LoaiPhongKhaDungResponse> getAllLPKDR(LocalDate ngayNhanPhong, LocalDate ngayTraPhong) {
+    public List<LoaiPhongKhaDungResponse> getAllLPKDR(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
+        if (ngayNhanPhong == null || ngayTraPhong == null) {
+            throw new IllegalArgumentException("Ngày nhận phòng và trả phòng không được null");
+        }
+
+        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng", "Chưa xếp");
+        List<String> trangThaiXP = Arrays.asList("Đã xếp", "Đang ở");
+
+        return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(
+                ngayNhanPhong,
+                ngayTraPhong,
+                trangThaiXP,
+                trangThaiTTDP
+        );
+    }
+
+    public List<LoaiPhongKhaDungResponse> getLoaiPhongKhaDungResponseList(LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong,
+                                                                          Integer soNguoi,Integer treEm, Integer soPhong, Integer idLoaiPhong) {
         List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Chưa xếp");
         List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
 //        List<String> tinhTrangPhong = Arrays.asList("Trống","Cần kiểm tra");
 
-        return loaiPhongRepository.findLoaiPhongKhaDungByTinhTrangResponseList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP);
+        return loaiPhongRepository.findLPKDRList(ngayNhanPhong, ngayTraPhong,trangThaiXP,trangThaiTTDP,soNguoi,treEm,soPhong,idLoaiPhong);
     }
 
-    public List<LoaiPhongKhaDungResponse> getLoaiPhongKhaDungResponseList(LocalDate ngayNhanPhong, LocalDate ngayTraPhong,
-                                                                          Integer soNguoi, Integer soPhong, Integer idLoaiPhong) {
-        List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng","Chưa xếp");
-        List<String> trangThaiXP = Arrays.asList("Đã xếp","Đang ở");
-//        List<String> tinhTrangPhong = Arrays.asList("Trống","Cần kiểm tra");
-
-        return loaiPhongRepository.findLPKDRList(ngayNhanPhong, ngayTraPhong,trangThaiTTDP,trangThaiXP,soNguoi,soPhong,idLoaiPhong);
-    }
-
-    public List<ToHopPhongPhuHop> DanhSachToHop(List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach) {
+    public List<ToHopPhongPhuHop> DanhSachToHop(
+            List<LoaiPhongKhaDungResponse> loaiPhong,
+            int soKhach,
+            int treEm,
+            LocalDateTime ngayNhanPhong,
+            LocalDateTime ngayTraPhong) {
         List<ToHopPhongPhuHop> results = new ArrayList<>();
         int n = loaiPhong.size();
-        // Mảng counts lưu số lượng phòng được chọn cho từng loại (theo thứ tự trong list loaiPhong)
         int[] counts = new int[n];
-        generateCombinationsRec(0, counts, loaiPhong, soKhach, results);
+        generateCombinationsRec(0, counts, loaiPhong, soKhach, treEm, results, ngayNhanPhong, ngayTraPhong);
         return results;
     }
 
-    private void generateCombinationsRec(int index, int[] counts, List<LoaiPhongKhaDungResponse> loaiPhong, int soKhach, List<ToHopPhongPhuHop> results) {
+    private void generateCombinationsRec(
+            int index,
+            int[] counts,
+            List<LoaiPhongKhaDungResponse> loaiPhong,
+            int soKhach,
+            int treEm,
+            List<ToHopPhongPhuHop> results,
+            LocalDateTime ngayNhanPhong,
+            LocalDateTime ngayTraPhong) {
         // Khi đã duyệt hết các loại phòng, tính toán tổ hợp hiện tại
         if (index == loaiPhong.size()) {
             int totalCapacity = 0;
+            int totalChildCapacity = 0;
             double totalCost = 0;
             int totalRooms = 0;
             List<LoaiPhongChon> lp = new ArrayList<>();
+            // Tính số ngày lưu trú
+            long soNgayLuuTru = ChronoUnit.DAYS.between(ngayNhanPhong, ngayTraPhong);
+            if (soNgayLuuTru <= 0) {
+                soNgayLuuTru = 1;
+            }
             for (int i = 0; i < loaiPhong.size(); i++) {
                 LoaiPhongKhaDungResponse room = loaiPhong.get(i);
                 int count = counts[i];
                 totalCapacity += count * room.getSoKhachToiDa();
-                totalCost += count * room.getDonGia();
+                totalChildCapacity += count * room.getTreEmToiDa(); // Tính sức chứa trẻ em
+                totalCost += count * room.getDonGia() * soNgayLuuTru;
                 totalRooms += count;
                 // Chỉ thêm vào danh sách nếu số lượng chọn lớn hơn 0
                 if (count > 0) {
                     lp.add(new LoaiPhongChon(room, count));
                 }
             }
-            if (totalCapacity >= soKhach) {
+            // Kiểm tra cả sức chứa người lớn và trẻ em
+            if (totalCapacity >= soKhach && totalChildCapacity >= treEm) {
                 ToHopPhongPhuHop comb = new ToHopPhongPhuHop(lp, totalCapacity, totalCost, totalRooms);
                 results.add(comb);
             }
@@ -165,7 +204,7 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         LoaiPhongKhaDungResponse room = loaiPhong.get(index);
         for (int x = 0; x <= room.getSoPhongKhaDung(); x++) {
             counts[index] = x;
-            generateCombinationsRec(index + 1, counts, loaiPhong, soKhach, results);
+            generateCombinationsRec(index + 1, counts, loaiPhong, soKhach, treEm, results, ngayNhanPhong, ngayTraPhong);
         }
     }
 
@@ -197,7 +236,6 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
                                                 .sum() >= (lpc.getSoLuongChon() == null ? 0 : lpc.getSoLuongChon()))))
                 .collect(Collectors.toList());
 
-        // Sắp xếp theo key
         if (key == null || key.isBlank()) {
             filteredList.sort(Comparator.comparing(ToHopPhongPhuHop::getTongChiPhi));
         } else if (key.equalsIgnoreCase("leastRooms")) {
@@ -206,7 +244,6 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return filteredList;
     }
 
-
     public Page<ToHopPhongPhuHop> paginateToHopWithPageable(List<ToHopPhongPhuHop> list, Pageable pageable) {
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), list.size());
@@ -214,14 +251,40 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
         return new PageImpl<>(pageContent, pageable, list.size());
     }
 
-    public Page<ToHopPhongPhuHop> getToHopPhongPhuHop(LocalDate ngayNhanPhong, LocalDate ngayTraPhong, Integer soNguoi,
-                                               String key, Double tongChiPhiMin,
-                                               Double tongChiPhiMax, Integer tongSoPhongMin, Integer tongSoPhongMax,
-                                               Integer tongSucChuaMin, Integer tongSucChuaMax, List<LoaiPhongChon> loaiPhongChons , Pageable pageable) {
-        List<LoaiPhongKhaDungResponse> loaiPhongKhaDungResponses = getAllLPKDR(ngayNhanPhong, ngayTraPhong);
-        List<ToHopPhongPhuHop> toHopPhongPhuHops = toHopPhuHop(DanhSachToHop(loaiPhongKhaDungResponses, soNguoi), key, tongChiPhiMin,
-                tongChiPhiMax, tongSoPhongMin, tongSoPhongMax, tongSucChuaMin, tongSucChuaMax, loaiPhongChons) ;
-        return paginateToHopWithPageable(toHopPhongPhuHops,pageable);
+    public Page<ToHopPhongPhuHop> getToHopPhongPhuHop(
+            LocalDateTime ngayNhanPhong,
+            LocalDateTime ngayTraPhong,
+            Integer soNguoi,
+            Integer treEm,
+            String key,
+            Double tongChiPhiMin,
+            Double tongChiPhiMax,
+            Integer tongSoPhongMin,
+            Integer tongSoPhongMax,
+            Integer tongSucChuaMin,
+            Integer tongSucChuaMax,
+            List<LoaiPhongChon> loaiPhongChons,
+            Pageable pageable) {
+        List<LoaiPhongKhaDungResponse> loaiPhongKhaDungResponses = getLoaiPhongKhaDungResponseList(
+                ngayNhanPhong,
+                ngayTraPhong,
+                soNguoi,
+                treEm,
+                1,
+                null
+        );
+        List<ToHopPhongPhuHop> toHopPhongPhuHops = toHopPhuHop(
+                DanhSachToHop(loaiPhongKhaDungResponses, soNguoi, treEm, ngayNhanPhong, ngayTraPhong),
+                key,
+                tongChiPhiMin,
+                tongChiPhiMax,
+                tongSoPhongMin,
+                tongSoPhongMax,
+                tongSucChuaMin,
+                tongSucChuaMax,
+                loaiPhongChons
+        );
+        return paginateToHopWithPageable(toHopPhongPhuHops, pageable);
     }
 
     //    Chua dung den
@@ -344,6 +407,11 @@ public class LoaiPhongServiceIMPL implements LoaiPhongService {
     @Override
     public List<HinhAnh> getAnhLP(Integer idLoaiPhong) {
         return loaiPhongRepository.getAnhLP(idLoaiPhong);
+    }
+
+    @Override
+    public Optional<LoaiPhong> findById(int id) {
+        return loaiPhongRepository.findById(id);
     }
 
 

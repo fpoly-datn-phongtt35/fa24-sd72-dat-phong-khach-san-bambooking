@@ -9,13 +9,13 @@
   display: flex;
   flex: 1;
   height: 100%;
+  width: 100%;
   overflow: visible; /* Đảm bảo dropdown có thể hiển thị đầy đủ */
 }
 
 
 .content-area {
   flex: 1;
-  padding: 20px;
   overflow-y: auto; /* Cuộn nội dung nếu vượt quá chiều cao */
   background-color: #f8f8f8;
   position: relative; /* Để không bị che khuất */

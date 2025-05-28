@@ -2,25 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { updateVatTu, deleteVatTu, KiemTraVatTu } from '../../services/VatTuService';
 import Swal from 'sweetalert2';
 
-
 const FormDetail = ({ show, handleClose, data }) => {
-    const [imagePreview, setImagePreview] = useState(''); // State để lưu URL hình ảnh đã chọn
+    const [imagePreview, setImagePreview] = useState('');
     const [tenVatTu, setTenVatTu] = useState('');
-    const [gia, setGia] = useState(0);
+    const [gia, setGia] = useState('');
     const [idVatTu, setIdVatTu] = useState('');
-    const [file, setFile] = useState('');
+    const [file, setFile] = useState(null);
+    const [trangThai, setTrangThai] = useState(true);
+
     // Cập nhật formData và imagePreview khi prop data thay đổi
     useEffect(() => {
         if (data) {
-
-            setFile(data.hinhAnh);
-            setImagePreview(data.hinhAnh); // Cập nhật hình ảnh
+            setFile(null);
+            setImagePreview(data.hinhAnh);
             setIdVatTu(data.id);
             setTenVatTu(data.tenVatTu);
             setGia(data.gia);
-
+            setTrangThai(data.trangThai);
         }
-    }, []);
+    }, [data]);
 
     // Xử lý thay đổi input
     const handleInputChange = (e) => {
@@ -29,27 +29,43 @@ const FormDetail = ({ show, handleClose, data }) => {
 
     const handleTenVatTuChange = (e) => {
         setTenVatTu(e.target.value);
-
     };
+
     const handleGiaChange = (e) => {
-        setGia(e.target.value);
-
+        const value = e.target.value;
+        // Chỉ cho phép số không âm
+        if (value >= 0 || value === '') {
+            setGia(value);
+        }
     };
+
     // Xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        // Kiểm tra giá trước khi submit
+        if (gia < 0 || gia === '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Giá phải là số không âm!',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
 
         const formData = new FormData();
         formData.append('id', idVatTu);
         formData.append('tenVatTu', tenVatTu);
         formData.append('gia', gia);
+        formData.append('trangThai', trangThai);
         if (file) {
             formData.append('file', file);
         } else {
             formData.append('file', data?.hinhAnh);
         }
 
-        console.log("Form data:", formData.get("id"), formData.get("file"), formData.get("tenVatTu"), formData.get("gia")); // Kiểm tra dữ liệu
+        console.log("Form data:", formData.get("id"), formData.get("file"), formData.get("tenVatTu"), formData.get("gia"));
 
         updateVatTu(formData)
             .then(response => {
@@ -60,7 +76,7 @@ const FormDetail = ({ show, handleClose, data }) => {
                     icon: 'success',
                     confirmButtonText: 'OK'
                 }).then(() => {
-                    handleClose(); // Đóng modal sau khi hiển thị thông báo
+                    handleClose();
                 });
             })
             .catch(error => {
@@ -74,7 +90,6 @@ const FormDetail = ({ show, handleClose, data }) => {
             });
     };
 
-
     const handleDelete = async () => {
         try {
             if (!idVatTu) {
@@ -86,11 +101,11 @@ const FormDetail = ({ show, handleClose, data }) => {
                 });
                 return;
             }
-    
+
             // Gọi API kiểm tra xem vật tư có đang được sử dụng không
             const response = await KiemTraVatTu(idVatTu);
-            console.log("Kết quả kiểm tra:", response.data); // 🛠 Debug API
-    
+            console.log("Kết quả kiểm tra:", response.data);
+
             if (response.data.isUsed) {
                 Swal.fire({
                     icon: 'warning',
@@ -98,10 +113,10 @@ const FormDetail = ({ show, handleClose, data }) => {
                     text: 'Vật tư đang được sử dụng!',
                     confirmButtonColor: '#3085d6'
                 });
-                return; // Dừng lại nếu vật tư đang được sử dụng
+                return;
             }
-    
-            // Nếu không có dữ liệu liên quan, hiển thị hộp thoại xác nhận xóa
+
+            // Hiển thị hộp thoại xác nhận xóa
             Swal.fire({
                 title: 'Bạn có chắc chắn muốn xóa vật tư này?',
                 text: "Hành động này không thể hoàn tác!",
@@ -121,7 +136,7 @@ const FormDetail = ({ show, handleClose, data }) => {
                                 text: 'Vật tư đã được xóa thành công.',
                                 confirmButtonColor: '#6a5acd'
                             });
-                            handleClose(); // Đóng modal sau khi xóa
+                            handleClose();
                         })
                         .catch(error => {
                             Swal.fire({
@@ -142,8 +157,7 @@ const FormDetail = ({ show, handleClose, data }) => {
                 confirmButtonColor: '#d33'
             });
         }
-    };    
-
+    };
 
     return (
         <div className={`modal fade ${show ? 'show d-block' : ''}`} tabIndex={-1} role="dialog" style={{ backgroundColor: show ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
@@ -168,10 +182,19 @@ const FormDetail = ({ show, handleClose, data }) => {
                             {/* Giá */}
                             <div className="mb-3">
                                 <label htmlFor="gia" className="form-label">Giá</label>
-                                <input type="number" className="form-control" id="gia" name="gia" value={gia} onChange={handleGiaChange} required />
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    id="gia"
+                                    name="gia"
+                                    value={gia}
+                                    onChange={handleGiaChange}
+                                    required
+                                    min="0"
+                                />
                             </div>
 
-                            {/* Hình ảnh (chỉ lấy tên file) */}
+                            {/* Hình ảnh */}
                             <div className="mb-3">
                                 <label htmlFor="hinhAnh" className="form-label">Hình ảnh</label>
                                 <input type="file" className="form-control" id="file" name="file" onChange={handleInputChange} />
@@ -183,6 +206,21 @@ const FormDetail = ({ show, handleClose, data }) => {
                                     <img src={imagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
                                 </div>
                             )}
+
+                            {/* Trạng thái */}
+                            <div className="mb-3">
+                                <label htmlFor="trangThai" className="form-label">Trạng thái</label>
+                                <select
+                                    className="form-select"
+                                    id="trangThai"
+                                    value={trangThai}
+                                    onChange={(e) => setTrangThai(e.target.value === 'true')}
+                                    required
+                                >
+                                    <option value="true">Hoạt động</option>
+                                    <option value="false">Không hoạt động</option>
+                                </select>
+                            </div>
 
                             <button type="submit" className="btn btn-primary">Lưu thay đổi</button>
                             <button type="button" className="btn btn-danger" onClick={handleDelete}>Xóa vật tư</button>

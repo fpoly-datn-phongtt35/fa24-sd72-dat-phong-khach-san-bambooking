@@ -43,6 +43,12 @@ public class DichVuSuDungController {
         DichVuSuDung updateDichVuSuDung = dichVuSuDungServiceIMPL.updatePhieuDichVu(dichVuSuDungRequest);
         return ResponseEntity.ok(updateDichVuSuDung);
     }
+
+    @PostMapping("/update-gsg")
+    public ResponseEntity<?> updateGSG(@RequestBody DichVuSuDungRequest dichVuSuDungRequest) {
+        DichVuSuDung updateDichVuSuDung = dichVuSuDungServiceIMPL.updateGSG(dichVuSuDungRequest);
+        return ResponseEntity.ok(updateDichVuSuDung);
+    }
     @DeleteMapping("/delete/{id}")
     public String delete(@PathVariable("id") Integer id) {
         dichVuSuDungServiceIMPL.deletePhieuDichVu(id);

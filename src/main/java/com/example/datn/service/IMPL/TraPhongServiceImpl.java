@@ -7,14 +7,15 @@ import com.example.datn.exception.RoomNotCheckedException;
 import com.example.datn.model.*;
 import com.example.datn.repository.*;
 import com.example.datn.service.TraPhongService;
+import jakarta.mail.internet.MimeMessage;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,11 +31,13 @@ import java.util.stream.Collectors;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j(topic = "TRA_PHONG_SERVICE")
 public class TraPhongServiceImpl implements TraPhongService {
+    PhongRepository phongRepository;
     TraPhongRepository traPhongRepository;
     XepPhongRepository xepPhongRepository;
     KiemTraPhongRepository kiemTraPhongRepository;
     ThongTinDatPhongRepository thongTinDatPhongRepository;
     DatPhongRepository datPhongRepository;
+    KhachHangCheckinRepository khachHangCheckinRepository;
     private final JavaMailSender mailSender;
 
     @Override
@@ -90,14 +93,21 @@ public class TraPhongServiceImpl implements TraPhongService {
         thongTinDatPhong.setTrangThai("Đã trả phòng");
         thongTinDatPhongRepository.save(thongTinDatPhong);
         log.info("Cập nhật trạng thái ThongTinDatPhong ID {} thành 'Đã trả phòng'", thongTinDatPhong.getId());
-
+        sendMailCheckout(thongTinDatPhong);
         // Kiểm tra trạng thái tất cả ThongTinDatPhong trong DatPhong
         DatPhong datPhong = thongTinDatPhong.getDatPhong();
         if (datPhong == null) {
             throw new EntityNotFountException("DatPhong bị null cho ThongTinDatPhong ID: " + thongTinDatPhong.getId());
         }
 
-        boolean allThongTinDatPhongCheckedOut = thongTinDatPhongRepository.areAllThongTinDatPhongCheckedOut(datPhong.getId());
+        // Lấy danh sách ThongTinDatPhong và kiểm tra trạng thái
+        List<ThongTinDatPhong> thongTinDatPhongs = thongTinDatPhongRepository.findByDatPhong_Id(datPhong.getId());
+        log.info("Danh sách ThongTinDatPhong cho DatPhong ID {}: {}", datPhong.getId(), thongTinDatPhongs);
+        boolean allThongTinDatPhongCheckedOut = thongTinDatPhongs.stream()
+                .allMatch(ttdp -> "Đã trả phòng".equals(ttdp.getTrangThai()));
+        log.info("Kết quả kiểm tra allThongTinDatPhongCheckedOut cho DatPhong ID {}: {}", datPhong.getId(), allThongTinDatPhongCheckedOut);
+
+        //Nếu tất cả thông tin đặt phòng có trạng thái = Đã trả phòng -> set trạng thái Đặt phòng = Đã trả phòng
         if (allThongTinDatPhongCheckedOut) {
             datPhong.setTrangThai("Đã trả phòng");
             datPhongRepository.save(datPhong);
@@ -106,12 +116,26 @@ public class TraPhongServiceImpl implements TraPhongService {
             log.info("Chưa trả hết ThongTinDatPhong cho DatPhong ID {}. Trạng thái DatPhong giữ nguyên.", datPhong.getId());
         }
 
+//        try {
+//            sendMailCheckout(traPhong.getId());
+//            log.info("Đã gửi email đánh giá cho trả phòng có ID: {}", traPhong.getId());
+//        } catch (InvalidDataException e) {
+//            log.error("Lỗi khi gửi email đánh giá cho trả phòng có ID {}: {}", traPhong.getId(), e.getMessage());
+//        }
+//        log.info("================ End checkOutById ================");
         return traPhong;
     }
 
     private void updateXepPhongAndTraPhong(XepPhong xepPhong, TraPhong traPhong) {
         xepPhong.setTrangThai("Đã trả phòng");
+        traPhong.setNgayTraThucTe(LocalDateTime.now());
         traPhong.setTrangThai(true);
+        Phong phong = xepPhong.getPhong();
+        if (phong == null) {
+            throw new EntityNotFountException("Phong bị null cho XepPhong ID: " + xepPhong.getId());
+        }
+        phong.setTinhTrang("Trống");
+        phongRepository.save(phong);
         xepPhongRepository.save(xepPhong);
         traPhongRepository.save(traPhong);
     }
@@ -151,32 +175,74 @@ public class TraPhongServiceImpl implements TraPhongService {
         return traPhongRepository.findBytt();
     }
 
+//    @Override
+//    public void sendMailCheckout(Integer idTraPhong) {
+//        String emailKhachHang = datPhongRepository.findEmailByTraPhongId(idTraPhong);
+//        if (emailKhachHang == null || emailKhachHang.isEmpty()) {
+//            System.err.println("Không tìm thấy email cho idTraPhong: " + idTraPhong);
+//            return; // Thêm return để tránh NullPointerException nếu không tìm thấy email
+//        }
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setTo(emailKhachHang);
+//        message.setSubject("Chúng tôi rất mong nhận được đánh giá của bạn về kỳ nghỉ tại BamBooking!");
+//        message.setText("Chào bạn,\n\nCảm ơn bạn đã lựa chọn BamBooking cho kỳ nghỉ vừa qua." +
+//                        " Chúng tôi hy vọng bạn đã có những trải nghiệm tuyệt vời.\n" +
+//                        "\nChúng tôi rất mong bạn dành chút thời gian để chia sẻ ý kiến đánh giá về kỳ nghỉ của mình." +
+//                        " Phản hồi của bạn sẽ giúp chúng tôi cải thiện dịch vụ và mang đến trải nghiệm tốt hơn cho những" +
+//                        " khách hàng tiếp theo.\n\nXin vui lòng nhấp vào liên kết dưới đây để đánh giá:\n" +
+//                        "\n[LIÊN KẾT ĐẾN TRANG ĐÁNH GIÁ]\n\nÝ kiến của bạn vô cùng quan trọng đối với chúng tôi.\n" +
+//                        "\nTrân trọng,\nĐội ngũ BamBooking\n");
+//        try {
+//            mailSender.send(message);
+//            System.out.println("Email đánh giá đã được gửi đến: " + emailKhachHang);
+//        } catch (Exception e) {
+//            throw new InvalidDataException("Không thể gửi email đánh giá: " + e.getMessage());
+//        }
+//
+//    }
+
+
     @Override
-    public void sendMailCheckout(Integer idTraPhong) {
-        String emailKhachHang = datPhongRepository.findEmailByTraPhongId(idTraPhong);
-        if (emailKhachHang == null || emailKhachHang.isEmpty()) {
-            System.err.println("Không tìm thấy email cho idTraPhong: " + idTraPhong);
-            return; // Thêm return để tránh NullPointerException nếu không tìm thấy email
-        }
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(emailKhachHang);
-        message.setSubject("Chúng tôi rất mong nhận được đánh giá của bạn về kỳ nghỉ tại BamBooking!");
-        message.setText("Chào bạn,\n\nCảm ơn bạn đã lựa chọn BamBooking cho kỳ nghỉ vừa qua." +
-                        " Chúng tôi hy vọng bạn đã có những trải nghiệm tuyệt vời.\n" +
-                        "\nChúng tôi rất mong bạn dành chút thời gian để chia sẻ ý kiến đánh giá về kỳ nghỉ của mình." +
-                        " Phản hồi của bạn sẽ giúp chúng tôi cải thiện dịch vụ và mang đến trải nghiệm tốt hơn cho những" +
-                        " khách hàng tiếp theo.\n\nXin vui lòng nhấp vào liên kết dưới đây để đánh giá:\n" +
-                        "\n[LIÊN KẾT ĐẾN TRANG ĐÁNH GIÁ]\n\nÝ kiến của bạn vô cùng quan trọng đối với chúng tôi.\n" +
-                        "\nTrân trọng,\nĐội ngũ BamBooking\n");
-        try {
-            mailSender.send(message);
-            System.out.println("Email đánh giá đã được gửi đến: " + emailKhachHang);
-        } catch (Exception e) {
-            throw new InvalidDataException("Không thể gửi email đánh giá: " + e.getMessage());
-        }
+    public void sendMailCheckout(ThongTinDatPhong thongTinDatPhong) {
+        Integer idTTDP = thongTinDatPhong.getId();
+        List<KhachHangCheckin> ListKHC = khachHangCheckinRepository.findByThongTinDatPhong_Id(idTTDP);
 
+
+        for (KhachHangCheckin khc : ListKHC) {
+            if (khc.getKhachHang() == null || khc.getKhachHang().getEmail() == null || khc.getKhachHang().getId() == null) {
+                System.out.println("Bỏ qua khách hàng do thiếu thông tin email hoặc id: " + khc);
+                continue;
+            }
+
+            String emailKhachHang = khc.getKhachHang().getEmail();
+            Integer idKhachHang = khc.getKhachHang().getId();
+
+            try {
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+                helper.setTo(emailKhachHang);
+                helper.setSubject("Chúng tôi rất mong nhận được đánh giá của bạn về kỳ nghỉ tại BamBooking!");
+
+                // Nội dung HTML cho email
+                String htmlContent =
+                        "<div class='container'>" +
+                        "<h2>Chào bạn,</h2>" +
+                        "<p>Cảm ơn bạn đã lựa chọn BamBooking cho kỳ nghỉ vừa qua. Chúng tôi hy vọng bạn đã có những trải nghiệm tuyệt vời.</p>" +
+                        "<p>Chúng tôi rất mong bạn dành chút thời gian để chia sẻ ý kiến đánh giá về kỳ nghỉ của mình. Phản hồi của bạn sẽ giúp chúng tôi cải thiện dịch vụ và mang đến trải nghiệm tốt hơn cho những khách hàng tiếp theo.</p>" +
+                        "<p><a href='http://localhost:3001/create-review/" + idKhachHang + "/" + idTTDP + "' class='button'>Gửi đánh giá của bạn</a></p>" +
+                        "<p>Ý kiến của bạn vô cùng quan trọng đối với chúng tôi.</p>" +
+                        "<p>Trân trọng,<br>Đội ngũ BamBooking</p>" +
+                        "</div>";
+
+                helper.setText(htmlContent, true); // true để chỉ định nội dung là HTML
+
+                mailSender.send(message);
+                System.out.println("Email đánh giá đã được gửi đến: " + emailKhachHang);
+            } catch (Exception e) {
+                System.err.println("Không thể gửi email đến " + emailKhachHang + ": " + e.getMessage());
+            }
+        }
     }
-
 
     // Gộp logic convert thành một phương thức duy nhất
     private TraPhongResponse convertToTraPhongResponse(TraPhong traPhong) {
@@ -195,7 +261,7 @@ public class TraPhongServiceImpl implements TraPhongService {
 
         ThongTinDatPhong thongTinDatPhong = xepPhong.getThongTinDatPhong();
         String tenPhong = xepPhong.getPhong().getTenPhong();
-        LocalDate ngayNhan = thongTinDatPhong.getNgayNhanPhong();
+        LocalDateTime ngayNhan = thongTinDatPhong.getNgayNhanPhong();
 
         return new TraPhongResponse(
                 traPhong.getId(),

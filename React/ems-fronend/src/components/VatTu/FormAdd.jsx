@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { addVatTu } from '../../services/VatTuService';
 import Swal from 'sweetalert2';
 
-
 const FormAdd = ({ show, handleClose }) => {
     const [tenVatTu, setTenVatTu] = useState('');
-    const [gia, setGia] = useState(0);
+    const [gia, setGia] = useState('');
     const [file, setFile] = useState(null);
+    const [trangThai, setTrangThai] = useState(true);
 
     // Hàm xử lý thay đổi giá trị input
     const handleTenVatTuChange = (e) => {
@@ -14,22 +14,39 @@ const FormAdd = ({ show, handleClose }) => {
     };
 
     const handleGiaChange = (e) => {
-        setGia(e.target.value);
+        const value = e.target.value;
+        // Chỉ cho phép số không âm
+        if (value >= 0 || value === '') {
+            setGia(value);
+        }
     };
-
 
     // Hàm xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        // Kiểm tra giá trước khi submit
+        if (gia < 0 || gia === '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: 'Giá phải là số không âm!',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('tenVatTu', tenVatTu);
         formData.append('gia', gia);
-        // Gọi API thêm mới vật tư với formData, trong đó hinhAnh chỉ là tên file
+        formData.append('trangThai', trangThai);
+
+        // Gọi API thêm mới vật tư với formData
         addVatTu(formData)
             .then(response => {
                 console.log("Thêm mới thành công:", response.data);
-    
+
                 // Hiển thị thông báo thành công
                 Swal.fire({
                     icon: 'success',
@@ -42,7 +59,7 @@ const FormAdd = ({ show, handleClose }) => {
             })
             .catch(error => {
                 console.error("Lỗi khi thêm mới:", error);
-    
+
                 // Hiển thị thông báo lỗi
                 Swal.fire({
                     icon: 'error',
@@ -52,7 +69,6 @@ const FormAdd = ({ show, handleClose }) => {
                 });
             });
     };
-    
 
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
@@ -77,28 +93,45 @@ const FormAdd = ({ show, handleClose }) => {
                             {/* Giá */}
                             <div className="mb-3">
                                 <label htmlFor="gia" className="form-label">Giá</label>
-                                <input type="number" className="form-control" id="gia" name="gia" value={gia} onChange={handleGiaChange} required />
-                            </div>
-
-                            {/* Hình ảnh (chỉ lấy tên file) */}
-                            <div className="form-group mb-3">
-                            <label className='form-label'>Chọn Ảnh:</label>
-                            <div className="mb-3">
                                 <input
-                                    type="file"
-                                    className="form-control-file"
-                                    id="file"
-                                    onChange={handleFileChange}
+                                    type="number"
+                                    className="form-control"
+                                    id="gia"
+                                    name="gia"
+                                    value={gia}
+                                    onChange={handleGiaChange}
+                                    required
+                                    min="0"
                                 />
                             </div>
-                        </div>
 
-                            {/* Hiển thị hình ảnh đã chọn */}
-                            {/* {imagePreview && (
+                            {/* Hình ảnh */}
+                            <div className="form-group mb-3">
+                                <label className='form-label'>Chọn Ảnh:</label>
                                 <div className="mb-3">
-                                    <img src={imagePreview} alt="Preview" style={{ maxWidth: '100%', maxHeight: '200px' }} />
+                                    <input
+                                        type="file"
+                                        className="form-control-file"
+                                        id="file"
+                                        onChange={handleFileChange}
+                                    />
                                 </div>
-                            )} */}
+                            </div>
+
+                            {/* Trạng thái */}
+                            <div className="form-group mb-3">
+                                <label htmlFor="trangThai" className="form-label">Trạng thái</label>
+                                <select
+                                    className="form-select"
+                                    id="trangThai"
+                                    value={trangThai}
+                                    onChange={(e) => setTrangThai(e.target.value === 'true')}
+                                    required
+                                >
+                                    <option value="true">Hoạt động</option>
+                                    <option value="false">Không hoạt động</option>
+                                </select>
+                            </div>
 
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={handleClose}>Đóng</button>

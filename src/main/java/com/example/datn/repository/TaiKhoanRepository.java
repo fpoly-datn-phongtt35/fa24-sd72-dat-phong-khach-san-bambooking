@@ -8,20 +8,25 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface TaiKhoanRepository extends JpaRepository<TaiKhoan, Integer> {
     @Query("""
-                select t
+            
+            select t
                 from TaiKhoan t
                 where t.tenDangNhap like %:keyword%
                 and t.trangThai = TRUE
-                """)
+            """)
     Page<TaiKhoan> searchByName(@Param("keyword") String keyword, Pageable pageable);
 
     Optional<TaiKhoan> findByTenDangNhap(String tenDangNhap);
 
     @Query("FROM TaiKhoan tk WHERE tk.tenDangNhap = :username")
     TaiKhoan findByUsername(String username);
+
+    @Query("FROM TaiKhoan tk WHERE tk.idVaiTro.id = 1")
+    List<TaiKhoan> findAllSysadmin();
 }

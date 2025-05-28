@@ -107,6 +107,7 @@ export default function Login() {
     const result = {
       username: data.username,
       password: data.password,
+      adminSystem: false
     };
 
     try {
@@ -130,6 +131,8 @@ export default function Login() {
         }
 
         localStorage.setItem("user", res.data.username);
+        navigate("/TrangChu");
+        
       }
     } catch (err) {
       setServerError(
@@ -188,16 +191,6 @@ export default function Login() {
             {isLoading ? "Đang đăng nhập..." : "Đăng Nhập"}
           </button>
         </form>
-
-        {/* Liên kết bổ sung */}
-        <div className="login-links">
-          <p>
-            Chưa có tài khoản? <a href="/signup">Đăng ký</a>
-          </p>
-          <p>
-            <a href="/forgot-password">Quên mật khẩu?</a>
-          </p>
-        </div>
       </div>
     </div>
   );

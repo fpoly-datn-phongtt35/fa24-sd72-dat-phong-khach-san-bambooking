@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Rooms from './pages/Rooms';
+import Services from './pages/Services';
+import Offers from './pages/Offers';
 import Information from './pages/Information';
 import DetailTTDP from "./components/DetailTTDP";
 import TTDP from "./components/TTDP";
@@ -9,6 +11,10 @@ import Lookup from "./pages/Lookup";
 import LookupHistory from "./components/LookupHistory";
 import LookupDetailTTDP from "./components/LookupDetailTTDP";
 import ConfirmBooking from "./components/ConfirmBooking";
+import CancelDatPhong from "./components/CancelDatPhong";
+import CancelTTDP from "./components/CancelTTDP";
+import UpdateKhachHang from "./components/UpdateKhachHang";
+import CreateReview from "./components/CreateReview";
 import LookupTTDP from "./components/LookupTTDP";
 import History from "./pages/History";
 import Profile from './components/Profile';
@@ -20,6 +26,7 @@ import AboutPage from './pages/AboutPage';
 import Signup from './components/Signup';
 import HotelBookingForm from './pages/HotelBookingForm';
 import HotelBookingConfirmation from './pages/HotelBookingConfirmation';
+import TermsAndConditions from './pages/TermsAndConditions';
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái đăng nhập
   const [user, setUser] = useState(null); // Lưu thông tin người dùng
@@ -60,12 +67,19 @@ export default function App() {
               <Route path="/lookup/ttdp/:idDatPhong" element={<LookupTTDP />} />
               <Route path="/lookup/detail-ttdp/:idDatPhong/:idLoaiPhong" element={<LookupDetailTTDP />} />
               <Route path="/confirm-booking/:iddp" element={<ConfirmBooking />} />
+              <Route path="/create-review/:idKhachHang/:idTTDP" element={<CreateReview />} />
+              <Route path="/cancel-dat-phong/:idDatPhong" element={<CancelDatPhong />} />
+              <Route path="/cancel-ttdp/:idTTDP" element={<CancelTTDP />} />
+              <Route path="/update-kh/:id/:iddp" element={<UpdateKhachHang />} />
               <Route path="/lich-su-dat-phong/:email" element={<LookupHistory />} />
               <Route path="/lookup" element={<Lookup />} />
               <Route path="/rooms" element={<Rooms />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/offers" element={<Offers />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/booking" element={<HotelBookingForm />} />
               <Route path="/booking-confirmation" element={<HotelBookingConfirmation />} />
+              <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
               {/* <Route
                 path="/register"
                 element={<Register handleRegister={handleLogin} />}

@@ -23,14 +23,12 @@ public class CloudinaryUtils {
             log.info("Upload successfully data={}", uploadResult.toString());
             return Map.of(
                     "url", uploadResult.get("url").toString(),
-                    "publicId", uploadResult.get("public_id").toString()
-            );
+                    "publicId", uploadResult.get("public_id").toString());
         } catch (IOException e) {
             log.error("Upload failed message={}", e.getMessage());
             throw new CloudinaryException(e.getMessage());
         }
     }
-
 
     public void removeByPublicId(String publicId) {
         try {

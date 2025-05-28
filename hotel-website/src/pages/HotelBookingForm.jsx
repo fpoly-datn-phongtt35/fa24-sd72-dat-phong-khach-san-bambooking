@@ -6,13 +6,14 @@ import {
   ThemMoiDatPhong,
   addThongTinDatPhong,
   getKhachHangByUsername,
+  ThemKhachHangDatPhong,
   getLPKDR,
 } from "../services/DatPhong";
+import { getAnhLP } from "../services/Rooms";
 import dayjs from "dayjs";
 import {
   Button,
   TextField,
-  Snackbar,
   Box,
   Grid,
   Divider,
@@ -20,12 +21,18 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import ChildCareIcon from "@mui/icons-material/ChildCare";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import Swal from "sweetalert2";
+import { debounce } from "lodash";
 
 const HotelBookingForm = () => {
   const navigate = useNavigate();
@@ -34,22 +41,23 @@ const HotelBookingForm = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [roomImages, setRoomImages] = useState({});
+  const [errors, setErrors] = useState({});
   const pageSize = 10;
 
-  // State for the main form, initialized with location.state
   const [ngayNhanPhong, setNgayNhanPhong] = useState(
     location.state?.ngayNhanPhong
       ? dayjs(location.state.ngayNhanPhong)
-      : dayjs()
+      : dayjs().set("hour", 14).set("minute", 0).set("second", 0)
   );
   const [ngayTraPhong, setNgayTraPhong] = useState(
     location.state?.ngayTraPhong
       ? dayjs(location.state.ngayTraPhong)
-      : dayjs().add(1, "day")
+      : dayjs().add(1, "day").set("hour", 12).set("minute", 0).set("second", 0)
   );
   const [soNguoi, setSoNguoi] = useState(location.state?.soNguoi || 1);
+  const [soTre, setSoTre] = useState(location.state?.soTre || 0);
 
-  // State for advanced filters, initialized with location.state
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(
     !!location.state?.tongChiPhiMin ||
       !!location.state?.tongChiPhiMax ||
@@ -84,81 +92,125 @@ const HotelBookingForm = () => {
   const [loaiPhongList, setLoaiPhongList] = useState([]);
   const [key, setKey] = useState(location.state?.key || "");
 
-  // State for Snackbar
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [openGuestDialog, setOpenGuestDialog] = useState(false);
+  const [guestInfo, setGuestInfo] = useState({
+    hoTen: "",
+    email: "",
+    soDienThoai: "",
+  });
+  const [selectedCombination, setSelectedCombination] = useState(null);
 
-  // Handle Snackbar notifications
-  const handleSnackbar = (message) => {
-    setSnackbarMessage(message);
-    setOpenSnackbar(true);
+  const validateInputs = () => {
+    const newErrors = {};
+    if (!ngayNhanPhong || !ngayNhanPhong.isValid()) {
+      newErrors.ngayNhanPhong = "Vui lòng chọn ngày nhận phòng hợp lệ";
+    }
+    if (!ngayTraPhong || !ngayTraPhong.isValid()) {
+      newErrors.ngayTraPhong = "Vui lòng chọn ngày trả phòng hợp lệ";
+    }
+    if (ngayNhanPhong && ngayTraPhong && ngayNhanPhong.isAfter(ngayTraPhong)) {
+      newErrors.ngayTraPhong = "Ngày trả phòng phải sau ngày nhận phòng";
+    }
+    if (!soNguoi || soNguoi < 1) {
+      newErrors.soNguoi = "Số người phải lớn hơn hoặc bằng 1";
+    }
+    if (soTre < 0) {
+      newErrors.soTre = "Số trẻ em không được nhỏ hơn 0";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  // Handle guest count change via buttons
-  const handleAdultChange = (change) => {
-    setSoNguoi((prev) => Math.max(1, prev + change));
-  };
-
-  // Handle guest count change via input
   const handleSoNguoiChange = (e) => {
-    const value = e.target.value;
-    if (value === "" || (!isNaN(value) && parseInt(value) >= 1)) {
-      setSoNguoi(value === "" ? 1 : parseInt(value));
+    const value = Number(e.target.value);
+    if (value >= 1) {
+      setSoNguoi(value);
+      setErrors({ ...errors, soNguoi: "" });
+    } else {
+      setErrors({
+        ...errors,
+        soNguoi: "Số người phải lớn hơn hoặc bằng 1",
+      });
     }
   };
 
-  const CHECK_IN_TIME = { hour: 12, minute: 0, second: 0 };
-  const CHECK_OUT_TIME = { hour: 14, minute: 0, second: 0 };
+  const handleSoTreChange = (e) => {
+    const value = Number(e.target.value);
+    if (value >= 0) {
+      setSoTre(value);
+      setErrors({ ...errors, soTre: "" });
+    } else {
+      setErrors({
+        ...errors,
+        soTre: "Số trẻ em không được nhỏ hơn 0",
+      });
+    }
+  };
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
+  const fetchRoomImages = async (idLoaiPhong) => {
+    try {
+      const response = await getAnhLP(idLoaiPhong);
+      const imagePaths = response.data
+        .map((item) => item.duongDan)
+        .filter(Boolean);
+      setRoomImages((prev) => ({
+        ...prev,
+        [idLoaiPhong]: imagePaths,
+      }));
+    } catch (error) {
+      console.error(`Lỗi khi lấy ảnh cho ${idLoaiPhong}:`, error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Không thể tải ảnh cho loại phòng ${idLoaiPhong}!`,
+        confirmButtonText: "Đóng",
+      });
+      setRoomImages((prev) => ({
+        ...prev,
+        [idLoaiPhong]: [],
+      }));
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!validateInputs()) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng kiểm tra lại thông tin nhập.",
+        confirmButtonText: "Đóng",
+      });
+      return;
+    }
+
     setIsLoading(true);
-
-    if (
-      !ngayNhanPhong ||
-      !ngayTraPhong ||
-      !ngayNhanPhong.isValid() ||
-      !ngayTraPhong.isValid()
-    ) {
-      handleSnackbar("Vui lòng chọn ngày nhận và trả phòng hợp lệ.");
-      setIsLoading(false);
-      return;
-    }
-
-    if (ngayTraPhong.diff(ngayNhanPhong, "day") <= 0) {
-      handleSnackbar("Ngày trả phòng phải sau ngày nhận phòng.");
-      setIsLoading(false);
-      return;
-    }
-
-    const ngayNhanPhongFormatted = ngayNhanPhong
-      .set(CHECK_IN_TIME)
-      .toISOString();
-    const ngayTraPhongFormatted = ngayTraPhong
-      .set(CHECK_OUT_TIME)
-      .toISOString();
 
     const pageable = { page: currentPage, size: pageSize };
 
     try {
       const response = await toHopLoaiPhong(
-        ngayNhanPhongFormatted,
-        ngayTraPhongFormatted,
+        ngayNhanPhong.toISOString(),
+        ngayTraPhong.toISOString(),
         soNguoi,
+        soTre,
         key || null,
-        tongChiPhiMin || null,
-        tongChiPhiMax || null,
-        tongSucChuaMin || null,
-        tongSucChuaMax || null,
-        tongSoPhongMin || null,
-        tongSoPhongMax || null,
+        tongChiPhiMin ? Number(tongChiPhiMin) : null,
+        tongChiPhiMax ? Number(tongChiPhiMax) : null,
+        tongSucChuaMin ? Number(tongSucChuaMin) : null,
+        tongSucChuaMax ? Number(tongSucChuaMax) : null,
+        tongSoPhongMin ? Number(tongSoPhongMin) : null,
+        tongSoPhongMax ? Number(tongSoPhongMax) : null,
         loaiPhongChons || null,
         pageable
       );
 
-      console.log("Tổ hợp phòng khả dụng:", response.content[0]?.phongs);
       if (!response || !response.content) {
-        handleSnackbar("Không tìm thấy tổ hợp phòng phù hợp.");
+        Swal.fire({
+          icon: "info",
+          title: "Thông báo",
+          text: "Không tìm thấy tổ hợp phòng phù hợp.",
+          confirmButtonText: "Đóng",
+        });
         setLoaiPhongKhaDung([]);
         setTotalPages(1);
         setCurrentPage(0);
@@ -169,7 +221,12 @@ const HotelBookingForm = () => {
       }
     } catch (error) {
       console.error("Lỗi khi lấy tổ hợp phòng:", error);
-      handleSnackbar("Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi tải dữ liệu, vui lòng thử lại sau.",
+        confirmButtonText: "Đóng",
+      });
       setLoaiPhongKhaDung([]);
       setTotalPages(1);
       setCurrentPage(0);
@@ -178,46 +235,72 @@ const HotelBookingForm = () => {
     }
   };
 
+  const debouncedSearch = debounce(handleSearch, 500);
+
   const fetchLoaiPhong = async () => {
+    if (!ngayNhanPhong?.isValid() || !ngayTraPhong?.isValid()) {
+      return;
+    }
     try {
-      const n = dayjs(ngayNhanPhong).format("YYYY-MM-DD");
-      const t = dayjs(ngayNhanPhong).format("YYYY-MM-DD");
-      const response = await getLPKDR(n, t);
-      console.log("Loại phòng khả dụng:", response);
-      if (response && response.data) {
+      const response = await getLPKDR(
+        ngayNhanPhong.toISOString(),
+        ngayTraPhong.toISOString()
+      );
+      if (response && response.data && Array.isArray(response.data)) {
         setLoaiPhongList(response.data);
       } else {
-        handleSnackbar("Không tìm thấy loại phòng nào.");
+        Swal.fire({
+          icon: "info",
+          title: "Thông báo",
+          text: "Không tìm thấy loại phòng nào.",
+          confirmButtonText: "Đóng",
+        });
+        setLoaiPhongList([]);
       }
     } catch (error) {
       console.error("Lỗi khi lấy loại phòng:", error);
-      handleSnackbar("Đã xảy ra lỗi khi tải loại phòng.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi tải loại phòng.",
+        confirmButtonText: "Đóng",
+      });
+      setLoaiPhongList([]);
     }
   };
 
   useEffect(() => {
+    if (loaiPhongKhaDung.length > 0) {
+      loaiPhongKhaDung.forEach((combination) => {
+        combination.phongs.forEach((phong) => {
+          if (!roomImages[phong.loaiPhong.id]) {
+            fetchRoomImages(phong.loaiPhong.id);
+          }
+        });
+      });
+    }
+  }, [loaiPhongKhaDung]);
+
+  useEffect(() => {
     fetchLoaiPhong();
-    let timeoutId;
-    const fetchData = async () => {
-      if (
-        ngayNhanPhong &&
-        ngayTraPhong &&
-        soNguoi &&
-        ngayNhanPhong.isValid() &&
-        ngayTraPhong.isValid()
-      ) {
-        handleSearch({ preventDefault: () => {} });
-      }
-    };
+    if (
+      ngayNhanPhong &&
+      ngayTraPhong &&
+      soNguoi &&
+      soTre >= 0 &&
+      ngayNhanPhong.isValid() &&
+      ngayTraPhong.isValid()
+    ) {
+      debouncedSearch();
+    }
 
-    timeoutId = setTimeout(fetchData, 300);
-
-    return () => clearTimeout(timeoutId);
+    return () => debouncedSearch.cancel();
   }, [
     currentPage,
     ngayNhanPhong,
     ngayTraPhong,
     soNguoi,
+    soTre,
     tongChiPhiMin,
     tongChiPhiMax,
     tongSucChuaMin,
@@ -225,67 +308,82 @@ const HotelBookingForm = () => {
     tongSoPhongMin,
     tongSoPhongMax,
     key,
+    loaiPhongChons,
   ]);
 
   const handleCreateBooking = async (combination) => {
     setIsLoading(true);
-    let khachHangResponse = null;
     let datPhongResponse = null;
     let thongTinDatPhongResponseList = [];
 
     try {
       let user;
+      let khachHangData;
+      let kh = null;
+
       try {
         user = localStorage.getItem("user");
-        console.log("User:", user);
       } catch (error) {
         console.error("Lỗi khi parse user từ localStorage:", error);
       }
 
-      if (!user) {
-        localStorage.setItem(
-          "pendingData",
-          JSON.stringify({
-            combination,
-            ngayNhanPhong: ngayNhanPhong.toISOString(),
-            ngayTraPhong: ngayTraPhong.toISOString(),
-            soNguoi,
-          })
-        );
-        handleSnackbar("Vui lòng đăng nhập để tiếp tục đặt phòng.");
-        setTimeout(() => {
-          navigate("/login", { state: { from: location.pathname } });
-        }, 1000);
-        return;
-      }
-
-      let khachHangData;
-      try {
-        const response = await getKhachHangByUsername(user);
-        console.log("Khách hàng:", response.data);
-        if (!response || !response.data) {
-          throw new Error("Không tìm thấy thông tin khách hàng.");
+      if (user) {
+        try {
+          const response = await getKhachHangByUsername(user);
+          if (!response || !response.data) {
+            throw new Error("Không tìm thấy thông tin khách hàng.");
+          }
+          khachHangData = response.data;
+          kh = khachHangData;
+        } catch (error) {
+          console.error("Lỗi khi lấy thông tin khách hàng:", error);
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: "Không thể lấy thông tin khách hàng. Vui lòng đăng nhập lại.",
+            confirmButtonText: "Đóng",
+          });
+          setTimeout(() => {
+            navigate("/login", { state: { from: location.pathname } });
+          }, 2000);
+          return;
         }
-        khachHangData = response.data;
-      } catch (error) {
-        console.error("Lỗi khi lấy thông tin khách hàng:", error);
-        handleSnackbar(
-          "Không thể lấy thông tin khách hàng. Vui lòng đăng nhập lại."
-        );
-        setTimeout(() => {
-          navigate("/login", { state: { from: location.pathname } });
-        }, 2000);
-        return;
+      } else {
+        if (!guestInfo.hoTen || !guestInfo.email || !guestInfo.soDienThoai) {
+          setSelectedCombination(combination);
+          setOpenGuestDialog(true);
+          setIsLoading(false);
+          return;
+        }
+
+        const [ho, ...tenParts] = guestInfo.hoTen.split(" ");
+        const ten = tenParts.join(" ").trim();
+
+        khachHangData = {
+          ho: ho.trim(),
+          ten: ten || "",
+          email: guestInfo.email,
+          sdt: guestInfo.soDienThoai,
+          trangThai: false,
+        };
+
+        kh = await ThemKhachHangDatPhong(khachHangData);
+        if (!kh || !kh.data) {
+          throw new Error("Không thể tạo thông tin khách hàng.");
+        }
       }
 
       const datPhongRequest = {
-        khachHang: khachHangData,
-        maDatPhong: "DP" + new Date().getTime(),
+        khachHang: kh.data || kh,
+        maDatPhong: "",
         soNguoi: soNguoi,
+        soTre: soTre,
         soPhong: combination.tongSoPhong,
         ngayDat: new Date().toISOString(),
         tongTien: combination.tongChiPhi,
-        ghiChu: "Đặt phòng từ tổ hợp được chọn",
+        ghiChu: user
+          ? "Đặt phòng từ tài khoản đăng nhập"
+          : "Đặt phòng không đăng nhập",
         trangThai: "Đang đặt phòng",
       };
       datPhongResponse = await ThemMoiDatPhong(datPhongRequest);
@@ -300,9 +398,10 @@ const HotelBookingForm = () => {
               datPhong: datPhongResponse.data,
               idLoaiPhong: phong.loaiPhong.id,
               maThongTinDatPhong: "TTD" + new Date().getTime() + i,
-              ngayNhanPhong: ngayNhanPhong.format("YYYY-MM-DD"),
-              ngayTraPhong: ngayTraPhong.format("YYYY-MM-DD"),
-              soNguoi: phong.loaiPhong.soKhachToiDa,
+              ngayNhanPhong: ngayNhanPhong.toISOString(),
+              ngayTraPhong: ngayTraPhong.toISOString(),
+              soNguoi: phong.loaiPhong.soKhachTieuChuan,
+              soTre: phong.loaiPhong.treEmTieuChuan,
               giaDat: phong.loaiPhong.donGia,
               trangThai: "Đang đặt phòng",
             };
@@ -310,28 +409,62 @@ const HotelBookingForm = () => {
             if (!response || !response.data) {
               throw new Error("Không thể tạo thông tin đặt phòng.");
             }
-            thongTinDatPhongResponseList.push(response.data);
+            thongTinDatPhongResponseList = [
+              ...thongTinDatPhongResponseList,
+              response.data,
+            ];
           }
         }
       }
 
       localStorage.removeItem("pendingData");
-
-      handleSnackbar("Đặt phòng thành công!");
-      navigate("/booking-confirmation", {
-        state: {
-          combination: combination,
-          datPhong: datPhongResponse.data,
-          khachHang: khachHangData,
-          thongTinDatPhong: thongTinDatPhongResponseList,
-        },
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Đặt phòng thành công!",
+        confirmButtonText: "Đóng",
+      }).then(() => {
+        navigate("/booking-confirmation", {
+          state: {
+            combination: combination,
+            datPhong: datPhongResponse.data,
+            khachHang: kh.data || kh,
+            thongTinDatPhong: thongTinDatPhongResponseList,
+          },
+        });
       });
     } catch (error) {
       console.error("Lỗi khi tạo đặt phòng:", error);
-      handleSnackbar("Đã xảy ra lỗi khi tạo đặt phòng. Vui lòng thử lại.");
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Đã xảy ra lỗi khi tạo đặt phòng. Vui lòng thử lại.",
+        confirmButtonText: "Đóng",
+      });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGuestInfoSubmit = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[0-9]{10,11}$/;
+    if (
+      !guestInfo.hoTen ||
+      !guestInfo.hoTen.includes(" ") ||
+      !emailRegex.test(guestInfo.email) ||
+      !phoneRegex.test(guestInfo.soDienThoai)
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Vui lòng nhập đầy đủ và đúng định dạng thông tin (Họ tên phải có dấu cách, ví dụ: Nguyễn Tấn Phát).",
+        confirmButtonText: "Đóng",
+      });
+      return;
+    }
+    setOpenGuestDialog(false);
+    await handleCreateBooking(selectedCombination);
   };
 
   return (
@@ -342,119 +475,136 @@ const HotelBookingForm = () => {
           <p>Tìm kiếm phòng nhanh chóng với giá tốt nhất</p>
         </div>
 
-        <form className="booking-form" onSubmit={handleSearch}>
+        <form className="booking-form" onSubmit={(e) => e.preventDefault()}>
           <div className="form-row">
-            <div className="form-group">
-              <label>Ngày nhận phòng (12:00)</label>
-              <DatePicker
-                value={ngayNhanPhong}
-                minDate={dayjs()}
-                onChange={(newValue) => {
-                  if (newValue && dayjs(newValue).isValid()) {
-                    const newCheckInDate = dayjs(newValue);
-                    setNgayNhanPhong(newCheckInDate);
-                    if (
-                      newCheckInDate.isSame(ngayTraPhong, "day") ||
-                      newCheckInDate.isAfter(ngayTraPhong)
-                    ) {
-                      setNgayTraPhong(newCheckInDate.add(1, "day"));
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} sm={3}>
+                <DateTimePicker
+                  label="Ngày nhận phòng"
+                  value={ngayNhanPhong}
+                  minDateTime={dayjs().set("hour", 14).set("minute", 0)}
+                  onChange={(newValue) => {
+                    if (newValue && dayjs(newValue).isValid()) {
+                      const newCheckInDateTime = dayjs(newValue)
+                        .set("hour", 14)
+                        .set("minute", 0)
+                        .set("second", 0);
+                      setNgayNhanPhong(newCheckInDateTime);
+                      if (
+                        newCheckInDateTime.isSame(ngayTraPhong, "hour") ||
+                        newCheckInDateTime.isAfter(ngayTraPhong)
+                      ) {
+                        setNgayTraPhong(
+                          newCheckInDateTime
+                            .add(1, "day")
+                            .set("hour", 12)
+                            .set("minute", 0)
+                            .set("second", 0)
+                        );
+                      }
+                    } else {
+                      setNgayNhanPhong(null);
                     }
-                  } else {
-                    setNgayNhanPhong(null);
-                  }
-                }}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    size: "small",
-                    required: true,
-                    sx: {
-                      "& .MuiInputBase-root": {
-                        borderRadius: 1,
-                        backgroundColor: "#fff",
+                  }}
+                  ampm={false}
+                  format="DD/MM/YYYY HH:mm"
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      size: "medium",
+                      error: !!errors.ngayNhanPhong,
+                      helperText: errors.ngayNhanPhong,
+                      sx: {
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#f5f5f5",
+                        },
                       },
-                    },
-                  },
-                }}
-              />
-            </div>
-            <div className="form-group">
-              <label>Ngày trả phòng (14:00)</label>
-              <DatePicker
-                value={ngayTraPhong}
-                minDate={
-                  ngayNhanPhong
-                    ? ngayNhanPhong.add(1, "day")
-                    : dayjs().add(1, "day")
-                }
-                onChange={(newValue) => {
-                  if (newValue && dayjs(newValue).isValid()) {
-                    setNgayTraPhong(dayjs(newValue));
-                  } else {
-                    setNgayTraPhong(null);
-                  }
-                }}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    size: "small",
-                    required: true,
-                    sx: {
-                      "& .MuiInputBase-root": {
-                        borderRadius: 1,
-                        backgroundColor: "#fff",
-                      },
-                    },
-                  },
-                }}
-              />
-            </div>
-            <div className="form-group guest-group">
-              <label>Số người</label>
-              <div className="guest-counter">
-                <IconButton
-                  onClick={() => handleAdultChange(-1)}
-                  disabled={soNguoi <= 1}
-                  sx={{ border: "1px solid #e0e0e0", borderRadius: 1 }}
-                >
-                  -
-                </IconButton>
-                <TextField
-                  type="number"
-                  value={soNguoi}
-                  onChange={handleSoNguoiChange}
-                  inputProps={{ min: 1 }}
-                  size="small"
-                  className="so-nguoi-input"
-                  sx={{
-                    width: 80,
-                    mx: 1,
-                    "& .MuiInputBase-root": {
-                      borderRadius: 1,
-                      backgroundColor: "#fff",
                     },
                   }}
                 />
-                <IconButton
-                  onClick={() => handleAdultChange(1)}
-                  sx={{ border: "1px solid #e0e0e0", borderRadius: 1 }}
-                >
-                  +
-                </IconButton>
-              </div>
-            </div>
-            <Button
-              type="submit"
-              variant="contained"
-              className="search-btn"
-              sx={{
-                borderRadius: 1,
-                bgcolor: "#1976d2",
-                "&:hover": { bgcolor: "#1565c0" },
-              }}
-            >
-              Tìm kiếm
-            </Button>
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <DateTimePicker
+                  label="Ngày trả phòng"
+                  value={ngayTraPhong}
+                  minDateTime={
+                    ngayNhanPhong
+                      ? ngayNhanPhong.add(1, "hour")
+                      : dayjs().add(1, "hour")
+                  }
+                  onChange={(newValue) => {
+                    if (newValue && dayjs(newValue).isValid()) {
+                      setNgayTraPhong(
+                        dayjs(newValue)
+                          .set("hour", 12)
+                          .set("minute", 0)
+                          .set("second", 0)
+                      );
+                    } else {
+                      setNgayTraPhong(null);
+                    }
+                  }}
+                  ampm={false}
+                  format="DD/MM/YYYY HH:mm"
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      size: "medium",
+                      error: !!errors.ngayTraPhong,
+                      helperText: errors.ngayTraPhong,
+                      sx: {
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#f5f5f5",
+                        },
+                      },
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  label="Số người lớn"
+                  type="number"
+                  value={soNguoi}
+                  onChange={handleSoNguoiChange}
+                  fullWidth
+                  inputProps={{ min: 1 }}
+                  error={!!errors.soNguoi}
+                  helperText={errors.soNguoi}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      borderRadius: 1,
+                      backgroundColor: "#f5f5f5",
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  label="Số trẻ em"
+                  type="number"
+                  value={soTre}
+                  onChange={handleSoTreChange}
+                  fullWidth
+                  inputProps={{ min: 0 }}
+                  error={!!errors.soTre}
+                  helperText={errors.soTre}
+                  sx={{
+                    "& .MuiInputBase-root": {
+                      borderRadius: 1,
+                      backgroundColor: "#f5f5f5",
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <ChildCareIcon sx={{ color: "text.secondary", mr: 1 }} />
+                    ),
+                  }}
+                />
+              </Grid>
+            </Grid>
           </div>
 
           <div className="advanced-filters">
@@ -484,8 +634,12 @@ const HotelBookingForm = () => {
                       label="Tổng chi phí tối thiểu"
                       type="number"
                       value={tongChiPhiMin}
-                      onChange={(e) => setTongChiPhiMin(e.target.value)}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setTongChiPhiMin(value >= 0 ? value : "");
+                      }}
                       fullWidth
+                      inputProps={{ min: 0 }}
                       sx={{
                         "& .MuiInputBase-root": {
                           borderRadius: 1,
@@ -506,8 +660,12 @@ const HotelBookingForm = () => {
                       label="Tổng chi phí tối đa"
                       type="number"
                       value={tongChiPhiMax}
-                      onChange={(e) => setTongChiPhiMax(e.target.value)}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setTongChiPhiMax(value >= 0 ? value : "");
+                      }}
                       fullWidth
+                      inputProps={{ min: 0 }}
                       sx={{
                         "& .MuiInputBase-root": {
                           borderRadius: 1,
@@ -528,8 +686,12 @@ const HotelBookingForm = () => {
                       label="Tổng sức chứa tối thiểu"
                       type="number"
                       value={tongSucChuaMin}
-                      onChange={(e) => setTongSucChuaMin(e.target.value)}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setTongSucChuaMin(value >= 0 ? value : "");
+                      }}
                       fullWidth
+                      inputProps={{ min: 0 }}
                       sx={{
                         "& .MuiInputBase-root": {
                           borderRadius: 1,
@@ -543,8 +705,12 @@ const HotelBookingForm = () => {
                       label="Tổng sức chứa tối đa"
                       type="number"
                       value={tongSucChuaMax}
-                      onChange={(e) => setTongSucChuaMax(e.target.value)}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setTongSucChuaMax(value >= 0 ? value : "");
+                      }}
                       fullWidth
+                      inputProps={{ min: 0 }}
                       sx={{
                         "& .MuiInputBase-root": {
                           borderRadius: 1,
@@ -558,8 +724,12 @@ const HotelBookingForm = () => {
                       label="Tổng số phòng tối thiểu"
                       type="number"
                       value={tongSoPhongMin}
-                      onChange={(e) => setTongSoPhongMin(e.target.value)}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setTongSoPhongMin(value >= 0 ? value : "");
+                      }}
                       fullWidth
+                      inputProps={{ min: 0 }}
                       sx={{
                         "& .MuiInputBase-root": {
                           borderRadius: 1,
@@ -573,8 +743,12 @@ const HotelBookingForm = () => {
                       label="Tổng số phòng tối đa"
                       type="number"
                       value={tongSoPhongMax}
-                      onChange={(e) => setTongSoPhongMax(e.target.value)}
+                      onChange={(e) => {
+                        const value = Number(e.target.value);
+                        setTongSoPhongMax(value >= 0 ? value : "");
+                      }}
                       fullWidth
+                      inputProps={{ min: 0 }}
                       sx={{
                         "& .MuiInputBase-root": {
                           borderRadius: 1,
@@ -601,7 +775,7 @@ const HotelBookingForm = () => {
                           },
                         }}
                       >
-                        <MenuItem value="">Lựa chọn</MenuItem>
+                        <MenuItem value="">Chi phí thấp nhất</MenuItem>
                         <MenuItem value="leastRooms">
                           Tổ hợp ít phòng nhất
                         </MenuItem>
@@ -645,15 +819,15 @@ const HotelBookingForm = () => {
                           value={lpc.soLuongChon || ""}
                           onChange={(e) => {
                             const newList = [...loaiPhongChons];
+                            const value = Number(e.target.value);
                             newList[index] = {
                               ...newList[index],
-                              soLuongChon: e.target.value
-                                ? Number(e.target.value)
-                                : null,
+                              soLuongChon: value >= 1 ? value : "",
                             };
                             setLoaiPhongChons(newList);
                           }}
                           fullWidth
+                          inputProps={{ min: 1 }}
                           sx={{
                             "& .MuiInputBase-root": {
                               borderRadius: 1,
@@ -683,15 +857,36 @@ const HotelBookingForm = () => {
                     <Button
                       variant="outlined"
                       color="primary"
-                      onClick={() =>
+                      onClick={() => {
+                        if (loaiPhongChons.some((lpc) => !lpc.loaiPhong)) {
+                          Swal.fire({
+                            icon: "warning",
+                            title: "Cảnh báo",
+                            text: "Vui lòng chọn loại phòng trước khi thêm.",
+                            confirmButtonText: "Đóng",
+                          });
+                          return;
+                        }
                         setLoaiPhongChons([
                           ...loaiPhongChons,
                           { loaiPhong: null, soLuongChon: null },
-                        ])
-                      }
-                      sx={{ borderRadius: 1 }}
+                        ]);
+                      }}
+                      sx={{ borderRadius: 1, mr: 1 }}
                     >
                       Thêm loại phòng
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSearch}
+                      sx={{
+                        borderRadius: 1,
+                        bgcolor: "#1976d2",
+                        "&:hover": { bgcolor: "#1565c0" },
+                      }}
+                    >
+                      Tìm kiếm
                     </Button>
                   </Grid>
                 </Grid>
@@ -731,9 +926,11 @@ const HotelBookingForm = () => {
                   <thead>
                     <tr>
                       <th>STT</th>
+                      <th className="poon-column">Hình ảnh</th>
                       <th>Loại phòng</th>
                       <th>Diện tích</th>
                       <th>Số khách</th>
+                      <th>Số trẻ em tối đa</th>
                       <th>Đơn giá</th>
                       <th>Số lượng</th>
                       <th>Thành tiền</th>
@@ -743,9 +940,25 @@ const HotelBookingForm = () => {
                     {combination.phongs.map((phong, idx) => (
                       <tr key={phong.loaiPhong.id}>
                         <td>{idx + 1}</td>
+                        <td>
+                          {roomImages[phong.loaiPhong.id] ? (
+                            roomImages[phong.loaiPhong.id].length > 0 ? (
+                              <img
+                                src={roomImages[phong.loaiPhong.id][0]}
+                                alt={`${phong.loaiPhong.tenLoaiPhong} - Ảnh chính`}
+                                className="room-image"
+                              />
+                            ) : (
+                              <span className="no-image">Không có ảnh</span>
+                            )
+                          ) : (
+                            <span className="loading-image">Đang tải...</span>
+                          )}
+                        </td>
                         <td>{phong.loaiPhong.tenLoaiPhong}</td>
                         <td>{phong.loaiPhong.dienTich} m²</td>
                         <td>{phong.loaiPhong.soKhachToiDa}</td>
+                        <td>{phong.loaiPhong.treEmToiDa || 0}</td>
                         <td>{phong.loaiPhong.donGia.toLocaleString()} VND</td>
                         <td>{phong.soLuongChon}</td>
                         <td>
@@ -791,12 +1004,52 @@ const HotelBookingForm = () => {
           )}
         </div>
 
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={() => setOpenSnackbar(false)}
-          message={snackbarMessage}
-        />
+        <Dialog
+          open={openGuestDialog}
+          onClose={() => setOpenGuestDialog(false)}
+        >
+          <DialogTitle>Nhập thông tin đặt phòng</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Họ tên (Họ Tên)"
+              value={guestInfo.hoTen}
+              onChange={(e) =>
+                setGuestInfo({ ...guestInfo, hoTen: e.target.value })
+              }
+              fullWidth
+              margin="dense"
+              required
+              placeholder="Ví dụ: Nguyễn Tấn Phát"
+            />
+            <TextField
+              label="Email"
+              type="email"
+              value={guestInfo.email}
+              onChange={(e) =>
+                setGuestInfo({ ...guestInfo, email: e.target.value })
+              }
+              fullWidth
+              margin="dense"
+              required
+            />
+            <TextField
+              label="Số điện thoại"
+              value={guestInfo.soDienThoai}
+              onChange={(e) =>
+                setGuestInfo({ ...guestInfo, soDienThoai: e.target.value })
+              }
+              fullWidth
+              margin="dense"
+              required
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenGuestDialog(false)}>Hủy</Button>
+            <Button onClick={handleGuestInfoSubmit} variant="contained">
+              Xác nhận
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </LocalizationProvider>
   );

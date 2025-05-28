@@ -28,14 +28,25 @@ public class LoaiPhong {
     @Column(name = "dien_tich")
     private Integer dienTich;
 
+    @Column(name = "so_khach_tieu_chuan")
+    private Integer soKhachTieuChuan;
     @Column(name = "so_khach_toi_da")
-        private Integer soKhachToiDa;
+    private Integer soKhachToiDa;
+    @Column(name = "tre_em_tieu_chuan")
+    private Integer treEmTieuChuan;
+    @Column(name = "tre_em_toi_da")
+    private Integer treEmToiDa;
 
     @Column(name = "don_gia")
     private Double donGia;
 
-    @Column(name = "don_gia_phu_thu")
-    private Double donGiaPhuThu;
+    @Column(name = "phu_thu_nguoi_lon")
+    private Double phuThuNguoiLon;
+    @Column(name = "phu_thu_tre_em")
+    private Double phuThuTreEm;
     @Column(name = "mo_ta")
     private String moTa;
+
+    @Column(name = "trang_thai")
+    private Boolean trangThai;
 }

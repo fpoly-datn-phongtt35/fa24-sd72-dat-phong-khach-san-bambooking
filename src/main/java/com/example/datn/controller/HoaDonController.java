@@ -43,14 +43,4 @@ public class HoaDonController {
     public ResponseEntity<?> getHoaDonById(@PathVariable("idHoaDon") Integer idHoaDon){
         return ResponseEntity.ok(hoaDonService.getOneHoaDon(idHoaDon));
     }
-
-    @PutMapping("/{id}/status")
-    public ResponseEntity<?> changeStatusInvoice(@PathVariable("id") Integer id) {
-        try {
-            String message = String.valueOf(hoaDonService.changeStatusHoaDon(id));
-            return ResponseEntity.ok(message);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
 }

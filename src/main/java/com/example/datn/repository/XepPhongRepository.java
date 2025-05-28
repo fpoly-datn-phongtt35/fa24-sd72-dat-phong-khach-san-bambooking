@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
@@ -21,7 +22,9 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
             "LEFT JOIN TraPhong tp ON tp.xepPhong.id = xp.id " +
             "WHERE xp.phong.id = :idPhong " +
             "AND :date >= xp.ngayNhanPhong " +
-            "AND :date <= COALESCE(tp.ngayTraThucTe, xp.ngayTraPhong)")
+            "AND :date <= CASE WHEN tp.id IS NOT NULL AND tp.trangThai = true " +
+            "                 THEN COALESCE(tp.ngayTraThucTe, xp.ngayTraPhong) " +
+            "                 ELSE xp.ngayTraPhong END " )
     XepPhong getByIDPhong(@Param("idPhong") int idPhong, @Param("date") LocalDateTime date);
 
     @Query("SELECT xp FROM XepPhong xp " +
@@ -48,8 +51,19 @@ public interface XepPhongRepository extends JpaRepository<XepPhong, Integer> {
         """)
     List<XepPhong> findByPhongTinhTrangAndTrangThai(String tinhTrang, String trangThai);
 
-    List<XepPhong> findByThongTinDatPhongId(Integer id);
+    List<XepPhong> findByThongTinDatPhongId(Integer thongTinDatPhongId);
+    Optional<XepPhong> findById(Integer id);
 
     @Query("SELECT xp FROM XepPhong xp WHERE xp.thongTinDatPhong.datPhong.id = :datPhongId")
     List<XepPhong> findByDatPhongId(Integer datPhongId);
+    Optional<XepPhong> findByThongTinDatPhong_Id(Integer idThongTinDatPhong);
+
+    @Query("""
+        SELECT xp
+        FROM XepPhong xp
+        JOIN xp.phong p
+        JOIN xp.thongTinDatPhong ttdp
+        WHERE p.tinhTrang IN (:tinhTrang) AND xp.trangThai IN (:trangThai)
+        """)
+    List<XepPhong> findByList(List<String> tinhTrang, List<String> trangThai);
 }

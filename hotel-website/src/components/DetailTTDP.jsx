@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getTTDPbyidDPandidLP, getXPbymaTTDP } from "../services/TTDP.js";
+import { getTTDPbyidDPandidLP, getXPbymaTTDP, GuiEmailXacNhanHuyTTDP } from "../services/TTDP.js";
 import {
   getDichVuSuDung,
   getHoaDonById,
@@ -21,7 +21,10 @@ import {
   Paper,
   Button,
   Collapse,
+  IconButton,
+  Container,
 } from "@mui/material";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 export default function DetailTTDP() {
   const [bookings, setBookings] = useState([]);
@@ -135,24 +138,40 @@ export default function DetailTTDP() {
     setExpandedRow(newExpandedRow);
   };
 
-  const calculateDays = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+  const calculateDays = (ngayNhanPhong, ngayTraPhong) => {
+    const [day, month, year, time] = ngayNhanPhong.split(/\/| /);
+    const start = new Date(`${year}-${month}-${day}`);
 
-    if (isNaN(start) || isNaN(end)) {
-      return 1;
-    }
-
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
+    const [dayEnd, monthEnd, yearEnd, timeEnd] = ngayTraPhong.split(/\/| /);
+    const end = new Date(`${yearEnd}-${monthEnd}-${dayEnd}`);
 
     const diffTime = end - start;
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-    return Math.ceil(Math.max(diffDays, 1));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(diffDays, 1);
   };
 
+  const handleCancelBooking = async (bookingId) => {
+    try {
+      alert("Email xác nhận hủy đặt phòng đã được gửi đến email của bạn")
+      await GuiEmailXacNhanHuyTTDP(bookingId);
+      fetchData(); // Tải lại dữ liệu để cập nhật trạng thái
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      alert("Có lỗi xảy ra khi hủy đặt phòng.");
+    }
+  };
+
+  // Kiểm tra xem có booking nào không thuộc trạng thái "Đã hủy", "Đang ở", "Đã trả phòng"
+  const showActionColumn = bookings.some(
+    (booking) => !["Đã hủy", "Đang ở", "Đã trả phòng"].includes(booking.trangThai)
+  );
+
   return (
+    <Container
+      sx={{
+        minHeight: "66vh", 
+      }}
+    >
     <Box sx={{ maxWidth: "1200px", mx: "auto", p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h5" fontWeight="bold">
@@ -173,220 +192,203 @@ export default function DetailTTDP() {
         </Box>
       ) : (
         <Box>
-            <TableContainer component={Paper}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Phòng</TableCell>
-                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Diện tích</TableCell>
-                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Số khách tối đa</TableCell>
-                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Đơn giá</TableCell>
-                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Ngày Nhận</TableCell>
-                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Ngày Trả</TableCell>
-                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Mô tả</TableCell>
-                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Trạng Thái</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {bookings.map((booking) => (
-                    <React.Fragment key={booking.maThongTinDatPhong}>
-                      <TableRow
-                        onClick={() => handleRowClick(booking.tenPhong)}
-                        sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.100" } }}
-                      >
-                        <TableCell align="center" >{booking.maPhong}</TableCell>
-                        <TableCell align="center" >{booking.loaiPhong.dienTich}</TableCell>
-                        <TableCell align="center" >{booking.loaiPhong.soKhachToiDa}</TableCell>
-                        <TableCell align="center" >{formatCurrency(booking.loaiPhong.donGia)}</TableCell>
-                        <TableCell align="center" >{new Date(booking.ngayNhanPhong).toLocaleDateString()}</TableCell>
-                        <TableCell align="center" >{new Date(booking.ngayTraPhong).toLocaleDateString()}</TableCell>
-                        <TableCell align="center" >{booking.loaiPhong.moTa}</TableCell>
-                        <TableCell align="center" >
-                          <Box
-                            sx={{
-                              ...statusChipProps[booking.trangThai],
-                              px: 1,
-                              py: 0.5,
-                              borderRadius: 1,
-                              display: "inline-block",
-                            }}
-                          >
-                            {booking.trangThai}
-                          </Box>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center" sx={{ fontWeight: "bold" }}>Phòng</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold" }}>Diện tích</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold" }}>Số khách tối đa</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold" }}>Đơn giá</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold" }}>Ngày Nhận</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold" }}>Ngày Trả</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold" }}>Mô tả</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: "bold" }}>Trạng Thái</TableCell>
+                  {showActionColumn && (
+                    <TableCell align="center" sx={{ fontWeight: "bold" }}>Hành động</TableCell>
+                  )}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {bookings.map((booking) => (
+                  <React.Fragment key={booking.maThongTinDatPhong}>
+                    <TableRow
+                      onClick={() => handleRowClick(booking.tenPhong)}
+                      sx={{ cursor: "pointer", "&:hover": { bgcolor: "grey.100" } }}
+                    >
+                      <TableCell align="center">{booking.maPhong}</TableCell>
+                      <TableCell align="center">{booking.loaiPhong.dienTich}</TableCell>
+                      <TableCell align="center">{booking.loaiPhong.soKhachToiDa}</TableCell>
+                      <TableCell align="center">{formatCurrency(booking.loaiPhong.donGia)}</TableCell>
+                      <TableCell align="center">{new Date(booking.ngayNhanPhong).toLocaleDateString()}</TableCell>
+                      <TableCell align="center">{new Date(booking.ngayTraPhong).toLocaleDateString()}</TableCell>
+                      <TableCell align="center">{booking.loaiPhong.moTa}</TableCell>
+                      <TableCell align="center">
+                        <Box
+                          sx={{
+                            ...statusChipProps[booking.trangThai],
+                            px: 1,
+                            py: 0.5,
+                            borderRadius: 1,
+                            display: "inline-block",
+                          }}
+                        >
+                          {booking.trangThai}
+                        </Box>
+                      </TableCell>
+                      {showActionColumn && (
+                        <TableCell align="center">
+                          {["Đã hủy", "Đang ở", "Đã trả phòng"].includes(booking.trangThai) ? (
+                            <Typography>-</Typography>
+                          ) : (
+                            <IconButton
+                              color="error"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Ngăn sự kiện click lan ra hàng
+                                handleCancelBooking(booking.id);
+                              }}
+                              title="Hủy Đặt Phòng"
+                            >
+                              <CancelIcon />
+                            </IconButton>
+                          )}
                         </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell colSpan={8} sx={{ p: 0 }}>
-                          <Collapse in={expandedRow === booking.tenPhong}>
-                            <Box sx={{ p: 2, bgcolor: "grey.50" }}>
-                              {/* Kiểm tra nếu có thongTinHoaDon khớp với booking.tenPhong */}
-                              {thongTinHoaDon.some((item) => item.tenPhong === booking.tenPhong) ? (
-                                <>
-                                  {/* Thông Tin Hóa Đơn */}
-                                  {(() => {
-                                    // Kiểm tra cấu trúc của thongTinHoaDon
+                      )}
+                    </TableRow>
+                    <TableRow>
+                      <TableCell colSpan={showActionColumn ? 9 : 8} sx={{ p: 0 }}>
+                        <Collapse in={expandedRow === booking.tenPhong}>
+                          <Box sx={{ p: 2, bgcolor: "grey.50" }}>
+                            {thongTinHoaDon.some((item) => item.tenPhong === booking.tenPhong) ? (
+                              <>
+                                {(() => {
+                                  const validIdHoaDons = thongTinHoaDon
+                                    .filter((item) => item.tenPhong === booking.tenPhong)
+                                    .map((item) => item.idHoaDon)
+                                    .filter(Boolean);
 
-                                    // Lấy danh sách idHoaDon từ thongTinHoaDon có tenPhong khớp
-                                    const validIdHoaDons = thongTinHoaDon
-                                      .filter((item) => item.tenPhong === booking.tenPhong)
-                                      .map((item) => item.idHoaDon)
-                                      .filter(Boolean); // Loại bỏ undefined/null
+                                  if (validIdHoaDons.length === 0) {
+                                    return (
+                                      <Typography>
+                                        Không có thông tin hóa đơn hợp lệ cho phòng này
+                                      </Typography>
+                                    );
+                                  }
 
-                                    // Nếu validIdHoaDons rỗng, không hiển thị hóa đơn
-                                    if (validIdHoaDons.length === 0) {
-                                      return (
-                                        <Typography>
-                                          Không có thông tin hóa đơn hợp lệ cho phòng này
-                                        </Typography>
-                                      );
-                                    }
-
-                                    return hoaDons
-                                      .filter((hoaDon) => validIdHoaDons.includes(hoaDon.id))
-                                      .map((hoaDon, index) => (
-                                        <Box key={index} sx={{ mb: 2 }}>
-                                          <Typography variant="h6" fontWeight="bold" color="primary">
-                                            Thông Tin Hóa Đơn {hoaDon.maHoaDon}
-                                          </Typography>
-                                          <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
-                                            <Typography>
-                                              <strong>Mã Hóa Đơn:</strong> {hoaDon.maHoaDon}
-                                            </Typography>
-                                            <Typography>
-                                              <strong>Mã Đặt Phòng:</strong> {hoaDon.maDatPhong}
-                                            </Typography>
-                                            <Typography>
-                                              <strong>Tổng Tiền:</strong>{" "}
-                                              <Typography component="span" color="primary">
-                                                {formatCurrency(hoaDon.tongTien)}
-                                              </Typography>
-                                            </Typography>
-                                            <Typography>
-                                              <strong>Trạng Thái:</strong>{" "}
-                                              <Box
-                                                sx={{
-                                                  ...hoaDonStatusChipProps[hoaDon.trangThai],
-                                                  px: 1,
-                                                  py: 0.5,
-                                                  borderRadius: 1,
-                                                  display: "inline-block",
-                                                }}
-                                              >
-                                                {hoaDon.trangThai}
-                                              </Box>
-                                            </Typography>
-                                          </Box>
-                                        </Box>
-                                      ));
-                                  })()}
-
-                                  {/* Chi Tiết Hóa Đơn */}
-                                  {thongTinHoaDon
-                                    .filter((item) => {
-                                      return item.tenPhong === booking.tenPhong;
-                                    })
-                                    .map((item, index) => (
+                                  return hoaDons
+                                    .filter((hoaDon) => validIdHoaDons.includes(hoaDon.id))
+                                    .map((hoaDon, index) => (
                                       <Box key={index} sx={{ mb: 2 }}>
                                         <Typography variant="h6" fontWeight="bold" color="primary">
-                                          Chi Tiết Hóa Đơn - Phòng {item.tenPhong}
+                                          Thông Tin Hóa Đơn {hoaDon.maHoaDon}
                                         </Typography>
-                                        <Box sx={{ mb: 2 }}>
-                                          <Typography variant="subtitle1" fontWeight="bold">
-                                            Tiền Phòng
+                                        <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
+                                          <Typography>
+                                            <strong>Mã Hóa Đơn:</strong> {hoaDon.maHoaDon}
                                           </Typography>
                                           <Typography>
-                                            Số Ngày Ở: {calculateDays(item.ngayNhanPhong, item.ngayTraPhong)}
+                                            <strong>Mã Đặt Phòng:</strong> {hoaDon.maDatPhong}
                                           </Typography>
-                                          <Typography>Giá Phòng: {formatCurrency(item.giaPhong)}</Typography>
-                                          <Typography>Tiền Phòng: {formatCurrency(item.tienPhong)}</Typography>
+                                          <Typography>
+                                            <strong>Tổng Tiền:</strong>{" "}
+                                            <Typography component="span" color="primary">
+                                              {formatCurrency(hoaDon.tongTien)}
+                                            </Typography>
+                                          </Typography>
+                                          <Typography>
+                                            <strong>Trạng Thái:</strong>{" "}
+                                            <Box
+                                              sx={{
+                                                ...hoaDonStatusChipProps[hoaDon.trangThai],
+                                                px: 1,
+                                                py: 0.5,
+                                                borderRadius: 1,
+                                                display: "inline-block",
+                                              }}
+                                            >
+                                              {hoaDon.trangThai}
+                                            </Box>
+                                          </Typography>
                                         </Box>
-
-                                        {dichVuSuDung.some((dv) => dv.tenPhong === item.tenPhong) && (
-                                          <Box sx={{ mb: 2 }}>
-                                            <Typography variant="subtitle1" fontWeight="bold">
-                                              Dịch Vụ Sử Dụng
-                                            </Typography>
-                                            {dichVuSuDung
-                                              .filter((dv) => dv.tenPhong === item.tenPhong)
-                                              .map((dv, i) => (
-                                                <Typography key={i}>
-                                                  {dv.tenDichVu} - SL: {dv.soLuongSuDung} - Tổng:{" "}
-                                                  {formatCurrency(dv.giaDichVu * dv.soLuongSuDung)}
-                                                </Typography>
-                                              ))}
-                                          </Box>
-                                        )}
-
-                                        {phuThu.some((pt) => pt.tenPhong === item.tenPhong) && (
-                                          <Box sx={{ mb: 2 }}>
-                                            <Typography variant="subtitle1" fontWeight="bold">
-                                              Phụ Thu
-                                            </Typography>
-                                            {phuThu
-                                              .filter((pt) => pt.tenPhong === item.tenPhong)
-                                              .map((pt, i) => (
-                                                <Typography key={i}>
-                                                  {pt.tenPhuThu} - SL: {pt.soLuong} - Số Tiền:{" "}
-                                                  {formatCurrency(pt.tienPhuThu)}
-                                                </Typography>
-                                              ))}
-                                          </Box>
-                                        )}
-
-                                        {danhSachVatTu.some((vt) => vt.tenPhong === item.tenPhong) && (
-                                          <Box>
-                                            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                                              Danh sách vật tư hỏng/thiếu
-                                            </Typography>
-                                            <TableContainer component={Paper} sx={{ bgcolor: "white" }}>
-                                              <Table size="small">
-                                                <TableHead>
-                                                  <TableRow>
-                                                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Tên vật tư</TableCell>
-                                                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Giá vật tư</TableCell>
-                                                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Số lượng thiếu</TableCell>
-                                                  </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                  {danhSachVatTu
-                                                    .filter((vt) => vt.tenPhong === item.tenPhong)
-                                                    .map((vt, i) => (
-                                                      <TableRow key={i}>
-                                                        <TableCell align="center" >{vt.tenVatTu}</TableCell>
-                                                        <TableCell align="center" >{formatCurrency(vt.donGia)}</TableCell>
-                                                        <TableCell align="center" >{vt.soLuongThieu}</TableCell>
-                                                      </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                              </Table>
-                                            </TableContainer>
-                                          </Box>
-                                        )}
-
-                                        {item.tienKhauTru > 0 && (
-                                          <Typography variant="subtitle1" sx={{ mt: 2 }}>
-                                            <strong>Tiền khấu trừ của phòng:</strong>{" "}
-                                            {formatCurrency(item.tienKhauTru)}
-                                          </Typography>
-                                        )}
                                       </Box>
-                                    ))}
-                                </>
-                              ) : (
-                                <Typography>Không có thông tin hóa đơn cho phòng này</Typography>
-                              )}
-                            </Box>
-                          </Collapse>
-                        </TableCell>
-                      </TableRow>
-                    </React.Fragment>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          
+                                    ));
+                                })()}
+
+                                {thongTinHoaDon
+                                  .filter((item) => item.tenPhong === booking.tenPhong)
+                                  .map((item, index) => (
+                                    <Box key={index} sx={{ mb: 2 }}>
+                                      <Typography variant="h6" fontWeight="bold" color="primary">
+                                        Chi Tiết Hóa Đơn - Phòng {item.tenPhong}
+                                      </Typography>
+                                      <Box sx={{ mb: 2 }}>
+                                        <Typography variant="subtitle1" fontWeight="bold">
+                                          Tiền Phòng
+                                        </Typography>
+                                        <Typography>
+                                          Số Ngày Ở: {calculateDays(item.ngayNhanPhong, item.ngayTraPhong)}
+                                        </Typography>
+                                        <Typography>Giá Phòng: {formatCurrency(item.giaPhong)}</Typography>
+                                        <Typography>Tiền Phòng: {formatCurrency(item.tienPhong)}</Typography>
+                                      </Box>
+
+                                      {dichVuSuDung.some((dv) => dv.tenPhong === item.tenPhong) && (
+                                        <Box sx={{ mb: 2 }}>
+                                          <Typography variant="subtitle1" fontWeight="bold">
+                                            Dịch Vụ Sử Dụng
+                                          </Typography>
+                                          {dichVuSuDung
+                                            .filter((dv) => dv.tenPhong === item.tenPhong)
+                                            .map((dv, i) => (
+                                              <Typography key={i}>
+                                                {dv.tenDichVu} - SL: {dv.soLuongSuDung} - Tổng:{" "}
+                                                {formatCurrency(dv.giaDichVu * dv.soLuongSuDung)}
+                                              </Typography>
+                                            ))}
+                                        </Box>
+                                      )}
+
+                                      {phuThu.some((pt) => pt.tenPhong === item.tenPhong) && (
+                                        <Box sx={{ mb: 2 }}>
+                                          <Typography variant="subtitle1" fontWeight="bold">
+                                            Phụ Thu
+                                          </Typography>
+                                          {phuThu
+                                            .filter((pt) => pt.tenPhong === item.tenPhong)
+                                            .map((pt, i) => (
+                                              <Typography key={i}>
+                                                {pt.tenPhuThu} - SL: {pt.soLuong} - Số Tiền:{" "}
+                                                {formatCurrency(pt.tienPhuThu)}
+                                              </Typography>
+                                            ))}
+                                        </Box>
+                                      )}
+
+
+                                      {item.tienKhauTru > 0 && (
+                                        <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                                          <strong>Tiền khấu trừ của phòng:</strong>{" "}
+                                          {formatCurrency(item.tienKhauTru)}
+                                        </Typography>
+                                      )}
+                                    </Box>
+                                  ))}
+                              </>
+                            ) : (
+                              <Typography>Không có thông tin hóa đơn cho phòng này</Typography>
+                            )}
+                          </Box>
+                        </Collapse>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Box>
       )}
     </Box>
+    </Container>
   );
 }

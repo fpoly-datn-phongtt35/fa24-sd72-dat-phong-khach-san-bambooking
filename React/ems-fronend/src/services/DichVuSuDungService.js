@@ -4,6 +4,7 @@ import authorizedAxiosInstance from "../utils/authorizedAxios";
 const apiDichVuSuDung = "http://localhost:8080/dich_vu_su_dung";
 const apiAddDichVuSuDung = "http://localhost:8080/dich_vu_su_dung/add";
 const apiUpdateDichVuSuDung = "http://localhost:8080/dich_vu_su_dung/update";
+const apiUpdateDVSD = "http://localhost:8080/dich_vu_su_dung/update-gsg";
 const apiDeleteDichVuSuDung = "http://localhost:8080/dich_vu_su_dung/delete";
 const apiDichVu = "http://localhost:8080/dich_vu";
 const apiXepPhong = "http://localhost:8080/xep-phong"; // Đường dẫn mới cho xếp phòng
@@ -20,6 +21,10 @@ export const ThemDichVuSuDung = (dichVuSuDung) => {
 // Cập nhật dịch vụ sử dụng
 export const CapNhatDichVuSuDung = (dichVuSuDung) => {
     return authorizedAxiosInstance.post(apiUpdateDichVuSuDung, dichVuSuDung);
+};
+
+export const UpdateDVSD = (dichVuSuDung) => {
+    return authorizedAxiosInstance.post(apiUpdateDVSD, dichVuSuDung);
 };
 
 // Xóa dịch vụ sử dụng

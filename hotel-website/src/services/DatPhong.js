@@ -15,11 +15,18 @@ const apiToHopLoaiPhong =
   const apiDeleteKHDP = "http://localhost:8080/api/kh/delete-kh-dp";
   const apiGetDPByUsername = "http://localhost:8080/api/kh/get-by-username";
   const apiGetLPKDL = "http://localhost:8080/api/loai-phong/loai-phong-kha-dung-list";
+  const apiGetLPKDRL = "http://localhost:8080/api/loai-phong/lpkdr-list";
   const apiTracuuLSDP = "http://localhost:8080/api/tra-cuu/search-lich-su-dp";
   const apigetLSDPbyEmail = "http://localhost:8080/api/tra-cuu/lich-su-dp"
 
   const apiGuiEmailXacNhan= "http://localhost:8080/api/dp/gui-email-xac-nhan-dp"
+  const apiGuiEmailXacNhanSauUDKH= "http://localhost:8080/api/dp/gui-email-xac-nhan-dp-sau-UD-KH"
   const apiXacNhanDP= "http://localhost:8080/api/dp/xac-nhan-dp"
+  const apiTBDatPhongThanhCong = "http://localhost:8080/api/dp/email-dp-thanh-cong";
+  const apiUpdateKH = "http://localhost:8080/api/kh/update-kh";
+  const apiHuyDP = "http://localhost:8080/api/dp/huy-dat-phong"
+  const apiGuiEmailXacNhanHuyDP = "http://localhost:8080/api/dp/email-xac-nhan-huy-dp"
+
 
 
 export const getDatPhongbyTDN = (tenDangNhap,keyword,ngayNhanPhong,ngayTraPhong) => {
@@ -37,6 +44,7 @@ export const toHopLoaiPhong = async (
   ngayNhanPhong,
   ngayTraPhong,
   soNguoi,
+  soTre,
   key,
   tongChiPhiMin,
   tongChiPhiMax,
@@ -53,6 +61,7 @@ export const toHopLoaiPhong = async (
       ngayNhanPhong,
       ngayTraPhong,
       soNguoi,
+      soTre,
       key,
       tongChiPhiMin: tongChiPhiMin || null,
       tongChiPhiMax: tongChiPhiMax || null,
@@ -87,6 +96,11 @@ export const addThongTinDatPhong = (TTDPRequest) => {
 export const SuaKhachHangDatPhong = (khachHangRequest) => {
   return authorizedAxiosInstance.put(apiUpdateKHDP, khachHangRequest);
 };
+
+export const UpdateKH = (khachHangRequest) => {
+  return authorizedAxiosInstance.put(apiUpdateKH, khachHangRequest);
+};
+
 
 export const CapNhatDatPhong = (DatPhongRequest) => {
   return authorizedAxiosInstance.put(apiDPUpdate, DatPhongRequest);
@@ -130,13 +144,31 @@ export const getKhachHangByUsername = (username) => {
   });
 };
 
-export const getLPKDR = (ngayNhanPhong, ngayTraPhong) => {
+export const getLPKDR = (ngayNhanPhong, ngayTraPhong) => { 
     return authorizedAxiosInstance.get(apiGetLPKDL, {
       params: {
         ngayNhanPhong,
         ngayTraPhong,
       },
     });
+};
+
+export const getLPKDRL = (
+  ngayNhanPhong,
+  ngayTraPhong,
+  soNguoi,
+  soPhong,
+  idLoaiPhong
+) => {
+  return authorizedAxiosInstance.get(apiGetLPKDRL, {
+    params: {
+      ngayNhanPhong,
+      ngayTraPhong,
+      soNguoi,
+      soPhong,
+      idLoaiPhong,
+    },
+  });
 };
 
 export const getTracuuLSDP = (keyword) => {
@@ -155,14 +187,50 @@ export const getLSDPbyEmail = (email) => {
   });
 };
 
-export const GuiEmailXacNhanDP = (datPhong) => {
-  return authorizedAxiosInstance.post(apiGuiEmailXacNhan, datPhong);
+export const GuiEmailXacNhanDP = (idDatPhong) => {
+  return authorizedAxiosInstance.get(apiGuiEmailXacNhan, {
+    params:{
+      idDatPhong: idDatPhong
+    }
+  });
 };
 
 export const XacNhanDP = (iddp) => {
   return authorizedAxiosInstance.get(apiXacNhanDP, {
       params: {
         iddp: iddp
+      }
+  });
+};
+
+export const EmailXacNhanDPThanhCong = (iddp) => {
+  return authorizedAxiosInstance.get(apiTBDatPhongThanhCong, {
+      params: {
+        iddp: iddp
+      }
+  });
+};
+
+export const GuiEmailXacNhanDPSauUDKH = (idDP) => {
+  return authorizedAxiosInstance.get(apiGuiEmailXacNhanSauUDKH, {
+      params: {
+          idDatPhong: idDP
+      }
+  });
+};
+
+export const HuyDP = (idDatPhong) => {
+  return authorizedAxiosInstance.get(apiHuyDP, {
+      params: {
+          idDatPhong: idDatPhong,
+      }
+  });
+};
+
+export const GuiEmailXacNhanHuyDP = (idDP) => {
+  return authorizedAxiosInstance.get(apiGuiEmailXacNhanHuyDP, {
+      params: {
+          idDatPhong: idDP
       }
   });
 };

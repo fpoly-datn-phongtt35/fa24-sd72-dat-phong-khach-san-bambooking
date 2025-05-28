@@ -9,7 +9,7 @@ const apiHuyTTDP = "http://localhost:8080/ttdp/huy-ttdp"
 const apiGetTTDP = "http://localhost:8080/ttdp/detail-ttdp"
 const apiTimLoaiPhong = "http://localhost:8080/ttdp/tim-kiem-loai-phong"
 const apiTTDP = "http://localhost:8080/ttdp/hien-thi-by-iddp"
-const apiXoaTTDP = "http://localhost:8080/ttdp/xoa-ttdp" 
+const apiXoaTTDP = "http://localhost:8080/ttdp/xoa-ttdp"
 export const getThongTinDatPhong = (idDP) => {
     return authorizedAxiosInstance.get(apiTTDP, {
         params: {
@@ -44,7 +44,7 @@ export const HienThiQuanLy = (trangThai, pageable) => {
     return authorizedAxiosInstance.get(apiHienThiQuanLy, {
         params: {
             trangThai: trangThai,
-            page: pageable.page, 
+            page: pageable.page,
             size: pageable.size
         }
     });
@@ -62,14 +62,14 @@ export const deleteThongTinDatPhong = (idTTDP) => {
     return authorizedAxiosInstance.delete(apiXoaTTDP, idTTDP);
 };
 
-export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,pageable) => {
+export const getLoaiPhongKhaDung = (ngayNhanPhong, ngayTraPhong, soNguoi, soPhong, pageable) => {
     return authorizedAxiosInstance.get(apiLoaiPhongKhaDung, {
         params: {
             ngayNhanPhong: ngayNhanPhong,
             ngayTraPhong: ngayTraPhong,
-            soNguoi:soNguoi,
+            soNguoi: soNguoi,
             soPhong: soPhong,
-            page: pageable.page, 
+            page: pageable.page,
             size: pageable.size
         }
     });
@@ -78,7 +78,7 @@ export const getLoaiPhongKhaDung = (ngayNhanPhong,ngayTraPhong,soNguoi,soPhong,p
 export const huyTTDP = (maThongTinDatPhong) => {
     return authorizedAxiosInstance.get(apiHuyTTDP, {
         params: {
-            maThongTinDatPhong:maThongTinDatPhong
+            maThongTinDatPhong: maThongTinDatPhong
         }
     });
 };
@@ -90,17 +90,27 @@ export const getTTDPByMaTTDP = (maTTDP) => {
         }
     });
 };
-export const getTimKiemLoaiPhong = (ngayNhanPhong, ngayTraPhong, soNguoi, soPhong, pageable ) => {
+export const getTimKiemLoaiPhong = (ngayNhanPhong, ngayTraPhong, soNguoi, soPhong, pageable) => {
     return authorizedAxiosInstance.get(apiTimLoaiPhong, {
-      params: {
-        ngayNhanPhong,
-        ngayTraPhong,
-        soNguoi,
-        soPhong,
-        page: pageable.page,
-        size: pageable.size
-      }
+        params: {
+            ngayNhanPhong,
+            ngayTraPhong,
+            soNguoi,
+            soPhong,
+            page: pageable.page,
+            size: pageable.size
+        }
     });
-  };
-  
-  
+};
+
+export const changeAllConditionRoom = async (datPhongId) => {
+    try {
+        const response = await authorizedAxiosInstance.patch(
+            `http://localhost:8080/phong/change-all-condition-room/${datPhongId}`
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi thay đổi tình trạng tất cả phòng:", error);
+        throw error;
+    }
+};

@@ -4,14 +4,8 @@ import com.example.datn.dto.request.ThanhToanRequest;
 import com.example.datn.dto.response.ThanhToanResponse;
 import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.mapper.ThanhToanMapper;
-import com.example.datn.model.DatPhong;
-import com.example.datn.model.HoaDon;
-import com.example.datn.model.NhanVien;
-import com.example.datn.model.ThanhToan;
-import com.example.datn.repository.DatPhongRepository;
-import com.example.datn.repository.HoaDonRepository;
-import com.example.datn.repository.NhanVienRepository;
-import com.example.datn.repository.ThanhToanRepository;
+import com.example.datn.model.*;
+import com.example.datn.repository.*;
 import com.example.datn.service.JwtService;
 import com.example.datn.service.ThanhToanService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +15,12 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static com.example.datn.common.TokenType.ACCESS_TOKEN;
 
@@ -33,10 +33,12 @@ public class ThanhToanServiceImpl implements ThanhToanService {
     ThanhToanMapper thanhToanMapper;
     NhanVienRepository nhanVienRepository;
     HoaDonRepository hoaDonRepository;
-    JwtService jwtService;
+    ThongTinDatPhongRepository thongTinDatPhongRepository;
     DatPhongRepository datPhongRepository;
+    JwtService jwtService;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ThanhToan createThanhToan(ThanhToanRequest thanhToanRequest, HttpServletRequest request) {
         String username = this.jwtService.extractUsername(request.getHeader(HttpHeaders.AUTHORIZATION).substring("Bearer ".length()), ACCESS_TOKEN); // Boc tach token => username
         Integer idNhanVien = this.nhanVienRepository.findByIdEmployee(username).orElseThrow(() -> new EntityNotFountException("User name not found!!"));
@@ -47,12 +49,14 @@ public class ThanhToanServiceImpl implements ThanhToanService {
                 .orElseThrow(() -> new EntityNotFountException("Hóa đơn không tồn tại"));
 
         NhanVien nhanVien = nhanVienRepository.findById(idNhanVien)
-                .orElseThrow(() -> new EntityNotFountException("Hóa đơn không tồn tại"));
+                .orElseThrow(() -> new EntityNotFountException("Nhân viên không tồn tại"));
+        ThanhToan thanhToan = thanhToanMapper.toThanhToan(nhanVien, hoaDon);
 
-        return thanhToanRepository.save(thanhToanMapper.toThanhToan(nhanVien, hoaDon));
+        return thanhToanRepository.save(thanhToan);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ThanhToanResponse updateThanhToan(Integer id, ThanhToanRequest thanhToanRequest, HttpServletRequest request) {
         ThanhToan thanhToan = thanhToanRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy thanh toán với ID: " + id));
@@ -69,22 +73,53 @@ public class ThanhToanServiceImpl implements ThanhToanService {
         System.out.println("Tong tien hoa don: " + hoaDon.getTongTien());
         System.out.println("Tien Thanh Toan: " + thanhToanRequest.getTienThanhToan());
 
-        if (thanhToanRequest.getTienThanhToan() < hoaDon.getTongTien()) {
-            throw new RuntimeException("Tiền thanh toán phải lớn hơn hoặc bằng tổng tiền của hóa đơn");
-        } else {
-            DatPhong datPhong = hoaDon.getDatPhong();
-            thanhToan.setNhanVien(nhanVien);
-            thanhToan.setTienThanhToan(thanhToanRequest.getTienThanhToan());
-            thanhToan.setTienThua(thanhToanRequest.getTienThanhToan() - hoaDon.getTongTien());
-            thanhToan.setPhuongThucThanhToan(thanhToanRequest.getPhuongThucThanhToan());
-            thanhToan.setTrangThai(true);
-
-            hoaDon.setTrangThai("Chờ xác nhận");
-            datPhong.setTrangThai("Đã thanh toán");
-            hoaDonRepository.save(hoaDon);
-            datPhongRepository.save(datPhong);
-            thanhToanRepository.save(thanhToan);
-            return thanhToanMapper.toThanhToanResponse(thanhToan);
+        if ("Đã thanh toán".equals(hoaDon.getTrangThai())){
+            throw new RuntimeException("Hóa đơn ID " + thanhToanRequest.getIdHoaDon() + " đã được thanh toán trước đó");
         }
+
+        if (hoaDon.getTongTien() > 0 && thanhToanRequest.getTienThanhToan() < hoaDon.getTongTien()) {
+            throw new RuntimeException("Tiền thanh toán phải lớn hơn hoặc bằng tổng tiền của hóa đơn (" + hoaDon.getTongTien() + ")");
+        }
+        if (thanhToanRequest.getTienThanhToan() < 0) {
+            throw new RuntimeException("Tiền thanh toán không được nhỏ hơn 0");
+        }
+
+        thanhToan.setNhanVien(nhanVien);
+        thanhToan.setTienThanhToan(thanhToanRequest.getTienThanhToan());
+        thanhToan.setTienThua(thanhToanRequest.getTienThanhToan() - hoaDon.getTongTien());
+        thanhToan.setPhuongThucThanhToan(thanhToanRequest.getPhuongThucThanhToan());
+        thanhToan.setTrangThai(true);
+        hoaDon.setTrangThai("Đã thanh toán");
+
+        DatPhong datPhong = hoaDon.getDatPhong();
+        List<ThongTinDatPhong> thongTinDatPhongs = thongTinDatPhongRepository.findByDatPhong(datPhong);
+        boolean allRoomCheckOut = thongTinDatPhongs.stream()
+                .allMatch(ttdp -> "Đã trả phòng".equals(ttdp.getTrangThai()));
+        if (allRoomCheckOut) {
+            datPhong.setTrangThai("Đã thanh toán");
+            datPhongRepository.save(datPhong);
+            log.info("Đặt phòng ID {} cập nhật trạng thái 'Đã thanh toán'", datPhong.getId());
+        }
+
+        hoaDonRepository.save(hoaDon);
+        thanhToanRepository.save(thanhToan);
+        return thanhToanMapper.toThanhToanResponse(thanhToan);
+
+    }
+    @Override
+    public List<Object[]> thongKeDoanhThu(){
+        return thanhToanRepository.thongKeDoanhThu();
+    }
+
+    @Override
+    public List<Object[]> thongKeLoaiPhong() {
+        List<String> listTT = Arrays.asList("Đang ở", "Đã kiểm tra", "Đã trả phòng");
+        return thanhToanRepository.thongKeLoaiPhong(listTT);
+    }
+
+    @Override
+    public List<Object[]> thongKeDichVu() {
+        List<String> listTT = Arrays.asList("Đang ở", "Đã kiểm tra", "Đã trả phòng");
+        return thanhToanRepository.thongKeDichVu(listTT);
     }
 }

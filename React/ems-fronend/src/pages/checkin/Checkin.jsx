@@ -209,10 +209,16 @@ const Checkin = () => {
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Container
+        maxWidth="xl"
         sx={{
           width: "100%",
-          padding: isMobile ? 1 : 2,
+          marginLeft: "auto",
           boxSizing: "border-box",
+          marginRight: "auto",
+          paddingLeft: "16px",
+          paddingRight: "16px",
+          paddingTop: "0",
+          paddingBottom: "32px",
         }}
       >
         <Paper

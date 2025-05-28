@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface LoaiPhongService {
 
@@ -27,15 +28,21 @@ public interface LoaiPhongService {
     Page<LoaiPhong> filter ( String tenLoaiPhong,
                             Integer dienTichMin,
                             Integer dienTichMax,
-                            Integer soKhach,
+                            Integer soKhachTieuChuan,
+                            Integer soKhachToiDa,
+                            Integer treEmTieuChuan,
+                            Integer treEmToiDa,
                             Double donGiaMin,
                             Double donGiaMax,
-                            Double donGiaPhuThuMin,
-                            Double donGiaPhuThuMax,
+                            Double phuThuNguoiLonMin,
+                            Double phuThuNguoiLonMax,
+                            Double phuThuTreEmMin,
+                            Double phuThuTreEmMax,
+                            Boolean trangThai,
                             Pageable pageable);
 
     LoaiPhong findByID(Integer idLoaiPhong);
 
     List<HinhAnh> getAnhLP(Integer idLoaiPhong);
-
+    Optional<LoaiPhong> findById(int id);
 }

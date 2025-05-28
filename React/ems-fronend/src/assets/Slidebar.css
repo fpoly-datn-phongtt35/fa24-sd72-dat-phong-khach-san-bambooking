@@ -1,6 +1,6 @@
 /* Căn chỉnh chung cho sidebar */
 .sidebar {
-  width: 180px;
+  width: 250px; /* Tăng chiều rộng từ 180px lên 250px */
   height: 100vh;
   padding-top: 20px;
   position: fixed;
@@ -24,7 +24,7 @@
 .nav-link {
   text-decoration: none;
   color: #f8f9fa; /* Thay đổi màu chữ */
-  font-size: 18px; /* Thay đổi kích thước chữ */
+  font-size: 28px; /* Tăng kích thước chữ từ 25px lên 28px */
   display: block;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
@@ -74,7 +74,7 @@
 }
 
 .submenu .nav-link {
-  font-size: 16px; /* Thay đổi kích thước chữ */
+  font-size: 18px; /* Tăng kích thước chữ từ 16px lên 18px */
   color: #ced4da;
 }
 
@@ -91,14 +91,14 @@
 /* Đảm bảo responsive cho màn hình nhỏ */
 @media (max-width: 768px) {
   .sidebar {
-    width: 180px; /* Thay đổi kích thước sidebar */
+    width: 200px; /* Tăng nhẹ từ 180px lên 200px cho màn hình nhỏ */
   }
 
   .nav-link {
-    font-size: 16px; /* Thay đổi kích thước chữ */
+    font-size: 18px; /* Tăng kích thước chữ từ 16px lên 18px */
   }
 
   .submenu .nav-link {
-    font-size: 14px; /* Thay đổi kích thước chữ */
+    font-size: 18px; /* Tăng kích thước chữ từ 16px lên 18px */
   }
 }

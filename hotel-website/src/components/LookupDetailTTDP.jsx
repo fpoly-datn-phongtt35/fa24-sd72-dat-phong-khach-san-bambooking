@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getTTDPbyidDPandidLPTC, getXPbymaTTDPTC } from "../services/TTDP.js";
+import { getTTDPbyidDPandidLPTC, getXPbymaTTDPTC ,GuiEmailXacNhanHuyTTDP} from "../services/TTDP.js";
 import {
   getDichVuSuDungTC,
   getHoaDonByIdTC,
@@ -21,7 +21,10 @@ import {
   Paper,
   Button,
   Collapse,
+  IconButton,
+  Container,
 } from "@mui/material";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 export default function LookupDetailTTDP() {
   const [bookings, setBookings] = useState([]);
@@ -135,24 +138,39 @@ export default function LookupDetailTTDP() {
     setExpandedRow(newExpandedRow);
   };
 
-  const calculateDays = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+  const calculateDays = (ngayNhanPhong, ngayTraPhong) => {
+    const [day, month, year, time] = ngayNhanPhong.split(/\/| /);
+    const start = new Date(`${year}-${month}-${day}`);
 
-    if (isNaN(start) || isNaN(end)) {
-      return 1;
-    }
-
-    start.setHours(0, 0, 0, 0);
-    end.setHours(0, 0, 0, 0);
+    const [dayEnd, monthEnd, yearEnd, timeEnd] = ngayTraPhong.split(/\/| /);
+    const end = new Date(`${yearEnd}-${monthEnd}-${dayEnd}`);
 
     const diffTime = end - start;
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-
-    return Math.ceil(Math.max(diffDays, 1));
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(diffDays, 1);
   };
 
+  const handleCancelBooking = async (bookingId) => {
+    try {
+      alert("Email xác nhận hủy đặt phòng đã được gửi đến email của bạn")
+      await GuiEmailXacNhanHuyTTDP(bookingId);
+      fetchData(); // Tải lại dữ liệu để cập nhật trạng thái
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      alert("Có lỗi xảy ra khi hủy đặt phòng.");
+    }
+  };
+  const showActionColumn = bookings.some(
+    (booking) => !["Đã hủy", "Đang ở", "Đã trả phòng"].includes(booking.trangThai)
+  );
+
+
   return (
+    <Container
+      sx={{
+        minHeight: "66vh", 
+      }}
+    >
     <Box sx={{ maxWidth: "1200px", mx: "auto", p: 3 }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h5" fontWeight="bold">
@@ -184,7 +202,10 @@ export default function LookupDetailTTDP() {
                     <TableCell  align="center" sx={{ fontWeight: "bold" }}>Ngày Nhận</TableCell>
                     <TableCell  align="center" sx={{ fontWeight: "bold" }}>Ngày Trả</TableCell>
                     <TableCell  align="center" sx={{ fontWeight: "bold" }}>Mô tả</TableCell>
-                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Trạng Thái</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: "bold" }}>Trạng Thái</TableCell>
+                    {showActionColumn && (
+                    <TableCell align="center" sx={{ fontWeight: "bold" }}>Hành động</TableCell>
+                  )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -214,9 +235,27 @@ export default function LookupDetailTTDP() {
                             {booking.trangThai}
                           </Box>
                         </TableCell>
+                        {showActionColumn && (
+                        <TableCell align="center">
+                          {["Đã hủy", "Đang ở", "Đã trả phòng"].includes(booking.trangThai) ? (
+                            <Typography>-</Typography>
+                          ) : (
+                            <IconButton
+                              color="error"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Ngăn sự kiện click lan ra hàng
+                                handleCancelBooking(booking.id);
+                              }}
+                              title="Hủy Đặt Phòng"
+                            >
+                              <CancelIcon />
+                            </IconButton>
+                          )}
+                        </TableCell>
+                      )}
                       </TableRow>
                       <TableRow>
-                        <TableCell colSpan={8} sx={{ p: 0 }}>
+                      <TableCell colSpan={showActionColumn ? 9 : 8} sx={{ p: 0 }}>
                           <Collapse in={expandedRow === booking.tenPhong}>
                             <Box sx={{ p: 2, bgcolor: "grey.50" }}>
                               {/* Kiểm tra nếu có thongTinHoaDon khớp với booking.tenPhong */}
@@ -333,35 +372,6 @@ export default function LookupDetailTTDP() {
                                           </Box>
                                         )}
 
-                                        {danhSachVatTu.some((vt) => vt.tenPhong === item.tenPhong) && (
-                                          <Box>
-                                            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                                              Danh sách vật tư hỏng/thiếu
-                                            </Typography>
-                                            <TableContainer component={Paper} sx={{ bgcolor: "white" }}>
-                                              <Table size="small">
-                                                <TableHead>
-                                                  <TableRow>
-                                                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Tên vật tư</TableCell>
-                                                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Giá vật tư</TableCell>
-                                                    <TableCell  align="center" sx={{ fontWeight: "bold" }}>Số lượng thiếu</TableCell>
-                                                  </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                  {danhSachVatTu
-                                                    .filter((vt) => vt.tenPhong === item.tenPhong)
-                                                    .map((vt, i) => (
-                                                      <TableRow key={i}>
-                                                        <TableCell align="center" >{vt.tenVatTu}</TableCell>
-                                                        <TableCell align="center" >{formatCurrency(vt.donGia)}</TableCell>
-                                                        <TableCell align="center" >{vt.soLuongThieu}</TableCell>
-                                                      </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                              </Table>
-                                            </TableContainer>
-                                          </Box>
-                                        )}
 
                                         {item.tienKhauTru > 0 && (
                                           <Typography variant="subtitle1" sx={{ mt: 2 }}>
@@ -388,5 +398,6 @@ export default function LookupDetailTTDP() {
         </Box>
       )}
     </Box>
+    </Container>
   );
 }

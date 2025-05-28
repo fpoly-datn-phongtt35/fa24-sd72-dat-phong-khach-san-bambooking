@@ -40,6 +40,7 @@ public abstract class EmployeeResponses {
         private String address;
         private String idCard;
         private String gender;
+        private Integer role;
         private String avatar;
     }
 }

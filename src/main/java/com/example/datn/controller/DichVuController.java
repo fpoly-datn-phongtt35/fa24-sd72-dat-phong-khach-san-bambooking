@@ -49,11 +49,6 @@ public class DichVuController {
         return "/dichVu/add";
     }
 
-
-//    @PostMapping("add")
-//    public ResponseEntity<?> createDichVu(@RequestBody DichVu dichVu) {
-//        return ResponseEntity.status(HttpStatus.CREATED).body(dichVuServiceIMPL.addDichVu(dichVu));
-//    }
     @PostMapping("add")
     public String createDichVu(@RequestParam("tenDichVu") String tenDichVu,
                            @RequestParam("donGia") Double donGia,

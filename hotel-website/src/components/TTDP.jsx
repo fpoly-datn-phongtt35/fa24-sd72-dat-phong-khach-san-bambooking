@@ -14,7 +14,10 @@ import {
   Paper,
   Button,
   CircularProgress,
+  Tooltip,
+  Container,
 } from "@mui/material";
+import InfoIcon from "@mui/icons-material/Info";
 
 export default function TTDP() {
   const [bookings, setBookings] = useState([]);
@@ -70,6 +73,11 @@ export default function TTDP() {
   };
 
   return (
+    <Container
+      sx={{
+        minHeight: "66vh", 
+      }}
+    >
     <Box sx={{ p: 3, maxWidth: "1200px", mx: "auto" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
         <Typography variant="h5" sx={{ fontWeight: "bold" }}>Thông Tin Đặt Phòng</Typography>
@@ -105,14 +113,14 @@ export default function TTDP() {
                     <TableCell align="center" >{formatCurrency(booking.giaDat)}</TableCell>
                     <TableCell align="center" >{booking.soluong}</TableCell>
                     <TableCell align="center" >
-                      <Button
+                    <Tooltip title="Xem chi tiết thông tin đặt phòng">
+                        <InfoIcon
                         variant="contained"
                         size="small"
-                        sx={{ backgroundColor: '#1976d2' }}
+                        color="primary"
                         onClick={() => handleViewDetail(booking.loaiPhong.id)}
                       >
-                        Xem chi tiết
-                      </Button>
+                       </InfoIcon></Tooltip>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -122,5 +130,6 @@ export default function TTDP() {
         </Box>
       )}
     </Box>
+    </Container>
   );
 }

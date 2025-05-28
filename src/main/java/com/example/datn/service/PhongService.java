@@ -17,7 +17,8 @@ public interface PhongService {
     PhongResponse updatePhong(Integer id, PhongRequest request);
     Boolean updateStatus(Integer id);
     Page<Phong> searchPhong(String keyword, Pageable pageable);
-    List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDate ngayNhanPhong, LocalDate ngayTraPhong);
+    List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong);
     String changeConditionRoom(Integer id);
+    String changeAllConditionRoom(Integer id);
     List<Phong> DSPhong(String keyword);
 }

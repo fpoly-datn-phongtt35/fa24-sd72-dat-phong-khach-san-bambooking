@@ -23,9 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.text.NumberFormat;
 import java.time.LocalDateTime;
-import java.util.Locale;
 
 import static com.example.datn.common.TokenType.ACCESS_TOKEN;
 
@@ -38,7 +36,6 @@ public class HoaDonServiceIMPL implements HoaDonService {
     HoaDonMapper hoaDonMapper;
     DatPhongRepository datPhongRepository;
     NhanVienRepository nhanVienRepository;
-
     JwtService jwtService;
 
     private static final String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -101,13 +98,7 @@ public class HoaDonServiceIMPL implements HoaDonService {
         hoaDon.setNgayTao(LocalDateTime.now());
         hoaDon.setTrangThai("Chưa thanh toán");
 
-        double tongTien = hoaDon.getTongTien();
-        String formattedTongTien = formatCurrency(tongTien);
-
-        HoaDon hoaDonSave = hoaDonRepository.save(hoaDon);
-        hoaDonSave.setTongTien(Double.valueOf(formattedTongTien));
-
-        return hoaDonSave;
+        return hoaDonRepository.save(hoaDon);
     }
 
     @Override
@@ -115,25 +106,5 @@ public class HoaDonServiceIMPL implements HoaDonService {
         HoaDon hoaDon = hoaDonRepository.findById(idHoaDon)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn có ID: " + idHoaDon));
         return hoaDonMapper.toHoaDonResponse(hoaDon);
-    }
-
-    @Override
-    public Boolean changeStatusHoaDon(Integer id) {
-        HoaDon hoaDon = hoaDonRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn có ID: " + id));
-
-        if ("Chờ xác nhận".equals(hoaDon.getTrangThai())) {
-            hoaDon.setTrangThai("Đã thanh toán");
-            hoaDonRepository.save(hoaDon);
-            return true;
-        } else {
-            throw new RuntimeException("Hóa đơn không ở trạng thái 'Chờ xác nhận', không thể thay đổi.");
-        }
-    }
-
-    // Phương thức định dạng tiền tệ
-    private String formatCurrency(double amount) {
-        NumberFormat currencyFormatter = NumberFormat.getInstance(new Locale("vi", "VN"));
-        return currencyFormatter.format(amount);
     }
 }

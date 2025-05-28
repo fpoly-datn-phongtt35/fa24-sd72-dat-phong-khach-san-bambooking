@@ -9,6 +9,13 @@ const apigetTTDPbyidDatPhongTC = "http://localhost:8080/api/tra-cuu/dp/findByidD
 const apigetTTDPbyidDPandidLPTC = "http://localhost:8080/api/tra-cuu/dp/findByidDPandidLP"
 const apigetXPbymaTTDPTC = "http://localhost:8080/api/tra-cuu/ttdp/phong-da-xep"
 
+const apidsTTDPcothehuy = "http://localhost:8080/api/ttdp/TTDP-Co-The-Huy"
+
+const apiHuyTTDP = "http://localhost:8080/api/ttdp/huy-ttdp2"
+const apiGuiEmailXacNhanHuyTTDP = "http://localhost:8080/api/ttdp/email-xac-nhan-huy-ttdp"
+
+
+
 export const getTTDPByidDatPhong = (idDatPhong) => {
     return authorizedAxiosInstance.get(apigetTTDPbyidDatPhong, {
         params: {
@@ -59,3 +66,28 @@ export const getXPbymaTTDPTC = (maTTDP) => {
         }
     });
 };
+
+export const TTDPcothehuy = (idDatPhong) => {
+    return authorizedAxiosInstance.get(apidsTTDPcothehuy, {
+        params: {
+            idDatPhong: idDatPhong,
+        }
+    });
+};
+
+export const HuyTTDP = (idTTDP) => {
+    return authorizedAxiosInstance.get(apiHuyTTDP, {
+        params: {
+            idTTDP: idTTDP,
+        }
+    });
+};
+
+export const GuiEmailXacNhanHuyTTDP = (idTTDP) => {
+    return authorizedAxiosInstance.get(apiGuiEmailXacNhanHuyTTDP, {
+        params: {
+            idTTDP: idTTDP,
+        }
+    });
+};
+

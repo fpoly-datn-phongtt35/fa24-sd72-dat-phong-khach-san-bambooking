@@ -12,15 +12,16 @@ import lombok.Setter;
 @Setter
 public class LoaiPhongRequest {
     private Integer id;
-
     private String tenLoaiPhong;
     private String maLoaiPhong;
     private Integer dienTich;
-
+    private Integer soKhachTieuChuan;
     private Integer soKhachToiDa;
-
+    private Integer treEmTieuChuan;
+    private Integer treEmToiDa;
     private Double donGia;
-
-    private Double donGiaPhuThu;
+    private Double phuThuNguoiLon;
+    private Double phuThuTreEm;
     private String moTa;
+    private Boolean trangThai;
 }
