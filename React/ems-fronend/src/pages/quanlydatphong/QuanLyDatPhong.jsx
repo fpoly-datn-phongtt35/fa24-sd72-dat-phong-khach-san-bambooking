@@ -61,6 +61,7 @@ const QuanLyDatPhong = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [showXepPhongModal, setShowXepPhongModal] = useState(false);
+  const navigate = useNavigate();
 
   const searchDatPhong = useCallback(
     debounce(
@@ -101,20 +102,20 @@ const QuanLyDatPhong = () => {
           const data = res.data;
           setDatPhong(data.content || []);
           setTotalPages(data.totalPages || 0);
-      } catch (err) {
-        console.error("Error fetching data:", err.response?.data || err.message);
-        setDatPhong([]);
-        setTotalPages(0);
-        Swal.fire({
-          icon: "error",
-          title: "Lỗi",
-          text: "Đã xảy ra lỗi khi tìm kiếm đặt phòng. Vui lòng thử lại!",
-          confirmButtonText: "Đóng",
-        });
-      } finally {
-        setLoading(false);
-      }
-    }, 300),
+        } catch (err) {
+          console.error("Error fetching data:", err.response?.data || err.message);
+          setDatPhong([]);
+          setTotalPages(0);
+          Swal.fire({
+            icon: "error",
+            title: "Lỗi",
+            text: "Đã xảy ra lỗi khi tìm kiếm đặt phòng. Vui lòng thử lại!",
+            confirmButtonText: "Đóng",
+          });
+        } finally {
+          setLoading(false);
+        }
+      }, 300),
     []
   );
 
@@ -481,19 +482,19 @@ const QuanLyDatPhong = () => {
                   {["Chưa xác nhận", "Đang đặt phòng", "Đã xác nhận"].includes(
                     row.trangThai
                   ) && (
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => handleOpenCancelDialog(row)}
-                      disabled={actionLoading}
-                    >
-                      {actionLoading ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <RemoveCircleOutlineIcon />
-                      )}
-                    </IconButton>
-                  )}
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => handleOpenCancelDialog(row)}
+                        disabled={actionLoading}
+                      >
+                        {actionLoading ? (
+                          <CircularProgress size={20} />
+                        ) : (
+                          <RemoveCircleOutlineIcon />
+                        )}
+                      </IconButton>
+                    )}
                 </Stack>
               </Paper>
             ))}
@@ -560,19 +561,19 @@ const QuanLyDatPhong = () => {
                           "Đang đặt phòng",
                           "Đã xác nhận",
                         ].includes(row.trangThai) && (
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleOpenCancelDialog(row)}
-                            disabled={actionLoading}
-                          >
-                            {actionLoading ? (
-                              <CircularProgress size={20} />
-                            ) : (
-                              <RemoveCircleOutlineIcon />
-                            )}
-                          </IconButton>
-                        )}
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => handleOpenCancelDialog(row)}
+                              disabled={actionLoading}
+                            >
+                              {actionLoading ? (
+                                <CircularProgress size={20} />
+                              ) : (
+                                <RemoveCircleOutlineIcon />
+                              )}
+                            </IconButton>
+                          )}
                       </Stack>
                     </TableCell>
                   </TableRow>

@@ -131,26 +131,27 @@ export default function Login() {
         }
 
         localStorage.setItem("user", res.data.username);
-        navigate("/TrangChu");
-        
+        // navigate("/TrangChu");
+
+        // Kiểm tra trạng thái chuyển hướng
+        const { from } = location.state || { from: "/" };
+        const pendingData = localStorage.getItem("pendingData");
+
+        // Nếu có pendingData, chuyển hướng đến /pending-booking
+        if (pendingData) {
+          navigate("/pending-booking");
+        } else {
+          navigate(from);
+          navigate("/TrangChu");
+        }
       }
     } catch (err) {
       setServerError(
         err?.response?.data?.message ||
-          "Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại."
+        "Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại."
       );
-
-      // Kiểm tra trạng thái chuyển hướng
-      const { from } = location.state || { from: "/" };
-      const pendingData = localStorage.getItem("pendingData");
-
-      // Nếu có pendingData, chuyển hướng đến /pending-booking
-      if (pendingData) {
-        navigate("/pending-booking");
-      } else {
-        navigate(from);
-        navigate("/TrangChu");
-      }
+    } finally {
+      setIsLoading(false);
     }
   };
 

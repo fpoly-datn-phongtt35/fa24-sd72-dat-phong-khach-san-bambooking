@@ -282,8 +282,8 @@ VALUES
 INSERT INTO tai_khoan (id_vai_tro, ten_dang_nhap, mat_khau, trang_thai)
 VALUES 
 (1, 'sysadmin', '$2a$12$pXzVDKemugBBsNJiA5n8sOeF715xboi.wWsAe2oN2C.w5zge/XJoK', 1),
-(2, 'admin', '$2a$12$8H1.laGuvB8tl7wLw9zeC.be8P1ri6.O9m6jiRKT80dZ/JAsFrUcq', 1),
-(3, 'user', '$2a$12$Kf7h37K4QfwA8LcLhYMSxu6pw3SgBkIM1UeI54i.KFa1oypEUe3A.', 1),
+(2, 'admin', '$2a$12$kfY8/VT9bZGMwfMntcvi9Og8lJL0HV.MbU3y3TcnuICifmIrBykV6', 1),
+(3, 'user', '$2a$12$2JQqGWNaKMg.xqJLKE/30uYvZY3mHylYS/wEQ.2o84SX9vq3.Hb4G', 1),
 (3, 'user1', '$2a$12$Kf7h37K4QfwA8LcLhYMSxu6pw3SgBkIM1UeI54i.KFa1oypEUe3A.', 1);
 
 INSERT INTO nhan_vien (id_tai_khoan, cmnd, ho, ten, gioi_tinh, dia_chi, sdt, email, ngay_tao, ngay_sua, trang_thai)
