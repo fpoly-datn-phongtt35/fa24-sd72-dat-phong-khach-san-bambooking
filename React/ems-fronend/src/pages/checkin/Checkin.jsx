@@ -38,6 +38,11 @@ import { findDatPhongToCheckin } from "../../services/DatPhong";
 import { checkIn, phongDaXep } from "../../services/XepPhongService";
 import { ThemPhuThu } from "../../services/PhuThuService";
 import XepPhong from "../../pages/xepphong/XepPhong";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const Checkin = () => {
   const navigate = useNavigate();
@@ -61,18 +66,14 @@ const Checkin = () => {
       async (searchKey, searchNgayNhan, searchNgayTra, currentPage, size) => {
         setLoading(true);
         try {
-          const formattedNgayNhan = searchNgayNhan
-            ? dayjs(searchNgayNhan).startOf("day")
-            : null;
-          const formattedNgayTra = searchNgayTra
-            ? dayjs(searchNgayTra).startOf("day")
-            : null;
-
+          const formattedNgayNhan = searchNgayNhan ? dayjs.tz(searchNgayNhan, 'Asia/Ho_Chi_Minh') : null;
+          const formattedNgayTra = searchNgayTra ? dayjs.tz(searchNgayTra, 'Asia/Ho_Chi_Minh') : null;
+  
           const pageable = {
             page: currentPage,
             size: size,
           };
-
+  
           const res = await findDatPhongToCheckin(
             pageable,
             searchKey,
@@ -147,25 +148,33 @@ const Checkin = () => {
       if (!xepPhong) {
         throw new Error("Không tìm thấy phòng đã xếp.");
       }
-
+  
       const loaiPhong = xepPhong.phong.loaiPhong;
       const xepPhongRequest = {
         id: xepPhong.id,
         phong: xepPhong.phong,
         thongTinDatPhong: xepPhong.thongTinDatPhong,
-        ngayNhanPhong: new Date().toLocaleString(),
-        ngayTraPhong: new Date(new Date(dp.ngayTraPhong).setHours(12, 0, 0, 0)),
+        ngayNhanPhong: dayjs.tz(dayjs(), 'Asia/Ho_Chi_Minh').toISOString(),
+        ngayTraPhong: dayjs.tz(dp.ngayTraPhong, 'Asia/Ho_Chi_Minh')
+          .hour(12)
+          .minute(0)
+          .second(0)
+          .millisecond(0)
+          .toISOString(),
         trangThai: "Đã nhận phòng",
       };
       await checkIn(xepPhongRequest);
       alert("Check-in thành công!");
-
+  
       xepPhong = (await phongDaXep(dp.maThongTinDatPhong)).data;
-      const ngayNhanPhongXepPhong = new Date(xepPhong.ngayNhanPhong);
-      const gio14Chieu = new Date(ngayNhanPhongXepPhong);
-      gio14Chieu.setHours(14, 0, 0, 0);
-
-      if (ngayNhanPhongXepPhong < gio14Chieu) {
+      const ngayNhanPhongXepPhong = dayjs.tz(xepPhong.ngayNhanPhong, 'Asia/Ho_Chi_Minh');
+      const gio14Chieu = dayjs.tz(xepPhong.ngayNhanPhong, 'Asia/Ho_Chi_Minh')
+        .hour(14)
+        .minute(0)
+        .second(0)
+        .millisecond(0);
+  
+      if (ngayNhanPhongXepPhong.isBefore(gio14Chieu)) {
         const phuThuRequest = {
           xepPhong: { id: xepPhong.id },
           tenPhuThu: "Phụ thu do nhận phòng sớm",
@@ -176,7 +185,7 @@ const Checkin = () => {
         await ThemPhuThu(phuThuRequest);
         alert("Phụ thu do nhận phòng sớm đã được thêm.");
       }
-
+  
       if (dp.soNguoi > loaiPhong.soKhachToiDa) {
         const soNguoiVuot = dp.soNguoi - loaiPhong.soKhachToiDa;
         const tienPhuThuThem = soNguoiVuot * loaiPhong.donGiaPhuThu;

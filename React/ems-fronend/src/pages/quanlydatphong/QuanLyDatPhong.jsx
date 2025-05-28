@@ -35,7 +35,7 @@ import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CheckIcon from "@mui/icons-material/Check";
 import { useNavigate } from "react-router-dom";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
@@ -46,6 +46,11 @@ import {
   EmailXacNhanDPThanhCong,
 } from "../../services/DatPhong";
 import XepPhong from "../../pages/xepphong/XepPhong";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const QuanLyDatPhong = () => {
   const navigate = useNavigate();
@@ -70,14 +75,14 @@ const QuanLyDatPhong = () => {
       async (searchKey, searchNgayNhan, searchNgayTra, currentPage, size) => {
         setLoading(true);
         try {
-          const formattedNgayNhan = searchNgayNhan
-            ? dayjs(searchNgayNhan).format("YYYY-MM-DD")
-            : null;
-          console.log("formattedNgayNhan", formattedNgayNhan);
-          const formattedNgayTra = searchNgayTra
-            ? dayjs(searchNgayTra).format("YYYY-MM-DD")
-            : null;
-
+          const formattedNgayNhan = searchNgayNhan ? dayjs.tz(searchNgayNhan, 'Asia/Ho_Chi_Minh') : null;
+          const formattedNgayTra = searchNgayTra ? dayjs.tz(searchNgayTra, 'Asia/Ho_Chi_Minh') : null;
+  
+          const pageable = {
+            page: currentPage,
+            size: size,
+          };
+  
           const res = await findDatPhong(
             searchKey,
             formattedNgayNhan,
@@ -87,20 +92,13 @@ const QuanLyDatPhong = () => {
               size: size,
             }
           );
-          console.log("res", res);
-          const data = res.data;
-          setDatPhong(data.content || []);
-          setTotalPages(data.totalPages || 0);
+          setDatPhong(res.data.content || []);
+          setTotalPages(res.data.totalPages || 0);
         } catch (err) {
           console.error("Error fetching data:", err);
           setDatPhong([]);
           setTotalPages(0);
-          Swal.fire({
-            icon: "error",
-            title: "Lỗi",
-            text: "Đã xảy ra lỗi khi tìm kiếm đặt phòng. Vui lòng thử lại!",
-            confirmButtonText: "Đóng",
-          });
+          alert("Lỗi khi tải dữ liệu, vui lòng thử lại!");
         } finally {
           setLoading(false);
         }
@@ -348,7 +346,7 @@ const QuanLyDatPhong = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
+                    <DateTimePicker
                       label="Ngày nhận phòng"
                       value={ngayNhan}
                       onChange={(newValue) => {
@@ -375,7 +373,7 @@ const QuanLyDatPhong = () => {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
+                    <DateTimePicker
                       label="Ngày trả phòng"
                       value={ngayTra}
                       minDate={ngayNhan || dayjs()}

@@ -48,13 +48,14 @@ import {
   cancelPayment,
 } from "../services/Payment";
 import Swal from "sweetalert2";
+
 const HotelBookingConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { combination, datPhong, khachHang, thongTinDatPhong } =
     location.state ||
     JSON.parse(
-      localStorage.getItem(`booking_data_${datPhong?.id || "temp"}`)
+      localStorage.getItem(`booking_data_${datPhong?.id || Date.now()}`)
     ) ||
     {};
 
@@ -88,8 +89,8 @@ const HotelBookingConfirmation = () => {
   const [orderCodePayment, setOrderCodePayment] = useState(null);
 
   const TIMEOUT_DURATION = 300000; // 5 phút
-  const STORAGE_KEY = `booking_timeout_${datPhong?.id || "temp"}`;
-  const DATA_STORAGE_KEY = `booking_data_${datPhong?.id || "temp"}`;
+  const STORAGE_KEY = `booking_timeout_${datPhong?.id || Date.now()}`;
+  const DATA_STORAGE_KEY = `booking_data_${datPhong?.id || Date.now()}`;
 
   const [paymentMethod, setPaymentMethod] = useState("Đặt cọc");
 
@@ -127,6 +128,12 @@ const HotelBookingConfirmation = () => {
   };
 
   const cancelBooking = async () => {
+    if (!datPhong?.id) {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(DATA_STORAGE_KEY);
+      return;
+    }
+
     try {
       const updatedResponse = await getThongTinDatPhong(datPhong.id);
       const updatedThongTinDatPhong = updatedResponse.data;
@@ -184,6 +191,11 @@ const HotelBookingConfirmation = () => {
   };
 
   const initializeTimeout = () => {
+    if (!datPhong?.id) {
+      setTimeLeft(300);
+      return () => {};
+    }
+
     const storedData = localStorage.getItem(STORAGE_KEY);
     let startTime;
     let remainingTime;
@@ -203,7 +215,7 @@ const HotelBookingConfirmation = () => {
 
     if (remainingTime <= 0) {
       cancelBooking();
-      return;
+      return () => {};
     }
 
     setTimeLeft(remainingTime);
@@ -235,6 +247,18 @@ const HotelBookingConfirmation = () => {
   };
 
   useEffect(() => {
+    // Lưu dữ liệu ngay khi component mount nếu có location.state
+    if (location.state) {
+      saveBookingData();
+    }
+  }, []); // Chạy một lần khi component mount
+
+  useEffect(() => {
+    // Lưu dữ liệu mỗi khi combination, datPhong, khachHang, hoặc thongTinDatPhong thay đổi
+    saveBookingData();
+  }, [combination, datPhong, khachHang, thongTinDatPhong]);
+
+  useEffect(() => {
     if (openPaymentDialog && orderCodePayment) {
       const intervalId = setInterval(async () => {
         try {
@@ -258,7 +282,6 @@ const HotelBookingConfirmation = () => {
               tongTien: datPhong.tongTien,
               ghiChu: datPhong.ghiChu,
             });
-            clearTimeout(timeoutRef.current);
             localStorage.removeItem(STORAGE_KEY);
             localStorage.removeItem(DATA_STORAGE_KEY);
             Swal.fire({
@@ -718,9 +741,11 @@ const HotelBookingConfirmation = () => {
         <Typography variant="body1" className="confirmation-subtitle">
           Vui lòng kiểm tra thông tin và cập nhật chi tiết khách hàng
         </Typography>
-        <Typography variant="h5" className="countdown-timer">
-          ⏳ {formatTimeLeft(timeLeft)} còn lại để xác nhận
-        </Typography>
+        {datPhong?.id && (
+          <Typography variant="h5" className="countdown-timer">
+            ⏳ {formatTimeLeft(timeLeft)} còn lại để xác nhận
+          </Typography>
+        )}
       </Box>
 
       <Card className="confirmation-card">
@@ -1018,7 +1043,7 @@ const HotelBookingConfirmation = () => {
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth className="text-field">
+              <FormControl fullWidth className="variant">
                 <InputLabel>Loại Phòng</InputLabel>
                 <Select
                   value={searchForm.idLoaiPhong || ""}
@@ -1044,7 +1069,7 @@ const HotelBookingConfirmation = () => {
                 onClick={handleSearchRooms}
                 className="search-button"
               >
-                Tìm Phòng
+                Tìm
               </Button>
             </Grid>
           </Grid>

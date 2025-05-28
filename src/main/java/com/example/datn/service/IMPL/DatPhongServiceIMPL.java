@@ -164,18 +164,20 @@ public class DatPhongServiceIMPL implements DatPhongService {
         datPhongRepository.save(dp);
     }
 
-    public  Page<DatPhongResponse> findDatPhongToCheckin(String key, int page, int size,LocalDate ngayNhanPhong, LocalDate ngayTraPhong){
+    public Page<DatPhongResponse> findDatPhongToCheckin(
+            String key, int page, int size,
+            LocalDateTime ngayNhanPhong,
+            LocalDateTime ngayTraPhong) {
+        Pageable pageable = PageRequest.of(page, size);
         List<String> trangThai = Arrays.asList("Đã xác nhận");
         List<String> trangThaiTTDP = Arrays.asList("Đã xếp","Chưa xếp");
-        Pageable pageable = PageRequest.of(page, size);
-        Page<DatPhongResponse> result = datPhongRepository.DatPhongTheoTrangThai(trangThai,trangThaiTTDP,key,ngayNhanPhong,ngayTraPhong,pageable);
-        return result;
+        return datPhongRepository.DatPhongTheoTrangThai(trangThai, trangThaiTTDP, key, ngayNhanPhong, ngayTraPhong, pageable
+        );
     }
 
-    public Page<DatPhongResponse> findDatPhong(String key, LocalDate ngayNhanPhong, LocalDate ngayTraPhong, Pageable pageable) {
+    public Page<DatPhongResponse> findDatPhong(String key, LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong, Pageable pageable) {
         List<String> trangThaiTTDP = Arrays.asList("Đang đặt phòng", "Đang ở", "Chưa xếp", "Đã xếp", "Đã trả phòng", "Đã kiểm tra phòng");
         List<String> trangThai = Arrays.asList("Đang đặt phòng", "Chưa xác nhận", "Đã xác nhận", "Đã nhận phòng", "Đã trả phòng", "Đã thanh toán");
-        System.out.println(key);
         return datPhongRepository.findDatPhong(trangThai, trangThaiTTDP, key, ngayNhanPhong, ngayTraPhong, pageable);
     }
 

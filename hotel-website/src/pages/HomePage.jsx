@@ -40,10 +40,7 @@ const HomePage = () => {
 
   // Initialize check-in and check-out dates with specific times
   const now = dayjs();
-  const isPastCheckInTime = now.hour() >= 14; // Check if current time is past 14:00
-  const initialCheckIn = isPastCheckInTime
-    ? now.add(1, "day").set("hour", 14).set("minute", 0).set("second", 0)
-    : now.set("hour", 14).set("minute", 0).set("second", 0);
+  const initialCheckIn = now.startOf("day").set("hour", 14).set("minute", 0).set("second", 0);
   const initialCheckOut = initialCheckIn
     .add(1, "day")
     .set("hour", 12)
@@ -529,8 +526,8 @@ const HomePage = () => {
                                           objectFit: "cover",
                                         }}
                                         onError={(e) =>
-                                          (e.target.src =
-                                            "/images/fallback.jpg")
+                                        (e.target.src =
+                                          "/images/fallback.jpg")
                                         }
                                       />
                                       {lp.tenLoaiPhong}

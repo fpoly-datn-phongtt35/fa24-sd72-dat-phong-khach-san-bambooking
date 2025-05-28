@@ -855,25 +855,6 @@ const ChiTietTTDP = () => {
                               Xóa
                             </Button>
                           )}
-                          {xepPhong?.trangThai === "Đang ở" && (
-                            <>
-                              <Button
-                                size="small"
-                                variant="contained"
-                                color="primary"
-                                onClick={() => handleXacNhan(khc)}
-                              >
-                                Xác nhận
-                              </Button>
-                              <Button
-                                size="small"
-                                variant="outlined"
-                                onClick={() => handleUpdate(khc)}
-                              >
-                                Hủy
-                              </Button>
-                            </>
-                          )}
                         </CardActions>
                       </Card>
                     </Grid>
