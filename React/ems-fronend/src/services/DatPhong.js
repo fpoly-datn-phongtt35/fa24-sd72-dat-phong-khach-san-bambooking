@@ -1,4 +1,14 @@
 import authorizedAxiosInstance from "../utils/authorizedAxios";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+// Đặt múi giờ mặc định là Asia/Ho_Chi_Minh
+dayjs.tz.setDefault('Asia/Ho_Chi_Minh');
+
 const apiDP = "http://localhost:8080/dat-phong/hien-thi";
 const apiDPAdd = "http://localhost:8080/dat-phong/them-moi";
 const apiDPUpdate = "http://localhost:8080/dat-phong/cap-nhat";
@@ -142,6 +152,7 @@ export const findDatPhongByKey = (keyword, pageable) => {
   });
 };
 
+
 export const findDatPhongToCheckin = (
   pageable,
   key,
@@ -153,8 +164,8 @@ export const findDatPhongToCheckin = (
       size: pageable.size,
       page: pageable.page,
       key: key,
-      ngayNhanPhong: ngayNhanPhong ? ngayNhanPhong.format("YYYY-MM-DD") : null,
-      ngayTraPhong: ngayTraPhong ? ngayTraPhong.format("YYYY-MM-DD") : null,
+      ngayNhanPhong: ngayNhanPhong ? dayjs.tz(ngayNhanPhong, 'Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss') : null,
+      ngayTraPhong: ngayTraPhong ? dayjs.tz(ngayTraPhong, 'Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss') : null,
     },
   });
 };
@@ -163,8 +174,8 @@ export const findDatPhong = (key, ngayNhanPhong, ngayTraPhong, pageable) => {
   return authorizedAxiosInstance.get(apiFindDatPhong, {
     params: {
       key: key,
-      ngayNhanPhong: ngayNhanPhong,
-      ngayTraPhong: ngayTraPhong,
+      ngayNhanPhong: ngayNhanPhong ? dayjs.tz(ngayNhanPhong, 'Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss') : null,
+      ngayTraPhong: ngayTraPhong ? dayjs.tz(ngayTraPhong, 'Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss') : null,
         page: pageable.page,
         size: pageable.size,
     },

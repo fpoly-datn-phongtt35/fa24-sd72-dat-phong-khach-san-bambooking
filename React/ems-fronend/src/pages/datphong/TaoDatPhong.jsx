@@ -65,8 +65,7 @@ const TaoDatPhong = () => {
   const [ttdpData, setTtdpData] = useState([]);
   const [TTDP, setTTDP] = useState([]);
   const [formData, setFormData] = useState({
-    ho: "",
-    ten: "",
+    hoTen: "",
     email: "",
     sdt: "",
   });
@@ -278,14 +277,19 @@ const TaoDatPhong = () => {
       return;
     }
     setShowError(false);
+
+    const words = formData.hoTen.trim().split(/\s+/);
+    const ten = words[words.length - 1]; 
+    const ho = words.slice(0, -1).join(" "); 
+
     let khachHangResponse = null;
     let datPhongResponse = null;
     console.log("khachHang", khachHang);
     try {
       const khachHangRequest = {
         id: khachHang.id,
-        ho: formData.ho,
-        ten: formData.ten,
+        ho: ho,
+        ten: ten,
         email: formData.email,
         sdt: formData.sdt,
         trangThai: false,
@@ -528,8 +532,14 @@ const TaoDatPhong = () => {
 
   const validateForm = () => {
     const errors = {};
-    if (!formData.ho.trim()) errors.ho = "Vui lòng nhập họ";
-    if (!formData.ten.trim()) errors.ten = "Vui lòng nhập tên";
+    if (!formData.hoTen.trim()) {
+      errors.hoTen = "Vui lòng nhập họ và tên";
+    } else {
+      const words = formData.hoTen.trim().split(/\s+/);
+      if (words.length < 2) {
+        errors.hoTen = "Họ và tên phải bao gồm ít nhất hai từ";
+      }
+    }
     if (!formData.email.trim()) errors.email = "Vui lòng nhập email";
     else if (!/\S+@\S+\.\S+/.test(formData.email))
       errors.email = "Email không hợp lệ";
@@ -605,24 +615,14 @@ const TaoDatPhong = () => {
                   Thông Tin Người Đặt
                 </Typography>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="Họ"
-                      value={formData.ho}
-                      onChange={(e) => handleInputChange("ho", e.target.value)}
-                      error={!!formErrors.ho}
-                      helperText={formErrors.ho}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      fullWidth
-                      label="Tên"
-                      value={formData.ten}
-                      onChange={(e) => handleInputChange("ten", e.target.value)}
-                      error={!!formErrors.ten}
-                      helperText={formErrors.ten}
+                      label="Họ và Tên"
+                      value={formData.hoTen}
+                      onChange={(e) => handleInputChange("hoTen", e.target.value)}
+                      error={!!formErrors.hoTen}
+                      helperText={formErrors.hoTen}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
@@ -133,10 +134,10 @@ public class DatPhongController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "ngayNhanPhong", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime ngayNhanPhong,
             @RequestParam(value = "ngayTraPhong", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong) {
-        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(key, page, size,ngayNhanPhong,ngayTraPhong);
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime ngayTraPhong) {
+        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(key, page, size, ngayNhanPhong, ngayTraPhong);
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 
@@ -144,9 +145,9 @@ public class DatPhongController {
     public ResponseEntity<Page<DatPhongResponse>> findDatPhong(
             @RequestParam(value = "key", required = false) String key,
             @RequestParam(value = "ngayNhanPhong", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime ngayNhanPhong,
             @RequestParam(value = "ngayTraPhong", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime ngayTraPhong,
             Pageable pageable) {
         Page<DatPhongResponse> result = datPhongServiceIMPL.findDatPhong(
                 key, ngayNhanPhong, ngayTraPhong, pageable);

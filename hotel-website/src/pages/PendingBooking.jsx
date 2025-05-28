@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 import Swal from "sweetalert2";
+import { HuyDP } from "../services/DatPhong";
 
 const PendingBooking = () => {
   const navigate = useNavigate();
@@ -28,35 +29,42 @@ const PendingBooking = () => {
     setOpenSnackbar(true);
   };
 
-  // Lấy danh sách các đơn đặt phòng từ localStorage
-  const fetchPendingBookings = () => {
+  // Lấy danh sách các đơn đặt phòng từ localStorage và dọn dẹp các đơn hết hạn
+  const fetchPendingBookings = async () => {
     const bookingKeys = Object.keys(localStorage).filter((key) =>
       key.startsWith("booking_data_")
     );
 
-    const validBookings = bookingKeys
-      .map((key) => {
-        const data = JSON.parse(localStorage.getItem(key));
-        const timeoutKey = key.replace("booking_data_", "booking_timeout_");
-        const startTime = parseInt(localStorage.getItem(timeoutKey) || "0", 10);
-        const elapsedTime = Date.now() - startTime;
-        const remainingTime = TIMEOUT_DURATION - elapsedTime;
+    const validBookings = [];
+    for (const key of bookingKeys) {
+      const data = JSON.parse(localStorage.getItem(key));
+      const timeoutKey = key.replace("booking_data_", "booking_timeout_");
+      const startTime = parseInt(localStorage.getItem(timeoutKey) || "0", 10);
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = TIMEOUT_DURATION - elapsedTime;
 
-        if (remainingTime > 0 && data) {
-          return {
-            key,
-            timeoutKey,
-            data,
-            remainingTime: Math.floor(remainingTime / 1000), // Thời gian còn lại tính bằng giây
-          };
-        } else {
-          // Xóa các đơn đã hết hạn
+      if (remainingTime > 0 && data) {
+        validBookings.push({
+          key,
+          timeoutKey,
+          data,
+          remainingTime: Math.floor(remainingTime / 1000),
+        });
+      } else if (data?.datPhong?.id) {
+        // Hủy đơn trên server nếu có datPhong.id
+        try {
+          await HuyDP(data.datPhong.id);
           localStorage.removeItem(key);
           localStorage.removeItem(timeoutKey);
-          return null;
+        } catch (error) {
+          console.error("Lỗi khi hủy đơn đặt phòng:", error);
         }
-      })
-      .filter(Boolean);
+      } else {
+        // Xóa dữ liệu localStorage nếu không có datPhong.id
+        localStorage.removeItem(key);
+        localStorage.removeItem(timeoutKey);
+      }
+    }
 
     setPendingBookings(validBookings);
 
@@ -78,7 +86,9 @@ const PendingBooking = () => {
   };
 
   // Xóa đơn đặt phòng
-  const handleCancelBooking = (booking) => {
+  const handleCancelBooking = async (booking) => {
+    console.log(booking.data)
+    const iddp = booking.data?.datPhong?.id;
     Swal.fire({
       icon: "warning",
       title: "Xác nhận",
@@ -86,18 +96,31 @@ const PendingBooking = () => {
       showCancelButton: true,
       confirmButtonText: "Hủy",
       cancelButtonText: "Không",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
         localStorage.removeItem(booking.key);
         localStorage.removeItem(booking.timeoutKey);
         setPendingBookings((prev) => prev.filter((b) => b.key !== booking.key));
-        handleSnackbar("Đơn đặt phòng đã được hủy.");
+        if (iddp) {
+          try {
+            await HuyDP(iddp);
+            handleSnackbar("Đơn đặt phòng đã được hủy.");
+          } catch (error) {
+            console.error("Lỗi khi hủy đơn đặt phòng:", error);
+            handleSnackbar("Lỗi khi hủy đơn đặt phòng. Vui lòng thử lại.");
+          }
+        } else {
+          handleSnackbar("Đơn đặt phòng đã được hủy.");
+        }
       }
     });
   };
 
   useEffect(() => {
     fetchPendingBookings();
+    // Cập nhật danh sách định kỳ để kiểm tra timeout
+    const intervalId = setInterval(fetchPendingBookings, 10000); // Kiểm tra mỗi 10 giây
+    return () => clearInterval(intervalId);
   }, []);
 
   return (
