@@ -46,13 +46,14 @@ export const getKhachHangCheckinByThongTinId = (id) => {
 };
 
 export const qrCheckIn = (qrParsedData,idTTDP) => {
-  return authorizedAxiosInstance.get(apiqrCheckIn,{
-    params:{
+  return authorizedAxiosInstance.get(apiqrCheckIn, {
+    params: {
       idTTDP: idTTDP,
       cmnd: qrParsedData.cmnd,
-      diaChi: qrParsedData.diaChi,
+      hoTen: qrParsedData.hoTen,
+      ngaySinh: qrParsedData.ngaySinh,
       gioiTinh: qrParsedData.gioiTinh,
-      hoTen: qrParsedData.hoTen
-    }
+      diaChi: qrParsedData.diaChi,
+    },
   });
 };

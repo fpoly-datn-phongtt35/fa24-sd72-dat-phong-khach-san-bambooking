@@ -62,7 +62,6 @@ const QuanLyDatPhong = () => {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [showXepPhongModal, setShowXepPhongModal] = useState(false);
   const navigate = useNavigate();
-
   const searchDatPhong = useCallback(
     debounce(
       async (searchKey, searchNgayNhan, searchNgayTra, currentPage, size) => {

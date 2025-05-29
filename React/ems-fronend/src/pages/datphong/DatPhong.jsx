@@ -976,7 +976,7 @@ const DatPhong = () => {
                           : "N/A"}
                       </TableCell>
                       <TableCell>
-                        {phong.loaiPhong?.treEmTieuChuan || "N/A"}
+                        {phong.loaiPhong?.treEmTieuChuan}
                       </TableCell>
                       <TableCell>
                         {phong.loaiPhong?.donGia

@@ -26,7 +26,7 @@ const apiToHopLoaiPhong =
   const apiUpdateKH = "http://localhost:8080/api/kh/update-kh";
   const apiHuyDP = "http://localhost:8080/api/dp/huy-dat-phong"
   const apiGuiEmailXacNhanHuyDP = "http://localhost:8080/api/dp/email-xac-nhan-huy-dp"
-
+  const apiGetByID = "http://localhost:8080/api/dp/get-by-id";
 
 
 export const getDatPhongbyTDN = (tenDangNhap,keyword,ngayNhanPhong,ngayTraPhong) => {
@@ -157,6 +157,7 @@ export const getLPKDRL = (
   ngayNhanPhong,
   ngayTraPhong,
   soNguoi,
+  soTre,
   soPhong,
   idLoaiPhong
 ) => {
@@ -165,6 +166,7 @@ export const getLPKDRL = (
       ngayNhanPhong,
       ngayTraPhong,
       soNguoi,
+      soTre,
       soPhong,
       idLoaiPhong,
     },
@@ -231,6 +233,14 @@ export const GuiEmailXacNhanHuyDP = (idDP) => {
   return authorizedAxiosInstance.get(apiGuiEmailXacNhanHuyDP, {
       params: {
           idDatPhong: idDP
+      }
+  });
+};
+
+export const getDatPhongByID = (idDP) => {
+  return authorizedAxiosInstance.get(apiGetByID, {
+      params: {
+          idDP: idDP
       }
   });
 };
