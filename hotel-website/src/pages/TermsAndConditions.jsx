@@ -28,48 +28,46 @@ const sliderSettings = {
 
 const termsData = [
   {
-    title: "1. Đặt phòng và Thanh toán",
+    title: "1. Chính sách phụ thu",
     items: [
-      "Khách hàng cần cung cấp thông tin chính xác khi đặt phòng, bao gồm họ tên, số điện thoại, và email.",
-      "Đặt phòng chỉ được xác nhận sau khi khách xác nhận qua email khi đặt phòng hoặc qua số điện thoại.",
-      "Giá phòng đã bao gồm thuế và phí dịch vụ. Các chi phí phát sinh (như dịch vụ ăn uống, spa, v.v.) sẽ được tính riêng.",
+      "Trả phòng muộn trong vòng 60 phút đầu tiên: Không tính phụ thu.",
+      "Trả muộn từ 61–240 phút (1–4 tiếng): Phụ thu 30% giá phòng.",
+      "Trả muộn từ 241–720 phút (4–12 tiếng): Phụ thu 50% giá phòng.",
+      "Trả muộn quá 720 phút (>12 tiếng): Không tính phụ thu nhưng tính thêm 1 đêm lưu trú.",
+      "Phụ thu khi vượt quá số khách tối đa: Tính theo số khách vượt × đơn giá phụ thu từng loại phòng.",
+      "Trẻ dưới 12 tuổi không tính phụ thu.",
+      "Đơn giá phụ thu: Phòng đơn 100.000 VNĐ/người, phòng đôi 150.000 VNĐ/người, phòng gia đình 250.000 VNĐ/người.",
+      "Phụ thu thiếu/hỏng vật tư: Tính theo đơn giá vật tư × số lượng thiếu hoặc hỏng. Có thể kèm ảnh minh chứng.",
+      "Phụ thu phát sinh do sử dụng dịch vụ thêm hoặc vi phạm quy định sẽ được ghi nhận và cộng vào hóa đơn.",
     ],
   },
   {
-    title: "2. Chính sách Hủy phòng",
+    title: "2. Chính sách hủy phòng",
     items: [
-      "Khách hàng có thể liên hệ đến khách sạn qua số hotline để hủy phòng.",
+      "Hủy từ 7 ngày trở lên trước ngày nhận phòng: Hoàn 100% tiền cọc.",
+      "Hủy từ 3–6 ngày trước ngày nhận phòng: Hoàn 50% tiền cọc.",
+      "Hủy dưới 3 ngày: Không hoàn tiền cọc.",
+      "Không thông báo và không đến nhận phòng (no-show): Không hoàn tiền cọc.",
+      "Hủy trong vòng 3 giờ kể từ lúc đặt phòng: Hoàn 100% số tiền đã thanh toán.",
+      "Trường hợp đặc biệt có lý do chính đáng (thiên tai, dịch bệnh, tai nạn...) có thể được hoàn tiền hoặc chuyển cọc sang lần đặt khác.",
+      "Hoàn tiền qua tiền mặt tại khách sạn hoặc chuyển khoản (khách chịu phí nếu có).",
     ],
   },
   {
-    title: "3. Nhận và Trả phòng",
+    title: "3. Chính sách đổi phòng",
     items: [
-      "Thời gian nhận phòng: 14:00 (2:00 PM).",
-      "Thời gian trả phòng: 12:00 (12:00 PM).",
-      "Nhận phòng sớm hoặc trả phòng muộn phụ thuộc vào tình trạng phòng và có thể phát sinh phụ phí.",
-      "Khách hàng cần xuất trình giấy tờ tùy thân (CMND/CCCD/Hộ chiếu) khi nhận phòng.",
+      "Khách có thể yêu cầu đổi phòng trước khi nhận phòng.",
+      "Việc đổi phòng phụ thuộc vào tình trạng phòng trống tại thời điểm yêu cầu.",
     ],
   },
   {
-    title: "4. Quy định sử dụng dịch vụ",
+    title: "4. Quy định khách sạn",
     items: [
-      "Không hút thuốc trong phòng và các khu vực cấm hút thuốc trong khách sạn. Phí phạt 2.000.000 VND sẽ được áp dụng nếu vi phạm.",
-      "Không mang thú cưng vào khách sạn, trừ trường hợp được phép với sự đồng ý trước từ ban quản lý.",
-      "Khách hàng chịu trách nhiệm bồi thường thiệt hại nếu làm hư hỏng tài sản của khách sạn.",
-    ],
-  },
-  {
-    title: "5. Quy định về an toàn và bảo mật",
-    items: [
-      "Khách sạn không chịu trách nhiệm cho các tài sản cá nhân bị mất hoặc hư hỏng trong khuôn viên.",
-      "Khách hàng cần tuân thủ các quy định an toàn cháy nổ và hướng dẫn của nhân viên khách sạn.",
-      "Thông tin cá nhân của khách hàng được bảo mật và chỉ sử dụng cho mục đích đặt phòng hoặc cung cấp dịch vụ.",
-    ],
-  },
-  {
-    title: "6. Thay đổi và Hủy bỏ",
-    items: [
-      "Khách sạn có quyền thay đổi hoặc hủy đặt phòng trong trường hợp bất khả kháng (thiên tai, sự cố kỹ thuật, v.v.).",
+      "Nhận phòng từ 14:00, trả phòng trước 12:00.",
+      "Khách có trách nhiệm bảo quản vật tư, thiết bị trong phòng. Hư hỏng/mất mát sẽ bị tính phí theo giá niêm yết.",
+      "Không hút thuốc trong phòng. Vi phạm sẽ bị phạt 300.000 VNĐ phí vệ sinh.",
+      "Không gây ồn ào sau 22:00.",
+      "Tự bảo quản tài sản cá nhân. Khách sạn không chịu trách nhiệm nếu mất mát/hư hỏng.",
     ],
   },
 ];

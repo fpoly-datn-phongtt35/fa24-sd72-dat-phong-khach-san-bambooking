@@ -734,5 +734,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
         }
     }
 
-
+    public DatPhong getByIDDatPhong(Integer id){
+        return datPhongRepository.findById(id).get();
+    }
 }

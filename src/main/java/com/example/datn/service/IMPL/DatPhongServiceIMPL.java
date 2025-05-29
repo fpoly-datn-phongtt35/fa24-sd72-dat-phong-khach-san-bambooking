@@ -192,6 +192,8 @@ public class DatPhongServiceIMPL implements DatPhongService {
         return datPhongRepository.findDatPhong(trangThai, trangThaiTTDP, key, ngayNhanPhong, ngayTraPhong, pageable);
     }
 
+
+
 //    public void updateTrangThaiDatPhong() {
 //        LocalDateTime now = LocalDateTime.now();
 //
@@ -344,7 +346,7 @@ public class DatPhongServiceIMPL implements DatPhongService {
     @Scheduled(fixedRate = 1000)
     public void checkDatPhongConfirmed() {
         Logger logger = LoggerFactory.getLogger(DatPhongServiceIMPL.class);
-        List<String> trangThai = Arrays.asList("Đang đặt phòng");
+        List<String> trangThai = Arrays.asList("Đang đặt phòng","Chưa xác nhận");
         LocalDateTime now = LocalDateTime.now();
         List<DatPhong> listDP = datPhongRepository.findDatPhongByTrangThais(trangThai);
 

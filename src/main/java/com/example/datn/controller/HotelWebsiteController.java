@@ -382,5 +382,11 @@ public class HotelWebsiteController {
     public void emailXacNhanHuyTTDP(@RequestParam("idTTDP") Integer idTTDP){
         hotelWebsiteServiceImpl.guiEmailXacNhanHuyTTDP(idTTDP);
     }
+
+    @GetMapping("/dp/get-by-id")
+    public DatPhong getByID(@RequestParam("idDP") Integer dp){
+        return hotelWebsiteServiceImpl.getByIDDatPhong(dp);
+    }
+
 }
 
