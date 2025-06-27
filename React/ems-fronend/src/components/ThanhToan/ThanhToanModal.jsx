@@ -33,8 +33,8 @@ const ThanhToanModal = ({ show, onClose, thanhToan, setHoaDon }) => {
 
   const bankInfo = {
     bankName: "Ngân hàng TMCP Quân Đội",
-    accountNumber: "0374135106",
-    accountName: "BUI HOANG LONG",
+    accountNumber: "0974567728",
+    accountName: "LUONG TUAN DAT",
     bankBin: "970422",
   };
 

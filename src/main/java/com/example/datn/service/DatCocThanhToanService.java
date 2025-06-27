@@ -2,6 +2,7 @@ package com.example.datn.service;
 
 import com.example.datn.dto.request.DatCocThanhToanRequest;
 import com.example.datn.dto.response.DatCocThanhToanResponse;
+import com.example.datn.model.DatCocThanhToan;
 
 import java.util.Map;
 
@@ -13,4 +14,7 @@ public interface DatCocThanhToanService {
     void successPayment(Long orderCode);
     void cancelPayment(Long orderCode);
     DatCocThanhToanResponse getPaymentStatus(Long orderCode);
+
+    DatCocThanhToan findDatCoc(Integer iddp);
+    DatCocThanhToan findDatCocByidHoaDon(Integer idHoaDon);
 }

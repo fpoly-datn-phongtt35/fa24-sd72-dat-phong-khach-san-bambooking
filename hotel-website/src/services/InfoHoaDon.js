@@ -4,7 +4,7 @@ const apiHoaDon = "http://localhost:8080/api/hoa-don";
 const apigetHDByidDatPhong = "http://localhost:8080/api/hoa-don/findidHD";
 const apiThongTinHoaDon = "http://localhost:8080/api/tthd"
 const apiDichVuSuDung = "http://localhost:8080/api/tthd/dich-vu-su-dung";
-
+const apifindDatCocByidHoaDon = "http://localhost:8080/api/v1/payment/findDatCocByidHoaDon";
 
 export const getHoaDonById = (idHoaDon) => {
     return authorizedAxiosInstance.get(`${apiHoaDon}/${idHoaDon}`);
@@ -31,6 +31,14 @@ export const getListVatTuHongThieu =(idHoaDon) =>{
 }
 
 
+export const findDatCocByidHoaDon = (idHoaDon) => {
+    return authorizedAxiosInstance.get(apifindDatCocByidHoaDon, {
+      params: {
+        idHoaDon: idHoaDon,
+      },
+    });
+  };
+
 //Không yc xác thực
 export const getHoaDonByIdTC = (idHoaDon) => {
     return authorizedAxiosInstance.get(`http://localhost:8080/api/tra-cuu/hoa-don/${idHoaDon}`);
@@ -55,3 +63,4 @@ export const getHDByidDatPhongTC = (idDatPhong) => {
 export const getListVatTuHongThieuTC =(idHoaDon) =>{
     return authorizedAxiosInstance.get(`http://localhost:8080/api/tra-cuu/tthd/list-vat-tu-hong-thieu/${idHoaDon}`)
 }
+

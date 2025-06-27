@@ -4,18 +4,17 @@ import com.example.datn.dto.request.DatPhongRequest;
 import com.example.datn.dto.request.KhachHangDatPhongRequest;
 import com.example.datn.dto.request.TTDPRequest;
 import com.example.datn.dto.response.DatPhongResponse;
+import com.example.datn.exception.EntityNotFountException;
 import com.example.datn.exception.InvalidDataException;
 import com.example.datn.model.*;
-import com.example.datn.repository.DatPhongRepository;
-import com.example.datn.repository.HoaDonRepository;
-import com.example.datn.repository.KhachHangRepository;
-import com.example.datn.repository.ThongTinDatPhongRepository;
+import com.example.datn.repository.*;
 import com.example.datn.service.EmailService;
 import com.example.datn.service.HotelWebsiteService;
 import com.example.datn.utilities.UniqueDatPhongCode;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 public class HotelWebsiteServiceImpl implements HotelWebsiteService {
     private final JavaMailSender mailSender;
@@ -47,6 +46,13 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
 
     @Autowired
     LoaiPhongServiceIMPL loaiPhongServiceIMPL;
+
+    @Autowired
+    DatCocThanhToanRepository datCocThanhToanRepository;
+
+    @Autowired
+    XepPhongRepository xepPhongRepository;
+
 
     @Autowired
     private EmailService emailService;
@@ -146,6 +152,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
             String sdt = datPhong.getKhachHang().getSdt();
             String email = datPhong.getKhachHang().getEmail();
             Integer soNguoi = datPhong.getSoNguoi();
+            Integer treEm = datPhong.getSoTre();
             Double tongTien = datPhong.getTongTien();
 
             // Tạo chuỗi HTML cho danh sách chi tiết các phòng
@@ -186,7 +193,11 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                             <td style="padding: 10px; border: 1px solid #ddd;">%s</td>
                         </tr>
                         <tr>
-                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số người</strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số người lớn</strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số trẻ em</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
                         </tr>
                         <tr style="background-color: #f8f8f8;">
@@ -203,9 +214,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                         </tr>
                         %s
                     </table>
-                    <p style="text-align: center;">
-                        <a href="http://localhost:3001/confirm-booking/%s" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #fff; text-decoration: none; border-radius: 5px;">Xác nhận Đặt Phòng</a>
-                    </p>
+                    
                     <p>Nếu bạn thấy thông tin cá nhân chưa chính xác, vui lòng nhấn nút "Sửa Thông Tin Khách Hàng" để cập nhật.</p>
                     <p style="text-align: center;">
                         <a href="http://localhost:3001/update-kh/%s/%s" style="display: inline-block; padding: 10px 20px; background-color: #e67e22; color: #fff; text-decoration: none; border-radius: 5px;">Sửa thông Tin Khách Hàng</a>
@@ -219,6 +228,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                     sdt,
                     email,
                     soNguoi,
+                    treEm,
                     String.format("%,.0f", tongTien),
                     chiTietPhong.toString(),
                     iddp,
@@ -270,6 +280,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
             String sdt = datPhong.getKhachHang().getSdt();
             String email = datPhong.getKhachHang().getEmail();
             Integer soNguoi = datPhong.getSoNguoi();
+            Integer treEm = datPhong.getSoTre();
             Double tongTien = datPhong.getTongTien();
 
             // Tạo chuỗi HTML cho danh sách chi tiết các phòng
@@ -313,6 +324,10 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số người</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
                         </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số trẻ em</strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
+                        </tr>
                         <tr style="background-color: #f8f8f8;">
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Tổng tiền</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">%s VND</td>
@@ -339,6 +354,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                     sdt,
                     email,
                     soNguoi,
+                    treEm,
                     String.format("%,.0f", tongTien),
                     chiTietPhong.toString(),
                     email
@@ -392,6 +408,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
             String sdt = datPhong.getKhachHang().getSdt();
             String email = datPhong.getKhachHang().getEmail();
             Integer soNguoi = datPhong.getSoNguoi();
+            Integer treEm = datPhong.getSoTre();
             Double tongTien = datPhong.getTongTien();
 
             // Tạo chuỗi HTML cho danh sách chi tiết các phòng
@@ -435,6 +452,10 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số người</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
                         </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số trẻ em</strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
+                        </tr>
                         <tr style="background-color: #f8f8f8;">
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Tổng tiền</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">%s VND</td>
@@ -449,9 +470,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                         </tr>
                         %s
                     </table>
-                    <p style="text-align: center;">
-                        <a href="http://localhost:3001/confirm-booking/%s" style="display: inline-block; padding: 10px 20px; background-color: #3498db; color: #fff; text-decoration: none; border-radius: 5px;">Xác nhận Đặt Phòng</a>
-                    </p>
+                    
                     <p>Nếu bạn thấy thông tin cá nhân chưa chính xác, vui lòng nhấn nút "Sửa Thông Tin Khách Hàng" để cập nhật.</p>
                     <p style="text-align: center;">
                         <a href="http://localhost:3001/update-kh/%s/%s" style="display: inline-block; padding: 10px 20px; background-color: #e67e22; color: #fff; text-decoration: none; border-radius: 5px;">Sửa thông Tin Khách Hàng</a>
@@ -465,6 +484,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                     sdt,
                     email,
                     soNguoi,
+                    treEm,
                     String.format("%,.0f", tongTien),
                     chiTietPhong.toString(),
                     iddp,
@@ -502,13 +522,93 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
     @Override
     public void huyDPandTTDP(Integer iddp) {
         DatPhong dp = datPhongRepository.findById(iddp).get();
-        dp.setTrangThai("Đã hủy");
-        List<ThongTinDatPhong> listThongTinDatPhong = thongTinDatPhongRepository.findByIDDatPhong(iddp);
-        for(ThongTinDatPhong thongTinDatPhong : listThongTinDatPhong){
-            thongTinDatPhong.setTrangThai("Đã hủy");
-            thongTinDatPhongRepository.save(thongTinDatPhong);
-        }
-        datPhongRepository.save(dp);
+
+
+
+        LocalDateTime ngayDatPhong = dp.getNgayDat();
+
+
+        List<ThongTinDatPhong> ttdps = thongTinDatPhongRepository.findByMaDatPhong(dp.getMaDatPhong());
+
+
+        LocalDateTime ngayNhanPhong = ttdps.get(0).getNgayNhanPhong();
+
+
+        String trangThaiThanhToan = ttdps.get(0).getTrangThaiThanhToan();
+        String ghiChuHoanTien;
+
+
+            // Hủy trên web
+            DatCocThanhToan dctt = datCocThanhToanRepository.findByDatPhongIdAndTrangThai(dp.getId(), "PAID")
+                    .orElseThrow(() -> new EntityNotFountException("Không tìm thấy bản ghi thanh toán với trạng thái PAID cho đặt phòng có id: " + dp.getId()));
+
+            String loaiThanhToan = dctt.getLoaiThanhToan();
+            double tienThanhToan = dctt.getTienThanhToan();
+            double tienHoan = 0.0;
+
+            LocalDateTime now = LocalDateTime.now();
+            if (ChronoUnit.HOURS.between(ngayDatPhong, now) <= 3) {
+                tienHoan = tienThanhToan;
+                ghiChuHoanTien = String.format("Hủy qua web trong vòng 3 giờ kể từ lúc đặt (%s), hoàn 100%% tiền thanh toán: %.2f VND",
+                        ngayDatPhong, tienHoan);
+            } else {
+                long dayToCheckIn = ChronoUnit.DAYS.between(LocalDate.now(), ngayNhanPhong.toLocalDate());
+                if ("Đặt cọc".equalsIgnoreCase(loaiThanhToan)) {
+                    if (dayToCheckIn >= 7) {
+                        tienHoan = tienThanhToan;
+                        ghiChuHoanTien = String.format("Hủy qua web từ 7 ngày trở lên trước ngày nhận phòng (%s), hoàn 100%% tiền cọc: %.2f VND",
+                                ngayNhanPhong.toLocalDate(), tienHoan);
+                    } else if (dayToCheckIn >= 3) {
+                        tienHoan = tienThanhToan * 0.5;
+                        ghiChuHoanTien = String.format("Hủy qua web từ 3-6 ngày trước ngày nhận phòng (%s), hoàn 50%% tiền cọc: %.2f VND",
+                                ngayNhanPhong.toLocalDate(), tienHoan);
+                    } else {
+                        ghiChuHoanTien = String.format("Hủy qua web dưới 3 ngày trước ngày nhận phòng (%s) hoặc No-show, không hoàn tiền cọc",
+                                ngayNhanPhong.toLocalDate());
+                    }
+                } else if ("Thanh toán trước".equalsIgnoreCase(loaiThanhToan)) {
+                    if (dayToCheckIn >= 7) {
+                        tienHoan = tienThanhToan;
+                        ghiChuHoanTien = String.format("Hủy qua web từ 7 ngày trở lên trước ngày nhận phòng (%s), hoàn 100%% tiền thanh toán: %.2f VND",
+                                ngayNhanPhong.toLocalDate(), tienHoan);
+                    } else if (dayToCheckIn >= 3) {
+                        tienHoan = tienThanhToan * 0.5;
+                        ghiChuHoanTien = String.format("Hủy qua web từ 3-6 ngày trước ngày nhận phòng (%s), hoàn 50%% tiền thanh toán: %.2f VND",
+                                ngayNhanPhong.toLocalDate(), tienHoan);
+                    } else {
+                        ghiChuHoanTien = String.format("Hủy qua web dưới 3 ngày trước ngày nhận phòng (%s) hoặc No-show, không hoàn tiền",
+                                ngayNhanPhong.toLocalDate());
+                    }
+                } else {
+                    throw new InvalidDataException("Loại thanh toán không hợp lệ: " + loaiThanhToan);
+                }
+            }
+
+            dp.setGhiChu(ghiChuHoanTien);
+            dp.setTrangThai("Đã hủy");
+            datPhongRepository.save(dp);
+
+            dctt.setTrangThai("CANCELLED");
+            datCocThanhToanRepository.save(dctt);
+
+            for (ThongTinDatPhong ttdp : ttdps) {
+                ttdp.setGhiChu(ghiChuHoanTien);
+                ttdp.setTrangThai("Đã hủy");
+                thongTinDatPhongRepository.save(ttdp);
+
+                XepPhong xp = xepPhongRepository.getByMaTTDP(ttdp.getMaThongTinDatPhong());
+                if (xp != null) {
+                    xp.setTrangThai("Đã hủy");
+                    xepPhongRepository.save(xp);
+                }
+            }
+
+            try {
+                sendCancellationEmail(dp, tienHoan);
+            } catch (MessagingException e) {
+                log.error("Lỗi khi gửi email thông báo hủy đặt phòng mã: {}", iddp, e);
+            }
+
     }
 
     @Override
@@ -548,6 +648,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
             String sdt = datPhong.getKhachHang().getSdt();
             String email = datPhong.getKhachHang().getEmail();
             Integer soNguoi = datPhong.getSoNguoi();
+            Integer treEm = datPhong.getSoTre();
             Double tongTien = datPhong.getTongTien();
 
             // Tạo chuỗi HTML cho danh sách chi tiết các phòng
@@ -591,6 +692,10 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số người</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
                         </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số trẻ em</strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
+                        </tr>
                         <tr style="background-color: #f8f8f8;">
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Tổng tiền</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">%s VND</td>
@@ -617,6 +722,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                     sdt,
                     email,
                     soNguoi,
+                    treEm,
                     String.format("%,.0f", tongTien),
                     chiTietPhong.toString(),
                     iddp
@@ -649,6 +755,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
             String sdt = thongTinDatPhong.getDatPhong().getKhachHang().getSdt();
             String email = thongTinDatPhong.getDatPhong().getKhachHang().getEmail();
             Integer soNguoi = thongTinDatPhong.getSoNguoi();
+            Integer treEm = thongTinDatPhong.getSoTre();
             Double giaDat = thongTinDatPhong.getGiaDat();
             String loaiPhong = thongTinDatPhong.getLoaiPhong().getTenLoaiPhong();
             LocalDateTime ngayNhanPhong = thongTinDatPhong.getNgayNhanPhong();
@@ -692,6 +799,10 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số người</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
                         </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Số trẻ em</strong></td>
+                            <td style="padding: 10px; border: 1px solid #ddd;">%d</td>
+                        </tr>
                         <tr style="background-color: #f8f8f8;">
                             <td style="padding: 10px; border: 1px solid #ddd;"><strong>Tổng tiền</strong></td>
                             <td style="padding: 10px; border: 1px solid #ddd;">%s VND</td>
@@ -718,6 +829,7 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
                     sdt,
                     email,
                     soNguoi,
+                    treEm,
                     String.format("%,.0f", giaDat),
                     chiTietPhong,
                     idTTDP
@@ -737,4 +849,29 @@ public class HotelWebsiteServiceImpl implements HotelWebsiteService {
     public DatPhong getByIDDatPhong(Integer id){
         return datPhongRepository.findById(id).get();
     }
+    private void sendCancellationEmail(DatPhong dp, double tienHoan) throws MessagingException {
+        if (dp.getKhachHang() == null || dp.getKhachHang().getEmail() == null) {
+            log.warn("Không thể gửi email cho đặt phòng mã {} vì email khách hàng không hợp lệ.", dp.getMaDatPhong());
+            return;
+        }
+
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+        helper.setTo(dp.getKhachHang().getEmail());
+        helper.setSubject("Thông báo hủy đặt phòng");
+        helper.setText(
+                "Kính gửi " + dp.getFullNameKhachHang() + ",\n\n" +
+                        "Đặt phòng của bạn với mã " + dp.getMaDatPhong() + " đã được hủy.\n" +
+                        "Số tiền hoàn: " + String.format("%.2f", tienHoan) + " VND.\n" +
+                        "Chi tiết: " + dp.getGhiChu() + ".\n" +
+                        "Vui lòng liên hệ với chúng tôi nếu bạn cần hỗ trợ thêm.\n\n" +
+                        "Trân trọng,\nĐội ngũ khách sạn", true
+        );
+
+        mailSender.send(mimeMessage);
+    }
+
+
+
 }

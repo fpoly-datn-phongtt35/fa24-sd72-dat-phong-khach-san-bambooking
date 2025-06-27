@@ -20,10 +20,13 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  IconButton,
 } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
 import jsQR from "jsqr";
 import Swal from "sweetalert2";
 import ModalCreateKHC from "./ModalCreateKHC";
+import ModalUpdateKHC from "./ModalUpdateKHC";
 import {
   createKhachHang,
   getKhachHangByKey,
@@ -48,6 +51,9 @@ const ModalKhachHangCheckin = ({
   thongTinDatPhong,
   onCheckinSuccess,
 }) => {
+  const dialogRef = useRef(null); // Thêm ref cho Dialog
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [editKhachHang, setEditKhachHang] = useState(null);
   const [isModalKHCOpen, setModalKHCOpen] = useState(false);
   const [isQRModalOpen, setQRModalOpen] = useState(false);
   const [qrData, setQRData] = useState("");
@@ -294,6 +300,17 @@ const ModalKhachHangCheckin = ({
     setQRModalOpen(true);
   };
 
+
+  const handleOpenEditModal = (khachHang) => {
+    setEditKhachHang(khachHang);
+    setEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setEditKhachHang(null);
+    setEditModalOpen(false);
+  };
+
   const closeQRScanner = () => {
     setQRData("");
     setQRModalOpen(false);
@@ -407,6 +424,10 @@ const ModalKhachHangCheckin = ({
     setQRModalOpen(false);
     handleCloseModalKC();
   };
+  const handleKhachHangUpdated = () => {
+    fetchKhachHangList(trangThai, searchKeyword, page);
+    fetchCheckedInKhachHang();
+  };
 
   const handleCreate = async () => {
     try {
@@ -430,18 +451,6 @@ const ModalKhachHangCheckin = ({
       // Tính tổng số khách (đã check-in + mới chọn)
       const tongSoKhach =
         (daCheckin.data.length || 0) + (selectedKhachHang.length || 0);
-
-      // Kiểm tra nếu tổng số khách vượt quá số khách tối đa
-      if (tongSoKhach > loaiPhong.data.soKhachToiDa) {
-        Swal.fire({
-          icon: "error",
-          title: "Lỗi",
-          text: `Số khách check-in (${tongSoKhach}) vượt quá số khách tối đa cho phép (${loaiPhong.data.soKhachToiDa}).`,
-          confirmButtonText: "OK",
-          confirmButtonColor: "#6a5acd",
-        });
-        return;
-      }
 
       // Tiếp tục xử lý tạo khách hàng nếu chưa có ID
       const khachHangToCreate = [];
@@ -468,7 +477,17 @@ const ModalKhachHangCheckin = ({
 
       // Xử lý phụ thu
       await handlePhuThu(idXepPhong, loaiPhong, tongSoKhach);
-
+      // Kiểm tra nếu tổng số khách vượt quá số khách tối đa
+      if (tongSoKhach > loaiPhong.data.soKhachToiDa) {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: `Số khách check-in (${tongSoKhach}) vượt quá số khách tối đa cho phép (${loaiPhong.data.soKhachToiDa}).`,
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6a5acd",
+        });
+        return;
+      }
       // Tạo yêu cầu check-in
       const checkinRequests = khachHangToCreate.map((kh) => ({
         khachHang: kh,
@@ -524,6 +543,13 @@ const ModalKhachHangCheckin = ({
 
     if (soNguoiVuot <= 0) {
       console.log("Không vượt số khách tiêu chuẩn, không cần phụ thu.");
+      Swal.fire({
+        icon: "info",
+        title: "Thông báo",
+        text: "Số khách không vượt quá tiêu chuẩn, không cần phụ thu.",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6a5acd",
+      });
       return;
     }
 
@@ -552,19 +578,53 @@ const ModalKhachHangCheckin = ({
       if (existingPhuThu && isChanged) {
         console.log("Đang cập nhật phụ thu hiện tại:", existingPhuThu);
         await CapNhatPhuThu({ ...existingPhuThu, ...phuThuRequest });
-        Swal.fire("Thành công", "Đã cập nhật phụ thu", "success");
-      } else if (!existingPhuThu) {
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Đã cập nhật phụ thu.",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6a5acd",
+        });
+      } else if (existingPhuThu && !isChanged) {
+        console.log("Phụ thu không thay đổi, không cần cập nhật.");
+        Swal.fire({
+          icon: "info",
+          title: "Thông báo",
+          text: "Phụ thu đã tồn tại và không có thay đổi.",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6a5acd",
+        });
+      } else {
         console.log("Không tìm thấy phụ thu hiện tại, tạo mới.");
         await ThemPhuThu(phuThuRequest);
-        Swal.fire("Thành công", "Đã tạo phụ thu mới", "success");
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Đã tạo phụ thu mới.",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6a5acd",
+        });
       }
     } catch (err) {
       if (err.response?.status === 404) {
         console.log("404 - Không tìm thấy phụ thu, tạo mới.");
         await ThemPhuThu(phuThuRequest);
-        Swal.fire("Thành công", "Đã tạo phụ thu mới", "success");
+        Swal.fire({
+          icon: "success",
+          title: "Thành công",
+          text: "Đã tạo phụ thu mới.",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6a5acd",
+        });
       } else {
         console.error("Lỗi khi xử lý phụ thu:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Đã xảy ra lỗi khi xử lý phụ thu. Vui lòng thử lại.",
+          confirmButtonText: "OK",
+          confirmButtonColor: "#6a5acd",
+        });
       }
     }
   };
@@ -610,7 +670,7 @@ const ModalKhachHangCheckin = ({
   };
 
   const handleRowSelection = (kh) => {
-    if (!checkedInKhachHangIds.includes(kh.id)) {
+    if ( kh.trangThai && !checkedInKhachHangIds.includes(kh.id)) {
       setSelectedKhachHang((prev) => {
         const isSelected = prev.some((item) => item.id === kh.id);
         if (isSelected) {
@@ -647,7 +707,7 @@ const ModalKhachHangCheckin = ({
 
   return (
     <>
-      <Modal open={isOpen} onClose={onClose}>
+      <Modal open={isOpen} onClose={onClose}  ref={dialogRef}>
         <Box sx={modalStyle}>
           <Typography variant="h6" component="h3" gutterBottom>
             {thongTinDatPhong.maThongTinDatPhong} - Tìm Hồ Sơ Khách Hàng
@@ -700,6 +760,7 @@ const ModalKhachHangCheckin = ({
                     <TableCell>Email</TableCell>
                     <TableCell>Địa Chỉ</TableCell>
                     <TableCell>Trạng thái</TableCell>
+                    <TableCell>Hành động</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -729,6 +790,17 @@ const ModalKhachHangCheckin = ({
                         <TableCell>{kh.diaChi || "N/A"}</TableCell>
                         <TableCell>
                           {kh.trangThai ? "Hoạt động" : "Không hoạt động"}
+                        </TableCell>
+                        <TableCell>
+                         
+                          <IconButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenEditModal(kh);
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
                         </TableCell>
                       </TableRow>
                     ))
@@ -777,6 +849,12 @@ const ModalKhachHangCheckin = ({
         thongTinDatPhong={thongTinDatPhong}
         onKhachHangAdded={handleKhachHangAdded}
         initialData={initialQRData}
+      />
+      <ModalUpdateKHC
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        khachHang={editKhachHang}
+        onKhachHangUpdated={handleKhachHangUpdated}
       />
 
       <Modal open={isQRModalOpen} onClose={closeQRScanner}>

@@ -49,18 +49,16 @@ const HotelBookingForm = () => {
 
   const [ngayNhanPhong, setNgayNhanPhong] = useState(
     location.state?.ngayNhanPhong
-      ? dayjs(location.state.ngayNhanPhong).tz("Asia/Ho_Chi_Minh")
+      ? dayjs(location.state.ngayNhanPhong)
       : dayjs()
-          .tz("Asia/Ho_Chi_Minh")
           .set("hour", 14)
           .set("minute", 0)
           .set("second", 0)
   );
   const [ngayTraPhong, setNgayTraPhong] = useState(
     location.state?.ngayTraPhong
-      ? dayjs(location.state.ngayTraPhong).tz("Asia/Ho_Chi_Minh")
+      ? dayjs(location.state.ngayTraPhong)
       : dayjs()
-          .tz("Asia/Ho_Chi_Minh")
           .add(1, "day")
           .set("hour", 12)
           .set("minute", 0)
@@ -339,8 +337,8 @@ const HotelBookingForm = () => {
               datPhong: datPhongResponse.data,
               idLoaiPhong: phong.loaiPhong.id,
               maThongTinDatPhong: `TTD${Date.now()}${i}`,
-              ngayNhanPhong: ngayNhanPhong.toISOString(),
-              ngayTraPhong: ngayTraPhong.toISOString(),
+              ngayNhanPhong: ngayNhanPhong.add(7, "hours").toISOString(),
+              ngayTraPhong: ngayTraPhong.add(7, "hours").toISOString(),
               soNguoi: phong.loaiPhong.soKhachTieuChuan,
               soTre: phong.loaiPhong.treEmTieuChuan || 0,
               giaDat: phong.loaiPhong.donGia,
@@ -354,7 +352,6 @@ const HotelBookingForm = () => {
         }
       }
 
-      // Lưu booking ID vào danh sách booking_ids
       const bookingId = datPhongResponse.data.id;
       saveBookingId(bookingId);
 
@@ -449,79 +446,97 @@ const HotelBookingForm = () => {
         <form className="booking-form" onSubmit={(e) => e.preventDefault()}>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={12} sm={3}>
-              <DateTimePicker
-                label="Ngày nhận phòng"
-                value={ngayNhanPhong}
-                minDateTime={dayjs()
-                  .tz("Asia/Ho_Chi_Minh")
-                  .set("hour", 14)
-                  .set("minute", 0)}
-                onChange={(newValue) => {
-                  if (newValue?.isValid()) {
-                    const newCheckIn = dayjs(newValue).tz("Asia/Ho_Chi_Minh");
-                    setNgayNhanPhong(newCheckIn);
-                    setErrors({ ...errors, ngayNhanPhong: "" });
-                  } else {
-                    setNgayNhanPhong(null);
-                    setErrors({
-                      ...errors,
-                      ngayNhanPhong: "Ngày nhận phòng không hợp lệ",
-                    });
-                  }
-                }}
-                ampm={false}
-                format="DD/MM/YYYY HH:mm"
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    error: !!errors.ngayNhanPhong,
-                    helperText: errors.ngayNhanPhong,
-                    sx: {
-                      "& .MuiInputBase-root": {
-                        borderRadius: 1,
-                        bgcolor: "#f5f5f5",
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  label="Ngày nhận phòng"
+                  value={ngayNhanPhong}
+                  minDateTime={dayjs()
+                    .tz("Asia/Ho_Chi_Minh")
+                    .set("hour", 14)
+                    .set("minute", 0)}
+                  onChange={(newValue) => {
+                    if (newValue && dayjs(newValue).isValid()) {
+                      const newCheckInDateTime =
+                        dayjs(newValue).tz("Asia/Ho_Chi_Minh");
+                      setNgayNhanPhong(newCheckInDateTime);
+                      if (newCheckInDateTime.isAfter(ngayTraPhong)) {
+                        setNgayTraPhong(
+                          newCheckInDateTime
+                            .add(1, "day")
+                            .set("hour", 12)
+                            .set("minute", 0)
+                        );
+                      }
+                      setErrors({ ...errors, ngayNhanPhong: "" });
+                    } else {
+                      setNgayNhanPhong(null);
+                      setErrors({
+                        ...errors,
+                        ngayNhanPhong: "Ngày nhận phòng không hợp lệ",
+                      });
+                    }
+                    validateInputs();
+                  }}
+                  ampm={false}
+                  format="DD/MM/YYYY HH:mm"
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      size: "medium",
+                      error: !!errors.ngayNhanPhong,
+                      helperText: errors.ngayNhanPhong,
+                      sx: {
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#f5f5f5",
+                        },
                       },
                     },
-                  },
-                }}
-              />
+                  }}
+                />
+              </LocalizationProvider>
             </Grid>
             <Grid item xs={12} sm={3}>
-              <DateTimePicker
-                label="Ngày trả phòng"
-                value={ngayTraPhong}
-                minDateTime={
-                  ngayNhanPhong
-                    ? ngayNhanPhong.add(1, "hour")
-                    : dayjs().tz("Asia/Ho_Chi_Minh").add(1, "hour")
-                }
-                onChange={(newValue) => {
-                  if (newValue?.isValid()) {
-                    setErrors({ ...errors, ngayTraPhong: "" });
-                  } else {
-                    setNgayTraPhong(null);
-                    setErrors({
-                      ...errors,
-                      ngayTraPhong: "Ngày trả phòng không hợp lệ",
-                    });
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DateTimePicker
+                  label="Ngày trả phòng"
+                  value={ngayTraPhong}
+                  minDateTime={
+                    ngayNhanPhong
+                      ? ngayNhanPhong.add(1, "hour")
+                      : dayjs().tz("Asia/Ho_Chi_Minh")
                   }
-                }}
-                ampm={false}
-                format="DD/MM/YYYY HH:mm"
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                    error: !!errors.ngayTraPhong,
-                    helperText: errors.ngayTraPhong,
-                    sx: {
-                      "& .MuiInputBase-root": {
-                        borderRadius: 1,
-                        bgcolor: "#f5f5f5",
+                  onChange={(newValue) => {
+                    if (newValue && dayjs(newValue).isValid()) {
+                      setNgayTraPhong(dayjs(newValue).tz("Asia/Ho_Chi_Minh"));
+                      setErrors({ ...errors, ngayTraPhong: "" });
+                    } else {
+                      setNgayTraPhong(null);
+                      setErrors({
+                        ...errors,
+                        ngayTraPhong: "Ngày trả phòng không hợp lệ",
+                      });
+                    }
+                    validateInputs();
+                  }}
+                  ampm={false}
+                  format="DD/MM/YYYY HH:mm"
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      size: "medium",
+                      error: !!errors.ngayTraPhong,
+                      helperText: errors.ngayTraPhong,
+                      sx: {
+                        "& .MuiInputBase-root": {
+                          borderRadius: 1,
+                          backgroundColor: "#f5f5f5",
+                        },
                       },
                     },
-                  },
-                }}
-              />
+                  }}
+                />
+              </LocalizationProvider>
             </Grid>
             <Grid item xs={12} sm={3}>
               <TextField

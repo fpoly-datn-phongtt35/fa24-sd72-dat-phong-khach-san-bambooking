@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -55,7 +55,6 @@ import {
 } from "../../services/LoaiPhongService";
 
 dayjs.extend(utc);
-
 const TaoDatPhong = () => {
   // Hàm tiện ích: Tính số ngày đặt phòng
   const calculateBookingDays = (ngayNhanPhong, ngayTraPhong) => {

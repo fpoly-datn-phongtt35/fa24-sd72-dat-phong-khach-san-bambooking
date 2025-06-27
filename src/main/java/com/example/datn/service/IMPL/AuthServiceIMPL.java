@@ -146,7 +146,7 @@ public class AuthServiceIMPL implements AuthService {
                     .tenDangNhap(request.getEmail())
                     .matKhau(this.passwordEncoder.encode(password))
                     .trangThai(true)
-                    .idVaiTro(this.vaiTroRepository.findById(2).orElse(null))
+                    .idVaiTro(this.vaiTroRepository.findById(3).orElse(null))
                     .build();
             tk = this.taiKhoanRepository.save(tk);
 

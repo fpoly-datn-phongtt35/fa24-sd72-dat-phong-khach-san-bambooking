@@ -20,6 +20,7 @@ import {
 import { addXepPhong, updateXepPhong } from "../../services/XepPhongService";
 import Swal from "sweetalert2";
 
+
 function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [selectedRooms, setSelectedRooms] = useState([]);
@@ -27,13 +28,12 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const dialogRef = useRef(null); // Thêm ref cho Dialog
-
   const isEditMode = !!xepPhong;
-
   const formatToLocalDateTime = (dateString) => {
     const date = new Date(dateString);
     return date.toISOString().slice(0, 19);
   };
+
 
   const fetchAvailableRooms = async () => {
     setIsLoading(true);
@@ -44,6 +44,7 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
             (ttdp) => ttdp.id === xepPhong.thongTinDatPhong.id
           )
         : selectedTTDPs.filter((ttdp) => ttdp.trangThai === "Chưa xếp");
+
 
       if (unassignedTTDPs.length === 0) {
         setAvailableRooms([]);
@@ -67,14 +68,17 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
         Math.max(...unassignedTTDPs.map((ttdp) => new Date(ttdp.ngayTraPhong)))
       );
 
+
       const setTime = (date, hours, minutes) => {
         const newDate = new Date(date);
         newDate.setHours(hours, minutes, 0, 0);
         return newDate;
       };
 
+
       const ngayNhanPhong = formatToLocalDateTime(setTime(minDate, 14, 0));
       const ngayTraPhong = formatToLocalDateTime(setTime(maxDate, 12, 0));
+
 
       const roomTypeCounts = unassignedTTDPs.reduce((acc, ttdp) => {
         const roomTypeId = ttdp.loaiPhong.id;
@@ -82,9 +86,11 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
         return acc;
       }, {});
 
+
       const roomPromises = Object.keys(roomTypeCounts).map((roomTypeId) =>
         getPhongKhaDung(roomTypeId, ngayNhanPhong, ngayTraPhong)
       );
+
 
       const responses = await Promise.all(roomPromises);
       let allRooms = responses
@@ -127,12 +133,14 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
           roomTypeId: ttdp.loaiPhong.id,
         }));
 
+
       const uniqueRooms = [
         ...preAssignedRooms,
         ...allRooms.filter(
           (room) => !preAssignedRooms.some((pr) => pr.id === room.id)
         ),
       ];
+
 
       setAvailableRooms(uniqueRooms);
     } catch (error) {
@@ -141,6 +149,7 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
       setIsLoading(false);
     }
   };
+
 
   useEffect(() => {
     if (show && selectedTTDPs.length > 0) {
@@ -156,16 +165,19 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
     }
   }, [show, selectedTTDPs, xepPhong]);
 
+
   const handleRoomToggle = async (roomId) => {
     try {
       const room = availableRooms.find((r) => r.id === roomId);
       if (!room) return;
+
 
       const unassignedTTDPs = isEditMode
         ? selectedTTDPs.filter(
             (ttdp) => ttdp.id === xepPhong.thongTinDatPhong.id
           )
         : selectedTTDPs.filter((ttdp) => ttdp.trangThai === "Chưa xếp");
+
 
       const selectedRoomTypeCounts = selectedRooms.reduce((acc, id) => {
         const selectedRoom = availableRooms.find((r) => r.id === id);
@@ -176,11 +188,13 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
         return acc;
       }, {});
 
+
       const requiredRoomTypeCounts = unassignedTTDPs.reduce((acc, ttdp) => {
         const roomTypeId = ttdp.loaiPhong.id;
         acc[roomTypeId] = (acc[roomTypeId] || 0) + 1;
         return acc;
       }, {});
+
 
       if (selectedRooms.includes(roomId)) {
         await huyPhongDangDat(roomId);
@@ -188,6 +202,7 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
       } else {
         const currentCount = selectedRoomTypeCounts[room.roomTypeId] || 0;
         const requiredCount = requiredRoomTypeCounts[room.roomTypeId] || 0;
+
 
         if (isEditMode) {
           if (selectedRooms.length > 0) {
@@ -217,10 +232,12 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
     }
   };
 
+
   const handleSaveAll = async () => {
     const unassignedTTDPs = isEditMode
       ? selectedTTDPs.filter((ttdp) => ttdp.id === xepPhong.thongTinDatPhong.id)
       : selectedTTDPs.filter((ttdp) => ttdp.trangThai === "Chưa xếp");
+
 
     if (selectedRooms.length !== unassignedTTDPs.length) {
       await Swal.fire({
@@ -233,6 +250,7 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
       });
       return;
     }
+
 
     const confirmSave = await Swal.fire({
       icon: "question",
@@ -247,7 +265,9 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
       backdrop: true,
     });
 
+
     if (!confirmSave.isConfirmed) return;
+
 
     setIsLoading(true);
     setError(null);
@@ -262,11 +282,13 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
           trangThai: isEditMode ? xepPhong.trangThai : "Đã xếp",
         };
 
+
         await huyPhongDangDat(selectedRooms[index]);
         return isEditMode
           ? updateXepPhong(xepPhongRequest)
           : addXepPhong(xepPhongRequest);
       });
+
 
       await Promise.all(requests);
       await Swal.fire({
@@ -298,6 +320,7 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
     }
   };
 
+
   const handleCancel = async () => {
     try {
       const cancelRequests = selectedRooms.map((roomId) =>
@@ -311,6 +334,7 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
     handleClose();
   };
 
+
   const groupPhongByFloor = (phongList) => {
     const floors = {};
     phongList.forEach((phong) => {
@@ -321,10 +345,12 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
     return floors;
   };
 
+
   const isRoomSelectable = (room) => {
     const unassignedTTDPs = isEditMode
       ? selectedTTDPs.filter((ttdp) => ttdp.id === xepPhong.thongTinDatPhong.id)
       : selectedTTDPs.filter((ttdp) => ttdp.trangThai === "Chưa xếp");
+
 
     const selectedRoomTypeCounts = selectedRooms.reduce((acc, id) => {
       const selectedRoom = availableRooms.find((r) => r.id === id);
@@ -334,13 +360,16 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
       return acc;
     }, {});
 
+
     const requiredRoomTypeCounts = unassignedTTDPs.reduce((acc, ttdp) => {
       acc[ttdp.loaiPhong.id] = (acc[ttdp.loaiPhong.id] || 0) + 1;
       return acc;
     }, {});
 
+
     const currentCount = selectedRoomTypeCounts[room.roomTypeId] || 0;
     const requiredCount = requiredRoomTypeCounts[room.roomTypeId] || 0;
+
 
     return (
       room.tinhTrang !== "Đang đặt" ||
@@ -349,6 +378,7 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
         selectedRooms.length < unassignedTTDPs.length)
     );
   };
+
 
   return (
     <Dialog
@@ -473,5 +503,6 @@ function XepPhong({ show, handleClose, selectedTTDPs, xepPhong, onSuccess }) {
     </Dialog>
   );
 }
+
 
 export default XepPhong;

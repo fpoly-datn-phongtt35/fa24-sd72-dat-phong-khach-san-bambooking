@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useRef} from 'react';
 import { listVatTuLoaiPhong, addVatTuLoaiPhong } from '../../services/VatTuLoaiPhong';
 import Swal from 'sweetalert2';
 import {
@@ -19,7 +19,7 @@ const AddUtilityModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
     const [allTienIch, setAllTienIch] = useState([]);
     const [selectedVatTu, setSelectedVatTu] = useState('');
     const [soLuongVatTu, setSoLuongVatTu] = useState('');
-
+    const dialogRef = useRef(null); // Thêm ref cho Dialog
     useEffect(() => {
         listVatTuLoaiPhong()
             .then(response => setAllTienIch(response.data))
@@ -28,12 +28,14 @@ const AddUtilityModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
 
     const handleAddTienIch = () => {
         if (!selectedVatTu || !soLuongVatTu) {
-            Swal.fire({ title: 'Lỗi!', text: 'Vui lòng chọn vật tư và nhập số lượng.', icon: 'error' });
+            Swal.fire({ title: 'Lỗi!', text: 'Vui lòng chọn vật tư và nhập số lượng.', icon: 'error',target: dialogRef.current,
+            backdrop: true, });
             return;
         }
         const soLuong = parseInt(soLuongVatTu);
         if (soLuong < 1) {
-            Swal.fire({ title: 'Lỗi!', text: 'Số lượng phải lớn hơn hoặc bằng 1.', icon: 'error' });
+            Swal.fire({ title: 'Lỗi!', text: 'Số lượng phải lớn hơn hoặc bằng 1.', icon: 'error',target: dialogRef.current,
+            backdrop: true, });
             return;
         }
         const vatTuPhongRequest = {
@@ -43,13 +45,15 @@ const AddUtilityModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
         };
         addVatTuLoaiPhong(vatTuPhongRequest)
             .then(() => {
-                Swal.fire({ title: 'Thành công!', text: 'Vật tư đã được thêm.', icon: 'success' });
+                Swal.fire({ title: 'Thành công!', text: 'Vật tư đã được thêm.', icon: 'success',target: dialogRef.current,
+                backdrop: true, });
                 setSelectedVatTu('');
                 setSoLuongVatTu('');
                 onAddSuccess();
                 handleClose();
             })
-            .catch(() => Swal.fire({ title: 'Lỗi!', text: 'Không thể thêm vật tư.', icon: 'error' }));
+            .catch(() => Swal.fire({ title: 'Lỗi!', text: 'Không thể thêm vật tư.', icon: 'error',target: dialogRef.current,
+            backdrop: true, }));
     };
 
     const handleSoLuongVatTuChange = (e) => {
@@ -61,7 +65,7 @@ const AddUtilityModal = ({ show, handleClose, loaiPhongId, onAddSuccess }) => {
     };
 
     return (
-        <Dialog open={show} onClose={handleClose} maxWidth="sm" fullWidth>
+        <Dialog open={show} onClose={handleClose} maxWidth="sm" fullWidth  ref={dialogRef}>
             <DialogTitle sx={{ bgcolor: '#1976d2', color: 'white' }}>
                 <Typography variant="h6">Thêm Vật Tư Loại Phòng</Typography>
             </DialogTitle>

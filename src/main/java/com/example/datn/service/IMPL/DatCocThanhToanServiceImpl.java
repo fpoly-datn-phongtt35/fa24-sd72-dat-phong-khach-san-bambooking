@@ -392,6 +392,16 @@ public class DatCocThanhToanServiceImpl implements DatCocThanhToanService {
         }
     }
 
+    @Override
+    public DatCocThanhToan findDatCoc(Integer iddp) {
+        return datCocThanhToanRepository.findDatCocByIddp(iddp);
+    }
+
+    @Override
+    public DatCocThanhToan findDatCocByidHoaDon(Integer idHoaDon) {
+        return datCocThanhToanRepository.findDatCocByIdHoaDon(idHoaDon);
+    }
+
     private Double tinhTienThanhToan(DatPhong datPhong, String loaiThanhToan) {
         Double tongTien = datPhong.getTongTien();
         if ("Đặt cọc".equals(loaiThanhToan)) {

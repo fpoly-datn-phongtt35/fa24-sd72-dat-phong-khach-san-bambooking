@@ -443,6 +443,8 @@ const ChiTietTTDP = () => {
   const calculateDays = (start, end) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
     const diffTime = Math.abs(endDate - startDate);
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
   };
@@ -608,11 +610,11 @@ const ChiTietTTDP = () => {
                   <Typography variant="body1" sx={{ fontWeight: "medium" }}>
                     {xepPhong?.ngayNhanPhong
                       ? new Date(xepPhong.ngayNhanPhong).toLocaleDateString(
-                        "vi-VN"
-                      )
+                          "vi-VN"
+                        )
                       : new Date(
-                        thongTinDatPhong?.ngayNhanPhong
-                      ).toLocaleDateString("vi-VN") || "N/A"}
+                          thongTinDatPhong?.ngayNhanPhong
+                        ).toLocaleDateString("vi-VN") || "N/A"}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: "center" }}>
@@ -630,7 +632,13 @@ const ChiTietTTDP = () => {
                     Trả phòng
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: "medium" }}>
-                    {xepPhong?.ngayTraPhong}
+                    {xepPhong?.ngayTraPhong
+                      ? new Date(xepPhong.ngayTraPhong).toLocaleDateString(
+                          "vi-VN"
+                        )
+                      : new Date(
+                          thongTinDatPhong?.ngayTraPhong
+                        ).toLocaleDateString("vi-VN") || "N/A"}
                   </Typography>
                 </Box>
               </Box>
@@ -659,17 +667,18 @@ const ChiTietTTDP = () => {
                 >
                   {xepPhong?.phong ? "Đã xếp phòng" : "Xếp phòng"}
                 </Button>
-                {xepPhong?.phong && (
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    startIcon={<EditIcon />}
-                    onClick={() => openXepPhongModal(thongTinDatPhong, true)}
-                    sx={{ mb: 2 }}
-                  >
-                    Sửa phòng
-                  </Button>
-                )}
+                {xepPhong?.phong &&
+                  thongTinDatPhong?.trangThai === "Đã xếp" && (
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      startIcon={<EditIcon />}
+                      onClick={() => openXepPhongModal(thongTinDatPhong, true)}
+                      sx={{ mb: 2 }}
+                    >
+                      Sửa phòng
+                    </Button>
+                  )}
               </Box>
             </CardContent>
           </Card>

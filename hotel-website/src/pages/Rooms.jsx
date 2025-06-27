@@ -142,7 +142,8 @@ export default function Rooms() {
                   <h3>{room.tenLoaiPhong}</h3>
                   
                   <p className="room-area">Diện tích: {room.dienTich} m²</p>
-                  <p className="room-capacity">Số khách tối đa: {room.soKhachToiDa}</p>
+                  <p className="room-capacity">Số người lớn: {room.soKhachTieuChuan}</p>
+                  <p className="room-capacity">Số trẻ em: {room.treEmTieuChuan}</p>
                   <p className="room-price">Đơn giá: {room.donGia.toLocaleString('vi-VN')} VNĐ</p>
                   <p className="room-description">{room.moTa}</p>
                 </div>
