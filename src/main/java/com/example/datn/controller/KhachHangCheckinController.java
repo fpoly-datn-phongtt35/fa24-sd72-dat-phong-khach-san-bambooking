@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -70,9 +71,10 @@ public class KhachHangCheckinController {
     @GetMapping("/quet-qr")
     public boolean quetQR(@RequestParam("idTTDP") Integer idTTDP,
                                     @RequestParam("cmnd") String cmnd,
-                                    @RequestParam("diaChi") String diaChi,
+                                    @RequestParam("hoTen") String hoTen,
+                                    @RequestParam("ngaySinh") LocalDate ngaySinh,
                                     @RequestParam("gioiTinh") String gioiTinh,
-                                    @RequestParam("hoTen") String hoTen) {
-        return khachHangCheckinServiceIMPL.qrCheckIn(idTTDP, cmnd, diaChi, gioiTinh, hoTen);
+                                    @RequestParam("diaChi") String diaChi) {
+        return khachHangCheckinServiceIMPL.qrCheckIn(idTTDP,cmnd,hoTen,ngaySinh,gioiTinh,diaChi);
     }
 }

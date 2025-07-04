@@ -13,6 +13,7 @@ import com.example.datn.repository.VaiTroRepository;
 import com.example.datn.repository.customizeQuery.EmployeeRepository;
 import com.example.datn.service.NhanVienService;
 import com.example.datn.utilities.CloudinaryUtils;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -58,7 +59,7 @@ public class NhanVienServiceIMPL implements NhanVienService{
         TaiKhoan taiKhoan = TaiKhoan.builder()
                 .tenDangNhap(request.getUsername())
                 .matKhau(passwordEncoder.encode(request.getPassword()))
-                .idVaiTro(this.vaiTroRepository.findById(2)
+                .idVaiTro(this.vaiTroRepository.findById(request.getRole())
                         .orElseThrow(() -> new EntityNotFountException("Role not found!")))
                 .trangThai(true)
                 .build();
@@ -105,11 +106,13 @@ public class NhanVienServiceIMPL implements NhanVienService{
                 .address(nhanVien.getDiaChi())
                 .phoneNumber(nhanVien.getSdt())
                 .gender(nhanVien.getGioiTinh())
+                .role(nhanVien.getTaiKhoan().getIdVaiTro().getId())
                 .avatar(nhanVien.getAvatar())
                 .build();
     }
 
     @Override
+    @Transactional(rollbackOn = Exception.class)
     public void updateEmployee(EmployeeRequests.EmployeeUpdate request, int id) {
         NhanVien nhanVien = this.nhanVienRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFountException("Customer not found!"));
@@ -129,6 +132,9 @@ public class NhanVienServiceIMPL implements NhanVienService{
         nhanVien.setDiaChi(request.getAddress());
         nhanVien.setSdt(request.getPhoneNumber());
         nhanVien.setNgaySua(LocalDateTime.now());
+        TaiKhoan taiKhoan = nhanVien.getTaiKhoan();
+        taiKhoan.setIdVaiTro(this.vaiTroRepository.findById(request.getRole()).orElseThrow(() -> new EntityNotFountException("Role not found!")));
+        this.taiKhoanRepository.save(taiKhoan);
         this.nhanVienRepository.save(nhanVien);
     }
 }

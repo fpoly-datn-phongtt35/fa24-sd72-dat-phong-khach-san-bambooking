@@ -1,211 +1,238 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "../styles/HotelBookingForm.css";
 import {
-  toHopLoaiPhong,
-  ThemMoiDatPhong,
-  addThongTinDatPhong,
-  getKhachHangByUsername,
-} from "../services/DatPhong";
+  Button,
+  Snackbar,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  Box,
+} from "@mui/material";
 import dayjs from "dayjs";
-import { Button, TextField, Snackbar } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+import Swal from "sweetalert2";
+import { HuyDP, getDatPhongByID } from "../services/DatPhong";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Asia/Ho_Chi_Minh");
 
 const PendingBooking = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [pendingData, setPendingData] = useState(() => {
-    const data = localStorage.getItem("pendingData");
-    return data ? JSON.parse(data) : null;
-  });
+  const [pendingBookings, setPendingBookings] = useState([]);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  // Xử lý thông báo Snackbar
   const handleSnackbar = (message) => {
     setSnackbarMessage(message);
     setOpenSnackbar(true);
   };
 
-  useEffect(() => {
-    console.log("PendingData:", pendingData);
-  }, [pendingData]);
-
-  const handleCreateBooking = async () => {
-    if (!pendingData) {
-      handleSnackbar("Không có dữ liệu đặt phòng để xử lý.");
-      return;
-    }
-
-    const { combination, ngayNhanPhong, ngayTraPhong, soNguoi } = pendingData;
-
+  const updateBookingIds = (bookingId) => {
     try {
-      // Kiểm tra người dùng đã đăng nhập
-      let user;
-      try {
-        user = (await getKhachHangByUsername(localStorage.getItem("user"))).data;
-        console.log("User:", user);
-      } catch (error) {
-        console.error("Lỗi khi parse user từ localStorage:", error);
-      }
-
-      if (!user) {
-        handleSnackbar("Vui lòng đăng nhập để tiếp tục đặt phòng.");
-        setTimeout(() => {
-          navigate("/login", { state: { from: location.pathname } });
-        }, 1000);
-        return;
-      }
-
-      // Lấy thông tin khách hàng từ API
-      let khachHangData;
-      try {
-        const response = await getKhachHangByUsername(user.email);
-        console.log("Khách hàng:", response.data);
-        if (!response || !response.data) {
-          throw new Error("Không tìm thấy thông tin khách hàng.");
-        }
-        khachHangData = response.data;
-      } catch (error) {
-        console.error("Lỗi khi lấy thông tin khách hàng:", error);
-        handleSnackbar(
-          "Không thể lấy thông tin khách hàng. Vui lòng đăng nhập lại."
-        );
-        setTimeout(() => {
-          navigate("/login", { state: { from: location.pathname } });
-        }, 2000);
-        return;
-      }
-
-      // Tạo đặt phòng
-      const datPhongRequest = {
-        khachHang: khachHangData,
-        maDatPhong: "DP" + new Date().getTime(),
-        soNguoi: soNguoi,
-        soPhong: combination.tongSoPhong,
-        ngayDat: new Date().toISOString(),
-        tongTien: combination.tongChiPhi,
-        ghiChu: "Đặt phòng từ tổ hợp được chọn",
-        trangThai: "Đang đặt phòng",
-      };
-      const datPhongResponse = await ThemMoiDatPhong(datPhongRequest);
-      if (!datPhongResponse || !datPhongResponse.data) {
-        throw new Error("Không thể tạo đặt phòng.");
-      }
-
-      // Tạo thông tin đặt phòng
-      const thongTinDatPhongResponseList = [];
-      for (const phong of combination.phongs) {
-        if (phong.soLuongChon > 0) {
-          for (let i = 0; i < phong.soLuongChon; i++) {
-            const thongTinDatPhongRequest = {
-              datPhong: datPhongResponse.data,
-              idLoaiPhong: phong.loaiPhong.id,
-              maThongTinDatPhong: "",
-              ngayNhanPhong: dayjs(ngayNhanPhong).format("YYYY-MM-DD"),
-              ngayTraPhong: dayjs(ngayTraPhong).format("YYYY-MM-DD"),
-              soNguoi: phong.loaiPhong.soKhachToiDa,
-              giaDat: phong.loaiPhong.donGia,
-              trangThai: "Đang đặt phòng",
-            };
-            const response = await addThongTinDatPhong(thongTinDatPhongRequest);
-            if (!response || !response.data) {
-              throw new Error("Không thể tạo thông tin đặt phòng.");
-            }
-            thongTinDatPhongResponseList.push(response.data);
-          }
-        }
-      }
-
-      // Xóa dữ liệu pendingData khỏi localStorage sau khi đặt phòng thành công
-      localStorage.removeItem("pendingData");
-
-      handleSnackbar("Đặt phòng thành công!");
-      navigate("/booking-confirmation", {
-        state: {
-          combination: combination,
-          datPhong: datPhongResponse.data,
-          khachHang: khachHangData,
-          thongTinDatPhong: thongTinDatPhongResponseList,
-        },
-      });
+      const existingIds = JSON.parse(
+        localStorage.getItem("booking_ids") || "[]"
+      );
+      const updatedIds = existingIds.filter((id) => id !== bookingId);
+      localStorage.setItem("booking_ids", JSON.stringify(updatedIds));
+      console.debug(`Đã xóa booking ID ${bookingId} khỏi booking_ids`);
     } catch (error) {
-      console.error("Lỗi khi tạo đặt phòng:", error);
-      handleSnackbar("Đã xảy ra lỗi khi tạo đặt phòng. Vui lòng thử lại.");
+      console.error("Lỗi khi cập nhật booking_ids:", error);
     }
   };
 
-  return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <div className="booking-container">
-        <div className="results-section">
-          <h2>Danh sách tổ hợp phòng 1</h2>
-          {pendingData ? (
-            <div className="room-option">
-              <div className="room-header">
-                <h3>
-                  Tổ hợp: {pendingData.combination.tongSucChua} người -{" "}
-                  {Number(pendingData.combination.tongChiPhi).toLocaleString()}{" "}
-                  VND - {pendingData.combination.tongSoPhong} phòng
-                </h3>
-                <Button
-                  variant="contained"
-                  color="success"
-                  className="book-btn"
-                  onClick={handleCreateBooking}
-                >
-                  Đặt phòng
-                </Button>
-              </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Loại phòng</th>
-                    <th>Diện tích</th>
-                    <th>Số khách</th>
-                    <th>Đơn giá</th>
-                    <th>Số lượng</th>
-                    <th>Thành tiền</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pendingData.combination.phongs.map((phong, idx) => (
-                    <tr key={phong.loaiPhong.id}>
-                      <td>{idx + 1}</td>
-                      <td>{phong.loaiPhong.tenLoaiPhong}</td>
-                      <td>{phong.loaiPhong.dienTich} m²</td>
-                      <td>{phong.loaiPhong.soKhachToiDa}</td>
-                      <td>{phong.loaiPhong.donGia.toLocaleString()} VND</td>
-                      <td>{phong.soLuongChon}</td>
-                      <td>
-                        {(
-                          phong.soLuongChon * phong.loaiPhong.donGia
-                        ).toLocaleString()}{" "}
-                        VND
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="no-results">
-              Không tìm thấy tổ hợp phòng nào phù hợp.
-            </p>
-          )}
-        </div>
+  const fetchPendingBookings = async () => {
+    let bookingIds = [];
+    try {
+      bookingIds = JSON.parse(localStorage.getItem("booking_ids") || "[]");
+    } catch (error) {
+      console.error("Lỗi khi parse booking_ids từ localStorage:", error);
+      localStorage.setItem("booking_ids", "[]");
+    }
 
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={() => setOpenSnackbar(false)}
-          message={snackbarMessage}
-        />
-      </div>
-    </LocalizationProvider>
+    if (!bookingIds.length) {
+      setPendingBookings([]);
+      handleSnackbar("Không có đơn đặt phòng nào đang chờ xác nhận.");
+      return;
+    }
+
+    const validBookings = [];
+    for (const id of bookingIds) {
+      try {
+        // Gọi API để lấy dữ liệu từ server
+        const response = await getDatPhongByID(id);
+        if (!response?.data) {
+          console.warn(`Không tìm thấy đặt phòng ${id} trên server`);
+          await HuyDP(id).catch((err) =>
+            console.error(`Lỗi khi hủy đơn ${id}:`, err)
+          );
+          updateBookingIds(id);
+          handleSnackbar(`Đơn đặt phòng ${id} không tồn tại và đã được xóa.`);
+          continue;
+        }
+
+        const serverData = response.data;
+        // Chỉ thêm đơn có trạng thái "Đang đặt phòng"
+        if (serverData.trangThai === "Đang đặt phòng") {
+          validBookings.push({
+            id,
+            datPhong: serverData,
+          });
+        } else {
+          console.debug(
+            `Bỏ qua đơn ${id} do trạng thái không phải 'Đang đặt phòng': ${serverData.trangThai}`
+          );
+          updateBookingIds(id);
+        }
+
+        console.debug(
+          `Booking ${id}: maDatPhong=${serverData.maDatPhong}, ngayDat=${serverData.ngayDat}`
+        );
+      } catch (error) {
+        console.error(`Lỗi khi xử lý booking ${id}:`, error);
+        handleSnackbar(`Lỗi khi xử lý đơn ${id}. Vui lòng thử lại.`);
+      }
+    }
+
+    setPendingBookings(validBookings);
+
+    if (validBookings.length === 0 && bookingIds.length > 0) {
+      handleSnackbar("Không có đơn đặt phòng nào đang chờ xác nhận.");
+    }
+  };
+
+  const handleContinueBooking = (booking) => {
+    navigate("/booking-confirmation", {
+      state: { datPhong: booking.datPhong },
+    });
+  };
+
+  const handleCancelBooking = async (booking) => {
+    const iddp = booking.datPhong?.id;
+    const maDatPhong = booking.datPhong?.maDatPhong || iddp;
+
+    Swal.fire({
+      icon: "warning",
+      title: "Xác nhận hủy đơn",
+      text: `Bạn có chắc chắn muốn hủy đơn đặt phòng ${maDatPhong}?`,
+      showCancelButton: true,
+      confirmButtonText: "Hủy",
+      cancelButtonText: "Không",
+      confirmButtonColor: "#d32f2f",
+      cancelButtonColor: "#1976d2",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          if (iddp) {
+            await HuyDP(iddp);
+            updateBookingIds(iddp);
+            setPendingBookings((prev) => prev.filter((b) => b.id !== iddp));
+            handleSnackbar(`Đơn đặt phòng ${maDatPhong} đã được hủy.`);
+          } else {
+            console.warn(`Không tìm thấy iddp cho booking ${booking.id}`);
+            handleSnackbar("Lỗi: Không tìm thấy mã đặt phòng.");
+          }
+        } catch (error) {
+          console.error(`Lỗi khi hủy đơn ${iddp}:`, error);
+          handleSnackbar(`Lỗi khi hủy đơn ${maDatPhong}. Vui lòng thử lại.`);
+        }
+      }
+    });
+  };
+
+  useEffect(() => {
+    fetchPendingBookings();
+  }, []);
+
+  return (
+    <Box
+      className="booking-container"
+      sx={{ maxWidth: 1200, mx: "auto", p: 3 }}
+    >
+      <Typography variant="h4" align="center" gutterBottom sx={{ mb: 4 }}>
+        Danh Sách Đơn Đặt Phòng Chưa Xác Nhận
+      </Typography>
+      {pendingBookings.length > 0 ? (
+        <TableContainer>
+          <Table sx={{ minWidth: 650 }} aria-label="pending bookings table">
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: "bold" }}>STT</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Mã Đặt Phòng</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Ngày Đặt</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Tổng Chi Phí</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Số Phòng</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Số Người</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Số Trẻ Em</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Hành Động</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {pendingBookings.map((booking, index) => (
+                <TableRow key={booking.id} hover>
+                  <TableCell>{index + 1}</TableCell>
+                  <TableCell>{booking.datPhong.maDatPhong}</TableCell>
+                  <TableCell>
+                    {dayjs
+                      .tz(booking.datPhong.ngayDat, "Asia/Ho_Chi_Minh")
+                      .format("DD/MM/YYYY HH:mm:ss")}
+                  </TableCell>
+                  <TableCell>
+                    {Number(booking.datPhong.tongTien).toLocaleString("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    })}
+                  </TableCell>
+                  <TableCell>{booking.datPhong.soPhong}</TableCell>
+                  <TableCell>{booking.datPhong.soNguoi}</TableCell>
+                  <TableCell>{booking.datPhong.soTre}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => handleContinueBooking(booking)}
+                      sx={{ mr: 1, mb: { xs: 1, sm: 0 } }}
+                    >
+                      Tiếp tục
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleCancelBooking(booking)}
+                    >
+                      Hủy
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Typography
+          align="center"
+          variant="h6"
+          color="text.secondary"
+          sx={{ mt: 4 }}
+        >
+          Không tìm thấy đơn đặt phòng nào đang chờ xác nhận.
+        </Typography>
+      )}
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackbar(false)}
+        message={snackbarMessage}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      />
+    </Box>
   );
 };
 

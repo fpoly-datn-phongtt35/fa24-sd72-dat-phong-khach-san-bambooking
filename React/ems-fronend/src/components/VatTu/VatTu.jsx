@@ -120,6 +120,7 @@ const VatTu = () => {
                                     <TableCell>Tên vật tư</TableCell>
                                     <TableCell>Giá</TableCell>
                                     <TableCell>Hình ảnh</TableCell>
+                                    <TableCell>Trạng thái</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -135,6 +136,9 @@ const VatTu = () => {
                                                     alt={image.tenVatTu}
                                                     style={{ width: '100px', height: 'auto' }}
                                                 />
+                                            </TableCell>
+                                            <TableCell>
+                                                {image.trangThai ? "Hoạt động" : "Không hoạt động"}
                                             </TableCell>
                                         </TableRow>
                                     ))

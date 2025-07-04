@@ -123,6 +123,19 @@ CREATE TABLE dat_phong (
   FOREIGN KEY (id_khach_hang) REFERENCES khach_hang(id)
 );
 
+CREATE TABLE dat_coc_thanh_toan (
+	id INT IDENTITY(1,1) PRIMARY KEY,
+	id_dat_phong INT,
+	ngay_thanh_toan DATETIME,
+	tien_thanh_toan DECIMAL(18,2),
+	phuong_thuc_thanh_toan BIT,
+	payment_link_id VARCHAR(255),
+	loai_thanh_toan NVARCHAR(255), -- 'Đặt cọc', 'Thanh toán trước'
+	trang_thai NVARCHAR(50),
+	order_code_payment BIGINT,
+	FOREIGN KEY (id_dat_phong) REFERENCES dat_phong(id)
+);
+
 CREATE TABLE thong_tin_dat_phong (
   id INT IDENTITY(1,1) PRIMARY KEY,
   id_dat_phong INT,
@@ -134,6 +147,8 @@ CREATE TABLE thong_tin_dat_phong (
   gia_dat DECIMAL(18,2),
   ghi_chu NVARCHAR(255),
   trang_thai NVARCHAR(255),
+  trang_thai_thanh_toan NVARCHAR(100) DEFAULT 'Chưa thanh toán', --"Chua thanh toan", "Da dat coc", "Da thanh toan", "Hoan tat"
+  tien_da_thanh_toan DECIMAL(18,2),
   FOREIGN KEY (id_dat_phong) REFERENCES dat_phong(id),
   FOREIGN KEY (id_loai_phong) REFERENCES loai_phong(id)
 );
@@ -291,7 +306,6 @@ VALUES
 
 INSERT INTO khach_hang (id_tai_khoan, cmnd, ho, ten, gioi_tinh, dia_chi, sdt, email, ngay_tao, ngay_sua, trang_thai)
 VALUES 
-(2, '222333444', 'Thu', 'Chuc', 'Nu', '567 Tran Phu', '0843787882', 'nguyenchuc812@gmail.com', GETDATE(), GETDATE(), 1),
 (2, '001204042061', 'Nguyen', 'Hien', 'Nu', 'Tuyen Quang', '0364573309', 'hiennt@gmail.com', GETDATE(), GETDATE(), 1);
 
 

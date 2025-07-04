@@ -47,11 +47,13 @@ public class VatTuController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?> add(@RequestParam("tenVatTu") String tenVatTu, @RequestParam("gia") Double gia,
+    public ResponseEntity<?> add(@RequestParam("tenVatTu") String tenVatTu, @RequestParam("gia") Double gia ,
+                                 @RequestParam("trangThai") Boolean trangThai,
                                  @RequestParam("file") MultipartFile file) {
         VatTuRequest vatTuRequest = new VatTuRequest();
         vatTuRequest.setTenVatTu(tenVatTu);
         vatTuRequest.setGia(gia);
+        vatTuRequest.setTrangThai(trangThai);
         try {
             VatTuResponse response = vatTuServiceIMPL.add(vatTuRequest, file);
             return ResponseEntity.ok(response);
@@ -78,11 +80,13 @@ public class VatTuController {
     public ResponseEntity<?> update(@RequestParam("id") Integer id,
                                     @RequestParam("tenVatTu") String tenVatTu,
                                     @RequestParam("gia") Double gia,
+                                    @RequestParam("trangThai") Boolean trangThai,
                                     @RequestParam(value = "file", required = false) MultipartFile file) {
         VatTuRequest vatTuRequest = new VatTuRequest();
         vatTuRequest.setId(id);
         vatTuRequest.setTenVatTu(tenVatTu);
         vatTuRequest.setGia(gia);
+        vatTuRequest.setTrangThai(trangThai);
         try {
             VatTuResponse response = vatTuServiceIMPL.update(vatTuRequest, file);
             return ResponseEntity.ok(response);
@@ -113,6 +117,7 @@ public class VatTuController {
             response.setTenVatTu(image.getTenVatTu());
             response.setHinhAnh(image.getHinhAnh());
             response.setGia(image.getGia());
+            response.setTrangThai(image.getTrangThai());
             return response;
         });
 

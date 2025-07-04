@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "khach_hang_checkin")
 @AllArgsConstructor
@@ -20,11 +22,9 @@ public class KhachHangCheckin {
     @ManyToOne
     @JoinColumn(name = "id_thong_tin_dat_phong")
     private ThongTinDatPhong thongTinDatPhong;
-
     @ManyToOne
     @JoinColumn(name = "id_khach_hang")
     private KhachHang khachHang;
-
     @Column(name = "trang_thai")
     private Boolean trangThai;
 }

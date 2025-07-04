@@ -1,7 +1,8 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Header from '../components/Header';
 import Login from '../components/login/Login';
-import LoaiPhong from '../components/LoaiPhong/LoaiPhong';
+import LoaiPhong from '../pages/loaiphong/LoaiPhong';
+import ThongKe from '../components/ThongKe/ThongKe';
 import DanhSach from '../components/DichVu/DanhSach';
 import DanhSachDichVuDiKem from '../components/DichVuDikem/DanhSachDichVuDiKem';
 import DanhSachDichVuSuDung from '../components/DichVuSuDung/DanhSachDichVuSuDung';
@@ -36,7 +37,10 @@ import { XoaDichVuDiKem } from "../services/DichVuDiKemService";
 import DatPhong from '../pages/datphong/DatPhong'
 import QuanLyDatPhong from '../pages/quanlydatphong/QuanLyDatPhong';
 import Checkin from '../pages/checkin/Checkin';
-import {KhachHangLuuTru} from '../pages/customer/KhachHangLuuTru'
+import { KhachHangLuuTru } from '../pages/customer/KhachHangLuuTru'
+import RBACRouter from '../components/core/RBACRouter';
+import { permissions } from '../config/rbacConfig';
+import QuanLyDatPhongDaHuy from '../pages/quanlydatphong/QuanLyDatPhongDaHuy';
 
 function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
   const UnauthorizedRoutes = () => {
@@ -79,18 +83,21 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
       </Route>
       <Route element={<ProtectedRoutes />}>
         <Route path="/trang-chu" element={<ViewPhong />} />
-        <Route path="/loai-phong" element={<LoaiPhong />} />
-        <Route path="/nhan-vien" element={<Employee />} />
-        <Route path="/add-nhan-vien" element={<NewEmployee />} />
-        <Route path="/update-nhan-vien/:id" element={<DetailEmployee />} />
+
+        <Route element={<RBACRouter requiredPermission={permissions.VIEW_EMPLOYEE} />}>
+          <Route path="/nhan-vien" element={<Employee />} />
+          <Route path="/add-nhan-vien" element={<NewEmployee />} />
+          <Route path="/update-nhan-vien/:id" element={<DetailEmployee />} />
+        </Route>
+
         <Route path="/DichVuDikem" element={<XoaDichVuDiKem />} />
         <Route path="/dich-vu" element={<DanhSach />} />
         <Route path="/DichVuDiKem" element={<DanhSachDichVuDiKem />} />
         <Route path="/DichVuSuDung" element={<DanhSachDichVuSuDung />} />
-        <Route path="/vat-tu" element={<VatTu />} />
-        <Route path="/VatTuLoaiPhong" element={<VatTuLoaiPhong />} />
-        <Route path="/phong" element={<ListPhong />} />
-        <Route path="/add-phong" element={<Phong />} />
+
+        
+        
+
         <Route path="/update-phong/:id" element={<Phong />} />
         <Route path="/hinh-anh" element={<ListImage />} />
         <Route path="/add-hinh-anh" element={<HinhAnh />} />
@@ -106,7 +113,23 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/" element={<ViewPhong />} />
         <Route path="/test" element={<ScanQRByCamera />} />
         <Route path="/upload" element={<UploadQR />} />
-        <Route path="/quan-ly-phong" element={<QuanLyPhong />} />
+
+        <Route element={<RBACRouter requiredPermission={permissions.VIEW_ROOM} />}>
+          <Route path="/quan-ly-phong" element={<QuanLyPhong />} />
+          <Route path="/phong" element={<ListPhong />} />
+          <Route path="/add-phong" element={<Phong />} />
+        </Route>
+
+        <Route element={<RBACRouter requiredPermission={permissions.VIEW_TYPE_ROOM} />}>
+          <Route path="/loai-phong" element={<LoaiPhong />} />
+          <Route path="/thong-ke" element={<ThongKe />} />
+        </Route>
+
+        <Route element={<RBACRouter requiredPermission={permissions.VIEW_MATERIALS} />}>
+          <Route path="/vat-tu" element={<VatTu />} />
+          <Route path="/VatTuLoaiPhong" element={<VatTuLoaiPhong />} />
+        </Route>
+
         <Route path="thanh-toan/:idHoaDon" element={<ThanhToanComponent />} />
         <Route path="/tra-phong" element={<Demo />} />
         <Route path="/hoa-don/:id" element={<InfoHoaDon />} />
@@ -117,7 +140,10 @@ function RouterProvider({ isSidebarOpen, setIsSidebarOpen }) {
         <Route path="/quan-ly-dat-phong" element={<QuanLyDatPhong />} />
         <Route path="/nhan-phong" element={<Checkin />} />
         <Route path="/khach-hang-luu-tru" element={<KhachHangLuuTru />} />
+        <Route path="/dat-phong-da-huy" element={<QuanLyDatPhongDaHuy />} />
       </Route>
+
+      <Route path="/access-denied" element={<div>access-denied</div>} />
     </Routes>
   );
 }

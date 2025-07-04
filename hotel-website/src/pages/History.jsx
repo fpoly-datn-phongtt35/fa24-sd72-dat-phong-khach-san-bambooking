@@ -20,6 +20,7 @@ import {
   Alert,
   IconButton,
   Tooltip,
+  Container,
 } from '@mui/material';
 import CancelIcon from '@mui/icons-material/Cancel';
 import InfoIcon from "@mui/icons-material/Info";
@@ -145,6 +146,11 @@ export default function History() {
   };
 
   return (
+    <Container
+      sx={{
+        minHeight: "66vh", 
+      }}
+    >
     <Box sx={{ p: 3, maxWidth: '1200px', mx: 'auto' }}>
       <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold" }}>
         Danh sách đặt phòng
@@ -235,7 +241,7 @@ export default function History() {
                         >
                           
                         </InfoIcon></Tooltip>
-                        {canCancel[booking.id] && (
+                        {canCancel[booking.id] && booking.trangThai !== "Chưa xác nhận" &&(
                           <IconButton
                           size="small"
                           sx={{ color: '#d32f2f' }}
@@ -265,5 +271,6 @@ export default function History() {
         </>
       )}
     </Box>
+    </Container>
   );
 }

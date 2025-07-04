@@ -1,0 +1,13 @@
+version: "3"
+agent:
+  authtoken: 2xiJuxt6EKPg1isc2IEfQJOagMh_2T99kCEuY9usHDkGzP39K
+tunnels:
+  first:
+    proto: http
+    addr: 8080
+  second:
+    proto: http
+    addr: 3001
+  three:
+    proto: http
+    addr: 3000

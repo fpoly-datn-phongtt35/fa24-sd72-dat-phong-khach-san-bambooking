@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,8 +18,9 @@ public class DatPhongRequest {
     private KhachHang khachHang;
     private String maDatPhong;
     private Integer soNguoi;
+    private Integer soTre;
     private Integer soPhong;
-    private LocalDate ngayDat;
+    private LocalDateTime ngayDat;
     private Double tongTien;
     private String ghiChu;
     private String trangThai;

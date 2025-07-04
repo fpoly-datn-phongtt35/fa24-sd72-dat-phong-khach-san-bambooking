@@ -42,15 +42,15 @@ public interface PhongRepository extends JpaRepository<Phong, Integer> {
           FROM XepPhong d 
           JOIN d.thongTinDatPhong ttdp
           WHERE d.phong = p     
-            AND :ngayNhanPhong <= CAST(d.ngayTraPhong AS DATE)
-            AND :ngayTraPhong >= CAST(d.ngayNhanPhong AS DATE)
+            AND :ngayNhanPhong <= d.ngayTraPhong
+            AND :ngayTraPhong >= d.ngayNhanPhong
             AND ttdp.trangThai IN (:trangThaiTTDP)
       )
 """)
     List<Phong> searchPhongKhaDung(
             @Param("idLoaiPhong") Integer idLoaiPhong,
-            @Param("ngayNhanPhong") LocalDate ngayNhanPhong,
-            @Param("ngayTraPhong") LocalDate ngayTraPhong,
+            @Param("ngayNhanPhong") LocalDateTime ngayNhanPhong,
+            @Param("ngayTraPhong") LocalDateTime ngayTraPhong,
             List<String> trangThaiTTDP,
             List<String> tinhTrang
     );

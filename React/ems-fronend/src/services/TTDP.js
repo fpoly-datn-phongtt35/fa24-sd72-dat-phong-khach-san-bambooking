@@ -10,6 +10,8 @@ const apiGetTTDP = "http://localhost:8080/ttdp/detail-ttdp"
 const apiTimLoaiPhong = "http://localhost:8080/ttdp/tim-kiem-loai-phong"
 const apiTTDP = "http://localhost:8080/ttdp/hien-thi-by-iddp"
 const apiXoaTTDP = "http://localhost:8080/ttdp/xoa-ttdp"
+const apifindDatCoc = "http://localhost:8080/api/v1/payment/tim-dat-coc"
+
 export const getThongTinDatPhong = (idDP) => {
     return authorizedAxiosInstance.get(apiTTDP, {
         params: {
@@ -113,4 +115,12 @@ export const changeAllConditionRoom = async (datPhongId) => {
         console.error("Lỗi khi thay đổi tình trạng tất cả phòng:", error);
         throw error;
     }
+};
+
+export const findDatCoc = (iddp) => {
+    return authorizedAxiosInstance.get(apifindDatCoc, {
+        params: {
+            iddp: iddp
+        }
+    });
 };

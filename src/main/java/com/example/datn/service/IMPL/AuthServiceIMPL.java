@@ -65,12 +65,18 @@ public class AuthServiceIMPL implements AuthService {
             throw new AuthenticationCustomException("Tài khoản không tồn tại");
         }
         String avatar = null;
-        if(user.getIdVaiTro().getId() == 1) {
+        if(user.getIdVaiTro().getTenVaiTro().equalsIgnoreCase("admin") || user.getIdVaiTro().getTenVaiTro().equalsIgnoreCase("sysadmin")) {
+            if(!signinRequest.isAdminSystem()) {
+                throw new AuthenticationCustomException("Tài khoản không hợp lệ!");
+            }
             var nhanVien = this.nhanVienRepository.findByUsername(signinRequest.getUsername());
             if(nhanVien.isPresent()) {
                 avatar = nhanVien.get().getAvatar();
             }
-        } else if (user.getIdVaiTro().getId() == 2) {
+        } else if (user.getIdVaiTro().getTenVaiTro().equalsIgnoreCase("user")) {
+            if(signinRequest.isAdminSystem()) {
+                throw new AuthenticationCustomException("Tài khoản không hợp lệ!");
+            }
             var khachHang = this.khachHangRepository.findByUsername(signinRequest.getUsername());
             if(khachHang.isPresent()) {
                 avatar = khachHang.get().getAvatar();
@@ -140,7 +146,7 @@ public class AuthServiceIMPL implements AuthService {
                     .tenDangNhap(request.getEmail())
                     .matKhau(this.passwordEncoder.encode(password))
                     .trangThai(true)
-                    .idVaiTro(this.vaiTroRepository.findById(2).orElse(null))
+                    .idVaiTro(this.vaiTroRepository.findById(3).orElse(null))
                     .build();
             tk = this.taiKhoanRepository.save(tk);
 

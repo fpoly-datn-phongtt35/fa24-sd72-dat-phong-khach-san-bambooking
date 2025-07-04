@@ -13,6 +13,7 @@ import com.example.datn.service.KhachHangService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -77,7 +78,7 @@ public class KhachHangCheckinServiceIMPL implements KhachHangCheckinService {
     }
 
     @Override
-    public boolean qrCheckIn(Integer idTTDP,String cmnd, String diaChi, String gioiTinh, String hoTen) {
+    public boolean qrCheckIn(Integer idTTDP, String cmnd, String hoTen, LocalDate ngaySinh, String gioiTinh, String diaChi) {
         KhachHang khachHang = khachHangRepository.getKHbyCMND(cmnd);
         ThongTinDatPhong thongTinDatPhong = thongTinDatPhongRepository.getTTDPById(idTTDP);
         if (khachHang == null) {

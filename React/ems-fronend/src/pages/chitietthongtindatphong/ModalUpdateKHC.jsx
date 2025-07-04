@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   Box,
@@ -35,6 +35,7 @@ const ModalUpdateKHC = ({ isOpen, onClose, khachHang, onKhachHangUpdated }) => {
     sdt: "",
     email: "",
   });
+  const dialogRef = useRef(null); // Thêm ref cho Dialog
 
   // Cập nhật formData khi khachHang thay đổi
   useEffect(() => {
@@ -116,13 +117,15 @@ const ModalUpdateKHC = ({ isOpen, onClose, khachHang, onKhachHangUpdated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
         text: 'Vui lòng kiểm tra lại thông tin nhập vào',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'OK',
+        target: dialogRef.current,
+        backdrop: true,
       });
       return;
     }
@@ -137,7 +140,12 @@ const ModalUpdateKHC = ({ isOpen, onClose, khachHang, onKhachHangUpdated }) => {
         title: 'Thành công',
         text: 'Cập nhật khách hàng thành công',
         confirmButtonText: 'OK',
-        confirmButtonColor: '#6a5acd'
+        confirmButtonColor: '#6a5acd',
+        target: dialogRef.current,
+        backdrop: true,
+        customClass: {
+          container: 'swal2-custom-zindex',
+        },
       });
       onKhachHangUpdated();
       onClose();
@@ -147,7 +155,9 @@ const ModalUpdateKHC = ({ isOpen, onClose, khachHang, onKhachHangUpdated }) => {
         icon: 'error',
         title: 'Lỗi',
         text: 'Đã có lỗi xảy ra khi cập nhật khách hàng',
-        confirmButtonText: 'OK'
+        confirmButtonText: 'OK',
+        target: dialogRef.current,
+        backdrop: true,
       });
     }
   };
@@ -167,8 +177,8 @@ const ModalUpdateKHC = ({ isOpen, onClose, khachHang, onKhachHangUpdated }) => {
   };
 
   return (
-    <Modal open={isOpen} onClose={onClose}>
-      <Box sx={modalStyle}>
+    <Modal open={isOpen} onClose={onClose} ref={dialogRef}>
+      <Box sx={modalStyle} >
         <Typography variant="h6" component="h3" gutterBottom>
           Chỉnh sửa thông tin khách hàng
         </Typography>

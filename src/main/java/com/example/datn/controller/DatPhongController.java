@@ -6,13 +6,14 @@ import com.example.datn.dto.request.ToHopRequest;
 import com.example.datn.dto.response.DatPhongResponse;
 import com.example.datn.dto.response.datphong.ToHopPhongPhuHop;
 import com.example.datn.model.DatPhong;
-import com.example.datn.model.ThongTinDatPhong;
 import com.example.datn.service.IMPL.DatPhongServiceIMPL;
 import com.example.datn.service.IMPL.LoaiPhongServiceIMPL;
 import com.example.datn.service.IMPL.PhongServiceIMPL;
+import com.example.datn.service.IMPL.XepPhongServiceIMPL;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @RestController
@@ -37,6 +39,9 @@ public class DatPhongController {
 
     @Autowired
     LoaiPhongServiceIMPL loaiPhongServiceIMPL;
+
+    @Autowired
+    XepPhongServiceIMPL xepPhongServiceIMPL;
 
     @GetMapping("hien-thi")
     public ResponseEntity<?> HienThiDatPhong(@RequestParam() String trangThai, Pageable pageable) {
@@ -129,10 +134,10 @@ public class DatPhongController {
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "ngayNhanPhong", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime ngayNhanPhong,
             @RequestParam(value = "ngayTraPhong", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong) {
-        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(key, page, size,ngayNhanPhong,ngayTraPhong);
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime ngayTraPhong) {
+        Page<DatPhongResponse> responses = datPhongServiceIMPL.findDatPhongToCheckin(key, page, size, ngayNhanPhong, ngayTraPhong);
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 
@@ -140,11 +145,10 @@ public class DatPhongController {
     public ResponseEntity<Page<DatPhongResponse>> findDatPhong(
             @RequestParam(value = "key", required = false) String key,
             @RequestParam(value = "ngayNhanPhong", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayNhanPhong,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayNhanPhong,
             @RequestParam(value = "ngayTraPhong", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate ngayTraPhong,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime ngayTraPhong,
             Pageable pageable) {
-        datPhongServiceIMPL.checkDatPhongConfirmed();
         Page<DatPhongResponse> result = datPhongServiceIMPL.findDatPhong(
                 key, ngayNhanPhong, ngayTraPhong, pageable);
         return ResponseEntity.ok(result);
@@ -158,6 +162,7 @@ public class DatPhongController {
                 request.getNgayNhanPhong(),
                 request.getNgayTraPhong(),
                 request.getSoNguoi(),
+                request.getSoTre(),
                 request.getKey(),
                 request.getTongChiPhiMin(),
                 request.getTongChiPhiMax(),
@@ -176,5 +181,9 @@ public class DatPhongController {
         return datPhongServiceIMPL.huyDatPhong(maDatPhong);
     }
 
-
+    @GetMapping("/danh-sach-da-huy")
+    public ResponseEntity<Page<DatPhong>> getCanceledDatPhong(@RequestParam(required = false) String maDatPhong, Pageable pageable) {
+        Page<DatPhong> result = datPhongServiceIMPL.getCanceledDatPhong(maDatPhong, pageable);
+        return ResponseEntity.ok(result);
+    }
 }

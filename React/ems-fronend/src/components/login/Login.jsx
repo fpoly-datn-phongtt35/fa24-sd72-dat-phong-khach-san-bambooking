@@ -4,6 +4,7 @@ import './Login.css'; // Import CSS
 import { useForm } from 'react-hook-form';
 import { API_ROOT } from '../../utils/constants';
 import { useState } from 'react';
+import Cookies from 'js-cookie';
 
 const Login = () => {
   const [serverError, setServerError] = useState("");
@@ -18,19 +19,21 @@ const Login = () => {
   const onSubmit = async (data) => {
     const result = {
       username: data.username,
-      password: data.password
+      password: data.password,
+      adminSystem: true
     };
 
     await axios.post(`${API_ROOT}/api/auth/access`, result).then((res) => {
       if (res.status === 200) {
-        if (res.data.role[0].authority !== "Admin") {
-          alert("Bạn không phải admin!")
-          return;
-        }
+        // if (res.data.role[0].authority !== "Admin") {
+        //   alert("Bạn không phải admin!")
+        //   return;
+        // }
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem("refreshToken", res.data.refreshToken);
         localStorage.setItem("user", res.data.username);
         localStorage.setItem("avatar", res.data.avatar);
+        Cookies.set("role", res.data.role[0].authority);
         navigate("/TrangChu")
       }
 

@@ -21,6 +21,7 @@ public class ThanhToanController {
 
     @PostMapping
     public ResponseEntity<?> createThanhToan(@RequestBody @Valid ThanhToanRequest thanhToanRequest, HttpServletRequest request) {
+
         return ResponseEntity.status(HttpStatus.CREATED).body(thanhToanService.createThanhToan(thanhToanRequest, request));
     }
 
@@ -28,5 +29,22 @@ public class ThanhToanController {
     public ResponseEntity<?> updateThanhToan(@RequestParam("id") Integer id, @RequestBody ThanhToanRequest thanhToanRequest, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.OK).body(thanhToanService.updateThanhToan(id, thanhToanRequest, request));
     }
+
+    @GetMapping("/thong-ke-dt")
+    public ResponseEntity<?> thongKeDoanhThu() {
+        return ResponseEntity.ok(thanhToanService.thongKeDoanhThu());
+    }
+
+    @GetMapping("/thong-ke-lp")
+    public ResponseEntity<?> thongKeLoaiPhong() {
+        return ResponseEntity.ok(thanhToanService.thongKeLoaiPhong());
+    }
+
+    @GetMapping("/thong-ke-dv")
+    public ResponseEntity<?> thongKeDichVu() {
+        return ResponseEntity.ok(thanhToanService.thongKeDichVu());
+    }
+
+
 
 }

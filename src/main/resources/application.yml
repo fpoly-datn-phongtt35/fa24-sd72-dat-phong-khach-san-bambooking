@@ -1,8 +1,9 @@
 jwt:
   expireMinutes: 60
-  expireDay: 7
+  expireDay: 15
   accessKey: c2VjcmV0QG5ndXllbl90aGlfdGh1X2NodWNfYWNjZXNzX3Rva2Vu
   refreshKey: c2VjcmV0QG5ndXllbl90aGlfdGh1X2NodWNfcmVmcmVzaF90b2tlbg==
+  accessKeySys: aHR0cHM6Ly9yYXcuZ2l0aHVidXNlcmNvbnRlbnQuY29tL1RodUNodWMvYXBpLXByb2plY3RzL3JlZnMvaGVhZHMvbWFpbi9hcGktdGh1LWNodWM=
 api:
   version: v1
 cloudinary:
@@ -11,6 +12,8 @@ cloudinary:
   api_secret: ${API_SECRET:0rS6gHAGgFhyINfAYJyo9vAu644}
 
 spring:
+  app-runner:
+    isOnlySysadmin: true
   mail:
     host: smtp.gmail.com
     port: 587
@@ -22,3 +25,12 @@ spring:
           auth: true
           starttls:
             enable: true
+
+payos:
+  client-id: ${PAYOS_CLIENT_ID:fde57cbc-5ce7-414e-81dd-90a0ce21b17d}
+  api-key: ${PAYOS_API_KEY:c58814cd-fec5-4bc3-b7db-f0253cea5f15}
+  checksum-key: ${PAYOS_CHECKSUM_KEY:9762bfc0161008c8bb4c35e3e989013095f5301cda70f9586a96d172a57960d9}
+  #Port tạm thời
+  return-url: https://3acb-2a09-bac1-7ae0-50-00-3d0-36.ngrok-free.app/api/v1/payment/success
+  cancel-url: https://3acb-2a09-bac1-7ae0-50-00-3d0-36.ngrok-free.app/api/v1/payment/cancel #Port 3001:
+  #Port webhook url: #Port 8080

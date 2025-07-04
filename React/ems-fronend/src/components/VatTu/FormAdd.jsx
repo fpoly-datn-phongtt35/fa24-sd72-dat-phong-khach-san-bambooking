@@ -6,6 +6,7 @@ const FormAdd = ({ show, handleClose }) => {
     const [tenVatTu, setTenVatTu] = useState('');
     const [gia, setGia] = useState('');
     const [file, setFile] = useState(null);
+    const [trangThai, setTrangThai] = useState(true);
 
     // Hàm xử lý thay đổi giá trị input
     const handleTenVatTuChange = (e) => {
@@ -23,7 +24,7 @@ const FormAdd = ({ show, handleClose }) => {
     // Hàm xử lý submit form
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         // Kiểm tra giá trước khi submit
         if (gia < 0 || gia === '') {
             Swal.fire({
@@ -39,12 +40,13 @@ const FormAdd = ({ show, handleClose }) => {
         formData.append('file', file);
         formData.append('tenVatTu', tenVatTu);
         formData.append('gia', gia);
-        
+        formData.append('trangThai', trangThai);
+
         // Gọi API thêm mới vật tư với formData
         addVatTu(formData)
             .then(response => {
                 console.log("Thêm mới thành công:", response.data);
-    
+
                 // Hiển thị thông báo thành công
                 Swal.fire({
                     icon: 'success',
@@ -57,7 +59,7 @@ const FormAdd = ({ show, handleClose }) => {
             })
             .catch(error => {
                 console.error("Lỗi khi thêm mới:", error);
-    
+
                 // Hiển thị thông báo lỗi
                 Swal.fire({
                     icon: 'error',
@@ -67,7 +69,7 @@ const FormAdd = ({ show, handleClose }) => {
                 });
             });
     };
-    
+
     const handleFileChange = (e) => {
         setFile(e.target.files[0]);
     };
@@ -91,14 +93,14 @@ const FormAdd = ({ show, handleClose }) => {
                             {/* Giá */}
                             <div className="mb-3">
                                 <label htmlFor="gia" className="form-label">Giá</label>
-                                <input 
-                                    type="number" 
-                                    className="form-control" 
-                                    id="gia" 
-                                    name="gia" 
-                                    value={gia} 
-                                    onChange={handleGiaChange} 
-                                    required 
+                                <input
+                                    type="number"
+                                    className="form-control"
+                                    id="gia"
+                                    name="gia"
+                                    value={gia}
+                                    onChange={handleGiaChange}
+                                    required
                                     min="0"
                                 />
                             </div>
@@ -114,6 +116,21 @@ const FormAdd = ({ show, handleClose }) => {
                                         onChange={handleFileChange}
                                     />
                                 </div>
+                            </div>
+
+                            {/* Trạng thái */}
+                            <div className="form-group mb-3">
+                                <label htmlFor="trangThai" className="form-label">Trạng thái</label>
+                                <select
+                                    className="form-select"
+                                    id="trangThai"
+                                    value={trangThai}
+                                    onChange={(e) => setTrangThai(e.target.value === 'true')}
+                                    required
+                                >
+                                    <option value="true">Hoạt động</option>
+                                    <option value="false">Không hoạt động</option>
+                                </select>
                             </div>
 
                             <div className="modal-footer">

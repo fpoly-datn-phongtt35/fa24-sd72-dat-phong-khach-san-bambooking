@@ -34,7 +34,8 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
     KiemTraVatTuRepository kiemTraVatTuRepository;
     PhuThuRepository phuThuRepository;
     ThongTinDatPhongRepository thongTinDatPhongRepository;
-    private final XepPhongRepository xepPhongRepository;
+    XepPhongRepository xepPhongRepository;
+    DatCocThanhToanRepository datCocThanhToanRepository;
 
     @Override
     public Page<ThongTinHoaDonResponse> getAllThongTinHoaDon(Pageable pageable) {
@@ -59,7 +60,13 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         HoaDon hoaDon = hoaDonRepository.findById(idHD)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn"));
 
-        double tongTien = hoaDon.getTongTien() != null ? hoaDon.getTongTien() : 0.0;
+        DatPhong datPhong = hoaDon.getDatPhong();
+        if (datPhong == null) {
+            log.error("Hóa đơn ID {} không liên kết với DatPhong.", idHD);
+            throw new EntityNotFountException("Hóa đơn không liên kết với đặt phòng!");
+        }
+
+        double tongTienHoaDon = 0.0;
 
         for (TraPhong traPhong : listTraPhong) {
             if (traPhong.getXepPhong() == null) {
@@ -71,27 +78,62 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
                     .orElseThrow(() -> new EntityNotFountException("Không tìm thấy XepPhong với ID: " + traPhong.getXepPhong().getId()));
             traPhong.setXepPhong(xepPhong);
 
+            // Tính tiền phòng, phụ thu, và dịch vụ
             double tienPhong = tinhTienPhong(traPhong);
             double tienPhuThu = tinhTienPhuThu(traPhong);
             double tienDichVu = tinhTienDichVu(traPhong);
 
+            // Lấy thông tin đặt phòng liên quan
+            ThongTinDatPhong ttdp = thongTinDatPhongRepository.findById(xepPhong.getThongTinDatPhong().getId())
+                    .orElseThrow(() -> {
+                        log.error("Không tìm thấy ThongTinDatPhong cho XepPhong ID {}.", xepPhong.getId());
+                        return new EntityNotFountException("ThongTinDatPhong không tồn tại cho XepPhong ID " + xepPhong.getId());
+                    });
+
+            // Lấy tiền đã thanh toán và trạng thái từ ThongTinDatPhong
+            double tienDaThanhToan = ttdp.getTienDaThanhToan() != null ? ttdp.getTienDaThanhToan() : 0.0;
+            String trangThaiThanhToan = ttdp.getTrangThaiThanhToan();
+            double tienConLai;
+
+            // Xử lý logic thanh toán
+            if ("Đã đặt cọc".equals(trangThaiThanhToan) || "Đã thanh toán trước".equals(trangThaiThanhToan)) {
+                tienConLai = tienPhong - tienDaThanhToan;
+                log.info("Phòng (XepPhong ID: {}) có trạng thái '{}', tiền đã thanh toán: {}, tiền còn lại: {}",
+                        xepPhong.getId(), trangThaiThanhToan, tienDaThanhToan, tienConLai);
+            } else {
+                // Trường hợp chưa thanh toán
+                tienConLai = tienPhong;
+                log.info("Phòng (XepPhong ID: {}) chưa thanh toán, tiền cần thanh toán: {}", xepPhong.getId(), tienConLai);
+            }
+
+            if (tienConLai < 0) {
+                log.warn("Tiền còn lại âm cho TraPhong ID {}, đặt thành 0.", traPhong.getId());
+                tienConLai = 0.0;
+            }
+
+            // Tạo ThongTinHoaDon
             ThongTinHoaDon thongTinHoaDon = new ThongTinHoaDon();
             thongTinHoaDon.setHoaDon(hoaDon);
             thongTinHoaDon.setTraPhong(traPhong);
-            thongTinHoaDon.setTienPhong(tienPhong);
+            thongTinHoaDon.setTienPhong(tienConLai);
             thongTinHoaDon.setTienPhuThu(tienPhuThu);
             thongTinHoaDon.setTienDichVu(tienDichVu);
             thongTinHoaDon.setTienKhauTru(0.0);
 
             thongTinList.add(thongTinHoaDon);
-            tongTien += tienPhong + tienPhuThu + tienDichVu;
+            tongTienHoaDon += tienConLai;
         }
 
-        thongTinHoaDonRepository.saveAll(thongTinList);
-        hoaDon.setTongTien(tongTien);
+        if (tongTienHoaDon < 0) {
+            log.warn("Tổng tiền hóa đơn ID {} âm ({}) sau khi tính toán.", idHD, tongTienHoaDon);
+            tongTienHoaDon = 0.0;
+        }
+
+        hoaDon.setTongTien(tongTienHoaDon);
         hoaDonRepository.save(hoaDon);
 
-        System.out.println("Tổng tiền của hóa đơn ID " + idHD + " là: " + tongTien);
+        thongTinHoaDonRepository.saveAll(thongTinList);
+        log.info("Tổng tiền của hóa đơn ID {} là: {}", idHD, tongTienHoaDon);
         return thongTinList;
     }
 
@@ -110,10 +152,6 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         ThongTinHoaDon thongTinHoaDon = thongTinHoaDonRepository.findById(idThongTinHoaDon)
                 .orElseThrow(() -> new EntityNotFountException("Không tìm thấy thông tin hóa đơn với ID: " + idThongTinHoaDon));
 
-        // Lấy tổng tiền gốc từ tất cả các thông tin hóa đơn
-        Double tongTienGoc = thongTinHoaDonRepository.tinhTongTienGoc(idHoaDon);
-        Double tongTienKhauTru = thongTinHoaDonRepository.tinhTongTienKhauTru(idHoaDon);
-
         if (tienKhauTru < 0) {
             throw new IllegalArgumentException("Tiền khấu trừ không được nhỏ hơn 0.");
         }
@@ -121,6 +159,12 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         if (tienKhauTru > thongTinHoaDon.getTienPhong() + thongTinHoaDon.getTienPhuThu() + thongTinHoaDon.getTienDichVu()) {
             throw new IllegalArgumentException("Tiền khấu trừ không được lớn hơn tổng tiền của thông tin hóa đơn.");
         }
+
+        // Lấy tổng tiền gốc từ tất cả các thông tin hóa đơn
+        Double tongTienGoc = thongTinHoaDonRepository.tinhTongTienGoc(idHoaDon);
+        log.info("Tong tien goc : {}", tongTienGoc);
+        Double tongTienKhauTru = thongTinHoaDonRepository.tinhTongTienKhauTru(idHoaDon);
+        log.info("Tong tien khau tru : {}", tongTienKhauTru);
 
         // Cập nhật tiền khấu trừ
         thongTinHoaDon.setTienKhauTru(tienKhauTru);
@@ -170,9 +214,9 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         }
 
         XepPhong xepPhong = xepPhongRepository.findById(traPhong.getXepPhong().getId())
-                .orElseThrow(()-> new EntityNotFountException("Không tìm thấy idXepPhong: " + traPhong.getXepPhong()));
+                .orElseThrow(() -> new EntityNotFountException("Không tìm thấy idXepPhong: " + traPhong.getXepPhong()));
 
-        ThongTinDatPhong ttdp = thongTinDatPhongRepository.getTTDPByIdAndLoaiPhong(xepPhong.getId());
+        ThongTinDatPhong ttdp = xepPhong.getThongTinDatPhong();
         if (ttdp == null) {
             log.error("ThongTinDatPhong là null cho XepPhong ID: {}", xepPhong.getId());
             throw new IllegalArgumentException("ThongTinDatPhong không được null.");
@@ -189,7 +233,7 @@ public class ThongTinHoaDonServiceImpl implements ThongTinHoaDonService {
         LocalDate ngayNhan = ngayNhanPhong.toLocalDate();
         LocalDate ngayTra = ngayTraThucTe.toLocalDate();
 
-        long soDemO = ChronoUnit.DAYS.between( ngayNhan, ngayTra);
+        long soDemO = ChronoUnit.DAYS.between(ngayNhan, ngayTra);
         // Đảm bảo ít nhất 1 ngày nếu thời gian chênh lệch nhỏ hơn 1 ngày
         soDemO = soDemO <= 0 ? 1 : soDemO;
 

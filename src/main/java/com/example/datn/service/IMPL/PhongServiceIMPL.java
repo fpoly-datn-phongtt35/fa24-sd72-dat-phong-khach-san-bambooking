@@ -7,6 +7,7 @@ import com.example.datn.mapper.PhongMapper;
 import com.example.datn.model.*;
 import com.example.datn.repository.*;
 import com.example.datn.service.PhongService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -92,8 +94,8 @@ public class PhongServiceIMPL implements PhongService {
     }
 
     @Override
-    public List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDate ngayNhanPhong, LocalDate ngayTraPhong) {
-        List<String> trangThai = Arrays.asList("Đang ở","Đã xếp");
+    public List<Phong> searchPhongKhaDung(Integer idLoaiPhong, LocalDateTime ngayNhanPhong, LocalDateTime ngayTraPhong) {
+        List<String> trangThai = Arrays.asList("Đang ở","Đã xếp","Đã kiểm tra");
         List<String> tinhTrang = Arrays.asList("Trống","Đang đặt", "Đang ở");
         return phongRepository.searchPhongKhaDung(idLoaiPhong,ngayNhanPhong,ngayTraPhong,trangThai,tinhTrang);
     }
@@ -160,10 +162,22 @@ public class PhongServiceIMPL implements PhongService {
         return p;
     }
 
-    public Phong huyDangDat(Integer id){
-        Phong p = phongRepository.getPhongById(id);
-        p.setTinhTrang("Trống");
-        phongRepository.save(p);
-        return p;
+    public Phong huyDangDat(Integer id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID phòng không được để trống");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        Phong phong = phongRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phòng với ID " + id));
+
+        XepPhong xepPhong = xepPhongRepository.getByIDPhong(id, now);
+
+        // Cập nhật trạng thái phòng dựa trên trạng thái đặt phòng
+        phong.setTinhTrang(xepPhong != null && "Đang ở".equalsIgnoreCase(xepPhong.getTrangThai())
+                ? "Đang ở"
+                : "Trống");
+
+        return phongRepository.save(phong);
     }
 }

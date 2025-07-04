@@ -5,6 +5,7 @@ import com.example.datn.model.KhachHang;
 import com.example.datn.model.KhachHangCheckin;
 import com.example.datn.model.XepPhong;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface KhachHangCheckinService {
@@ -19,6 +20,6 @@ public interface KhachHangCheckinService {
 
     List<KhachHangCheckin> findByThongTinDatPhongId(int idThongTin);
 
-    boolean qrCheckIn(Integer idTTDP,String cmnd,String diaChi,String gioiTinh,String hoTen);
+    boolean qrCheckIn(Integer idTTDP, String cmnd, String hoTen, LocalDate ngaySinh, String gioiTinh, String diaChi);
 
 }

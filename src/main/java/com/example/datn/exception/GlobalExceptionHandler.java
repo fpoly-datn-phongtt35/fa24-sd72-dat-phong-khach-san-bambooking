@@ -32,6 +32,7 @@ public class GlobalExceptionHandler {
             AccessDeniedException.class,
             InvalidDataException.class,
             RuntimeException.class,
+            PaymentException.class,
     })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ExceptionResponse handleValidException(Exception ex, WebRequest request){

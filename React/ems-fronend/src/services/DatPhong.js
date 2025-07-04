@@ -1,4 +1,15 @@
+import { size } from "lodash";
 import authorizedAxiosInstance from "../utils/authorizedAxios";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+// Đặt múi giờ mặc định là Asia/Ho_Chi_Minh
+dayjs.tz.setDefault('Asia/Ho_Chi_Minh');
+
 const apiDP = "http://localhost:8080/dat-phong/hien-thi";
 const apiDPAdd = "http://localhost:8080/dat-phong/them-moi";
 const apiDPUpdate = "http://localhost:8080/dat-phong/cap-nhat";
@@ -20,6 +31,8 @@ const apiHuyDatPhong = "http://localhost:8080/dat-phong/huy-dp";
 
 const apiTBDatPhongThanhCong =
   "http://localhost:8080/api/dp/email-dp-thanh-cong";
+
+const apiCanceledDatPhong = "http://localhost:8080/dat-phong/danh-sach-da-huy";
 // Hàm lấy danh sách đặt phòng
 export const DanhSachDatPhong = (pageable, trangThai) => {
   return authorizedAxiosInstance.get(apiDP, {
@@ -95,6 +108,7 @@ export const toHopLoaiPhong = async (
   ngayNhanPhong,
   ngayTraPhong,
   soNguoi,
+  soTre,
   key,
   tongChiPhiMin,
   tongChiPhiMax,
@@ -111,6 +125,7 @@ export const toHopLoaiPhong = async (
       ngayNhanPhong,
       ngayTraPhong,
       soNguoi,
+      soTre,
       key,
       tongChiPhiMin: tongChiPhiMin || null,
       tongChiPhiMax: tongChiPhiMax || null,
@@ -140,6 +155,7 @@ export const findDatPhongByKey = (keyword, pageable) => {
   });
 };
 
+
 export const findDatPhongToCheckin = (
   pageable,
   key,
@@ -151,8 +167,8 @@ export const findDatPhongToCheckin = (
       size: pageable.size,
       page: pageable.page,
       key: key,
-      ngayNhanPhong: ngayNhanPhong ? ngayNhanPhong.format("YYYY-MM-DD") : null,
-      ngayTraPhong: ngayTraPhong ? ngayTraPhong.format("YYYY-MM-DD") : null,
+      ngayNhanPhong: ngayNhanPhong ? dayjs.tz(ngayNhanPhong, 'Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss') : null,
+      ngayTraPhong: ngayTraPhong ? dayjs.tz(ngayTraPhong, 'Asia/Ho_Chi_Minh').format('YYYY-MM-DD HH:mm:ss') : null,
     },
   });
 };
@@ -183,4 +199,12 @@ export const EmailXacNhanDPThanhCong = (iddp) => {
       iddp: iddp,
     },
   });
+};
+
+export const searchCanceledDatPhong = async ({ page, size, maDatPhong = ""}) => {
+  const params = { page, size, maDatPhong};
+  console.log("Calling searchCanceledDatPhong with params:", params);
+  const response = await authorizedAxiosInstance.get(apiCanceledDatPhong, { params });
+  console.log("Response from searchCanceledDatPhong:", response.data);
+  return response;
 };

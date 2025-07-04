@@ -22,9 +22,10 @@ public class TTDPRequest {
     private DatPhong datPhong;
     private Integer idLoaiPhong;
     private String maThongTinDatPhong;
-    private LocalDate ngayNhanPhong;
-    private LocalDate ngayTraPhong;
+    private LocalDateTime ngayNhanPhong;
+    private LocalDateTime ngayTraPhong;
     private Integer soNguoi;
+    private Integer soTre;
     private Double giaDat;
     private String ghiChu;
     private String trangThai;

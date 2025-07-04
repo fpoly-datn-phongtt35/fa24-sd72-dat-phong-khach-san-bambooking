@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { DuLieu } from "../../services/DichVuService";
-import { CapNhatDichVuSuDung, HuyDVSD } from "../../services/DichVuSuDungService";
+import { UpdateDVSD, HuyDVSD } from "../../services/DichVuSuDungService";
 import { AddDichVuSuDung } from "../../services/ViewPhong";
 
 import {
@@ -25,7 +25,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
     id: data?.id || "",
     dichVu: { id: data?.dichVu?.id } || "",
     xepPhong: { id: idxp },
-    soLuongSuDung: data?.soLuongSuDung || "",
+    soLuongSuDung: data?.soLuongSuDung || 1,
     giaSuDung: data?.giaSuDung || 0,
     trangThai: data?.trangThai ?? 0,
   });
@@ -42,7 +42,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
         id: data.id || "",
         dichVu: { id: data.dichVu?.id || "" },
         xepPhong: { id: idxp },
-        soLuongSuDung: data.soLuongSuDung || "",
+        soLuongSuDung: data.soLuongSuDung || 1,
         giaSuDung: data.giaSuDung || 0,
         trangThai: data.trangThai === true,
       });
@@ -60,6 +60,12 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
         giaSuDung: selectedDichVu ? selectedDichVu.donGia : "",
       }));
     } else if (name === "soLuongSuDung") {
+      // Chỉ cập nhật nếu giá trị không nhỏ hơn 1
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: value >= 1 ? value : 1, // Nếu nhỏ hơn 1, đặt về 1
+      }));
+    } else if (name === "giaSuDung") {
       // Chỉ cập nhật nếu giá trị không nhỏ hơn 0
       setFormData((prevFormData) => ({
         ...prevFormData,
@@ -76,7 +82,7 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (data != null) {
-      CapNhatDichVuSuDung(formData)
+      UpdateDVSD(formData)
         .then((response) => {
           console.log("Cập nhật thành công:", response.data);
           handleClose();
@@ -95,7 +101,6 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
         });
     }
   };
-
 
   const HuyDichVu = () => {
     HuyDVSD(formData.id)
@@ -139,9 +144,8 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             value={formData.soLuongSuDung}
             onChange={handleInputChange}
             required
-            inputProps={{ min: 0 }} // Ngăn nhập số nhỏ hơn 0
+            inputProps={{ min: 1 }} // Ngăn nhập số nhỏ hơn 1
           />
-
 
           <TextField
             label="Giá sử dụng"
@@ -151,8 +155,9 @@ const DVSVDetail = ({ show, handleClose, data, idxp }) => {
             name="giaSuDung"
             value={formData.giaSuDung}
             onChange={handleInputChange}
+            required
+            inputProps={{ min: 0 }} // Ngăn nhập số nhỏ hơn 0
           />
-
         </form>
       </DialogContent>
 

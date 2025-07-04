@@ -76,7 +76,7 @@ const ListHoaDon = () => {
                         sx={{ width: '200px' }}
                     >
                         <Option value="Chưa thanh toán">Chưa thanh toán</Option>
-                        <Option value="Chờ xác nhận">Chờ xác nhận</Option>
+                        {/* <Option value="Chờ xác nhận">Chờ xác nhận</Option> */}
                         <Option value="Đã thanh toán">Đã thanh toán</Option>
                     </Select>
                     <Typography level="title-sm">Hiển thị:</Typography>
